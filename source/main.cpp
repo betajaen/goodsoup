@@ -17,14 +17,14 @@
 
 #include "goodsoup.h"
 
-extern const char GOODSOUP_VERSION_STR[] = "Goodsoup 0.1 (" __AMIGADATE__ ")\r\n";
+extern const char GOODSOUP_VERSION_STR[] = "$VER: goodsoup 0.1 (" __AMIGADATE__ ")";
 
 namespace common
 {
 	int start()
 	{
 		platform::preinit();
-		debug("%s\n", GOODSOUP_VERSION_STR);
+		debug("%s\n", &GOODSOUP_VERSION_STR[6]);
 		platform::init();
 		platform::wait(1000);
 		platform::teardown();
