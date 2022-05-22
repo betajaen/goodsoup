@@ -1,0 +1,22 @@
+{
+  "configurations": [
+    {
+      "name": "Amiga",
+      "includePath": [
+        "${workspaceRoot}\\**",
+        "C:\\Amiga\\Dev\\NDK3.2\\Include_H\\",
+        "/opt/amiga/m68k-amigaos/ndk-include"
+      ]
+    },
+    {
+      "name": "SDL",
+      "includePath": [
+        "${workspaceRoot}\\**",
+        "C:\\src\\vcpkg\\packages\\sdl2_x86-windows\\include"
+      ],
+      "defines": [
+        "__AMIGADATE=\"1.1.2022\""
+      ]
+    }
+  ]
+}
