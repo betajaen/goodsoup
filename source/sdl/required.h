@@ -20,15 +20,83 @@
 
 #include <SDL2/SDL.h>
 
-typedef uint8_t  uint8;
-typedef uint16_t uint16;
-typedef uint32_t uint32;
-typedef int8_t   int8;
-typedef int16_t  int16;
-typedef int32_t  int32;
+#define assert(X) SDL_assert(X)
+
+#define ARRAYSIZE(X) SDL_arraysize(X)
+
+namespace common
+{
+	typedef Uint8   byte;
+	typedef Uint8   uint8;
+	typedef Uint16  uint16;
+	typedef Uint32  uint32;
+	typedef Sint8   int8;
+	typedef Sint16  int16;
+	typedef Sint32  int32;
+
+	// Debugging
+
+	void verbose(const char* fmt, ...);
+	void debug(const char* fmt, ...);
+	void info(const char* fmt, ...);
+	void warn(const char* fmt, ...);
+	void error(const char* fmt, ...);
+
+	// Memory
+
+	enum AllocFlags
+	{
+		MEMF_ANY    = (0UL),
+		MEMF_PUBLIC = (1UL<<0),
+		MEMF_CHIP   = (1UL<<1),
+		MEMF_CLEAR  = (1UL<<16)
+	};
+
+	void* allocMem(uint32 count, uint32 size, uint32 flags);
+	void freeMem(void* mem);
+	void zeroMem(void* mem, uint32 size);
+
+	// File
+
+	enum SeekOffset
+	{
+		FOS_Begin = RW_SEEK_SET,
+		FOS_Current = RW_SEEK_CUR,
+		FOS_End = RW_SEEK_END
+	};
+
+	typedef SDL_RWops* CFile;
+
+	CFile openFileRead(const char* path);
+	CFile openFileWrite(const char* path);
+	void closeFile(CFile file);
+	bool checkFile(const char* path);
+	bool isFileOpen(CFile file);
+	void writeFile(CFile file, const void* data, uint32 length);
+	void readFile(CFile file, void* data, uint32 length);
+	int32 seekFile(CFile file, int32 seek, int32 seekOffset);
+	int32 tellFile(CFile file);
+
+	inline uint32 SWAP_BYTES_32(uint32 a) {
+		return ((a >> 24) & 0x000000FF) |
+			((a >> 8) & 0x0000FF00) |
+			((a << 8) & 0x00FF0000) |
+			((a << 24) & 0xFF000000);
+	}
+	
+	inline uint16 SWAP_BYTES_16(uint16 a) {
+		return ((a >> 8) & 0x00FF) + ((a << 8) & 0xFF00);
+	}
+
+	const char* tag2str(uint32 tag, char* str);
 
 
-#define debug(FMT, ...) SDL_LogMessage(SDL_LOG_CATEGORY_APPLICATION, SDL_LOG_PRIORITY_DEBUG, FMT, __VA_ARGS__)
-#define assert(X) SDL_Assert(X)
+}
+
+#define TO_LE_32(a) ((uint32)(a))
+#define TO_LE_16(a) ((uint16)(a))
+
+#define TO_BE_32(a) (::common::SWAP_BYTES_32(a))
+#define TO_BE_16(a) (::common::SWAP_BYTES_16(a))
 
 #endif

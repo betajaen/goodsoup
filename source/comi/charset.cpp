@@ -15,43 +15,22 @@
  *
  */
 
-#ifndef GOODSOUP_H
-#define GOODSOUP_H
+#include "goodsoup.h"
+#include "charset.h"
+#include "engine.h"
 
-#if defined(AMIGA) || defined(__AMIGA__) || defined(GS_AMIGA)
-#include "amiga/required.h"
-#else
-#include "sdl/required.h"
-#endif
+using namespace common;
 
-#define SCREEN_WIDTH 640
-#define SCREEN_HEIGHT 480
-
-namespace common
+namespace comi
 {
-	int start();
-	bool preinit();
-	bool init();
-	bool teardown();
-	void wait(uint32 ms);
-
-	template<typename T>
-	inline void freeMemThenNull(T*& mem) {
-		if (mem) {
-			freeMem((void*)mem);
-			mem = NULL;
-		}
+	CharsetRendererNut::CharsetRendererNut(Engine* engine)
+		: _engine(engine)
+	{
 	}
-	
-	template<typename T>
-	inline void deleteThenNull(T*& mem) {
-		if (mem) {
-			delete mem;
-			mem = NULL;
-		}
+
+	CharsetRendererNut::~CharsetRendererNut()
+	{
 	}
 
 
 }
-
-#endif

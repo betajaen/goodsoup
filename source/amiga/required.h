@@ -20,16 +20,23 @@
 
 #include <exec/types.h>
 
-typedef UBYTE  uint8;
-typedef UWORD  uint16;
-typedef ULONG  uint32;
-typedef BYTE   int8;
-typedef WORD   int16;
-typedef LONG   int32;
+namespace common
+{
+	typedef UBYTE  byte;
+	typedef UBYTE  uint8;
+	typedef UWORD  uint16;
+	typedef ULONG  uint32;
+	typedef BYTE   int8;
+	typedef WORD   int16;
+	typedef LONG   int32;
 
-void debug(const char* fmt, ...);
-void __assert_impl(const char* file, int line);
+	void debug(const char* fmt, ...);
+	void warn(const char* fmt, ...);
+	void error(const char* fmt, ...);
+
+	void __assert_impl(const char* file, int line);
 
 #define assert(X) do { if (!(X)) { __assert_impl(__FILE__, __LINE__); } } while(0)
+}
 
 #endif

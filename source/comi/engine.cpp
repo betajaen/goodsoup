@@ -16,36 +16,49 @@
  */
 
 #include "goodsoup.h"
+#include "engine.h"
+#include "resource.h"
+#include "charset.h"
+#include "costume.h"
 
+using namespace common;
 
-extern const char GOODSOUP_VERSION_STR[];
-
-namespace common
+namespace comi
 {
-	SDL_Window* sWindow;
-
-	bool openGraphics()
+	Engine::Engine()
+		:	res(this),
+			_charset(NULL),
+			_costumeLoader(NULL),
+			_costumeRenderer(NULL)
 	{
-		sWindow = SDL_CreateWindow(
-			&GOODSOUP_VERSION_STR[6],
-			SDL_WINDOWPOS_CENTERED,
-			SDL_WINDOWPOS_CENTERED,
-			SCREEN_WIDTH,
-			SCREEN_HEIGHT,
-			SDL_WINDOW_SHOWN
-		);
-
-		return true;
 	}
 
-	bool closeGraphics()
+	Engine::~Engine()
 	{
-		if (sWindow)
-		{
-			SDL_DestroyWindow(sWindow);
-		}
+		deleteThenNull(_costumeRenderer);
+		deleteThenNull(_costumeLoader);
+		deleteThenNull(_charset);
 
-		return false;
+		res.freeResources();
+
+		debug("COMI Shutdown.");
 	}
+
+	bool Engine::canStart()
+	{
+		debug("COMI Checking prerequisites.");
+		return res.canStart();
+	}
+
+	void Engine::start()
+	{
+		debug("COMI Starting engine.");
+		_charset = new CharsetRendererNut(this);
+		_costumeLoader = new AkosCostumeLoader(this);
+		_costumeRenderer = new AkosRenderer(this);
+
+		res.allocResTypeData(rtBuffer, 0, 10, "buffer", 0);
+	}
+
 
 }

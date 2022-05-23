@@ -22,7 +22,7 @@ An CBM Amiga (or CBM Amiga Emulator) with the following features:-
 * Workbench Release 3.1 or higher
 * At least 2 MiBs of RAM
 * At least a Motorola 68020 Processor
-* A Harddrive partition with 2 GiBs free of space
+* A Harddrive partition with 940 MiB free of space
 * A P96 compatible graphics card, supporting 640x480 resolution
 * AHI Audio System software
 

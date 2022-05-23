@@ -16,6 +16,7 @@
  */
 
 #include "goodsoup.h"
+#include "comi/engine.h"
 
 extern const char GOODSOUP_VERSION_STR[] = "$VER: goodsoup 0.1 (" __AMIGADATE__ ")";
 
@@ -23,11 +24,22 @@ namespace common
 {
 	int start()
 	{
-		platform::preinit();
-		debug("%s\n", &GOODSOUP_VERSION_STR[6]);
-		platform::init();
-		platform::wait(1000);
-		platform::teardown();
+		preinit();
+		info("%s\n", &GOODSOUP_VERSION_STR[6]);
+		init();
+		comi::Engine* engine = new comi::Engine();
+
+		if (engine->canStart())
+		{
+			engine->start();
+		}
+		else
+		{
+			error("Missing resources files!");
+		}
+
+		delete engine;
+		teardown();
 		return 0;
 	}
 }

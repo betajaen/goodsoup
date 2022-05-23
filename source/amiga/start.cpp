@@ -36,8 +36,29 @@ void debug(const char* fmt, ...)
 {
 	const char* arg = (const char*)(&fmt + 1);
 	RawDoFmt(fmt, (APTR)arg, (PUTCHARPROC)&PUTCHARPROCFN, &PUTCHARBUF[0]);
+	PutStr("D ");
 	PutStr(PUTCHARBUF);
+	PutStr("\n");
 }
+
+void warn(const char* fmt, ...)
+{
+	const char* arg = (const char*)(&fmt + 1);
+	RawDoFmt(fmt, (APTR)arg, (PUTCHARPROC)&PUTCHARPROCFN, &PUTCHARBUF[0]);
+	PutStr("W ");
+	PutStr(PUTCHARBUF);
+	PutStr("\n");
+}
+
+void error(const char* fmt, ...)
+{
+	const char* arg = (const char*)(&fmt + 1);
+	RawDoFmt(fmt, (APTR)arg, (PUTCHARPROC)&PUTCHARPROCFN, &PUTCHARBUF[0]);
+	PutStr("!! Error !!\n");
+	PutStr(PUTCHARBUF);
+	PutStr("\n");
+}
+
 
 void __assert_impl(const char* file, int line)
 {

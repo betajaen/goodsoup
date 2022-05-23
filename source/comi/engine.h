@@ -15,43 +15,38 @@
  *
  */
 
-#ifndef GOODSOUP_H
-#define GOODSOUP_H
+#ifndef COMI_ENGINE_H
+#define COMI_ENGINE_H
 
-#if defined(AMIGA) || defined(__AMIGA__) || defined(GS_AMIGA)
-#include "amiga/required.h"
-#else
-#include "sdl/required.h"
-#endif
-
-#define SCREEN_WIDTH 640
-#define SCREEN_HEIGHT 480
-
-namespace common
-{
-	int start();
-	bool preinit();
-	bool init();
-	bool teardown();
-	void wait(uint32 ms);
-
-	template<typename T>
-	inline void freeMemThenNull(T*& mem) {
-		if (mem) {
-			freeMem((void*)mem);
-			mem = NULL;
-		}
-	}
-	
-	template<typename T>
-	inline void deleteThenNull(T*& mem) {
-		if (mem) {
-			delete mem;
-			mem = NULL;
-		}
-	}
+#include "goodsoup.h"
+#include "resource.h"
 
 
+namespace comi {
+
+	class ResourceManager;
+	class CharsetRendererNut;
+	class AkosRenderer;
+	class AkosCostumeLoader;
+
+	class Engine {
+
+	public:
+
+		Engine();
+		~Engine();
+
+		bool canStart();
+		void start();
+
+		ResourceManager res;
+
+	private:
+
+		CharsetRendererNut* _charset;
+		AkosRenderer* _costumeRenderer;
+		AkosCostumeLoader* _costumeLoader;
+	};
 }
 
 #endif

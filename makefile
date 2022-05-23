@@ -1,4 +1,4 @@
-PLATFORM = amiga
+PLATFORM = sdl
 PROGRAM = goodsoup
 DATESTR  = $(shell date +"%-d.%-m.%Y")
 
@@ -12,13 +12,20 @@ ifeq ($(PLATFORM), amiga)
 endif
 
 ifeq ($(PLATFORM), sdl)
-	OBJ		=	source/sdl/start.o source/sdl/gfx.o
+	OBJ		=	source/sdl/common.o source/sdl/memory.o source/sdl/gfx.o source/sdl/file.o
 	CC		= gcc
 	DELETE	= rm
-	CFLAGS	+= -lSDL2
+	CFLAGS	+= -lSDL2 -lstdc++
 endif
 
+# Common Sources
 OBJ += source/main.o
+
+# Engine Sources
+OBJ +=	source/comi/engine.o \
+		source/comi/resource.o \
+		source/comi/charset.o \
+		source/comi/costume.o
 
 all: $(OBJ)
 	$(CC) -o $(PROGRAM) $(OBJ) $(CFLAGS)
