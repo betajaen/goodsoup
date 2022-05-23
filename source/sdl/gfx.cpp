@@ -15,7 +15,7 @@
  *
  */
 
-#include "goodsoup.h"
+#include "../goodsoup.h"
 
 
 extern const char GOODSOUP_VERSION_STR[];

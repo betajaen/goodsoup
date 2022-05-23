@@ -15,7 +15,7 @@
  *
  */
 
-#include "goodsoup.h"
+#include "../goodsoup.h"
 
 namespace common
 {

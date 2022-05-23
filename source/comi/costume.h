@@ -18,7 +18,7 @@
 #ifndef COMI_COSTUME_H
 #define COMI_COSTUME_H
 
-#include "goodsoup.h"
+#include "../goodsoup.h"
 
 
 namespace comi {

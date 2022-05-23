@@ -18,7 +18,7 @@
 #ifndef COMI_ENGINE_H
 #define COMI_ENGINE_H
 
-#include "goodsoup.h"
+#include "../goodsoup.h"
 #include "resource.h"
 
 

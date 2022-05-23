@@ -15,7 +15,7 @@
  *
  */
 
-#include "goodsoup.h"
+#include "../goodsoup.h"
 #include "engine.h"
 #include "resource.h"
 #include "charset.h"

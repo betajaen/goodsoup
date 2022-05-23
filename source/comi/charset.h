@@ -18,7 +18,7 @@
 #ifndef COMI_CHARSET_H
 #define COMI_CHARSET_H
 
-#include "goodsoup.h"
+#include "../goodsoup.h"
 
 
 namespace comi {

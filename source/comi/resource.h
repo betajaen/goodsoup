@@ -18,7 +18,7 @@
 #ifndef COMI_RESOURCES_H
 #define COMI_RESOURCES_H
 
-#include "goodsoup.h"
+#include "../goodsoup.h"
 
 
 namespace comi {

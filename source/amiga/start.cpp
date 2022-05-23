@@ -15,7 +15,7 @@
  *
  */
 
-#include "goodsoup.h"
+#include "../goodsoup.h"
 
 #include <proto/exec.h>
 #include <proto/dos.h>
