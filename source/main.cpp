@@ -27,7 +27,7 @@ namespace common
 		preinit();
 		info("%s\n", &GOODSOUP_VERSION_STR[6]);
 		init();
-		comi::Engine* engine = new comi::Engine();
+		comi::Engine* engine = NEW_OBJECT(comi::Engine);
 
 		if (engine->canStart())
 		{
@@ -38,7 +38,8 @@ namespace common
 			error("Missing resources files!");
 		}
 
-		delete engine;
+		DELETE_OBJECT(engine);
+		
 		teardown();
 		return 0;
 	}

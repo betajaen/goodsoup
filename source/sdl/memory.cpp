@@ -16,6 +16,7 @@
  */
 
 #include "required.h"
+#include <stdio.h>	// for checkMem
 
 namespace common
 {
@@ -36,9 +37,12 @@ namespace common
 		uint32 _allocationId;
 	};
 
+	static uint32 sMemAllocatedUser;
+	static uint32 sMemAllocatedTotal;
+
+
 	// Memory
-	void* allocMem(uint32 itemCount, uint32 itemSize, uint32 flags)
-	{
+	void* allocMem(uint32 itemCount, uint32 itemSize, int flags) {
 		static uint32 sNextAllocationId = 0xBB2F0507;
 		
 		uint32 allocationSize, userSize;
@@ -77,6 +81,9 @@ namespace common
 
 		verbose("allocMem(return,%p)", userMem);
 
+		sMemAllocatedTotal += allocationSize;
+		sMemAllocatedUser += userSize;
+
 		return (void*) userMem;
 	}
 
@@ -112,7 +119,10 @@ namespace common
 			return;
 		}
 
-		verbose("freeMem(%p, %d)", mem, header->_totalSize);
+		verbose("freeMem(%p, %d, 0x%x)", mem, header->_totalSize, header->_flags);
+
+		sMemAllocatedTotal -= header->_totalSize;
+		sMemAllocatedUser -= (header->_totalSize - sizeof(MemHeader) - sizeof(MemFooter));
 
 		SDL_free(header);
 	}
@@ -123,4 +133,7 @@ namespace common
 		SDL_memset(mem, size, 0);
 	}
 
+	void checkMem() {
+		printf("D checkMem(%d, %d)\n", sMemAllocatedUser, sMemAllocatedTotal);
+	}
 }

@@ -51,12 +51,6 @@ namespace common
 	bool openGraphics();
 	bool closeGraphics();
 
-	bool preinit()
-	{
-		SDL_LogSetAllPriority(SDL_LOG_PRIORITY_VERBOSE);
-		SDL_LogSetOutputFunction(writeLog, NULL);
-		return true;
-	}
 
 	void verbose(const char* fmt, ...)
 	{
@@ -109,12 +103,20 @@ namespace common
 		return true;
 	}
 
+	bool preinit()
+	{
+		SDL_LogSetAllPriority(SDL_LOG_PRIORITY_VERBOSE);
+		SDL_LogSetOutputFunction(writeLog, NULL);
+		return true;
+	}
 	bool teardown()
 	{
 		closeGraphics();
 
 		writeLog(NULL, SDL_LOG_CATEGORY_APPLICATION, SDL_LOG_PRIORITY_INFO, "Bye.");
 		SDL_Quit();
+
+		checkMem();
 		return true;
 	}
 

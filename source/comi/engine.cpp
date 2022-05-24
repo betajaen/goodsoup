@@ -35,9 +35,9 @@ namespace comi
 
 	Engine::~Engine()
 	{
-		deleteThenNull(_costumeRenderer);
-		deleteThenNull(_costumeLoader);
-		deleteThenNull(_charset);
+		DELETE_OBJECT(_costumeRenderer);
+		DELETE_OBJECT(_costumeLoader);
+		DELETE_OBJECT(_charset);
 
 		res.freeResources();
 
@@ -53,9 +53,9 @@ namespace comi
 	void Engine::start()
 	{
 		debug("COMI Starting engine.");
-		_charset = new CharsetRendererNut(this);
-		_costumeLoader = new AkosCostumeLoader(this);
-		_costumeRenderer = new AkosRenderer(this);
+		_charset = NEW_OBJECT(CharsetRendererNut, this);
+		_costumeLoader = NEW_OBJECT(AkosCostumeLoader, this);
+		_costumeRenderer = NEW_OBJECT(AkosRenderer, this);
 
 		res.allocResTypeData(rtBuffer, 0, 10, "buffer", 0);
 	}

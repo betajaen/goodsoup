@@ -111,21 +111,24 @@ namespace comi
 
 		for (type = rtFirst; type <= rtLast; type++) {
 			idx = num[type];
-			
-			debug("COMI FreeResources (%s, %i, %i)", resTypeFromId(type), type, idx);
 
-			while (idx) {
+			debug("COMI ResourceManager::freeResources/1(%s, %i, %i)", resTypeFromId(type), type, idx);
 
-				void* ptr = address[type][idx];
-
-				debug("COMI FreeResources (%i, %i, %p)",  type, idx, ptr);
-
-
-				if (isResourceLoaded(type, idx)) {
-					nukeResource(type, idx);
-				}
-
+			if (idx > 0) {
 				idx--;
+				while (idx) {
+
+					void* ptr = address[type][idx];
+
+					if (isResourceLoaded(type, idx)) {
+						debug("COMI ResourceManager::freeResources/2(%i, %i, %p)", type, idx, ptr);
+
+
+						nukeResource(type, idx);
+					}
+
+					idx--;
+				}
 			}
 
 			freeMemThenNull(address[type]);
@@ -157,7 +160,7 @@ namespace comi
 			_allocatedSize -= ((MemBlkHeader*)ptr)->size;
 
 			debug("COMI nukeResource(%i,%i,%p)", type, idx, ptr);
-			freeMem(ptr);
+			DELETE_MEMORY(ptr);
 		}
 
 	}
@@ -185,13 +188,13 @@ namespace comi
 		num[type] = num_;
 		tags[type] = tag_;
 		name[type] = name_;
-		address[type] = (byte**)allocMem(num_, sizeof(void*), MEMF_CLEAR);
-		flags[type] = (byte*)allocMem(num_, sizeof(byte), MEMF_CLEAR);
-		status[type] = (byte*)allocMem(num_, sizeof(byte), MEMF_CLEAR);
+		address[type] = (byte**) NEW_MEMORY(num_, sizeof(void*), MEMF_CLEAR);
+		flags[type] = (byte*)NEW_MEMORY(num_, sizeof(byte), MEMF_CLEAR);
+		status[type] = (byte*)NEW_MEMORY(num_, sizeof(byte), MEMF_CLEAR);
 
 		if (mode_) {
-			roomno[type] = (byte*)allocMem(num_, sizeof(byte), MEMF_CLEAR);
-			roomoffs[type] = (uint32*)allocMem(num_, sizeof(uint32), MEMF_CLEAR);
+			roomno[type] = (byte*)NEW_MEMORY(num_, sizeof(byte), MEMF_CLEAR);
+			roomoffs[type] = (uint32*)NEW_MEMORY(num_, sizeof(uint32), MEMF_CLEAR);
 		}
 
 	}
