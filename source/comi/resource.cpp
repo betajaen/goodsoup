@@ -107,23 +107,34 @@ namespace comi
 
 	void ResourceManager::freeResources() {
 
-		int i, j;
-		for (i = rtFirst; i <= rtLast; i++) {
+		uint32 type, idx;
 
-			debug("COMI FreeResources (%s, %i)", resTypeFromId(i), i);
+		for (type = rtFirst; type <= rtLast; type++) {
+			idx = num[type];
+			
+			debug("COMI FreeResources (%s, %i, %i)", resTypeFromId(type), type, idx);
+
+			while (idx) {
+
+				void* ptr = address[type][idx];
+
+				debug("COMI FreeResources (%i, %i, %p)",  type, idx, ptr);
 
 
-			for (j = num[i]; --j >= 0;) {
-				if (isResourceLoaded(i, j))
-					nukeResource(i, j);
+				if (isResourceLoaded(type, idx)) {
+					nukeResource(type, idx);
+				}
+
+				idx--;
 			}
-			freeMemThenNull(address[i]);
-			freeMemThenNull(flags[i]);
-			freeMemThenNull(status[i]);
-			freeMemThenNull(roomno[i]);
-			freeMemThenNull(roomoffs[i]);
 
-			freeMemThenNull(globsize[i]);
+			freeMemThenNull(address[type]);
+			freeMemThenNull(flags[type]);
+			freeMemThenNull(status[type]);
+			freeMemThenNull(roomno[type]);
+			freeMemThenNull(roomoffs[type]);
+
+			freeMemThenNull(globsize[type]);
 		}
 	}
 
@@ -162,25 +173,25 @@ namespace comi
 	}
 
 
-	void ResourceManager::allocResTypeData(int id_, uint32 tag_, int num_, const char* name_, int mode_) {
-		debug("allocResTypeData(%s/%s,%s,%d,%d)", resTypeFromId(id_), name_, tag2str(TO_BE_32(tag_), tagTemp), num_, mode_);
-		assert(id_ >= 0 && id_ < (int)(ARRAYSIZE(mode)));
+	void ResourceManager::allocResTypeData(int type, uint32 tag_, int num_, const char* name_, int mode_) {
+		debug("allocResTypeData(%s/%s,%s,%d,%d)", resTypeFromId(type), name_, tag2str(TO_BE_32(tag_), tagTemp), num_, mode_);
+		assert(type >= 0 && type < (int)(ARRAYSIZE(mode)));
 
 		if (num_ >= 8000)
 			error("Too many %ss (%d) in directory", name_, num_);
 		
 
-		mode[id_] = mode_;
-		num[id_] = num_;
-		tags[id_] = tag_;
-		name[id_] = name_;
-		address[id_] = (byte**)allocMem(num_, sizeof(void*), MEMF_CLEAR);
-		flags[id_] = (byte*)allocMem(num_, sizeof(byte), MEMF_CLEAR);
-		status[id_] = (byte*)allocMem(num_, sizeof(byte), MEMF_CLEAR);
+		mode[type] = mode_;
+		num[type] = num_;
+		tags[type] = tag_;
+		name[type] = name_;
+		address[type] = (byte**)allocMem(num_, sizeof(void*), MEMF_CLEAR);
+		flags[type] = (byte*)allocMem(num_, sizeof(byte), MEMF_CLEAR);
+		status[type] = (byte*)allocMem(num_, sizeof(byte), MEMF_CLEAR);
 
 		if (mode_) {
-			roomno[id_] = (byte*)allocMem(num_, sizeof(byte), MEMF_CLEAR);
-			roomoffs[id_] = (uint32*)allocMem(num_, sizeof(uint32), MEMF_CLEAR);
+			roomno[type] = (byte*)allocMem(num_, sizeof(byte), MEMF_CLEAR);
+			roomoffs[type] = (uint32*)allocMem(num_, sizeof(uint32), MEMF_CLEAR);
 		}
 
 	}

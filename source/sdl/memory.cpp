@@ -24,63 +24,73 @@ namespace common
 	
 	struct MemHeader
 	{
-		uint32 _size;
+		uint32 _allocationId;
+		uint32 _flags;
+		uint32 _totalSize;
 		uint32 _magic;
 	};
 
 	struct MemFooter
 	{
 		uint32 _magic;
-		uint32 _size;
+		uint32 _allocationId;
 	};
 
 	// Memory
-	void* allocMem(uint32 count, uint32 size, uint32 flags)
+	void* allocMem(uint32 itemCount, uint32 itemSize, uint32 flags)
 	{
-		uint32 totalSize, userSize;
-		void* allocatedMem;
+		static uint32 sNextAllocationId = 0xBB2F0507;
+		
+		uint32 allocationSize, userSize;
+		byte* allocatedMem;
 		void* userMem;
 		MemHeader* header;
 		MemFooter* footer;
+		uint32 allocationId;
 
-		userSize = count * size;
-		totalSize = sizeof(MemHeader) + sizeof(MemFooter) + userSize;
+		allocationId = sNextAllocationId += 1;
+
+		userSize = itemCount * itemSize;
+		allocationSize = sizeof(MemHeader) + sizeof(MemFooter) + userSize;
 		
-		allocatedMem = SDL_malloc(totalSize);
+		allocatedMem = (byte*) SDL_malloc(allocationSize);
 
-		verbose("allocMem(%d,%d,%d,%d,%d,%p)", count, size, userSize, totalSize, flags, allocatedMem);
+		verbose("allocMem(%d,%d,%d,%d,%d,%p)", itemCount, itemSize, userSize, allocationSize, flags, allocatedMem);
 
 		if (flags & MEMF_CLEAR)
 		{
-			SDL_memset(allocatedMem, totalSize, 0);
+			SDL_memset(allocatedMem, 0, allocationSize);
 		}
 
+
 		header = (MemHeader*)allocatedMem;
-		header->_size = (count * size);
+		header->_flags = flags;
+		header->_allocationId = allocationId;
+		header->_totalSize = allocationSize;
 		header->_magic = HEADER_MAGIC;
 
-		userMem = (void*)(header + 1);
+		userMem = (void*) (allocatedMem + sizeof(MemHeader));
 
-		footer = (MemFooter*)(((byte*)userMem) + userSize);
+		footer = (MemFooter*)(allocatedMem + sizeof(MemHeader) + userSize);
 		footer->_magic = FOOTER_MAGIC;
-		footer->_size = (count * size);
+		footer->_allocationId = allocationId;
 
-		verbose("User=%p", userMem);
+		verbose("allocMem(return,%p)", userMem);
 
-		return userMem;
+		return (void*) userMem;
 	}
 
 	void freeMem(void* mem)
 	{
 		if (mem == NULL)
 		{
-			verbose("freeMem(NULL)!");
+			verbose("freeMem(0, 0)");
 			return;
 		}
 
-		verbose("freeMem(%p, ?)", mem);
+		byte* allocatedMem = ((byte*) mem) - sizeof(MemHeader);
 
-		MemHeader* header = ((MemHeader*)mem)-1;
+		MemHeader* header = (MemHeader*)allocatedMem;
 
 		if (header->_magic != HEADER_MAGIC)
 		{
@@ -88,21 +98,21 @@ namespace common
 			return;
 		}
 
-		MemFooter* footer = (MemFooter*)(((byte*)mem) + (header->_size));
+		MemFooter* footer = (MemFooter*) (allocatedMem + header->_totalSize - sizeof(MemFooter));
 
-		if (header->_magic != FOOTER_MAGIC)
+		if (footer->_magic != FOOTER_MAGIC)
 		{
 			error("freeMem(%p) Memory allocation has a corrupted footer!");
 			return;
 		}
 
-		if (header->_size != footer->_size)
+		if (header->_allocationId != footer->_allocationId)
 		{
 			error("freeMem(%p) Memory allocation has a corrupted header or footer!");
 			return;
 		}
 
-		verbose("freeMem(%p, %d)", mem, header->_size);
+		verbose("freeMem(%p, %d)", mem, header->_totalSize);
 
 		SDL_free(header);
 	}
