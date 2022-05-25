@@ -23,6 +23,6 @@ An CBM Amiga (or CBM Amiga Emulator) with the following features:-
 * At least 2 MiBs of RAM
 * At least a Motorola 68020 Processor
 * A Harddrive partition with 940 MiB free of space
-* A P96 compatible graphics card, supporting 640x480 resolution
+* A P96 compatible graphics software/hardware that is capable of supporting a 640x480 8-bit resolution
 * AHI Audio System software
 
