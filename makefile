@@ -25,7 +25,8 @@ OBJ += source/main.o
 OBJ +=	source/comi/engine.o \
 		source/comi/resource.o \
 		source/comi/charset.o \
-		source/comi/costume.o
+		source/comi/costume.o \
+		source/comi/vm.o
 
 all: $(OBJ)
 	$(CC) -o $(PROGRAM) $(OBJ) $(CFLAGS)
