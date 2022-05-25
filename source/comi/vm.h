@@ -15,41 +15,29 @@
  *
  */
 
-#ifndef COMI_ENGINE_H
-#define COMI_ENGINE_H
+#ifndef COMI_VM_H
+#define COMI_VM_H
 
 #include "../goodsoup.h"
 #include "resource.h"
-#include "vm.h"
 
 namespace comi {
 
-	class ResourceManager;
-	class CharsetRendererNut;
-	class AkosRenderer;
-	class AkosCostumeLoader;
+	class Engine;
 
-	class Engine {
+	class Vm {
 
 	public:
 
-		Engine();
-		~Engine();
+		Vm(Engine* engine);
+		~Vm();
 
-		bool canStart();
-		void start();
-
-		ResourceManager res;
-		Vm vm;
+		void executeOpcode(byte i);
 
 	private:
 
-		void setupScummVars();
-		void setupOpcodes();
+		Engine* _engine;
 
-		CharsetRendererNut* _charset;
-		AkosRenderer* _costumeRenderer;
-		AkosCostumeLoader* _costumeLoader;
 
 	};
 }

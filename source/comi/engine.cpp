@@ -20,6 +20,7 @@
 #include "resource.h"
 #include "charset.h"
 #include "costume.h"
+#include "vm.h"
 
 using namespace common;
 
@@ -27,6 +28,7 @@ namespace comi
 {
 	Engine::Engine()
 		:	res(this),
+			vm(this),
 			_charset(NULL),
 			_costumeLoader(NULL),
 			_costumeRenderer(NULL)
@@ -59,6 +61,7 @@ namespace comi
 
 		res.allocResTypeData(rtBuffer, 0, 10, "buffer", 0);
 	}
+
 
 
 }

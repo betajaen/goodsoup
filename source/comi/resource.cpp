@@ -99,8 +99,8 @@ namespace comi
 		}
 
 		_allocatedSize = 0;
-		_maxHeapThreshold = 0;
-		_minHeapThreshold = 0;
+		_maxHeapThreshold = 6 * 1024 * 1024;
+		_minHeapThreshold = 400000;
 		_expireCounter = 0;
 
 	}
