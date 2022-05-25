@@ -15,25 +15,22 @@
  *
  */
 
-#ifndef COMI_CHARSET_H
-#define COMI_CHARSET_H
+#ifndef COMI_ACTOR_H
+#define COMI_ACTOR_H
 
 #include "../goodsoup.h"
 
-
 namespace comi {
 
-	class Engine;
-
-	class CharsetRendererNut {
+	class Actor {
 
 	public:
 
-		CharsetRendererNut();
-		~CharsetRendererNut();
-
+		Actor();
+		~Actor();
 
 	private:
+
 
 	};
 }

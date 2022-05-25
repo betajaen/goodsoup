@@ -23,8 +23,7 @@ using namespace common;
 
 namespace comi
 {
-	CharsetRendererNut::CharsetRendererNut(Engine* engine)
-		: _engine(engine)
+	CharsetRendererNut::CharsetRendererNut()
 	{
 	}
 

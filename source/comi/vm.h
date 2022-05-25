@@ -29,14 +29,14 @@ namespace comi {
 
 	public:
 
-		Vm(Engine* engine);
+		Vm();
 		~Vm();
 
-		void executeOpcode(byte i);
+		void reset() { /* TODO */ }
+		void executeOpcode(byte i) { /* TODO */ }
 
 	private:
 
-		Engine* _engine;
 
 
 	};

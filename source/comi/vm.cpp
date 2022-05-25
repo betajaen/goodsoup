@@ -23,8 +23,7 @@ using namespace common;
 namespace comi
 {
 
-	Vm::Vm(Engine* engine)
-		: _engine(engine)
+	Vm::Vm()
 	{
 	}
 

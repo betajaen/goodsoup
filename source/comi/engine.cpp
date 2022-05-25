@@ -26,17 +26,32 @@ using namespace common;
 
 namespace comi
 {
+	Engine* ENGINE = NULL;
+
 	Engine::Engine()
-		:	res(this),
-			vm(this),
+		:	res(),
+			vm(),
 			_charset(NULL),
 			_costumeLoader(NULL),
-			_costumeRenderer(NULL)
+			_costumeRenderer(NULL),
+			_palDirtyMin(0),
+			_palDirtyMax(256)
 	{
+		ENGINE = this;
+		_cursor.width = 1;
+		_cursor.height = 1;
+		_cursor.hotspotX = 0;
+		_cursor.hotspotY = 0;
+		_cursor.animate = 0;
+		_cursor.animateIndex = 0;
+		_cursor.state = 0;
+
+		debug("COMI Engine::ctor()");
 	}
 
 	Engine::~Engine()
 	{
+		debug("COMI Engine::dtor()");
 		DELETE_OBJECT(_costumeRenderer);
 		DELETE_OBJECT(_costumeLoader);
 		DELETE_OBJECT(_charset);
@@ -44,22 +59,42 @@ namespace comi
 		res.freeResources();
 
 		debug("COMI Shutdown.");
+		ENGINE = NULL;
 	}
 
 	bool Engine::canStart()
 	{
-		debug("COMI Checking prerequisites.");
+		debug("COMI Engine::canStart");
 		return res.canStart();
 	}
 
 	void Engine::start()
 	{
-		debug("COMI Starting engine.");
-		_charset = NEW_OBJECT(CharsetRendererNut, this);
-		_costumeLoader = NEW_OBJECT(AkosCostumeLoader, this);
-		_costumeRenderer = NEW_OBJECT(AkosRenderer, this);
+		debug("COMI Engine::start()");
+		_charset = NEW_OBJECT(CharsetRendererNut);
+		_costumeLoader = NEW_OBJECT(AkosCostumeLoader);
+		_costumeRenderer = NEW_OBJECT(AkosRenderer);
 
 		res.allocResTypeData(rtBuffer, 0, 10, "buffer", 0);
+	}
+
+	void Engine::resetScumm()
+	{
+		uint32 i = 0;
+		debug("COMI resetScum()");
+		vm.reset();
+
+		initScreens(0, SCREEN_HEIGHT);
+
+		_panManipCounter = 0;
+		for (uint32 i = 0; i < 256; i++)
+			_roomPalette[i] = i;
+
+		resetPalette();
+		setShake(0);
+		_cursor.animate = 1;
+
+
 	}
 
 

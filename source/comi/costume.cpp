@@ -23,8 +23,7 @@ using namespace common;
 
 namespace comi
 {
-	AkosRenderer::AkosRenderer(Engine* engine)
-		: _engine(engine)
+	AkosRenderer::AkosRenderer()
 	{
 	}
 
@@ -33,8 +32,7 @@ namespace comi
 	}
 
 
-	AkosCostumeLoader::AkosCostumeLoader(Engine* engine)
-		: _engine(engine)
+	AkosCostumeLoader::AkosCostumeLoader()
 	{
 	}
 

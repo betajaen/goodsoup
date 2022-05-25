@@ -81,8 +81,8 @@ namespace comi
 		}
 	}
 
-	ResourceManager::ResourceManager(Engine* vm) :
-	_vm(vm) {
+	ResourceManager::ResourceManager()
+	{
 		
 		int i;
 		for (i = rtFirst; i <= rtLast; i++) {

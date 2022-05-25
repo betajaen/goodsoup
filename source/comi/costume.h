@@ -29,12 +29,9 @@ namespace comi {
 
 	public:
 
-		AkosRenderer(Engine* engine);
+		AkosRenderer();
 		~AkosRenderer();
 
-	private:
-
-		Engine* _engine;
 
 	};
 
@@ -42,12 +39,11 @@ namespace comi {
 
 	public:
 
-		AkosCostumeLoader(Engine* engine);
+		AkosCostumeLoader();
 		~AkosCostumeLoader();
 
 	private:
 
-		Engine* _engine;
 
 	};
 

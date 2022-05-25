@@ -72,7 +72,7 @@ namespace comi {
 
 	public:
 
-		ResourceManager(Engine* vm);
+		ResourceManager();
 		
 		void freeResources();
 		bool canStart();
@@ -84,7 +84,7 @@ namespace comi {
 		}
 		
 		bool validateResource(const char* str, int type, int idx) const {
-			if (type < rtFirst || type > rtLast || (uint)idx >= (uint)num[type]) {
+			if (type < rtFirst || type > rtLast || (uint32)idx >= (uint32)num[type]) {
 				error("%s Illegal Glob type %s (%d) num %d", str, resTypeFromId(type), type, idx);
 				return false;
 			}
@@ -94,8 +94,6 @@ namespace comi {
 		void nukeResource(int type, int idx);
 		
 		void allocResTypeData(int id, uint32 tag, int num, const char* name, int mode);
-
-		Engine* _vm;
 
 	public:
 		byte mode[rtNumTypes];

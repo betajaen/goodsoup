@@ -24,14 +24,21 @@
 
 namespace comi {
 
+	class Engine;
 	class ResourceManager;
 	class CharsetRendererNut;
 	class AkosRenderer;
 	class AkosCostumeLoader;
+	class Actor;
+	class Vm;
+
+	extern Engine* ENGINE;
 
 	class Engine {
 
 	public:
+
+		friend class Vm;
 
 		Engine();
 		~Engine();
@@ -44,12 +51,43 @@ namespace comi {
 
 	private:
 
+		struct {
+			int hotspotX, hotspotY, width, height;
+			byte animate, animateIndex;
+			int8 state;
+		} _cursor;
+
 		void setupScummVars();
 		void setupOpcodes();
+
+		void resetScumm();
+
+		void initScreens(int b, int h) { /* TODO */ }
+
+		void setShake(int mode) { /* TODO */ }
+
+		inline void resetPalette()
+		{
+			setDirtyColours(0, 255);
+		}
+
+		inline void setDirtyColours(uint16 min, uint16 max)
+		{
+			if (min < _palDirtyMin)
+				_palDirtyMin = min;
+			if (max > _palDirtyMax)
+				_palDirtyMax = max;
+		}
 
 		CharsetRendererNut* _charset;
 		AkosRenderer* _costumeRenderer;
 		AkosCostumeLoader* _costumeLoader;
+
+		uint32 _tempMusic;
+		uint16 _panManipCounter;
+		byte   _roomPalette[256];
+		uint16 _palDirtyMin, _palDirtyMax;
+
 
 	};
 }
