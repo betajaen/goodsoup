@@ -23,12 +23,20 @@ using namespace common;
 namespace comi
 {
 
-	Vm::Vm()
-	{
+	Vm::Vm() {
+		debug("COMI vm::ctor()");
 	}
 
-	Vm::~Vm()
-	{
+	Vm::~Vm() {
+		debug("COMI Vm::dtor()");
+		_scummVars.releaseMem();
+		_bitVars.releaseMem();
+	}
+
+	void Vm::reset() {
+		debug("COMI Vm::reset(%d, %d)", NUM_VARIABLES, NUM_BITVARIABLES);
+		_scummVars.setSize(NUM_VARIABLES);
+		_bitVars.setSize(NUM_BITVARIABLES >> 3);
 	}
 
 }

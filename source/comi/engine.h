@@ -53,6 +53,21 @@ namespace comi {
 		Vm vm;
 		Sound sound;
 
+		int32& scummVar(byte var, const char* varName, const char* file, int line)
+		{
+			if (var == 0xFF) {
+				error("Illegal access to variable %s in file %s, line %d", varName, file, line);
+			}
+			return vm._scummVars.get(var);
+		}
+		int32 scummVar(byte var, const char* varName, const char* file, int line) const
+		{
+			if (var == 0xFF) {
+				error("Illegal access to variable %s in file %s, line %d", varName, file, line);
+			}
+			return vm._scummVars.get(var);
+		}
+
 	private:
 
 		struct {
@@ -93,7 +108,6 @@ namespace comi {
 		Array<Actor*> _sortedActors;
 
 		Array<VerbSlot> _verbs;
-
 
 	};
 }

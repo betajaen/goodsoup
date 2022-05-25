@@ -99,18 +99,20 @@ namespace comi {
 		Vm();
 		~Vm();
 
-		Array<int32> vars;
+		Array<int32> _scummVars;
+		Array<byte> _bitVars;
+
 		VmState state;
 
-		void reset() { /* TODO */ }
+		void reset();
 		void executeOpcode(byte i) { /* TODO */ }
 
 		inline void set(uint32 name, int32 value) {
-			vars.set(name, value);
+			_scummVars.set(name, value);
 		}
 
 		inline int32 get(uint32 name) const {
-			return vars.get(name);
+			return _scummVars.get(name);
 		}
 
 	private:

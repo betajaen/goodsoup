@@ -26,6 +26,8 @@
 
 using namespace common;
 
+#define VAR(x) scummVar(x, #x, __FILE__, __LINE__)
+
 namespace comi
 {
 	Engine* ENGINE = NULL;
@@ -92,7 +94,6 @@ namespace comi
 		res.allocResTypeData(rtBuffer, 0, 10, "buffer", 0);
 		
 		resetScumm();
-		vm.reset();
 		sound.reset();
 	}
 
@@ -140,6 +141,11 @@ namespace comi
 			verb->center = 0;
 			verb->key = 0;
 		}
+
+		VAR(VAR_CAMERA_THRESHOLD_X) = 100;
+		VAR(VAR_CAMERA_THRESHOLD_Y) = 70;
+		VAR(VAR_CAMERA_ACCEL_X) = 100;
+		VAR(VAR_CAMERA_ACCEL_Y) = 100;
 
 	}
 
