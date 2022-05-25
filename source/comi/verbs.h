@@ -15,25 +15,33 @@
  *
  */
 
-#ifndef GOODSOUP_H
-#define GOODSOUP_H
+#ifndef COMI_VERBS_H
+#define COMI_VERBS_H
 
-#if defined(AMIGA) || defined(__AMIGA__) || defined(GS_AMIGA)
-#include "amiga/required.h"
-#else
-#include "sdl/required.h"
-#endif
+#include "../goodsoup.h"
+#include "../rect.h"
 
-#define SCREEN_WIDTH 640
-#define SCREEN_HEIGHT 480
+using namespace common;
 
-namespace common
-{
-	int start();
-	bool preinit();
-	bool init();
-	bool teardown();
-	void wait(uint32 ms);
+namespace comi {
+
+	enum {
+		kTextVerbType = 0,
+		kImageVerbType = 1
+	};
+
+	struct VerbSlot {
+		Rect curRect;
+		Rect oldRect;
+		uint16 verbid;
+		uint8 color, hicolor, dimcolor, bkcolor, type;
+		uint8 charset_nr, curmode;
+		uint16 saveid;
+		uint8 key;
+		bool center;
+		uint8 prep;
+		uint16 imgindex;
+	};
 }
 
 #endif

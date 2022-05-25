@@ -24,7 +24,9 @@ using namespace common;
 namespace comi
 {
 	Actor::Actor()
+		: _number(0)
 	{
+		initActor(-1);
 	}
 
 	Actor::~Actor()

@@ -15,25 +15,27 @@
  *
  */
 
-#ifndef GOODSOUP_H
-#define GOODSOUP_H
+#ifndef COMI_SOUND_H
+#define COMI_SOUND_H
 
-#if defined(AMIGA) || defined(__AMIGA__) || defined(GS_AMIGA)
-#include "amiga/required.h"
-#else
-#include "sdl/required.h"
-#endif
+#include "../goodsoup.h"
 
-#define SCREEN_WIDTH 640
-#define SCREEN_HEIGHT 480
 
-namespace common
-{
-	int start();
-	bool preinit();
-	bool init();
-	bool teardown();
-	void wait(uint32 ms);
+namespace comi {
+
+	using namespace common;
+
+	
+	class Sound {
+
+	public:
+
+		Sound();
+		~Sound();
+
+		void reset() { /* TODO */ }
+
+	};
 }
 
 #endif

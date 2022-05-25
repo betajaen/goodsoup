@@ -127,9 +127,30 @@ namespace common
 		SDL_free(header);
 	}
 
-	void zeroMem(void* mem, uint32 size)
+	uint32 memSize(void* mem)
 	{
-		verbose("zeroMem(%p,%d)", mem, size);
+		byte* allocatedMem = ((byte*)mem) - sizeof(MemHeader);
+
+		MemHeader* header = (MemHeader*)allocatedMem;
+
+		if (header->_magic != HEADER_MAGIC)
+		{
+			error("memSize(%p) Memory allocation has a corrupted header!");
+			return 0;
+		}
+
+		return header->_totalSize - (sizeof(MemHeader) - sizeof(MemFooter));
+	}
+
+	void clearMem(void* mem, uint32 size)
+	{
+		uint32 maxSize = memSize(mem);
+
+		if (size > maxSize) {
+			error("clearMem(%d, %d) Caught out of bounds write!", size, maxSize);
+			return;
+		}
+
 		SDL_memset(mem, size, 0);
 	}
 

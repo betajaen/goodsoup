@@ -25,7 +25,16 @@ namespace comi {
 	enum
 	{
 		NUM_ACTORS = 80,
-		OF_OWNER_ROOM = 0xFF
+		OF_OWNER_ROOM = 0xFF,
+		NUM_SCRIPT_SLOT = 80,
+
+		NUM_VERBS = 50
+	};
+
+	enum {
+		ssDead = 0,
+		ssPaused = 1,
+		ssRunning = 2
 	};
 
 	enum Var
@@ -121,7 +130,7 @@ namespace comi {
 		VAR_KEYPRESS = 132,
 		VAR_BLAST_ABOVE_TEXT = 133,
 		VAR_SYNC = 134,
-	},
+	};
 }
 
 #endif

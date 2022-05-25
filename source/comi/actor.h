@@ -20,6 +20,8 @@
 
 #include "../goodsoup.h"
 
+using namespace common;
+
 namespace comi {
 
 	class Actor {
@@ -28,6 +30,13 @@ namespace comi {
 
 		Actor();
 		~Actor();
+
+		byte _number;
+
+		void initActor(int mode) {
+			debug("COMI initActor(%i, %i)", _number, mode);
+			/* TODO */
+		}
 
 	private:
 

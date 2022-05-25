@@ -53,7 +53,7 @@ namespace common
 
 	void* allocMem(uint32 count, uint32 size, int flags);
 	void freeMem(void* mem);
-	void zeroMem(void* mem, uint32 size);
+	void clearMem(void* mem, uint32 size);
 	void checkMem();
 
 
@@ -98,6 +98,16 @@ namespace common
 			object->~T();
 			::common::freeMem(object);
 			object = NULL;
+		}
+	}
+
+	template<typename T>
+	void freeMemThenNull(T*& mem)
+	{
+		if (mem)
+		{
+			freeMem(mem);
+			mem = NULL;
 		}
 	}
 
@@ -147,7 +157,7 @@ namespace common
 #define NEW_OBJECT(T, ...) ::common::newObject<T>(__VA_ARGS__)
 #define DELETE_OBJECT(OBJ) ::common::deleteObject(OBJ)
 #define NEW_MEMORY(COUNT, SIZE, FLAGS) ::common::allocMem(COUNT, SIZE, FLAGS)
-#define DELETE_MEMORY(MEM) ::common::freeMem(MEM)
+#define DELETE_MEMORY(MEM) ::common::freeMemThenNull(MEM)
 
 
 #endif

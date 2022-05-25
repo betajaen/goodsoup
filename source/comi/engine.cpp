@@ -21,6 +21,8 @@
 #include "charset.h"
 #include "costume.h"
 #include "vm.h"
+#include "consts.h"
+#include "actor.h"
 
 using namespace common;
 
@@ -46,6 +48,11 @@ namespace comi
 		_cursor.animateIndex = 0;
 		_cursor.state = 0;
 
+		_actors.setSize(NUM_ACTORS);
+		_sortedActors.setSize(NUM_ACTORS);
+
+		_verbs.setSize(NUM_VERBS);
+
 		debug("COMI Engine::ctor()");
 	}
 
@@ -55,6 +62,12 @@ namespace comi
 		DELETE_OBJECT(_costumeRenderer);
 		DELETE_OBJECT(_costumeLoader);
 		DELETE_OBJECT(_charset);
+		
+		_verbs.releaseMem();
+		_sortedActors.releaseMem();
+		_actors.callDtors();
+		_actors.releaseMem();
+
 
 		res.freeResources();
 
@@ -68,14 +81,19 @@ namespace comi
 		return res.canStart();
 	}
 
-	void Engine::start()
+	void Engine::init()
 	{
 		debug("COMI Engine::start()");
+		
 		_charset = NEW_OBJECT(CharsetRendererNut);
 		_costumeLoader = NEW_OBJECT(AkosCostumeLoader);
 		_costumeRenderer = NEW_OBJECT(AkosRenderer);
 
 		res.allocResTypeData(rtBuffer, 0, 10, "buffer", 0);
+		
+		resetScumm();
+		vm.reset();
+		sound.reset();
 	}
 
 	void Engine::resetScumm()
@@ -94,6 +112,34 @@ namespace comi
 		setShake(0);
 		_cursor.animate = 1;
 
+		// Allocate and Initialize actors
+		_sortedActors.zeroMem();
+		_actors.zeroMem();
+		_actors.callCtors();
+		for (i = 0; i < NUM_ACTORS; i++) {
+			Actor* actor = _actors.ptr(i);
+			actor->_number = i;
+			actor->initActor(1);
+		}
+		
+		_verbs.zeroMem();
+		_verbs.callCtors();
+		
+		for (i = 0; i < NUM_VERBS; i++) {
+			VerbSlot* verb = _verbs.ptr(i);
+
+			verb->verbid = 0;
+			verb->curRect.right = SCREEN_WIDTH - 1;
+			verb->oldRect.left = -1;
+			verb->type = 0;
+			verb->color = 2;
+			verb->hicolor = 0;
+			verb->charset_nr = 1;
+			verb->curmode = 0;
+			verb->saveid = 0;
+			verb->center = 0;
+			verb->key = 0;
+		}
 
 	}
 

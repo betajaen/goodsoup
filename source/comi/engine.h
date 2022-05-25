@@ -19,8 +19,11 @@
 #define COMI_ENGINE_H
 
 #include "../goodsoup.h"
+#include "../array.h"
 #include "resource.h"
 #include "vm.h"
+#include "sound.h"
+#include "verbs.h"
 
 namespace comi {
 
@@ -44,10 +47,11 @@ namespace comi {
 		~Engine();
 
 		bool canStart();
-		void start();
+		void init();
 
 		ResourceManager res;
 		Vm vm;
+		Sound sound;
 
 	private:
 
@@ -56,9 +60,6 @@ namespace comi {
 			byte animate, animateIndex;
 			int8 state;
 		} _cursor;
-
-		void setupScummVars();
-		void setupOpcodes();
 
 		void resetScumm();
 
@@ -87,6 +88,11 @@ namespace comi {
 		uint16 _panManipCounter;
 		byte   _roomPalette[256];
 		uint16 _palDirtyMin, _palDirtyMax;
+
+		Array<Actor> _actors;
+		Array<Actor*> _sortedActors;
+
+		Array<VerbSlot> _verbs;
 
 
 	};

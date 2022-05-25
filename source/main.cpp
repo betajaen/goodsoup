@@ -31,7 +31,7 @@ namespace common
 
 		if (engine->canStart())
 		{
-			engine->start();
+			engine->init();
 		}
 		else
 		{

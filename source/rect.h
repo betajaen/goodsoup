@@ -15,25 +15,23 @@
  *
  */
 
-#ifndef GOODSOUP_H
-#define GOODSOUP_H
+#ifndef RECT_H
+#define RECT_H
 
-#if defined(AMIGA) || defined(__AMIGA__) || defined(GS_AMIGA)
-#include "amiga/required.h"
-#else
-#include "sdl/required.h"
-#endif
-
-#define SCREEN_WIDTH 640
-#define SCREEN_HEIGHT 480
+#include "goodsoup.h"
 
 namespace common
 {
-	int start();
-	bool preinit();
-	bool init();
-	bool teardown();
-	void wait(uint32 ms);
+
+	struct Rect
+	{
+		int16 top, left, bottom, right;
+
+		Rect()
+			: top(0), left(0), bottom(0), right(0) {}
+	};
+
+
 }
 
 #endif
