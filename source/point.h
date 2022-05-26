@@ -15,48 +15,23 @@
  *
  */
 
-#ifndef COMI_VERBS_H
-#define COMI_VERBS_H
+#ifndef POINT_H
+#define POINT_H
 
-#include "../goodsoup.h"
-#include "../rect.h"
+#include "goodsoup.h"
 
-using namespace common;
+namespace common
+{
 
-namespace comi {
+	struct Point
+	{
+		int16 x, y;
 
-	enum {
-		kTextVerbType = 0,
-		kImageVerbType = 1
+		Point()
+			: x(0), y(0) {}
 	};
 
-	struct VerbSlot {
-		Rect curRect;
-		Rect oldRect;
-		uint16 verbid;
-		uint8 color, hicolor, dimcolor, bkcolor, type;
-		uint8 charset_nr, curmode;
-		uint16 saveid;
-		uint8 key;
-		bool center;
-		uint8 prep;
-		uint16 imgindex;
 
-		inline void reset()
-		{
-			verbid = 0;
-			curRect.right = SCREEN_WIDTH - 1;
-			oldRect.left = -1;
-			type = 0;
-			color = 2;
-			hicolor = 0;
-			charset_nr = 1;
-			curmode = 0;
-			saveid = 0;
-			center = 0;
-			key = 0;
-		}
-	};
 }
 
 #endif

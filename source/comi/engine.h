@@ -20,10 +20,12 @@
 
 #include "../goodsoup.h"
 #include "../array.h"
+#include "../point.h"
 #include "resource.h"
 #include "vm.h"
 #include "sound.h"
 #include "verbs.h"
+#include "graphics.h"
 
 namespace comi {
 
@@ -36,6 +38,23 @@ namespace comi {
 	class Vm;
 
 	extern Engine* ENGINE;
+
+	enum {
+		kNormalCameraMode = 1,
+		kFollowActorCameraMode = 2,
+		kPanningCameraMode = 3
+	};
+
+	/** Camera state data */
+	struct CameraData {
+		common::Point _cur;
+		common::Point _dest;
+		common::Point _accel;
+		common::Point _last;
+		int32 _leftTrigger, _rightTrigger;
+		byte _follows, _mode;
+		bool _movingToActor;
+	};
 
 	class Engine {
 
@@ -67,6 +86,11 @@ namespace comi {
 			}
 			return vm._scummVars.get(var);
 		}
+
+		int32 _roomHeight, _roomWidth;
+		int32 _screenStartStrip, _screenEndStrip, _ScreenTop;
+		VirtScreen virtscr;
+		CameraData camera;
 
 	private:
 

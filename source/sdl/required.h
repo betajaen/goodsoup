@@ -145,7 +145,6 @@ namespace common
 
 	const char* tag2str(uint32 tag, char* str);
 
-
 }
 
 #define TO_LE_32(a) ((uint32)(a))

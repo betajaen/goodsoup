@@ -128,26 +128,17 @@ namespace comi
 		
 		for (i = 0; i < NUM_VERBS; i++) {
 			VerbSlot* verb = _verbs.ptr(i);
-
-			verb->verbid = 0;
-			verb->curRect.right = SCREEN_WIDTH - 1;
-			verb->oldRect.left = -1;
-			verb->type = 0;
-			verb->color = 2;
-			verb->hicolor = 0;
-			verb->charset_nr = 1;
-			verb->curmode = 0;
-			verb->saveid = 0;
-			verb->center = 0;
-			verb->key = 0;
+			verb->reset();
 		}
 
 		VAR(VAR_CAMERA_THRESHOLD_X) = 100;
 		VAR(VAR_CAMERA_THRESHOLD_Y) = 70;
 		VAR(VAR_CAMERA_ACCEL_X) = 100;
 		VAR(VAR_CAMERA_ACCEL_Y) = 100;
-
+		
 	}
+
+
 
 
 
