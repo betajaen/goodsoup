@@ -15,26 +15,20 @@
  *
  */
 
-#include "../goodsoup.h"
+#include "debug.h"
 #include <stdio.h>
-#include <stdarg.h>
-
-int main(int argc, char** argv)
-{
-	return common::start();
-}
 
 void SDLCALL writeLog(void* userdata, int category, SDL_LogPriority priority, const char* message)
 {
 	switch (priority)
 	{
-		default:
-		case SDL_LOG_PRIORITY_VERBOSE: fputs("V ", stdout); break;
-		case SDL_LOG_PRIORITY_DEBUG: fputs("D ", stdout); break;
-		case SDL_LOG_PRIORITY_INFO: fputs("I ", stdout); break;
-		case SDL_LOG_PRIORITY_WARN: fputs("W ", stdout); break;
-		case SDL_LOG_PRIORITY_ERROR: fputs("!! ERROR !!\n\n", stdout); break;
-		case SDL_LOG_PRIORITY_CRITICAL: fputs("** CRITICAL **\n\n", stdout); break;
+	default:
+	case SDL_LOG_PRIORITY_VERBOSE: fputs("V ", stdout); break;
+	case SDL_LOG_PRIORITY_DEBUG: fputs("D ", stdout); break;
+	case SDL_LOG_PRIORITY_INFO: fputs("I ", stdout); break;
+	case SDL_LOG_PRIORITY_WARN: fputs("W ", stdout); break;
+	case SDL_LOG_PRIORITY_ERROR: fputs("!! ERROR !!\n\n", stdout); break;
+	case SDL_LOG_PRIORITY_CRITICAL: fputs("** CRITICAL **\n\n", stdout); break;
 	}
 	fputs(message, stdout);
 	fputc('\n', stdout);
@@ -46,11 +40,9 @@ void SDLCALL writeLog(void* userdata, int category, SDL_LogPriority priority, co
 
 }
 
+
 namespace common
 {
-	bool openGraphics();
-	bool closeGraphics();
-
 
 	void verbose(const char* fmt, ...)
 	{
@@ -92,47 +84,14 @@ namespace common
 		va_end(ap);
 	}
 
-	bool init()
-	{
-		if ( SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_TIMER | SDL_INIT_EVENTS) != 0)
-			return false;
-
-		if (openGraphics() == false)
-			return false;
-
-		return true;
-	}
-
-	bool preinit()
+	void beginDebug()
 	{
 		SDL_LogSetAllPriority(SDL_LOG_PRIORITY_VERBOSE);
 		SDL_LogSetOutputFunction(writeLog, NULL);
-		return true;
 	}
-	bool teardown()
-	{
-		closeGraphics();
 
+	void endDebug()
+	{
 		writeLog(NULL, SDL_LOG_CATEGORY_APPLICATION, SDL_LOG_PRIORITY_INFO, "Bye.");
-		SDL_Quit();
-
-		checkMem();
-		return true;
 	}
-
-	void wait(uint32 ms)
-	{
-		SDL_Delay(ms);
-	}
-
-	const char* tag2str(uint32 tag, char* str)
-	{
-		str[0] = (char)(tag >> 24);
-		str[1] = (char)(tag >> 16);
-		str[2] = (char)(tag >> 8);
-		str[3] = (char)tag;
-		str[4] = '\0';
-		return str;
-	}
-
 }

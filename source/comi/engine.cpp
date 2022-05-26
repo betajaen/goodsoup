@@ -15,7 +15,8 @@
  *
  */
 
-#include "../goodsoup.h"
+#include "common/memory.h"
+#include "common/file.h"
 #include "engine.h"
 #include "resource.h"
 #include "charset.h"
@@ -65,10 +66,10 @@ namespace comi
 		DELETE_OBJECT(_costumeLoader);
 		DELETE_OBJECT(_charset);
 		
-		_verbs.releaseMem();
-		_sortedActors.releaseMem();
+		_verbs.release();
+		_sortedActors.release();
 		_actors.callDtors();
-		_actors.releaseMem();
+		_actors.release();
 
 
 		res.freeResources();
@@ -135,6 +136,8 @@ namespace comi
 		VAR(VAR_CAMERA_THRESHOLD_Y) = 70;
 		VAR(VAR_CAMERA_ACCEL_X) = 100;
 		VAR(VAR_CAMERA_ACCEL_Y) = 100;
+
+		virtscr.reset();
 		
 	}
 

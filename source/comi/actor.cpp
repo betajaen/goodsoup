@@ -15,9 +15,8 @@
  *
  */
 
-#include "../goodsoup.h"
 #include "actor.h"
-
+#include "common/debug.h"
 
 using namespace common;
 
@@ -33,5 +32,10 @@ namespace comi
 	{
 	}
 
+	void Actor::initActor(int mode)
+	{
+		debug("COMI initActor(%i, %i)", _number, mode);
+		/* TODO */
+	}
 
 }

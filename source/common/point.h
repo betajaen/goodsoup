@@ -18,7 +18,7 @@
 #ifndef POINT_H
 #define POINT_H
 
-#include "goodsoup.h"
+#include "common/types.h"
 
 namespace common
 {

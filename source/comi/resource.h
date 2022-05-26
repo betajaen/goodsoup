@@ -18,12 +18,12 @@
 #ifndef COMI_RESOURCES_H
 #define COMI_RESOURCES_H
 
-#include "../goodsoup.h"
+#include "common/types.h"
+#include "common/debug.h"
 
+using namespace common;
 
 namespace comi {
-
-	using namespace common;
 
 	class Engine;
 

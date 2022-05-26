@@ -15,25 +15,21 @@
  *
  */
 
-#ifndef GOODSOUP_H
-#define GOODSOUP_H
+#ifndef COMMON_DEBUG_H
+#define COMMON_DEBUG_H
 
-#if defined(AMIGA) || defined(__AMIGA__) || defined(GS_AMIGA)
-#include "amiga/required.h"
-#else
-#include "sdl/required.h"
-#endif
-
-#define SCREEN_WIDTH 640
-#define SCREEN_HEIGHT 480
+#include "types.h"
 
 namespace common
 {
-	int start();
-	bool preinit();
-	bool init();
-	bool teardown();
-	void wait(uint32 ms);
+	void verbose(const char* fmt, ...);
+	void debug(const char* fmt, ...);
+	void info(const char* fmt, ...);
+	void warn(const char* fmt, ...);
+	void error(const char* fmt, ...);
 }
+
+#define assert(X) SDL_assert(X)
+
 
 #endif

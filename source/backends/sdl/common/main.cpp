@@ -15,23 +15,27 @@
  *
  */
 
-#ifndef RECT_H
-#define RECT_H
+#include "types.h"
 
-#include "goodsoup.h"
+extern const char GOODSOUP_VERSION_STR[] = "$VER: goodsoup 0.1 (" __AMIGADATE__ ")";
 
 namespace common
 {
-
-	struct Rect
-	{
-		int16 top, left, bottom, right;
-
-		Rect()
-			: top(0), left(0), bottom(0), right(0) {}
-	};
-
-
+	void beginDebug();
+	void endDebug();
+	void checkMem();
 }
 
-#endif
+namespace comi
+{
+	int start();
+}
+
+int main(int argc, char** argv)
+{
+	common::beginDebug();
+	int rc = comi::start();
+	common::endDebug();
+	common::checkMem();
+	return rc;
+}

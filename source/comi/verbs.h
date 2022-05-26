@@ -18,8 +18,9 @@
 #ifndef COMI_VERBS_H
 #define COMI_VERBS_H
 
-#include "../goodsoup.h"
-#include "../rect.h"
+#include "common/types.h"
+#include "common/rect.h"
+#include "consts.h"
 
 using namespace common;
 

@@ -18,9 +18,7 @@
 #ifndef COMI_ACTOR_H
 #define COMI_ACTOR_H
 
-#include "../goodsoup.h"
-
-using namespace common;
+#include "common/types.h"
 
 namespace comi {
 
@@ -33,10 +31,7 @@ namespace comi {
 
 		byte _number;
 
-		void initActor(int mode) {
-			debug("COMI initActor(%i, %i)", _number, mode);
-			/* TODO */
-		}
+		void initActor(int mode);
 
 	private:
 

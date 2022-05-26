@@ -15,11 +15,7 @@
  *
  */
 
-#include "../goodsoup.h"
 #include "costume.h"
-#include "engine.h"
-
-using namespace common;
 
 namespace comi
 {

@@ -18,13 +18,13 @@
 #ifndef COMI_VARS_H
 #define COMI_VARS_H
 
-#include "../goodsoup.h"
-
 namespace comi {
 
 	enum
 	{
-		NUM_ACTORS = 80,
+		SCREEN_WIDTH = 640,
+		SCREEN_HEIGHT = 480,
+		
 		OF_OWNER_ROOM = 0xFF,
 		NUM_SCRIPT_SLOT = 80,
 
@@ -41,6 +41,7 @@ namespace comi {
 		NUM_NEW_NAMES = 100,
 		NUM_FL_OBJECT = 128,
 		NUM_INVENTORY = 80,
+		NUM_ACTORS = 80,
 		NUM_ARRAY = 200,
 		NUM_VERBS = 50,
 		NUM_GLOBAL_SCRIPTS = 200,

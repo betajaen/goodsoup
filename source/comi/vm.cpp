@@ -15,7 +15,7 @@
  *
  */
 
-#include "../goodsoup.h"
+#include "common/debug.h"
 #include "vm.h"
 
 using namespace common;
@@ -29,8 +29,8 @@ namespace comi
 
 	Vm::~Vm() {
 		debug("COMI Vm::dtor()");
-		_scummVars.releaseMem();
-		_bitVars.releaseMem();
+		_scummVars.release();
+		_bitVars.release();
 	}
 
 	void Vm::reset() {

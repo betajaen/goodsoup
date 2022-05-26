@@ -15,37 +15,18 @@
  *
  */
 
-#include "../goodsoup.h"
+#ifndef COMMON_TYPES_H
+#define COMMON_TYPES_H
 
+#include <SDL2/SDL.h>
+#include <new>
 
-extern const char GOODSOUP_VERSION_STR[];
+typedef Uint8   byte;
+typedef Uint8   uint8;
+typedef Uint16  uint16;
+typedef Uint32  uint32;
+typedef Sint8   int8;
+typedef Sint16  int16;
+typedef Sint32  int32;
 
-namespace common
-{
-	SDL_Window* sWindow;
-
-	bool openGraphics()
-	{
-		sWindow = SDL_CreateWindow(
-			&GOODSOUP_VERSION_STR[6],
-			SDL_WINDOWPOS_CENTERED,
-			SDL_WINDOWPOS_CENTERED,
-			SCREEN_WIDTH,
-			SCREEN_HEIGHT,
-			SDL_WINDOW_SHOWN
-		);
-
-		return true;
-	}
-
-	bool closeGraphics()
-	{
-		if (sWindow)
-		{
-			SDL_DestroyWindow(sWindow);
-		}
-
-		return false;
-	}
-
-}
+#endif

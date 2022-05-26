@@ -18,8 +18,9 @@
 #ifndef COMI_VM_H
 #define COMI_VM_H
 
-#include "../goodsoup.h"
-#include "../array.h"
+#include "common/types.h"
+#include "common/buffer.h"
+
 #include "resource.h"
 #include "consts.h"
 
@@ -99,8 +100,8 @@ namespace comi {
 		Vm();
 		~Vm();
 
-		Array<int32> _scummVars;
-		Array<byte> _bitVars;
+		Buffer<int32> _scummVars;
+		Buffer<byte> _bitVars;
 
 		VmState state;
 

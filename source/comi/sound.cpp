@@ -15,7 +15,6 @@
  *
  */
 
-#include "../goodsoup.h"
 #include "sound.h"
 
 namespace comi
@@ -27,6 +26,10 @@ namespace comi
 
 	Sound::~Sound() {
 
+	}
+
+	void Sound::reset() {
+		/* TODO */
 	}
 
 }

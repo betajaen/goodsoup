@@ -15,14 +15,17 @@
  *
  */
 
-#include "required.h"
+#include "memory.h"
+#include "debug.h"
+
 #include <stdio.h>	// for checkMem
+
+#define HEADER_MAGIC 0x945FAE6A
+#define FOOTER_MAGIC 0xE9394F7F
 
 namespace common
 {
-	#define HEADER_MAGIC 0x945FAE6A
-	#define FOOTER_MAGIC 0xE9394F7F
-	
+
 	struct MemHeader
 	{
 		uint32 _allocationId;
@@ -42,9 +45,9 @@ namespace common
 
 
 	// Memory
-	void* allocMem(uint32 itemCount, uint32 itemSize, int flags) {
+	void* allocateMemory(uint32 itemCount, uint32 itemSize, int flags) {
 		static uint32 sNextAllocationId = 0xBB2F0507;
-		
+
 		uint32 allocationSize, userSize;
 		byte* allocatedMem;
 		void* userMem;
@@ -56,8 +59,8 @@ namespace common
 
 		userSize = itemCount * itemSize;
 		allocationSize = sizeof(MemHeader) + sizeof(MemFooter) + userSize;
-		
-		allocatedMem = (byte*) SDL_malloc(allocationSize);
+
+		allocatedMem = (byte*)SDL_malloc(allocationSize);
 
 		verbose("allocMem(%d,%d,%d,%d,%d,%p)", itemCount, itemSize, userSize, allocationSize, flags, allocatedMem);
 
@@ -73,7 +76,7 @@ namespace common
 		header->_totalSize = allocationSize;
 		header->_magic = HEADER_MAGIC;
 
-		userMem = (void*) (allocatedMem + sizeof(MemHeader));
+		userMem = (void*)(allocatedMem + sizeof(MemHeader));
 
 		footer = (MemFooter*)(allocatedMem + sizeof(MemHeader) + userSize);
 		footer->_magic = FOOTER_MAGIC;
@@ -84,10 +87,10 @@ namespace common
 		sMemAllocatedTotal += allocationSize;
 		sMemAllocatedUser += userSize;
 
-		return (void*) userMem;
+		return (void*)userMem;
 	}
 
-	void freeMem(void* mem)
+	void releaseMemory(void* mem)
 	{
 		if (mem == NULL)
 		{
@@ -95,7 +98,7 @@ namespace common
 			return;
 		}
 
-		byte* allocatedMem = ((byte*) mem) - sizeof(MemHeader);
+		byte* allocatedMem = ((byte*)mem) - sizeof(MemHeader);
 
 		MemHeader* header = (MemHeader*)allocatedMem;
 
@@ -105,7 +108,7 @@ namespace common
 			return;
 		}
 
-		MemFooter* footer = (MemFooter*) (allocatedMem + header->_totalSize - sizeof(MemFooter));
+		MemFooter* footer = (MemFooter*)(allocatedMem + header->_totalSize - sizeof(MemFooter));
 
 		if (footer->_magic != FOOTER_MAGIC)
 		{
@@ -127,27 +130,41 @@ namespace common
 		SDL_free(header);
 	}
 
-	uint32 memSize(void* mem)
+	static uint32 memSize(void* mem)
 	{
+		if (mem == NULL)
+		{
+			return 0;
+		}
+
 		byte* allocatedMem = ((byte*)mem) - sizeof(MemHeader);
 
 		MemHeader* header = (MemHeader*)allocatedMem;
 
 		if (header->_magic != HEADER_MAGIC)
 		{
-			error("memSize(%p) Memory allocation has a corrupted header!");
 			return 0;
 		}
 
-		return header->_totalSize - (sizeof(MemHeader) - sizeof(MemFooter));
+		return header->_totalSize - sizeof(MemHeader) - sizeof(MemFooter);
 	}
 
-	void clearMem(void* mem, uint32 size)
+	void clearMemory(void* mem, uint32 size)
 	{
+		if (mem == NULL)
+		{
+			error("clearMem(NULL, ?, ?) Tried to clear a NULL pointer");
+			return;
+		}
 		uint32 maxSize = memSize(mem);
 
+		if (maxSize == 0) {
+			error("clearMem(%p, %d, %d) Tried to clear a corrupted/supported pointer!", mem, size, maxSize);
+			return;
+		}
+
 		if (size > maxSize) {
-			error("clearMem(%d, %d) Caught out of bounds write!", size, maxSize);
+			error("clearMem(%p, %d, %d) Caught out of bounds write!", mem, size, maxSize);
 			return;
 		}
 

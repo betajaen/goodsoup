@@ -15,12 +15,12 @@
  *
  */
 
-#include "../goodsoup.h"
+#include "file.h"
 
 namespace common
 {
-	
-	bool checkFile(const char* path)
+
+	bool fileExists(const char* path)
 	{
 		SDL_RWops* fp = SDL_RWFromFile(path, "rb");
 
@@ -31,49 +31,6 @@ namespace common
 		}
 
 		return false;
-	}
-
-	CFile openFileRead(const char* path)
-	{
-		return SDL_RWFromFile(path, "rb");
-	}
-
-	CFile openFileWrite(const char* path)
-	{
-		return SDL_RWFromFile(path, "wb");
-	}
-
-	void writeFile(CFile file, const void* data, uint32 length)
-	{
-		SDL_RWwrite(file, data, length, 1);
-	}
-
-	void readFile(CFile file, void* data, uint32 length)
-	{
-		SDL_RWread(file, data, length, 1);
-	}
-
-	void closeFile(CFile file)
-	{
-		if (file)
-		{
-			SDL_RWclose(file);
-		}
-	}
-
-	bool isFileOpen(CFile file)
-	{
-		return file != NULL;
-	}
-
-	int32 seekFile(CFile file, int32 seek, int32 seekOffset)
-	{
-		return SDL_RWseek(file, seek, seekOffset) != -1;
-	}
-
-	int32 tellFile(CFile file)
-	{
-		return (int32)SDL_RWtell(file);
 	}
 
 }

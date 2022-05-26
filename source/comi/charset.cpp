@@ -15,11 +15,8 @@
  *
  */
 
-#include "../goodsoup.h"
 #include "charset.h"
-#include "engine.h"
 
-using namespace common;
 
 namespace comi
 {

@@ -15,22 +15,19 @@
  *
  */
 
-#ifndef COMI_GRAPHICS_H
-#define COMI_GRAPHICS_H
+#ifndef COMMON_FILE_H
+#define COMMON_FILE_H
 
-#include "common/types.h"
+#include "types.h"
 
-namespace comi {
-
-	class VirtScreen {
-	public:
-		VirtScreen();
-		~VirtScreen();
-
-		void reset();
-
+namespace common
+{
+	class File
+	{
 	};
 
+	bool fileExists(const char* path);
 }
+
 
 #endif

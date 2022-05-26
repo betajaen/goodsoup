@@ -15,8 +15,10 @@
  *
  */
 
-#include "../goodsoup.h"
 #include "resource.h"
+#include "common/memory.h"
+#include "common/file.h"
+#include "common/util.h"
 
 using namespace common;
 
@@ -131,13 +133,13 @@ namespace comi
 				}
 			}
 
-			freeMemThenNull(address[type]);
-			freeMemThenNull(flags[type]);
-			freeMemThenNull(status[type]);
-			freeMemThenNull(roomno[type]);
-			freeMemThenNull(roomoffs[type]);
+			DELETE_MEMORY(address[type]);
+			DELETE_MEMORY(flags[type]);
+			DELETE_MEMORY(status[type]);
+			DELETE_MEMORY(roomno[type]);
+			DELETE_MEMORY(roomoffs[type]);
 
-			freeMemThenNull(globsize[type]);
+			DELETE_MEMORY(globsize[type]);
 		}
 	}
 
@@ -166,7 +168,7 @@ namespace comi
 	}
 
 	bool ResourceManager::canStart() {
-		bool hasFile = checkFile("data/COMI.LA0");
+		bool hasFile = common::fileExists("data/COMI.LA0");
 
 		if (hasFile == false) {
 			warn("Missing data files!");

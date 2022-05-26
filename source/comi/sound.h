@@ -18,14 +18,8 @@
 #ifndef COMI_SOUND_H
 #define COMI_SOUND_H
 
-#include "../goodsoup.h"
-
-
 namespace comi {
 
-	using namespace common;
-
-	
 	class Sound {
 
 	public:
@@ -33,7 +27,7 @@ namespace comi {
 		Sound();
 		~Sound();
 
-		void reset() { /* TODO */ }
+		void reset();
 
 	};
 }

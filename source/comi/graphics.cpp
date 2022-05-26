@@ -15,7 +15,6 @@
  *
  */
 
-#include "../goodsoup.h"
 #include "graphics.h"
 
 namespace comi
@@ -27,6 +26,10 @@ namespace comi
 
 	VirtScreen::~VirtScreen() {
 
+	}
+
+	void VirtScreen::reset() {
+		/* TODO */
 	}
 
 }

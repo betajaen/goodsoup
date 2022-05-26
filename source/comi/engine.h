@@ -18,9 +18,8 @@
 #ifndef COMI_ENGINE_H
 #define COMI_ENGINE_H
 
-#include "../goodsoup.h"
-#include "../array.h"
-#include "../point.h"
+#include "common/buffer.h"
+#include "common/point.h"
 #include "resource.h"
 #include "vm.h"
 #include "sound.h"
@@ -128,10 +127,10 @@ namespace comi {
 		byte   _roomPalette[256];
 		uint16 _palDirtyMin, _palDirtyMax;
 
-		Array<Actor> _actors;
-		Array<Actor*> _sortedActors;
+		Buffer<Actor> _actors;
+		Buffer<Actor*> _sortedActors;
 
-		Array<VerbSlot> _verbs;
+		Buffer<VerbSlot> _verbs;
 
 	};
 }

@@ -15,21 +15,22 @@
  *
  */
 
-#ifndef COMI_GRAPHICS_H
-#define COMI_GRAPHICS_H
+#ifndef RECT_H
+#define RECT_H
 
 #include "common/types.h"
 
-namespace comi {
+namespace common
+{
 
-	class VirtScreen {
-	public:
-		VirtScreen();
-		~VirtScreen();
+	struct Rect
+	{
+		int16 top, left, bottom, right;
 
-		void reset();
-
+		Rect()
+			: top(0), left(0), bottom(0), right(0) {}
 	};
+
 
 }
 

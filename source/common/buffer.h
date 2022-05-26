@@ -15,43 +15,44 @@
  *
  */
 
-#ifndef ARRAY_H
-#define ARRAY_H
+#ifndef BUFFER_H
+#define BUFFER_H
 
-#include "goodsoup.h"
-#include <new>
+#include "common/types.h"
+#include "common/memory.h"
+#include "common/debug.h"
 
 namespace common
 {
 
 	template<typename T>
-	struct Array
+	struct Buffer
 	{
 	private:
 		T* _data;
 		uint32 _size;
 	public:
 
-		Array() {
+		Buffer() {
 			_size = 0;
-			_data = 0;
+			_data = NULL;
 		}
 
-		~Array() {
-			releaseMem();
+		~Buffer() {
+			release();
 		}
 
 		void setSize(uint32 size) {
 			if (_size && _data) {
-				freeMem(_data);;
+				releaseMemory(_data);;
 			}
-			_data = (T*) allocMem(size, sizeof(T), MEMF_CLEAR);
+			_data = (T*)allocateMemory(size, sizeof(T), MEMF_CLEAR);
 			_size = size;
 		}
 
-		void releaseMem() {
+		void release() {
 			if (_size && _data) {
-				freeMem(_data);
+				releaseMemory(_data);
 				_size = 0;
 				_data = NULL;
 			}
@@ -59,7 +60,7 @@ namespace common
 
 		void zeroMem() {
 			if (_size && _data) {
-				clearMem(_data, _size * sizeof(T));
+				clearMemory(_data, _size * sizeof(T));
 			}
 		}
 

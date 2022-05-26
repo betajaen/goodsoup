@@ -15,18 +15,20 @@
  *
  */
 
-#include "goodsoup.h"
-#include "comi/engine.h"
+#include "common/memory.h"
+#include "common/debug.h"
+#include "engine.h"
 
-extern const char GOODSOUP_VERSION_STR[] = "$VER: goodsoup 0.1 (" __AMIGADATE__ ")";
+using namespace common;
 
-namespace common
+extern const char GOODSOUP_VERSION_STR[];
+
+namespace comi
 {
 	int start()
 	{
-		preinit();
 		info("%s\n", &GOODSOUP_VERSION_STR[6]);
-		init();
+
 		comi::Engine* engine = NEW_OBJECT(comi::Engine);
 
 		if (engine->canStart())
@@ -39,8 +41,7 @@ namespace common
 		}
 
 		DELETE_OBJECT(engine);
-		
-		teardown();
+
 		return 0;
 	}
 }
