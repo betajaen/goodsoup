@@ -15,22 +15,24 @@
  *
  */
 
-#ifndef COMI_CHARSET_H
-#define COMI_CHARSET_H
+#define GS_FILE_NAME "common/file"
 
-namespace comi {
+#include "file.h"
 
-	class CharsetRendererNut {
+namespace common
+{
 
-	public:
+	bool fileExists(const char* path)
+	{
+		SDL_RWops* fp = SDL_RWFromFile(path, "rb");
 
-		CharsetRendererNut();
-		~CharsetRendererNut();
+		if (fp)
+		{
+			SDL_RWclose(fp);
+			return true;
+		}
 
+		return false;
+	}
 
-	private:
-
-	};
 }
-
-#endif

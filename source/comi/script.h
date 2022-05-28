@@ -1,60 +1,40 @@
 /*
- * This program is free software, you can redistribute it and/or
+ * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation, either version 2
+ * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
 
  * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY, without even the implied warranty of
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
 
  * You should have received a copy of the GNU General Public License
- * along with this program, if not, write to the Free Software
+ * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
 
-#ifndef COMI_VARS_H
-#define COMI_VARS_H
+#ifndef COMI_SCRIPT_H
+#define COMI_SCRIPT_H
 
-namespace comi {
+#include "common/types.h"
+#include "common/buffer.h"
 
+using namespace common;
+
+namespace comi
+{
 	enum
 	{
-		SCREEN_WIDTH = 640,
-		SCREEN_HEIGHT = 480,
-		
-		OF_OWNER_ROOM = 0xFF,
-		NUM_SCRIPT_SLOT = 80,
+		NUM_CONCURRENT_SCRIPTS = 80,
 
-		// Hardcoded MAXS
-		NUM_VARIABLES = 1500,
-		NUM_BITVARIABLES = 2048,
-		NUM_SCRIPTS = 458,
-		NUM_SOUNDS = 789,
-		NUM_CHARSETS = 1,
-		NUM_COSTUMES = 446,
-		NUM_ROOMS = 95,
-		NUM_GLOBAL_OBJECTS = 1401,
-		NUM_LOCAL_OBJECTS = 200,
-		NUM_NEW_NAMES = 100,
-		NUM_FL_OBJECT = 128,
-		NUM_INVENTORY = 80,
-		NUM_ACTORS = 80,
-		NUM_ARRAY = 200,
-		NUM_VERBS = 50,
-		NUM_GLOBAL_SCRIPTS = 200,
-		NUM_SHADOW_PALETTE = 8
+		NUM_INT_GLOBALS = 1500,
+		NUM_BOOL_GLOBALS = 2048,
+		NUM_INT_LOCALS = 26
 	};
 
-	enum {
-		ssDead = 0,
-		ssPaused = 1,
-		ssRunning = 2
-	};
-
-	enum Var
+	enum
 	{
 		VAR_ROOM_WIDTH = 1,
 		VAR_ROOM_HEIGHT = 2,
@@ -146,7 +126,39 @@ namespace comi {
 		VAR_DEBUGMODE = 130,
 		VAR_KEYPRESS = 132,
 		VAR_BLAST_ABOVE_TEXT = 133,
-		VAR_SYNC = 134,
+		VAR_SYNC = 134
+	};
+
+	struct ConcurrentScript
+	{
+	public:
+
+		ConcurrentScript();
+		~ConcurrentScript();
+
+		void reset();
+
+		int32 _locals[NUM_INT_LOCALS];
+
+	};
+
+	class VirtualMachine
+	{
+	public:
+
+		VirtualMachine();
+		~VirtualMachine();
+
+		void   reset();
+		int32  readVar(uint32 var);
+		void   writeVar(uint32 var, int32 value);
+
+	private:
+
+		Buffer<int32>		_intGlobals;
+		Buffer<byte>		_boolGlobals;
+		ConcurrentScript	_scripts[NUM_CONCURRENT_SCRIPTS];
+		byte				_currentScript;
 	};
 }
 

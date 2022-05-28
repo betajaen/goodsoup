@@ -4,7 +4,7 @@
       "name": "Amiga",
       "includePath": [
         "${workspaceRoot}\\**",
-        "${workspaceRoot}\\source\\backends\\amiga",
+        "${workspaceRoot}\\source\\amiga",
         "C:\\Amiga\\Dev\\NDK3.2\\Include_H\\",
         "/opt/amiga/m68k-amigaos/ndk-include"
       ]
@@ -13,7 +13,7 @@
       "name": "SDL",
       "includePath": [
         "${workspaceRoot}\\**",
-        "${workspaceRoot}\\source\\backends\\sdl",
+        "${workspaceRoot}\\source\\sdl",
         "C:\\src\\vcpkg\\packages\\sdl2_x86-windows\\include"
       ],
       "defines": [

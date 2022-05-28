@@ -62,8 +62,6 @@ namespace common
 
 		allocatedMem = (byte*)SDL_malloc(allocationSize);
 
-		verbose("allocMem(%d,%d,%d,%d,%d,%p)", itemCount, itemSize, userSize, allocationSize, flags, allocatedMem);
-
 		if (flags & MEMF_CLEAR)
 		{
 			SDL_memset(allocatedMem, 0, allocationSize);
@@ -82,10 +80,10 @@ namespace common
 		footer->_magic = FOOTER_MAGIC;
 		footer->_allocationId = allocationId;
 
-		verbose("allocMem(return,%p)", userMem);
-
 		sMemAllocatedTotal += allocationSize;
 		sMemAllocatedUser += userSize;
+
+		gs_verbose("(%d,%d,%d,%d,%d,%p)", itemCount, itemSize, userSize, allocationSize, flags, allocatedMem);
 
 		return (void*)userMem;
 	}
@@ -94,7 +92,7 @@ namespace common
 	{
 		if (mem == NULL)
 		{
-			verbose("freeMem(0, 0)");
+			gs_verbose("(0, 0) - Freeing a null pointer. Is this intentional?");
 			return;
 		}
 
@@ -104,7 +102,7 @@ namespace common
 
 		if (header->_magic != HEADER_MAGIC)
 		{
-			error("freeMem(%p) Memory allocation has a corrupted header!");
+			gs_error("(%p) Memory allocation has a corrupted header!");
 			return;
 		}
 
@@ -112,17 +110,17 @@ namespace common
 
 		if (footer->_magic != FOOTER_MAGIC)
 		{
-			error("freeMem(%p) Memory allocation has a corrupted footer!");
+			gs_error("(%p) Memory allocation has a corrupted footer!");
 			return;
 		}
 
 		if (header->_allocationId != footer->_allocationId)
 		{
-			error("freeMem(%p) Memory allocation has a corrupted header or footer!");
+			gs_error("(%p) Memory allocation has a corrupted header or footer!");
 			return;
 		}
 
-		verbose("freeMem(%p, %d, 0x%x)", mem, header->_totalSize, header->_flags);
+		gs_verbose("(%p, %d, 0x%x) released", mem, header->_totalSize, header->_flags);
 
 		sMemAllocatedTotal -= header->_totalSize;
 		sMemAllocatedUser -= (header->_totalSize - sizeof(MemHeader) - sizeof(MemFooter));
@@ -153,18 +151,18 @@ namespace common
 	{
 		if (mem == NULL)
 		{
-			error("clearMem(NULL, ?, ?) Tried to clear a NULL pointer");
+			error("(NULL, ?, ?) Tried to clear a NULL pointer");
 			return;
 		}
 		uint32 maxSize = memSize(mem);
 
 		if (maxSize == 0) {
-			error("clearMem(%p, %d, %d) Tried to clear a corrupted/supported pointer!", mem, size, maxSize);
+			error("(%p, %d, %d) Tried to clear a corrupted/supported pointer!", mem, size, maxSize);
 			return;
 		}
 
 		if (size > maxSize) {
-			error("clearMem(%p, %d, %d) Caught out of bounds write!", mem, size, maxSize);
+			error("(%p, %d, %d) Caught out of bounds write!", mem, size, maxSize);
 			return;
 		}
 

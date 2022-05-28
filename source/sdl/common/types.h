@@ -15,33 +15,20 @@
  *
  */
 
-#ifndef COMI_COSTUME_H
-#define COMI_COSTUME_H
+#ifndef COMMON_TYPES_H
+#define COMMON_TYPES_H
 
-namespace comi {
+#include <SDL2/SDL.h>
+#include <new>
 
-	class AkosRenderer {
+typedef Uint8   byte;
+typedef Uint8   uint8;
+typedef Uint16  uint16;
+typedef Uint32  uint32;
+typedef Sint8   int8;
+typedef Sint16  int16;
+typedef Sint32  int32;
 
-	public:
-
-		AkosRenderer();
-		~AkosRenderer();
-
-
-	};
-
-	class AkosCostumeLoader {
-
-	public:
-
-		AkosCostumeLoader();
-		~AkosCostumeLoader();
-
-	private:
-
-
-	};
-
-}
+#define STRINGIFY_ARG(arg)  #arg
 
 #endif

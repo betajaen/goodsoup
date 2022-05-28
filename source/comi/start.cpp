@@ -15,9 +15,12 @@
  *
  */
 
+#define GS_FILE_NAME "common/start"
+
 #include "common/memory.h"
-#include "common/debug.h"
-#include "engine.h"
+
+#include "debug.h"
+#include "context.h"
 
 using namespace common;
 
@@ -25,22 +28,22 @@ extern const char GOODSOUP_VERSION_STR[];
 
 namespace comi
 {
+
+	Context* CTX = NULL;
+
 	int start()
 	{
-		info("%s\n", &GOODSOUP_VERSION_STR[6]);
+		comi_info("%s\n", &GOODSOUP_VERSION_STR[6]);
 
-		comi::Engine* engine = NEW_OBJECT(comi::Engine);
+		CTX = NEW_OBJECT(Context);
+		CTX->initialize();
 
-		if (engine->canStart())
+		if (CTX->canRun())
 		{
-			engine->init();
-		}
-		else
-		{
-			error("Missing resources files!");
+			CTX->run();
 		}
 
-		DELETE_OBJECT(engine);
+		DELETE_OBJECT(CTX);
 
 		return 0;
 	}

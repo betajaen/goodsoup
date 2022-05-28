@@ -42,11 +42,11 @@ namespace common
 			release();
 		}
 
-		void setSize(uint32 size) {
+		void setSize(uint32 size, int flags = MEMF_CLEAR) {
 			if (_size && _data) {
 				releaseMemory(_data);;
 			}
-			_data = (T*)allocateMemory(size, sizeof(T), MEMF_CLEAR);
+			_data = (T*)allocateMemory(size, sizeof(T), flags);
 			_size = size;
 		}
 
@@ -96,6 +96,10 @@ namespace common
 			_data[idx] = newValue;
 		}
 
+		void set_unchecked(uint32 idx, const T& newValue) {
+			_data[idx] = newValue;
+		}
+
 		T* ptr(uint32 idx) {
 
 			if (idx >= _size)
@@ -120,11 +124,18 @@ namespace common
 			return _data[idx];
 		}
 
-		const T& get(uint32 idx) const
-		{
+		const T& get(uint32 idx) const {
 			if (idx >= _size)
 				error("array(Out of bounds, const, %d)", idx);
 
+			return _data[idx];
+		}
+
+		T& get_unchecked(uint32 idx) {
+			return _data[idx];
+		}
+
+		const T& get_unchecked(uint32 idx) const {
 			return _data[idx];
 		}
 	};

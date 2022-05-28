@@ -15,21 +15,21 @@
  *
  */
 
-#ifndef COMMON_DEBUG_H
-#define COMMON_DEBUG_H
+#ifndef COMI_UTILS_H
+#define COMI_UTILS_H
 
-#include "types.h"
+#include "common/types.h"
+#include "debug.h"
 
-namespace common
+using namespace common;
+
+namespace comi
 {
-	void verbose(const char* fmt, ...);
-	void debug(const char* fmt, ...);
-	void info(const char* fmt, ...);
-	void warn(const char* fmt, ...);
-	void error(const char* fmt, ...);
+	inline void checkRange(int max, int min, int no, const char* str) {
+		if (no < min || no > max) {
+			comi_error("Value %d is out of bounds (%d,%d) (%s)", no, max, min, str);
+		}
+	}
 }
-
-#define assert(X) SDL_assert(X)
-
 
 #endif

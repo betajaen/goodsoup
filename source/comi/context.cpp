@@ -15,28 +15,33 @@
  *
  */
 
+#define GS_FILE_NAME "comi/context"
+
+#include "common/memory.h"
 #include "common/debug.h"
-#include "vm.h"
+#include "common/file.h"
+#include "context.h"
 
 using namespace common;
 
+extern const char GOODSOUP_VERSION_STR[];
+
 namespace comi
 {
-
-	Vm::Vm() {
-		debug("COMI vm::ctor()");
+	Context::Context() {
 	}
 
-	Vm::~Vm() {
-		debug("COMI Vm::dtor()");
-		_scummVars.release();
-		_bitVars.release();
+	Context::~Context() {
 	}
 
-	void Vm::reset() {
-		debug("COMI Vm::reset(%d, %d)", NUM_VARIABLES, NUM_BITVARIABLES);
-		_scummVars.setSize(NUM_VARIABLES);
-		_bitVars.setSize(NUM_BITVARIABLES >> 3);
+	void Context::initialize() {
 	}
 
+	bool Context::canRun() {
+		return fileExists("data/COMI.LA0");
+	}
+
+	void Context::run() {
+		vm.reset();
+	}
 }

@@ -15,27 +15,19 @@
  *
  */
 
-#include "actor.h"
+#ifndef COMI_DEBUG_H
+#define COMI_DEBUG_H
+
 #include "common/debug.h"
 
-using namespace common;
+#ifndef GS_FILE_NAME
+#define GS_FILE_NAME __FILE__
+#endif
 
-namespace comi
-{
-	Actor::Actor()
-		: _number(0)
-	{
-		initActor(-1);
-	}
+#define comi_verbose(FMT, ...) ::common::verbose("COMI %s:%i:%s " GS_FILE_NAME, __FILE__, __LINE__,__FUNCTION__,##__VA_ARGS__)
+#define comi_debug(FMT, ...)   ::common::debug("COMI %s:%i:%s " GS_FILE_NAME, __FILE__, __LINE__,__FUNCTION__,##__VA_ARGS__)
+#define comi_info(FMT, ...)    ::common::info("COMI %s:%i:%s " GS_FILE_NAME, __FILE__, __LINE__, __FUNCTION__,##__VA_ARGS__)
+#define comi_warn(FMT, ...)    ::common::warn("COMI %s:%i:%s " GS_FILE_NAME, __FILE__, __LINE__, __FUNCTION__,##__VA_ARGS__)
+#define comi_error(FMT, ...)   ::common::error("COMI %s:%i:%s " GS_FILE_NAME, __FILE__, __LINE__, __FUNCTION__,##__VA_ARGS__)
 
-	Actor::~Actor()
-	{
-	}
-
-	void Actor::initActor(int mode)
-	{
-		debug("COMI initActor(%i, %i)", _number, mode);
-		/* TODO */
-	}
-
-}
+#endif

@@ -15,21 +15,29 @@
  *
  */
 
-#include "sound.h"
+#define GS_FILE_NAME "common/main"
+
+#include "types.h"
+
+extern const char GOODSOUP_VERSION_STR[] = "$VER: goodsoup 0.1 (" __AMIGADATE__ ")";
+
+namespace common
+{
+	void beginDebug();
+	void endDebug();
+	void checkMem();
+}
 
 namespace comi
 {
+	int start();
+}
 
-	Sound::Sound() {
-
-	}
-
-	Sound::~Sound() {
-
-	}
-
-	void Sound::reset() {
-		/* TODO */
-	}
-
+int main(int argc, char** argv)
+{
+	common::beginDebug();
+	int rc = comi::start();
+	common::endDebug();
+	common::checkMem();
+	return rc;
 }

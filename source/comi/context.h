@@ -15,22 +15,34 @@
  *
  */
 
-#ifndef COMI_GRAPHICS_H
-#define COMI_GRAPHICS_H
+#ifndef COMI_CONTEXT_H
+#define COMI_CONTEXT_H
 
 #include "common/types.h"
 
-namespace comi {
+#include "script.h"
 
-	class VirtScreen {
+using namespace common;
+
+namespace comi
+{
+	class Context;
+	
+	extern Context* CTX;
+
+	class Context
+	{
 	public:
-		VirtScreen();
-		~VirtScreen();
+		Context();
+		~Context();
 
-		void reset();
+		void initialize();
 
+		bool canRun();
+		void run();
+
+		VirtualMachine vm;
 	};
-
 }
 
 #endif

@@ -15,18 +15,19 @@
  *
  */
 
-#ifndef COMMON_TYPES_H
-#define COMMON_TYPES_H
+#ifndef COMI_CONSTANTS_H
+#define COMI_CONSTANTS_H
 
-#include <SDL2/SDL.h>
-#include <new>
+#include "common/types.h"
+#include "common/buffer.h"
 
-typedef Uint8   byte;
-typedef Uint8   uint8;
-typedef Uint16  uint16;
-typedef Uint32  uint32;
-typedef Sint8   int8;
-typedef Sint16  int16;
-typedef Sint32  int32;
+using namespace common;
+
+namespace comi
+{
+	enum
+	{
+	};
+}
 
 #endif
