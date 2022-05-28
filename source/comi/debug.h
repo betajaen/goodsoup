@@ -24,10 +24,10 @@
 #define GS_FILE_NAME __FILE__
 #endif
 
-#define comi_verbose(FMT, ...) ::common::verbose("COMI %s:%i:%s " GS_FILE_NAME, __FILE__, __LINE__,__FUNCTION__,##__VA_ARGS__)
-#define comi_debug(FMT, ...)   ::common::debug("COMI %s:%i:%s " GS_FILE_NAME, __FILE__, __LINE__,__FUNCTION__,##__VA_ARGS__)
-#define comi_info(FMT, ...)    ::common::info("COMI %s:%i:%s " GS_FILE_NAME, __FILE__, __LINE__, __FUNCTION__,##__VA_ARGS__)
-#define comi_warn(FMT, ...)    ::common::warn("COMI %s:%i:%s " GS_FILE_NAME, __FILE__, __LINE__, __FUNCTION__,##__VA_ARGS__)
-#define comi_error(FMT, ...)   ::common::error("COMI %s:%i:%s " GS_FILE_NAME, __FILE__, __LINE__, __FUNCTION__,##__VA_ARGS__)
+#define comi_verbose(FMT, ...) ::common::verbose("COMI %s:%i:%s " FMT, GS_FILE_NAME, __LINE__,__FUNCTION__,##__VA_ARGS__)
+#define comi_debug(FMT, ...)   ::common::debug("COMI %s:%i:%s " FMT, GS_FILE_NAME, __LINE__,__FUNCTION__,##__VA_ARGS__)
+#define comi_info(FMT, ...)    ::common::info("COMI %s:%i:%s " FMT, GS_FILE_NAME, __LINE__, __FUNCTION__,##__VA_ARGS__)
+#define comi_warn(FMT, ...)    ::common::warn("COMI %s:%i:%s " FMT, GS_FILE_NAME, __LINE__, __FUNCTION__,##__VA_ARGS__)
+#define comi_error(FMT, ...)   ::common::error("COMI %s:%i:%s " FMT, GS_FILE_NAME,  __LINE__, __FUNCTION__,##__VA_ARGS__)
 
 #endif

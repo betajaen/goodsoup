@@ -25,7 +25,8 @@ endif
 # Game Sources
 OBJ +=	source/comi/start.o\
 		source/comi/context.o\
-		source/comi/script.o
+		source/comi/script.o\
+		source/comi/script_data.o
 
 all: $(OBJ)
 	$(CC) -o $(PROGRAM) $(OBJ) $(CFLAGS)

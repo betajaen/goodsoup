@@ -15,6 +15,8 @@
  *
  */
 
+#define GS_FILE_NAME "common/memory"
+
 #include "memory.h"
 #include "debug.h"
 

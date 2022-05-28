@@ -15,23 +15,30 @@
  *
  */
 
-#define GS_FILE_NAME "common/script"
+#define GS_FILE_NAME "comi/script"
 
 #include "script.h"
+#include "script_data.h"
 
 #include "debug.h"
 #include "constants.h"
+#include "common/util.h"
 
 using namespace common;
 
 namespace comi
 {
-	VirtualMachine::VirtualMachine() {
+	VirtualMachine::VirtualMachine() :
+		_scriptData(NULL)
+	{
 		comi_debug(".");
 	}
 
 	VirtualMachine::~VirtualMachine() {
 		comi_debug(".");
+
+		DELETE_OBJECT(_scriptData);
+
 	}
 
 	void VirtualMachine::reset() {
@@ -40,6 +47,7 @@ namespace comi
 		int32 i;
 
 		_currentScript = 0;
+		_scriptData = NEW_OBJECT(ScriptData);
 
 		if (_intGlobals.hasMem() == false) {
 			_intGlobals.setSize(NUM_INT_GLOBALS);
@@ -60,16 +68,18 @@ namespace comi
 			_scripts[i].reset();
 		}
 
+		writeVar(VAR_CURRENTDISK, 1);
+
 	}
 
 	int32 VirtualMachine::readVar(uint32 var) {
-		comi_debug("readvar(%d)", var);
 
 		// Global Ints
 		if (!(var & 0xF0000000)) {
 			if (var >= NUM_INT_GLOBALS) {
 				comi_error("Int Global %d out of range!", var);
 			}
+			comi_verbose("(GLOBAL, INT, %d)", var);
 			return _intGlobals.get_unchecked(var);
 		}
 
@@ -79,20 +89,59 @@ namespace comi
 			if (var >= NUM_BOOL_GLOBALS) {
 				comi_error("Bool Global variable %d out of range!", var);
 			}
+			comi_verbose("(GLOBAL, BOOL, %d)", var);
 			return _boolGlobals.get_unchecked(var);
 		}
 
-		// Locals
+		// Local Ints
 		if (var & 0x40000000) {
 			var &= 0xFFFFFFF;
 			if (var >= NUM_INT_LOCALS) {
 				comi_error("Script variable %d out of range!", var);
 			}
+			comi_verbose("(SCRIPT, INT, %d, %d)", _currentScript, var);
 			return _scripts[_currentScript]._locals[var];
 		}
 
-		comi_error("Unsupported variable index! %d", var);
+		comi_error("(?, ?, %d) Unsupported variable index! ", var);
 		return -1;
+	}
+
+	void VirtualMachine::writeVar(uint32 var, int32 value) {
+		
+		// Global Ints
+		if (!(var & 0xF0000000)) {
+			if (var >= NUM_INT_GLOBALS) {
+				comi_error("Int Global %d out of range!", var);
+			}
+			comi_verbose("(GLOBAL, INT, %d, %d)", var, value);
+			_intGlobals.set_unchecked(var, value);
+			return;
+		}
+
+		// Global Booleans
+		if (var & 0x80000000) {
+			var &= 0x7FFFFFFF;
+			if (var >= NUM_BOOL_GLOBALS) {
+				comi_error("Bool Global variable %d out of range!", var);
+			}
+			comi_verbose("(GLOBAL, BOOL, %d, %d)", var, value);
+			_boolGlobals.set_unchecked(var, var);
+			return;
+		}
+
+		// Local Ints
+		if (var & 0x40000000) {
+			var &= 0xFFFFFFF;
+			if (var >= NUM_INT_LOCALS) {
+				comi_error("Script variable %d out of range!", var);
+			}
+			comi_verbose("(SCRIPT, INT, %d, %d, %d)", _currentScript, var, value);
+			_scripts[_currentScript]._locals[var] = value;
+			return;
+		}
+
+		comi_error("(?, ?, %d, %d) Unsupported variable index!", var, value);
 	}
 
 	ConcurrentScript::ConcurrentScript() {

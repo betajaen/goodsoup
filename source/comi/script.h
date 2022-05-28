@@ -25,6 +25,8 @@ using namespace common;
 
 namespace comi
 {
+	class ScriptData;
+
 	enum
 	{
 		NUM_CONCURRENT_SCRIPTS = 80,
@@ -129,6 +131,7 @@ namespace comi
 		VAR_SYNC = 134
 	};
 
+
 	struct ConcurrentScript
 	{
 	public:
@@ -159,6 +162,7 @@ namespace comi
 		Buffer<byte>		_boolGlobals;
 		ConcurrentScript	_scripts[NUM_CONCURRENT_SCRIPTS];
 		byte				_currentScript;
+		ScriptData*			_scriptData;
 	};
 }
 
