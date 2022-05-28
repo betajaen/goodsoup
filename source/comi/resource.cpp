@@ -15,25 +15,19 @@
  *
  */
 
-#ifndef COMI_UTILS_H
-#define COMI_UTILS_H
+#define GS_FILE_NAME "resource"
 
-#include "common/types.h"
+#include "resource.h"
+
 #include "debug.h"
+#include "constants.h"
 
 using namespace common;
 
 namespace comi
 {
-	inline void checkRange(int max, int min, int no, const char* str) {
-		if (no < min || no > max) {
-			comi_error("Value %d is out of bounds (%d,%d) (%s)", no, max, min, str);
-		}
-	}
+	void ObjectTable::reset() {
 
-	inline bool tagEqual(char tagName[5], char a, char b, char c, char d) {
-		return (tagName[0] == a && tagName[1] == b && tagName[2] == c && tagName[3] == d);
+		clearMemoryNonAllocated(_objects, sizeof(_objects));
 	}
 }
-
-#endif

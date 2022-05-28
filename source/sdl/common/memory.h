@@ -47,6 +47,8 @@ namespace common
 
 	void clearMemory(void* allocation, uint32 size);
 
+	void clearMemoryNonAllocated(void* allocation, uint32 size);
+
 	template<typename T>
 	T* newObject() {
 		void* mem = allocateMemory(1, (uint32)sizeof(T), MEMF_CLEAR | MEMF_CPP_NEW);

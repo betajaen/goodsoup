@@ -15,7 +15,7 @@
  *
  */
 
-#define GS_FILE_NAME "common/memory"
+#define GS_FILE_NAME "memory"
 
 #include "memory.h"
 #include "debug.h"
@@ -165,6 +165,16 @@ namespace common
 
 		if (size > maxSize) {
 			error("(%p, %d, %d) Caught out of bounds write!", mem, size, maxSize);
+			return;
+		}
+
+		SDL_memset(mem, size, 0);
+	}
+
+	void clearMemoryNonAllocated(void* mem, uint32 size) {
+		if (mem == NULL)
+		{
+			error("(NULL, ?) Tried to clear a NULL pointer");
 			return;
 		}
 

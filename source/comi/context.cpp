@@ -15,12 +15,13 @@
  *
  */
 
-#define GS_FILE_NAME "comi/context"
+#define GS_FILE_NAME "context"
 
 #include "common/memory.h"
 #include "common/debug.h"
 #include "common/file.h"
 #include "context.h"
+#include "index.h"
 
 using namespace common;
 
@@ -28,20 +29,31 @@ extern const char GOODSOUP_VERSION_STR[];
 
 namespace comi
 {
-	Context::Context() {
+	Context::Context()
+	: index(NULL) {
 	}
 
 	Context::~Context() {
+		if (index != NULL) {
+			DELETE_OBJECT(index);
+		}
 	}
 
 	void Context::initialize() {
 	}
 
 	bool Context::canRun() {
-		return fileExists("data/COMI.LA0");
+		
+		if (index == NULL) {
+			index = NEW_OBJECT(Index);
+		}
+
+		return index->readFromFile("data/COMI.LA0");
 	}
 
 	void Context::run() {
 		vm.reset();
+
+
 	}
 }

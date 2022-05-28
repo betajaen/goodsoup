@@ -35,11 +35,12 @@ namespace common
 #define GS_FILE_NAME __FILE__
 #endif
 
-#define gs_verbose(FMT, ...) ::common::verbose("GS   %s:%i:%s " FMT, GS_FILE_NAME, __LINE__,__FUNCTION__,##__VA_ARGS__)
-#define gs_debug(FMT, ...)   ::common::debug("GS   %s:%i:%s " FMT, GS_FILE_NAME, __LINE__,__FUNCTION__,##__VA_ARGS__)
-#define gs_info(FMT, ...)    ::common::info("GS   %s:%i:%s " FMT, GS_FILE_NAME, __LINE__, __FUNCTION__,##__VA_ARGS__)
-#define gs_warn(FMT, ...)    ::common::warn("GS   %s:%i:%s " FMT, GS_FILE_NAME, __LINE__, __FUNCTION__,##__VA_ARGS__)
-#define gs_error(FMT, ...)   ::common::error("GS   %s:%i:%s " FMT, GS_FILE_NAME, __LINE__, __FUNCTION__,##__VA_ARGS__)
+#define gs_verbose(FMT, ...) ::common::verbose("GS   %-12s %3i %-24s " FMT, GS_FILE_NAME, __LINE__,__FUNCTION__,##__VA_ARGS__)
+#define gs_debug(FMT, ...)   ::common::debug("GS   %-12s %3i %-24s " FMT, GS_FILE_NAME, __LINE__,__FUNCTION__,##__VA_ARGS__)
+#define gs_info(FMT, ...)    ::common::info("GS   %-12s %3i %-24s " FMT, GS_FILE_NAME, __LINE__, __FUNCTION__,##__VA_ARGS__)
+#define gs_warn(FMT, ...)    ::common::warn("GS   %-12s %3i %-24s " FMT, GS_FILE_NAME, __LINE__, __FUNCTION__,##__VA_ARGS__)
+#define gs_error(FMT, ...)   ::common::error("GS   %-12s %3i %-24s " FMT, GS_FILE_NAME, __LINE__, __FUNCTION__,##__VA_ARGS__)
+
 
 
 #endif

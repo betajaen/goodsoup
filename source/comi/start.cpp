@@ -15,7 +15,7 @@
  *
  */
 
-#define GS_FILE_NAME "common/start"
+#define GS_FILE_NAME "start"
 
 #include "common/memory.h"
 

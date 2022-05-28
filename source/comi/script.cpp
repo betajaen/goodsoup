@@ -15,14 +15,14 @@
  *
  */
 
-#define GS_FILE_NAME "comi/script"
+#define GS_FILE_NAME "script"
 
 #include "script.h"
 #include "script_data.h"
 
 #include "debug.h"
 #include "constants.h"
-#include "common/util.h"
+#include "common/endian.h"
 
 using namespace common;
 

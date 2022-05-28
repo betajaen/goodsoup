@@ -15,8 +15,8 @@
  *
  */
 
-#ifndef COMMON_UTIL_H
-#define COMMON_UTIL_H
+#ifndef COMMON_ENDIAN_H
+#define COMMON_ENDIAN_H
 
 #include "common/types.h"
 

@@ -20,6 +20,7 @@
 
 #include "common/types.h"
 #include "common/buffer.h"
+#include "constants.h"
 
 using namespace common;
 
@@ -27,14 +28,6 @@ namespace comi
 {
 	class ScriptData;
 
-	enum
-	{
-		NUM_CONCURRENT_SCRIPTS = 80,
-
-		NUM_INT_GLOBALS = 1500,
-		NUM_BOOL_GLOBALS = 2048,
-		NUM_INT_LOCALS = 26
-	};
 
 	enum
 	{

@@ -22,8 +22,39 @@
 
 namespace common
 {
-	class File
+	class ReadFile
 	{
+		public:
+			ReadFile();
+			~ReadFile();
+
+			void open(const char* path);
+			void close();
+
+			bool isOpen() const;
+			bool isEof() const;
+
+			uint32 pos() const;
+
+			int32 skip(uint32 bytes);
+
+			byte readByte();
+			uint32 readBytes(void* dst, uint32 length);
+			uint16 readUInt16LE();
+			uint16 readUInt16BE();
+			uint32 readUInt32LE();
+			uint32 readUInt32BE();
+
+			int16 readInt16LE();
+			int16 readInt16BE();
+			int32 readInt32LE();
+			int32 readInt32BE();
+
+			void readTag(char* tag);
+
+		protected:
+			SDL_RWops* _file;
+			uint32     _length, _pos;
 	};
 
 	bool fileExists(const char* path);

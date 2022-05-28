@@ -15,6 +15,8 @@
  *
  */
 
+#define GS_FILE_NAME "debug"
+
 #include "debug.h"
 #include <stdio.h>
 
@@ -27,8 +29,8 @@ void SDLCALL writeLog(void* userdata, int category, SDL_LogPriority priority, co
 	case SDL_LOG_PRIORITY_DEBUG: fputs("D ", stdout); break;
 	case SDL_LOG_PRIORITY_INFO: fputs("I ", stdout); break;
 	case SDL_LOG_PRIORITY_WARN: fputs("W ", stdout); break;
-	case SDL_LOG_PRIORITY_ERROR: fputs("!! ERROR !!\n\n", stdout); break;
-	case SDL_LOG_PRIORITY_CRITICAL: fputs("** CRITICAL **\n\n", stdout); break;
+	case SDL_LOG_PRIORITY_ERROR: fputs("\n!! ERROR !!\n\nE ", stdout); break;
+	case SDL_LOG_PRIORITY_CRITICAL: fputs("\n** CRITICAL **\n\nC ", stdout); break;
 	}
 	fputs(message, stdout);
 	fputc('\n', stdout);
@@ -36,6 +38,7 @@ void SDLCALL writeLog(void* userdata, int category, SDL_LogPriority priority, co
 	if (priority > SDL_LOG_PRIORITY_WARN)
 	{
 		fputc('\n', stdout);
+		exit(0);
 	}
 
 }

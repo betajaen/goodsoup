@@ -15,12 +15,142 @@
  *
  */
 
-#define GS_FILE_NAME "common/file"
+#define GS_FILE_NAME "file"
 
 #include "file.h"
+#include "debug.h"
+
+#include "common/endian.h"
 
 namespace common
 {
+
+	ReadFile::ReadFile() 
+		: _file(NULL) {
+
+	}
+
+	ReadFile::~ReadFile() {
+		close();
+	}
+
+	void ReadFile::open(const char* path) {
+		if (_file) {
+			SDL_RWclose(_file);
+		}
+
+		_file = SDL_RWFromFile(path, "rb");
+		_pos = 0;
+		_length = 0;
+
+		if (_file) {
+			_length = SDL_RWsize(_file);
+			gs_info("(%x, %s, %d) Opened.", this, path, _length);
+		}
+		else {
+			gs_error("(%x, %s) Did not open file.", this, path);
+		}
+	}
+
+	void ReadFile::close() {
+		if (_file) {
+			SDL_RWclose(_file);
+			_file = NULL;
+			_pos = 0;
+			_length = 0;
+			gs_info("(%x) Closed");
+		}
+	}
+
+	bool ReadFile::isOpen() const {
+		return _file;
+	}
+
+	bool ReadFile::isEof() const {
+		return !(_pos < _length);
+	}
+
+	uint32 ReadFile::pos() const {
+		return _pos;
+	}
+
+	int32 ReadFile::skip(uint32 bytes) {
+		_pos = SDL_RWseek(_file, bytes, RW_SEEK_CUR);
+		return _pos;
+	}
+
+	byte ReadFile::readByte() {
+		byte val;
+		_pos += (uint32) SDL_RWread(_file, &val, sizeof(val), 1);
+		return val;
+	}
+
+	uint32 ReadFile::readBytes(void* dst, uint32 length) {
+		uint32 bytesRead = 0;
+		bytesRead = (uint32)SDL_RWread(_file, dst, length, 1);
+		_pos += bytesRead;
+		return bytesRead;
+	}
+
+	int16 ReadFile::readInt16LE() {
+		int16 val;
+		_pos += (uint32)SDL_RWread(_file, &val, sizeof(val), 1);
+		val = TO_LE_16(val);
+		return val;
+	}
+
+	int16 ReadFile::readInt16BE() {
+		int16 val;
+		_pos += (uint32)SDL_RWread(_file, &val, sizeof(val), 1);
+		val = TO_BE_16(val);
+		return val;
+	}
+
+	int32 ReadFile::readInt32LE() {
+		int32 val;
+		_pos += (uint32)SDL_RWread(_file, &val, sizeof(val), 1);
+		val = TO_LE_32(val);
+		return val;
+	}
+
+	int32 ReadFile::readInt32BE() {
+		int32 val;
+		_pos += (uint32)SDL_RWread(_file, &val, sizeof(val), 1);
+		val = TO_BE_32(val);
+		return val;
+	}
+
+	uint16 ReadFile::readUInt16LE() {
+		uint16 val;
+		_pos += (uint32)SDL_RWread(_file, &val, sizeof(val), 1);
+		val = TO_LE_16(val);
+		return val;
+	}
+
+	uint16 ReadFile::readUInt16BE() {
+		uint16 val;
+		_pos += (uint32)SDL_RWread(_file, &val, sizeof(val), 1);
+		val = TO_BE_16(val);
+		return val;
+	}
+
+	uint32 ReadFile::readUInt32LE() {
+		uint32 val;
+		_pos += (uint32)SDL_RWread(_file, &val, sizeof(val), 1);
+		val = TO_LE_32(val);
+		return val;
+	}
+	
+	uint32 ReadFile::readUInt32BE() {
+		uint32 val;
+		_pos += (uint32)SDL_RWread(_file, &val, sizeof(val), 1);
+		val = TO_BE_32(val);
+		return val;
+	}
+
+	void ReadFile::readTag(char* tag) {
+		_pos += (uint32)SDL_RWread(_file, tag, 4, 1);
+	}
 
 	bool fileExists(const char* path)
 	{

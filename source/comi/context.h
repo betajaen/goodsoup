@@ -27,6 +27,7 @@ using namespace common;
 namespace comi
 {
 	class Context;
+	class Index;
 	
 	extern Context* CTX;
 
@@ -42,6 +43,7 @@ namespace comi
 		void run();
 
 		VirtualMachine vm;
+		Index* index;
 	};
 }
 

@@ -15,25 +15,49 @@
  *
  */
 
-#ifndef COMI_UTILS_H
-#define COMI_UTILS_H
+#ifndef COMI_RESOURCE_H
+#define COMI_RESOURCE_H
 
 #include "common/types.h"
-#include "debug.h"
+#include "constants.h"
 
 using namespace common;
 
 namespace comi
 {
-	inline void checkRange(int max, int min, int no, const char* str) {
-		if (no < min || no > max) {
-			comi_error("Value %d is out of bounds (%d,%d) (%s)", no, max, min, str);
-		}
-	}
+	struct Resource
+	{
+		uint16 _roomNum;
+		uint32 _offset;		// Word aligned.
+	};
 
-	inline bool tagEqual(char tagName[5], char a, char b, char c, char d) {
-		return (tagName[0] == a && tagName[1] == b && tagName[2] == c && tagName[3] == d);
-	}
+
+	template<uint16 length>
+	class ResourceList
+	{
+	public:
+		Resource _resources[length];
+	};
+
+	struct ObjectEntry
+	{
+		char   _name[42];
+		uint32 _hash;
+		byte   _state;
+		byte   _room;
+		byte   _owner;
+		byte   _padding;
+		uint32 _class;
+	};
+
+	class ObjectTable
+	{
+	public:
+		void reset();
+
+		ObjectEntry     _objects[NUM_OBJECT_GLOBALS];
+
+	};
 }
 
 #endif

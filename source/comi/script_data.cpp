@@ -15,7 +15,7 @@
  *
  */
 
-#define GS_FILE_NAME "comi/script_data"
+#define GS_FILE_NAME "script_data"
 
 #include "script_data.h"
 #include "debug.h"

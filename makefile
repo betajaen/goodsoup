@@ -22,11 +22,15 @@ ifeq ($(PLATFORM), sdl)
 	CFLAGS	+= -Isource/sdl -DGS_LITTLE -lSDL2 -lstdc++
 endif
 
+OBJ +=	source/common/hash.o
+
 # Game Sources
 OBJ +=	source/comi/start.o\
 		source/comi/context.o\
 		source/comi/script.o\
-		source/comi/script_data.o
+		source/comi/script_data.o\
+		source/comi/index.o\
+		source/comi/resource.o
 
 all: $(OBJ)
 	$(CC) -o $(PROGRAM) $(OBJ) $(CFLAGS)

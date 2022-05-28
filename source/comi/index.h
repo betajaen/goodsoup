@@ -15,25 +15,41 @@
  *
  */
 
-#ifndef COMI_UTILS_H
-#define COMI_UTILS_H
+#ifndef COMI_INDEX_H
+#define COMI_INDEX_H
 
 #include "common/types.h"
-#include "debug.h"
+#include "common/buffer.h"
+#include "common/file.h"
+
+#include "resource.h"
+#include "constants.h"
 
 using namespace common;
 
 namespace comi
 {
-	inline void checkRange(int max, int min, int no, const char* str) {
-		if (no < min || no > max) {
-			comi_error("Value %d is out of bounds (%d,%d) (%s)", no, max, min, str);
-		}
-	}
+	class Index
+	{
+	public:
 
-	inline bool tagEqual(char tagName[5], char a, char b, char c, char d) {
-		return (tagName[0] == a && tagName[1] == b && tagName[2] == c && tagName[3] == d);
-	}
+		Index();
+		~Index();
+
+		bool readFromFile(const char* path);
+
+	private:
+
+		char						_roomNames[NUM_ROOMS + 1][10];
+		ResourceList<NUM_ROOMS>		_roomsResources;
+		ResourceList<NUM_ROOMS>		_roomsScriptsResources;
+		ResourceList<NUM_SCRIPTS>	_scriptsResources;
+		ResourceList<NUM_SOUNDS>	_soundsResources;
+		ResourceList<NUM_COSTUMES>	_costumesResources;
+		ResourceList<NUM_CHARSETS>	_charsetResources;
+		ObjectTable					_objectTable;
+
+	};
 }
 
 #endif

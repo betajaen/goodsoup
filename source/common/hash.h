@@ -15,25 +15,15 @@
  *
  */
 
-#ifndef COMI_UTILS_H
-#define COMI_UTILS_H
+#ifndef COMMON_HASH_H
+#define COMMON_HASH_H
 
 #include "common/types.h"
-#include "debug.h"
 
-using namespace common;
-
-namespace comi
+namespace common
 {
-	inline void checkRange(int max, int min, int no, const char* str) {
-		if (no < min || no > max) {
-			comi_error("Value %d is out of bounds (%d,%d) (%s)", no, max, min, str);
-		}
-	}
-
-	inline bool tagEqual(char tagName[5], char a, char b, char c, char d) {
-		return (tagName[0] == a && tagName[1] == b && tagName[2] == c && tagName[3] == d);
-	}
+	uint32 quickHash(char* str);
 }
+
 
 #endif
