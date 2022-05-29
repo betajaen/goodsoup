@@ -35,6 +35,7 @@ namespace common
 			bool isEof() const;
 
 			uint32 pos() const;
+			uint32 length() const;
 
 			int32 skip(uint32 bytes);
 

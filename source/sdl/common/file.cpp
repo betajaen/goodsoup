@@ -74,6 +74,10 @@ namespace common
 		return _pos;
 	}
 
+	uint32 ReadFile::length() const {
+		return _length;
+	}
+
 	int32 ReadFile::skip(uint32 bytes) {
 		_pos = SDL_RWseek(_file, bytes, RW_SEEK_CUR);
 		return _pos;
@@ -81,75 +85,75 @@ namespace common
 
 	byte ReadFile::readByte() {
 		byte val;
-		_pos += (uint32) SDL_RWread(_file, &val, sizeof(val), 1);
+		_pos += (uint32) SDL_RWread(_file, &val, sizeof(val), 1) * sizeof(val);
 		return val;
 	}
 
 	uint32 ReadFile::readBytes(void* dst, uint32 length) {
 		uint32 bytesRead = 0;
-		bytesRead = (uint32)SDL_RWread(_file, dst, length, 1);
+		bytesRead = (uint32)SDL_RWread(_file, dst, length, 1) * length;
 		_pos += bytesRead;
 		return bytesRead;
 	}
 
 	int16 ReadFile::readInt16LE() {
 		int16 val;
-		_pos += (uint32)SDL_RWread(_file, &val, sizeof(val), 1);
+		_pos += (uint32)SDL_RWread(_file, &val, sizeof(val), 1) * sizeof(val);
 		val = TO_LE_16(val);
 		return val;
 	}
 
 	int16 ReadFile::readInt16BE() {
 		int16 val;
-		_pos += (uint32)SDL_RWread(_file, &val, sizeof(val), 1);
+		_pos += (uint32)SDL_RWread(_file, &val, sizeof(val), 1) * sizeof(val);
 		val = TO_BE_16(val);
 		return val;
 	}
 
 	int32 ReadFile::readInt32LE() {
 		int32 val;
-		_pos += (uint32)SDL_RWread(_file, &val, sizeof(val), 1);
+		_pos += (uint32)SDL_RWread(_file, &val, sizeof(val), 1) * sizeof(val);
 		val = TO_LE_32(val);
 		return val;
 	}
 
 	int32 ReadFile::readInt32BE() {
 		int32 val;
-		_pos += (uint32)SDL_RWread(_file, &val, sizeof(val), 1);
+		_pos += (uint32)SDL_RWread(_file, &val, sizeof(val), 1) * sizeof(val);
 		val = TO_BE_32(val);
 		return val;
 	}
 
 	uint16 ReadFile::readUInt16LE() {
 		uint16 val;
-		_pos += (uint32)SDL_RWread(_file, &val, sizeof(val), 1);
+		_pos += (uint32)SDL_RWread(_file, &val, sizeof(val), 1) * sizeof(val);
 		val = TO_LE_16(val);
 		return val;
 	}
 
 	uint16 ReadFile::readUInt16BE() {
 		uint16 val;
-		_pos += (uint32)SDL_RWread(_file, &val, sizeof(val), 1);
+		_pos += (uint32)SDL_RWread(_file, &val, sizeof(val), 1) * sizeof(val);
 		val = TO_BE_16(val);
 		return val;
 	}
 
 	uint32 ReadFile::readUInt32LE() {
 		uint32 val;
-		_pos += (uint32)SDL_RWread(_file, &val, sizeof(val), 1);
+		_pos += (uint32)SDL_RWread(_file, &val, sizeof(val), 1) * sizeof(val);
 		val = TO_LE_32(val);
 		return val;
 	}
 	
 	uint32 ReadFile::readUInt32BE() {
 		uint32 val;
-		_pos += (uint32)SDL_RWread(_file, &val, sizeof(val), 1);
+		_pos += (uint32)SDL_RWread(_file, &val, sizeof(val), 1) * sizeof(val);
 		val = TO_BE_32(val);
 		return val;
 	}
 
 	void ReadFile::readTag(char* tag) {
-		_pos += (uint32)SDL_RWread(_file, tag, 4, 1);
+		_pos += (uint32)SDL_RWread(_file, tag, 4, 1) * 4;
 	}
 
 	bool fileExists(const char* path)
