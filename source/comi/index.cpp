@@ -114,6 +114,8 @@ namespace comi
 			checkTag(tagName, _file.pos());
 			tagLength = _file.readUInt32BE();
 
+			comi_verbose("(%s, %d, %d, %d)", tagName, tagLength, _file.pos(), _file.length());
+
 
 			// RNAM
 			if (tagEqual(tagName, 'R', 'N', 'A', 'M')) {
@@ -240,15 +242,6 @@ namespace comi
 
 					comi_verbose("(DOBJ, %i, %s, 0x%04x, 0x%2x, 0x%08x, %d)", i, entry._name, entry._hash, entry._room, entry._class, entry._owner);
 				}
-				for (uint32 i = 0; i < NUM_OBJECT_GLOBALS; i++) {
-
-					ObjectEntry& first = _objectTable._objects[i];
-
-					if (first._name[0] == 0)
-						continue;
-					comi_verbose("(%d, %s, %4x)", i, &first._name[0], first._hash);
-
-				}
 
 				//  check collisions
 				for (uint32 i = 0; i < NUM_OBJECT_GLOBALS; i++) {
@@ -271,16 +264,33 @@ namespace comi
 						if (first._hash == second._hash) {
 							comi_error("(%s, %s, %d, %d, %d, %d) quickHash Collision!", &first._name[0], &second._name[0], first._hash, second._hash, i, j);
 						}
-						else {
-							comi_verbose("(%s, %s, %d, %d, %d)", &first._name[0], &second._name[0], second._hash, i, j);
-				
-						}
 					}
 				}
 
 				comi_verbose("(%s, %d) Ok.", tagName, tagLength);
 				continue;
 			}
+
+			// AARY
+			if (tagEqual(tagName, 'A', 'A', 'R', 'Y')) {
+				uint32 num, a, b;
+				while (_file.isEof() == false) {
+					num = _file.readUInt32LE();
+
+					if (num == 0)
+						break;
+
+					a = _file.readUInt32LE();
+					b = _file.readUInt32LE();
+
+					/* TODO */
+
+					comi_verbose("(AARY, %d, %d, %d, %d)", _file.pos(), _file.length(), num, a, b);
+					
+				}
+				continue;
+			}
+
 
 			comi_warn("(%s, %d, %d) Unhandled Tag!", tagName, tagLength, _file.pos());
 
