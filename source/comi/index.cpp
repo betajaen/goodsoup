@@ -232,7 +232,7 @@ namespace comi
 				for (uint32 i = 0; i < NUM_OBJECT_GLOBALS; i++) {
 					ObjectEntry& entry = _objectTable._objects[i];
 					_file.readBytes(&entry._name[0], 40);
-					entry._hash = quickHash(&entry._name[0]);
+					entry._hash = djb2Hash(&entry._name[0]);
 					entry._state = _file.readByte();
 					entry._room = _file.readByte();
 					entry._class = _file.readUInt32LE();
@@ -240,27 +240,40 @@ namespace comi
 
 					comi_verbose("(DOBJ, %i, %s, 0x%04x, 0x%2x, 0x%08x, %d)", i, entry._name, entry._hash, entry._room, entry._class, entry._owner);
 				}
-
-				// check collisions
 				for (uint32 i = 0; i < NUM_OBJECT_GLOBALS; i++) {
-				
+
 					ObjectEntry& first = _objectTable._objects[i];
 
 					if (first._name[0] == 0)
 						continue;
+					comi_verbose("(%d, %s, %4x)", i, &first._name[0], first._hash);
 
+				}
+
+				//  check collisions
+				for (uint32 i = 0; i < NUM_OBJECT_GLOBALS; i++) {
+				
+					ObjectEntry& first = _objectTable._objects[i];
+				
+					if (first._name[0] == 0)
+						continue;
+				
 					for (uint32 j = 0; j < NUM_OBJECT_GLOBALS; j++) {
 					
 						if (i == j)
 							continue;
-
+				
 						ObjectEntry& second = _objectTable._objects[j];
-
+				
 						if (second._name[0] == 0)
 							continue;
-
+				
 						if (first._hash == second._hash) {
-							comi_error("(%s, %s, %d, %d, %d) quickHash Collision!", &first._name[0], &second._name[0], second._hash, i, j);
+							comi_error("(%s, %s, %d, %d, %d, %d) quickHash Collision!", &first._name[0], &second._name[0], first._hash, second._hash, i, j);
+						}
+						else {
+							comi_verbose("(%s, %s, %d, %d, %d)", &first._name[0], &second._name[0], second._hash, i, j);
+				
 						}
 					}
 				}

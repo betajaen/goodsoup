@@ -22,7 +22,7 @@
 
 namespace common
 {
-	uint32 quickHash(char* str);
+	uint32 djb2Hash(char* str);
 }
 
 
