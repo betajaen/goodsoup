@@ -273,19 +273,26 @@ namespace comi
 
 			// AARY
 			if (tagEqual(tagName, 'A', 'A', 'R', 'Y')) {
-				uint32 num, a, b;
+				uint16 count = 0, num = 0;
 				while (_file.isEof() == false) {
+
+					if (count > NUM_AARY) {
+						comi_error("(AARY, %d, %d) Expected AARY count has been exceeded!");
+					}
+
 					num = _file.readUInt32LE();
 
 					if (num == 0)
 						break;
 
-					a = _file.readUInt32LE();
-					b = _file.readUInt32LE();
+					ArraySpec& spec = _arraySpec[count];
+					spec.num = num;
 
-					/* TODO */
+					spec.a = _file.readUInt32LE();
+					spec.b = _file.readUInt32LE();
 
-					comi_verbose("(AARY, %d, %d, %d, %d)", _file.pos(), _file.length(), num, a, b);
+					comi_verbose("(AARY, %d, %d, %d, %d)", count, spec.num, spec.a, spec.b);
+					count++;
 					
 				}
 				continue;

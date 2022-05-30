@@ -40,6 +40,11 @@ namespace comi
 
 	private:
 
+		struct ArraySpec
+		{
+			uint16 num, a, b;
+		};
+
 		char						_roomNames[NUM_ROOMS + 1][10];
 		ResourceList<NUM_ROOMS>		_roomsResources;
 		ResourceList<NUM_ROOMS>		_roomsScriptsResources;
@@ -48,6 +53,7 @@ namespace comi
 		ResourceList<NUM_COSTUMES>	_costumesResources;
 		ResourceList<NUM_CHARSETS>	_charsetResources;
 		ObjectTable					_objectTable;
+		ArraySpec					_arraySpec[NUM_AARY];
 
 	};
 }

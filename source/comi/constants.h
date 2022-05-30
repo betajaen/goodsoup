@@ -45,7 +45,8 @@ namespace comi
 		NUM_INVENTORY = 80,
 		NUM_ARRAY = 200,
 		NUM_VERBS = 50,
-		NUM_GLOBAL_SCRIPTS = 2000
+		NUM_GLOBAL_SCRIPTS = 2000,
+		NUM_AARY = 142
 
 	};
 }
