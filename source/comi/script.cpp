@@ -28,6 +28,7 @@ using namespace common;
 
 namespace comi
 {
+	
 	VirtualMachine::VirtualMachine() :
 		_scriptData(NULL)
 	{
@@ -143,6 +144,32 @@ namespace comi
 
 		comi_error("(?, ?, %d, %d) Unsupported variable index!", var, value);
 	}
+
+	void VirtualMachine::runScript(uint16 scriptNum, bool freezeResistant, bool recursive, int32 cycle, int32* data, uint16 dataCount)
+	{
+		comi_debug("(%d, %d, %d, %d, %p, %d", scriptNum, freezeResistant, recursive, cycle, data, dataCount);
+
+		if (scriptNum == 0)
+			return;
+
+		if (recursive == false) {
+			stopScript(scriptNum);
+		}
+
+		if (scriptNum < NUM_SCRIPTS) {
+
+		}
+
+	}
+
+	void VirtualMachine::stopScript(uint16 scriptNum)
+	{
+		comi_debug("(%d)", scriptNum);
+
+		/* TODO */
+
+	}
+
 
 	ConcurrentScript::ConcurrentScript() {
 	}

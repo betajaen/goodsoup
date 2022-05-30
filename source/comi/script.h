@@ -28,7 +28,6 @@ namespace comi
 {
 	class ScriptData;
 
-
 	enum
 	{
 		VAR_ROOM_WIDTH = 1,
@@ -148,6 +147,9 @@ namespace comi
 		void   reset();
 		int32  readVar(uint32 var);
 		void   writeVar(uint32 var, int32 value);
+
+		void runScript(uint16 scriptNum, bool freezeResistant, bool recursive, int32 cycle, int32* data, uint16 dataCount);
+		void stopScript(uint16 scriptNum);
 
 	private:
 

@@ -19,12 +19,19 @@
 #define COMI_RESOURCE_H
 
 #include "common/types.h"
+#include "common/buffer.h"
+
 #include "constants.h"
 
 using namespace common;
 
 namespace comi
 {
+	enum ResourceKind
+	{
+		RK_SCRIPT
+	};
+
 	struct Resource
 	{
 		uint16 _roomNum;
@@ -56,8 +63,33 @@ namespace comi
 		void reset();
 
 		ObjectEntry     _objects[NUM_OBJECT_GLOBALS];
+	};
+
+	typedef Buffer<byte> ResourceBytes;
+
+	class ResourceDictionary
+	{
+		struct ResourceData
+		{
+			uint16         _num;
+			uint16         _reserved;
+			uint32         _flags;
+			ResourceBytes*  _data;
+		};
+
+	public:
+
+		ResourceDictionary();
+		~ResourceDictionary();
+
+		void clear();
+		ResourceBytes* get(uint16 num);
+		ResourceBytes* set(uint16 num);
+		void remove(uint16 num);
+
 
 	};
+
 }
 
 #endif

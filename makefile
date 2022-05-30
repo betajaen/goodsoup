@@ -22,7 +22,8 @@ ifeq ($(PLATFORM), sdl)
 	CFLAGS	+= -Isource/sdl -DGS_LITTLE -lSDL2 -lstdc++
 endif
 
-OBJ +=	source/common/hash.o
+OBJ +=	source/common/hash.o\
+		source/common/hashmap.o
 
 # Game Sources
 OBJ +=	source/comi/start.o\

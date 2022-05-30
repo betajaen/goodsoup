@@ -28,6 +28,8 @@ using namespace common;
 
 namespace comi
 {
+	Index* INDEX = NULL;
+
 	static inline void enforceMAXSConstant(const char* name, uint32 constantValue, ReadFile& file) {
 		uint32 value = file.readUInt32LE();
 
@@ -306,5 +308,17 @@ namespace comi
 
 		return true;
 	}
+
+
+	bool Index::loadScript(uint16 id, Buffer<byte>& data)
+	{
+		if (id == 0)
+			return false;
+		
+		/* TODO */
+
+		return false;
+	}
+
 
 }

@@ -36,6 +36,7 @@ namespace comi
 	Context::~Context() {
 		if (index != NULL) {
 			DELETE_OBJECT(index);
+			INDEX = NULL;
 		}
 	}
 
@@ -45,7 +46,7 @@ namespace comi
 	bool Context::canRun() {
 		
 		if (index == NULL) {
-			index = NEW_OBJECT(Index);
+			INDEX = index = NEW_OBJECT(Index);
 		}
 
 		return index->readFromFile("data/COMI.LA0");
@@ -53,7 +54,6 @@ namespace comi
 
 	void Context::run() {
 		vm.reset();
-
-
+		vm.runScript(1, false, false, 0, NULL, 0);
 	}
 }

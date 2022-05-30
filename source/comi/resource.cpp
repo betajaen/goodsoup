@@ -27,7 +27,21 @@ using namespace common;
 namespace comi
 {
 	void ObjectTable::reset() {
-
 		clearMemoryNonAllocated(_objects, sizeof(_objects));
 	}
+
+
+	ResourceDictionary::ResourceDictionary()
+	{
+	}
+
+	ResourceDictionary::~ResourceDictionary() {
+		clear();
+	}
+
+	void ResourceDictionary::clear() {
+		/* TODO */
+	}
+
+
 }

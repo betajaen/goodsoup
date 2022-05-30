@@ -29,6 +29,10 @@ using namespace common;
 
 namespace comi
 {
+	class Index;
+
+	extern Index* INDEX;
+
 	class Index
 	{
 	public:
@@ -37,6 +41,8 @@ namespace comi
 		~Index();
 
 		bool readFromFile(const char* path);
+
+		bool loadScript(uint16 id, Buffer<byte>& data);
 
 	private:
 

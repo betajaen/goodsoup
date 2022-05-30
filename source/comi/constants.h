@@ -49,6 +49,17 @@ namespace comi
 		NUM_AARY = 142
 
 	};
+
+	enum ObjectLocation
+	{
+		NotFound = -1,
+		Inventory = 0,
+		Room = 1,
+		Global = 2,
+		Local = 3,
+		FLObject = 4
+	};
+
 }
 
 #endif
