@@ -47,7 +47,57 @@ namespace common
 
 
 	// Memory
-	void* allocateMemory(uint32 itemCount, uint32 itemSize, int flags) {
+
+
+	static uint32 memSize(void* mem)
+	{
+		if (mem == NULL)
+		{
+			return 0;
+		}
+
+		byte* allocatedMem = ((byte*)mem) - sizeof(MemHeader);
+
+		MemHeader* header = (MemHeader*)allocatedMem;
+
+		if (header->_magic != HEADER_MAGIC)
+		{
+			return 0;
+		}
+
+		return header->_totalSize - sizeof(MemHeader) - sizeof(MemFooter);
+	}
+
+	static MemHeader* getHeader(void* allocation) {
+		byte* allocatedMem = ((byte*)allocation) - sizeof(MemHeader);
+		return (MemHeader*)allocatedMem;
+	}
+
+	static MemFooter* getFooter(MemHeader* header) {
+		return (MemFooter*)(((byte*)header) + header->_totalSize - sizeof(MemFooter));
+	}
+
+	static void checkAllocation(MemHeader* header, MemFooter* footer) {
+		if (header->_magic != HEADER_MAGIC)
+		{
+			gs_error("(%p, %x, %x, %d, %d) Memory allocation has a corrupted header!", header, header->_magic, header->_allocationId, header->_totalSize, header->_flags);
+			return;
+		}
+
+		if (footer->_magic != FOOTER_MAGIC)
+		{
+			gs_error("(%p) Memory allocation has a corrupted footer!", footer);
+			return;
+		}
+
+		if (header->_allocationId != footer->_allocationId)
+		{
+			gs_error("(%p, %p) Memory allocation has a corrupted header or footer!", header, footer);
+			return;
+		}
+	}
+
+	static void* allocateMemoryInternal(uint32 itemCount, uint32 itemSize, int flags) {
 		static uint32 sNextAllocationId = 0xBB2F0507;
 
 		uint32 allocationSize, userSize;
@@ -85,9 +135,61 @@ namespace common
 		sMemAllocatedTotal += allocationSize;
 		sMemAllocatedUser += userSize;
 
-		gs_verbose("(%d,%d,%d,%d,%d,%p)", itemCount, itemSize, userSize, allocationSize, flags, allocatedMem);
+		return allocatedMem;
+	}
 
-		return (void*)userMem;
+
+	void* allocateMemory(uint32 itemCount, uint32 itemSize, int flags) {
+		
+		void* allocatedMem;
+
+		allocatedMem = allocateMemoryInternal(itemCount, itemSize, flags);
+
+		gs_verbose("(%p,%d,%d)", allocatedMem, itemCount, itemSize, flags);
+
+		return allocatedMem;
+	}
+
+
+	void* reallocateMemory(void* allocation, uint32 itemCount, uint32 itemSize) {
+
+
+		if (allocation == NULL)
+		{
+			gs_warn("(0, 0) - reallocating a null pointer. Is this intentional? Calling allocateMemory.");
+			return allocateMemory(itemCount, itemSize, MEMF_CLEAR);
+		}
+
+		MemHeader* header = getHeader(allocation);
+		MemFooter* footer = getFooter(header);
+		checkAllocation(header, footer);
+
+		uint32 oldUserSize = header->_totalSize - sizeof(MemHeader) - sizeof(MemFooter);
+		uint32 newUserSize = itemCount * itemSize;
+
+		// Exactly the same. Dont reallocate.
+		if (oldUserSize == newUserSize) {
+			gs_warn("(%p,%d,%d) - reallocating a pointer to the same size. Is this intentional?", allocation, oldUserSize, newUserSize);
+			return allocation;
+		}
+
+		void* newAllocation = allocateMemoryInternal(itemCount, itemSize, MEMF_CLEAR);
+
+		if (newUserSize > oldUserSize) {
+			// grow
+			SDL_memcpy(newAllocation, allocation, oldUserSize);
+		}
+		else {
+			// shrink
+			SDL_memcpy(newAllocation, allocation, newUserSize);
+		}
+
+		SDL_free(header);
+
+		gs_verbose("(%p,%d,%d)", allocation, newAllocation, oldUserSize, newUserSize);
+
+		return newAllocation;
+
 	}
 
 	void releaseMemory(void* mem)
@@ -98,29 +200,10 @@ namespace common
 			return;
 		}
 
-		byte* allocatedMem = ((byte*)mem) - sizeof(MemHeader);
+		MemHeader* header = getHeader(mem);
+		MemFooter* footer = getFooter(header);
 
-		MemHeader* header = (MemHeader*)allocatedMem;
-
-		if (header->_magic != HEADER_MAGIC)
-		{
-			gs_error("(%p) Memory allocation has a corrupted header!");
-			return;
-		}
-
-		MemFooter* footer = (MemFooter*)(allocatedMem + header->_totalSize - sizeof(MemFooter));
-
-		if (footer->_magic != FOOTER_MAGIC)
-		{
-			gs_error("(%p) Memory allocation has a corrupted footer!");
-			return;
-		}
-
-		if (header->_allocationId != footer->_allocationId)
-		{
-			gs_error("(%p) Memory allocation has a corrupted header or footer!");
-			return;
-		}
+		checkAllocation(header, footer);
 
 		gs_verbose("(%p, %d, 0x%x) released", mem, header->_totalSize, header->_flags);
 
@@ -128,25 +211,6 @@ namespace common
 		sMemAllocatedUser -= (header->_totalSize - sizeof(MemHeader) - sizeof(MemFooter));
 
 		SDL_free(header);
-	}
-
-	static uint32 memSize(void* mem)
-	{
-		if (mem == NULL)
-		{
-			return 0;
-		}
-
-		byte* allocatedMem = ((byte*)mem) - sizeof(MemHeader);
-
-		MemHeader* header = (MemHeader*)allocatedMem;
-
-		if (header->_magic != HEADER_MAGIC)
-		{
-			return 0;
-		}
-
-		return header->_totalSize - sizeof(MemHeader) - sizeof(MemFooter);
 	}
 
 	void clearMemory(void* mem, uint32 size)

@@ -26,6 +26,8 @@ namespace common
 	void beginDebug();
 	void endDebug();
 	void checkMem();
+
+	void test_array();
 }
 
 namespace comi
@@ -35,8 +37,17 @@ namespace comi
 
 int main(int argc, char** argv)
 {
+	int rc = 0;
 	common::beginDebug();
-	int rc = comi::start();
+
+#if 1
+	common::test_array();
+#else
+
+	rc = comi::start();
+#endif
+
+
 	common::endDebug();
 	common::checkMem();
 	return rc;

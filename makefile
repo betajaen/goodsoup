@@ -19,11 +19,12 @@ ifeq ($(PLATFORM), sdl)
 				source/sdl/common/file.o
 	CC		= gcc
 	DELETE	= rm
-	CFLAGS	+= -Isource/sdl -DGS_LITTLE -lSDL2 -lstdc++
+	CFLAGS	+= -std=c++98 -Isource/sdl -DGS_LITTLE -lSDL2 -lstdc++
 endif
 
 OBJ +=	source/common/hash.o\
-		source/common/hashmap.o
+		source/common/hashmap.o\
+		source/common/array.o
 
 # Game Sources
 OBJ +=	source/comi/start.o\

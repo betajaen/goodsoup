@@ -15,10 +15,29 @@
  *
  */
 
-#define GS_FILE_NAME "hashmap"
+#define GS_FILE_NAME "array"
 
-#include "hashmap.h"
+#include "array.h"
 
 namespace common
 {
+	void test_array() {
+		Array<int32> a;
+		a.push(1);
+		a.push(2);
+		a.push(3);
+		a.push(4);
+		a.push(5);
+		a.push(6);
+		a.push(7);
+		a.push(8);
+		a.push(9);
+		a.push(10);
+		a.push(11);
+		a.push(12);
+		a.push(13);
+		a.push(14);
+		a.pop();
+		a.erase(3);
+	}
 }

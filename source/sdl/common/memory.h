@@ -36,6 +36,9 @@ namespace common
 
 	void releaseMemory(void* allocation);
 
+	void* reallocateMemory(void* allocation, uint32 itemCount, uint32 itemSize);
+
+
 	template<typename T>
 	inline void releaseMemoryChecked(T*& allocation)
 	{
