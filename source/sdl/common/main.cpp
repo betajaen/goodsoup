@@ -28,6 +28,7 @@ namespace common
 	void checkMem();
 
 	void test_array();
+	void test_keyarray();
 }
 
 namespace comi
@@ -42,6 +43,8 @@ int main(int argc, char** argv)
 
 #if 1
 	common::test_array();
+	common::test_keyarray();
+
 #else
 
 	rc = comi::start();

@@ -22,7 +22,47 @@
 
 namespace common
 {
-	uint32 djb2Hash(char* str);
+	uint32 djb2Hash(const char* str);
+
+	template<typename T>
+	struct HashFunction {
+		uint32 hash(const T& value); /* Not implemented on purpose. */
+	};
+
+	template<>
+	struct HashFunction<const char*> {
+		uint32 hash(const char* value) {
+			return djb2Hash(value);
+		}
+	};
+
+	template<>
+	struct HashFunction<uint16> {
+		uint32 hash(uint16 value) {
+			return (uint32) value;
+		}
+	};
+
+	template<>
+	struct HashFunction<uint32> {
+		uint32 hash(uint32 value) {
+			return (uint32)value;
+		}
+	};
+
+	template<>
+	struct HashFunction<int16> {
+		uint32 hash(int16 value) {
+			return (int32)value;
+		}
+	};
+
+	template<>
+	struct HashFunction<int32> {
+		uint32 hash(int32 value) {
+			return (int32)value;
+		}
+	};
 }
 
 

@@ -15,24 +15,25 @@
  *
  */
 
-#define GS_FILE_NAME "hash"
+#define GS_FILE_NAME "keyarray"
 
-#include "hash.h"
-#include "common/debug.h"
+#include "keyarray.h"
 
 namespace common
 {
-	uint32 djb2Hash(const char* str) {
 
-		if (str == NULL)
-			return 0;
 
-		uint32 h = 5381;
-
-		while (*str) {
-			h = ((h << 5) + h) + *str++;
-		}
-
-		return h;
+	void test_keyarray() {
+		KeyArray<const char*, int32> a;
+		
+		a.addOnce("test", 1234);
+		gs_test(a.get("test") == 1234);
+		gs_test(a.size() == 1);
+		gs_test(a.exists("test2") == false);
+		gs_test(a.exists("test") == true);
+		a.remove("test");
+		gs_test(a.exists("test") == false);
+		gs_test(a.size() == 0);
+		
 	}
 }

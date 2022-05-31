@@ -77,22 +77,23 @@ namespace common
 		return (MemFooter*)(((byte*)header) + header->_totalSize - sizeof(MemFooter));
 	}
 
-	static void checkAllocation(MemHeader* header, MemFooter* footer) {
+	static void checkAllocation(MemHeader* header, MemFooter* footer, const char* from) {
 		if (header->_magic != HEADER_MAGIC)
 		{
-			gs_error("(%p, %x, %x, %d, %d) Memory allocation has a corrupted header!", header, header->_magic, header->_allocationId, header->_totalSize, header->_flags);
+			gs_error("(%s, %p, %x, %x, %d, %d) Memory allocation has a corrupted header!", 
+				from, header, header->_magic, header->_allocationId, header->_totalSize, header->_flags);
 			return;
 		}
 
 		if (footer->_magic != FOOTER_MAGIC)
 		{
-			gs_error("(%p) Memory allocation has a corrupted footer!", footer);
+			gs_error("(%s, %p) Memory allocation has a corrupted footer!", from, footer);
 			return;
 		}
 
 		if (header->_allocationId != footer->_allocationId)
 		{
-			gs_error("(%p, %p) Memory allocation has a corrupted header or footer!", header, footer);
+			gs_error("(%s, %p, %p) Memory allocation has a corrupted header or footer!", from, header, footer);
 			return;
 		}
 	}
@@ -135,7 +136,7 @@ namespace common
 		sMemAllocatedTotal += allocationSize;
 		sMemAllocatedUser += userSize;
 
-		return allocatedMem;
+		return userMem;
 	}
 
 
@@ -162,7 +163,7 @@ namespace common
 
 		MemHeader* header = getHeader(allocation);
 		MemFooter* footer = getFooter(header);
-		checkAllocation(header, footer);
+		checkAllocation(header, footer, __FUNCTION__);
 
 		uint32 oldUserSize = header->_totalSize - sizeof(MemHeader) - sizeof(MemFooter);
 		uint32 newUserSize = itemCount * itemSize;
@@ -184,6 +185,16 @@ namespace common
 			SDL_memcpy(newAllocation, allocation, newUserSize);
 		}
 
+		MemHeader* newHeader = getHeader(allocation);
+		MemFooter* newFooter = getFooter(header);
+
+		checkAllocation(newHeader, newFooter, __FUNCTION__);
+
+
+		sMemAllocatedTotal -= header->_totalSize;
+		sMemAllocatedUser -= (header->_totalSize - sizeof(MemHeader) - sizeof(MemFooter));
+
+
 		SDL_free(header);
 
 		gs_verbose("(%p,%d,%d)", allocation, newAllocation, oldUserSize, newUserSize);
@@ -203,7 +214,7 @@ namespace common
 		MemHeader* header = getHeader(mem);
 		MemFooter* footer = getFooter(header);
 
-		checkAllocation(header, footer);
+		checkAllocation(header, footer, __FUNCTION__);
 
 		gs_verbose("(%p, %d, 0x%x) released", mem, header->_totalSize, header->_flags);
 

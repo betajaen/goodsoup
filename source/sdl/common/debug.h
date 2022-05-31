@@ -41,6 +41,6 @@ namespace common
 #define gs_warn(FMT, ...)    ::common::warn("GS   %-12s %3i %-24s " FMT, GS_FILE_NAME, __LINE__, __FUNCTION__,##__VA_ARGS__)
 #define gs_error(FMT, ...)   ::common::error("GS   %-12s %3i %-24s " FMT, GS_FILE_NAME, __LINE__, __FUNCTION__,##__VA_ARGS__)
 
-
+#define gs_test(COND) if (!(COND)) { ::common::error("GS **ASSERT**  %-12s %3i %-24s \n%s", GS_FILE_NAME, __LINE__, __FUNCTION__, STRINGIFY_ARG(COND)); };
 
 #endif
