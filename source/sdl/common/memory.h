@@ -29,7 +29,8 @@ namespace common
 		MEMF_PUBLIC  = (1UL<<0),
 		MEMF_CHIP    = (1UL<<1),
 		MEMF_CLEAR   = (1UL<<16),
-		MEMF_CPP_NEW = (1UL << 24)
+		MEMF_CPP_NEW = (1UL << 24),
+		MEMF_HINT_STRING = (1UL << 25)
 	};
 
 	void* allocateMemory(uint32 itemCount, uint32 itemSize, int flags);

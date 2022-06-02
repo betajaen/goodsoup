@@ -25,7 +25,8 @@ endif
 OBJ +=	source/common/hash.o\
 		source/common/hashmap.o\
 		source/common/array.o\
-		source/common/keyarray.o
+		source/common/keyarray.o\
+		source/common/string.o
 
 # Game Sources
 OBJ +=	source/comi/start.o\

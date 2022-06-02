@@ -29,6 +29,7 @@ namespace common
 
 	void test_array();
 	void test_keyarray();
+	void test_string();
 }
 
 namespace comi
@@ -44,7 +45,7 @@ int main(int argc, char** argv)
 #if 1
 	common::test_array();
 	common::test_keyarray();
-
+	common::test_string();
 #else
 
 	rc = comi::start();

@@ -42,6 +42,5 @@ namespace common
 
 		FixedArray<int32, 8> b;
 		b[2] = 3;
-		b[10] = -3;
 	}
 }
