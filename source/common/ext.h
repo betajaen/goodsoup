@@ -34,18 +34,47 @@ namespace common
         static T value();
     };
 
-#define DEFAULT_VALUE(T, V) \
-    template<> struct defaultValue<T> { static inline T value() { return V; }};
-
-    DEFAULT_VALUE(bool, false);
-    DEFAULT_VALUE(int8, 0);
-    DEFAULT_VALUE(int16, 0);
-    DEFAULT_VALUE(int32, 0);
-    DEFAULT_VALUE(uint8, 0);
-    DEFAULT_VALUE(uint16, 0);
-    DEFAULT_VALUE(uint32, 0);
-
-#undef DEFAULT_VALUE
+    template<> struct defaultValue<bool> { 
+        static inline bool value() { 
+            return false; 
+        }
+    };
+    
+    template<> struct defaultValue<int8> { 
+        static inline int8 value() { 
+            return 0;
+        }
+    };
+    
+    template<> struct defaultValue<int16> { 
+        static inline int16 value() { 
+            return 0;
+        }
+    };
+    
+    template<> struct defaultValue<int32> { 
+        static inline int32 value() { 
+            return 0;
+        }
+    };
+    
+    template<> struct defaultValue<uint8> { 
+        static inline uint8 value() { 
+            return 0;
+        }
+    };
+    
+    template<> struct defaultValue<uint16> { 
+        static inline uint16 value() { 
+            return 0;
+        }
+    };
+    
+    template<> struct defaultValue<uint32> { 
+        static inline uint32 value() { 
+            return 0;
+        }
+    };
 
     template<typename T>
     struct defaultValue<T*> {
@@ -56,9 +85,18 @@ namespace common
 
     template<typename T>
     struct defaultValue<T**> {
-        static inline T* value() {
+        static inline T** value() {
             return NULL;
         } 
+    };
+
+    class nocopy {
+        public:
+            nocopy() {}
+            ~nocopy() {}
+        private:
+            nocopy(const nocopy&);
+            const nocopy& operator=(const nocopy&);
     };
 
 }

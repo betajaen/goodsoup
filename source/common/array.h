@@ -32,12 +32,6 @@ namespace common
 			T _array[N];
 		public:
 
-			FixedArray() {
-			}
-
-			~FixedArray() {
-			}
-
 			T size() const {
 				return N;
 			}
@@ -56,7 +50,7 @@ namespace common
 				}
 			}
 
-			T& operator[](Index idx) {
+			inline T& operator[](Index idx) {
 				if (idx >= N) {
 					gs_error("(FIXED, %d, %d) Out of bounds access", N, idx);
 				}
@@ -64,7 +58,7 @@ namespace common
 				return _array[idx];
 			}
 
-			const T& operator[](Index idx) const {
+			inline const T& operator[](Index idx) const {
 				if (idx >= N) {
 					gs_error("(FIXED, %d, %d) Out of bounds access", N, idx);
 				}
