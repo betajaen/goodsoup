@@ -21,9 +21,58 @@
 #include "common/types.h"
 #include "common/memory.h"
 #include "common/debug.h"
+#include "common/ext.h"
 
 namespace common
 {
+
+	template<typename T, uint32 N, typename Index = uint16>
+	class FixedArray {
+		private:
+			T _array[N];
+		public:
+
+			FixedArray() {
+			}
+
+			~FixedArray() {
+			}
+
+			T size() const {
+				return N;
+			}
+
+			uint32 byteSize() const {
+				return sizeof(T) * N;
+			}
+
+			void clearZero() {
+				clearMemoryNonAllocated(_array[0], byteSize);
+			}
+
+			void clearDefaultValue() {
+				for(Index i=0;i < N;i++) {
+					_array[i] = defaultValue<T>();
+				}
+			}
+
+			T& operator[](Index idx) {
+				if (idx >= N) {
+					gs_error("(FIXED, %d, %d) Out of bounds access", N, idx);
+				}
+
+				return _array[idx];
+			}
+
+			const T& operator[](Index idx) const {
+				if (idx >= N) {
+					gs_error("(FIXED, %d, %d) Out of bounds access", N, idx);
+				}
+
+				return _array[idx];
+			}
+	};
+
 
 	template<typename T, typename Index = uint16>
 	class Array {

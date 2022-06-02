@@ -39,5 +39,9 @@ namespace common
 		a.push(14);
 		a.pop();
 		a.erase(3);
+
+		FixedArray<int32, 8> b;
+		b[2] = 3;
+		b[10] = -3;
 	}
 }
