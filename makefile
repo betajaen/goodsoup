@@ -17,9 +17,10 @@ ifeq ($(PLATFORM), sdl)
 				source/sdl/common/memory.o\
 				source/sdl/common/debug.o\
 				source/sdl/common/file.o
+
 	CC		= gcc
 	DELETE	= rm
-	CFLAGS	+= -m32 -std=c++98 -Isource/sdl -DGS_LITTLE -lSDL2 -lstdc++
+	CFLAGS	+= -m32 -std=c++98 -Wpedantic -Isource/sdl -DGS_LITTLE -lSDL2 -lstdc++
 endif
 
 OBJ +=	source/common/hash.o\
