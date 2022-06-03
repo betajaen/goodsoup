@@ -19,7 +19,7 @@ ifeq ($(PLATFORM), sdl)
 				source/sdl/common/file.o
 	CC		= gcc
 	DELETE	= rm
-	CFLAGS	+= -std=c++98 -Isource/sdl -DGS_LITTLE -lSDL2 -lstdc++
+	CFLAGS	+= -m32 -std=c++98 -Isource/sdl -DGS_LITTLE -lSDL2 -lstdc++
 endif
 
 OBJ +=	source/common/hash.o\
