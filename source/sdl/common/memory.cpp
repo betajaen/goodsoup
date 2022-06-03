@@ -17,7 +17,7 @@
 
 #define GS_FILE_NAME "memory"
 
-#include "memory.h"
+#include "common/memory.h"
 #include "common/debug.h"
 
 #include <stdio.h>	// for checkMem

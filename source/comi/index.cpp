@@ -122,9 +122,9 @@ namespace comi
 			// RNAM
 			if (tagEqual(tagName, 'R', 'N', 'A', 'M')) {
 
-				verbose(COMI_THIS, "(RNAM, Read)");
+				verbose(COMI_THIS, "(RNAM, Read, %p %p)", &_roomNames[0]);
 
-				clearMemoryNonAllocated(_roomNames, sizeof(_roomNames));
+				clearMemoryNonAllocated(&_roomNames[0], sizeof(_roomNames));
 
 				while (true) {
 

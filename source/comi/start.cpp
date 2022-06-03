@@ -35,7 +35,7 @@ namespace comi
 	{
 		info(COMI_THIS, "%s\n", &GOODSOUP_VERSION_STR[6]);
 
-		CTX = NEW_OBJECT(Context);
+		CTX = newObject<Context>();
 		CTX->initialize();
 
 		if (CTX->canRun())
@@ -43,7 +43,7 @@ namespace comi
 			CTX->run();
 		}
 
-		DELETE_OBJECT(CTX);
+		deleteObject(CTX);
 
 		return 0;
 	}

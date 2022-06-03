@@ -15,21 +15,21 @@
  *
  */
 
-#ifndef COMMON_MEMORY_H
-#define COMMON_MEMORY_H
+#ifndef MEMORY_H
+#define MEMORY_H
 
-#include "types.h"
+#include "common/types.h"
 
 namespace common
 {
-
+    
 	enum MemoryFlags
 	{
 		MEMF_ANY     = (0UL),
 		MEMF_PUBLIC  = (1UL<<0),
 		MEMF_CHIP    = (1UL<<1),
 		MEMF_CLEAR   = (1UL<<16),
-		MEMF_CPP_NEW = (1UL << 24),
+		MEMF_HINT_NEW = (1UL << 24),
 		MEMF_HINT_STRING = (1UL << 25)
 	};
 
@@ -54,48 +54,42 @@ namespace common
 
 	template<typename T>
 	T* newObject() {
-		void* mem = allocateMemory(1, (uint32)sizeof(T), MEMF_CLEAR | MEMF_CPP_NEW);
-		new(mem) T();
-		return (T*)mem;
+		void* mem = allocateMemory(1, sizeof(T), MEMF_CLEAR | MEMF_HINT_NEW);
+		return new(mem) T();
 	}
 
-	template<typename T, typename TA0>
-	T* newObject(TA0 a0) {
-		void* mem = allocateMemory(1, (uint32)sizeof(T), MEMF_CLEAR | MEMF_CPP_NEW);
-		new(mem) T(a0);
-		return (T*)mem;
+	template<typename T, typename T0>
+	T* newObject(const T0& a0) {
+		void* mem = allocateMemory(1, sizeof(T), MEMF_CLEAR | MEMF_HINT_NEW);
+		return new(mem) T(a0);
 	}
 
-	template<typename T, typename TA0, typename TA1>
-	T* newObject(TA0 a0, TA1 a1) {
-		void* mem = allocateMemory(1, (uint32)sizeof(T), MEMF_CLEAR | MEMF_CPP_NEW);
-		new(mem) T(a0, a1);
-		return (T*)mem;
+	template<typename T, typename T0, typename T1>
+	T* newObject(const T0& a0, const T1& a1) {
+		void* mem = allocateMemory(1, sizeof(T), MEMF_CLEAR | MEMF_HINT_NEW);
+		return new(mem) T(a0, a1);
 	}
 
-	template<typename T, typename TA0, typename TA1, typename TA2>
-	T* newObject(TA0 a0, TA1 a1, TA2 a2) {
-		void* mem = allocateMemory(1, (uint32)sizeof(T), MEMF_CLEAR | MEMF_CPP_NEW);
-		new(mem) T(a0, a1, a2);
-		return (T*)mem;
+	template<typename T, typename T0, typename T1, typename T2>
+	T* newObject(const T0& a0, const T1& a1, const T2& a2) {
+		void* mem = allocateMemory(1, sizeof(T), MEMF_CLEAR | MEMF_HINT_NEW);
+		return new(mem) T(a0, a1, a2);
 	}
 
-	template<typename T, typename TA0, typename TA1, typename TA2, typename TA3>
-	T* newObject(TA0 a0, TA1 a1, TA2 a2, TA3 a3) {
-		void* mem = allocateMemory(1, (uint32)sizeof(T), MEMF_CLEAR | MEMF_CPP_NEW);
-		new(mem) T(a0, a1, a2, a3);
-		return (T*)mem;
+	template<typename T, typename T0, typename T1, typename T2, typename T3>
+	T* newObject(const T0& a0, const T1& a1, const T2& a2, const T3& a3) {
+		void* mem = allocateMemory(1, sizeof(T), MEMF_CLEAR | MEMF_HINT_NEW);
+		return new(mem) T(a0, a1, a2, a3);
 	}
-
 
 	template<typename T>
-	void deleteObject(T* object) {
+	void deleteObject_unchecked(T* object) {
 		object->~T();
-		::common::releaseMemory(object);
+		releaseMemory(object);
 	}
 
 	template<typename T>
-	void deleteObjectChecked(T*& object) {
+	void deleteObject(T*& object) {
 		if (object != NULL) {
 			object->~T();
 			::common::releaseMemory(object);
@@ -105,11 +99,6 @@ namespace common
 
 }
 
-#define NEW_OBJECT(T, ...) ::common::newObject<T>(__VA_ARGS__)
-#define DELETE_OBJECT(OBJ) ::common::deleteObjectChecked(OBJ)
-#define NEW_MEMORY(COUNT, SIZE, FLAGS) ::common::allocateMemory(COUNT, SIZE, FLAGS)
-#define DELETE_MEMORY(ALLOCATION) ::common::releaseMemoryChecked(ALLOCATION);
-
-#define ARRAYSIZE(X) SDL_arraysize(X)
+#define GS_ArraySize(array)    (sizeof(x)/sizeof(x[0]))
 
 #endif

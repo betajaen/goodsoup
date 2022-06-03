@@ -38,7 +38,7 @@ namespace comi
 	VirtualMachine::~VirtualMachine() {
 		debug(COMI_THIS, ".");
 
-		DELETE_OBJECT(_scriptData);
+		deleteObject(_scriptData);
 
 	}
 
@@ -48,7 +48,7 @@ namespace comi
 		int32 i;
 
 		_currentScript = 0;
-		_scriptData = NEW_OBJECT(ScriptData);
+		_scriptData = newObject<ScriptData>();
 
 		if (_intGlobals.hasMem() == false) {
 			_intGlobals.setSize(NUM_INT_GLOBALS);
