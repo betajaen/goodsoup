@@ -7,7 +7,7 @@ Copying
 -------
 
 Goodsoup is licensed under the GNU General Public License version 2. Please refer to the COPYING file, which is
-included in this source code distrubution.
+included in this source code distribution.
 
 Supported Games
 ---------------
@@ -26,3 +26,7 @@ An CBM Amiga (or CBM Amiga Emulator) with the following features:-
 * A P96 compatible graphics software/hardware that is capable of supporting a 640x480 8-bit resolution
 * AHI Audio System software
 
+Compiling
+---------
+
+Goodsoup is written in strict C++98 and should be compiled with the GCC compiler.
