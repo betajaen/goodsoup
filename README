@@ -6,13 +6,13 @@ This is a game interpreter for the Lucasarts game "Curse of Monkey Island" (COMI
 Copying
 -------
 
-Goodsoup is licensed under the GNU General Public License version 2. Please refer to the COPYING file, which is
-included in this source code distribution.
+Goodsoup is licensed under the GNU General Public License version 2. Please refer to the COPYING file, which is included in this source code distribution.
 
 Supported Games
 ---------------
 
 * The Curse of Monkey Island					[comi]
+  - English: GOG.com
 
 Requirements
 ------------
@@ -24,7 +24,7 @@ An CBM Amiga (or CBM Amiga Emulator) with the following features:-
 * At least a Motorola 68020 Processor
 * A Harddrive partition with 940 MiB free of space
 * A P96 compatible graphics software/hardware that is capable of supporting a 640x480 8-bit resolution
-* AHI Audio System software
+* AHI software installed with compatible audio hardware
 
 Compiling
 ---------
