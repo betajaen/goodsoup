@@ -52,7 +52,7 @@ namespace common
 
 			inline T& operator[](Index idx) {
 				if (idx >= N) {
-					gs_error("(FIXED, %d, %d) Out of bounds access", N, idx);
+					error(GS_THIS, "(FIXED, %d, %d) Out of bounds access", N, idx);
 				}
 
 				return _array[idx];
@@ -60,7 +60,7 @@ namespace common
 
 			inline const T& operator[](Index idx) const {
 				if (idx >= N) {
-					gs_error("(FIXED, %d, %d) Out of bounds access", N, idx);
+					error(GS_THIS, "(FIXED, %d, %d) Out of bounds access", N, idx);
 				}
 
 				return _array[idx];
@@ -76,7 +76,7 @@ namespace common
 		Index _size, _capacity;
 
 		void grow() {
-			gs_verbose("/1(%p,%d,%d)", _begin, _size, _capacity);
+			verbose(GS_THIS, "/1(%p,%d,%d)", _begin, _size, _capacity);
 			if (_capacity == 0) {
 				_capacity = 8;
 				_begin = (T*) ::common::allocateMemory(_capacity, sizeof(T), MEMF_CLEAR);
@@ -85,7 +85,7 @@ namespace common
 				_capacity *= 2;
 				_begin = (T*) ::common::reallocateMemory(_begin, _capacity, sizeof(T));
 			}
-			gs_verbose("/2(%p,%d,%d)", _begin, _size, _capacity);
+			verbose(GS_THIS, "/2(%p,%d,%d)", _begin, _size, _capacity);
 		}
 		void release() {
 			if (_begin) {
@@ -126,7 +126,7 @@ namespace common
 
 		void pop() {
 			if (_size == 0) {
-				gs_error("(%p, %d, %d, %d) Out of bounds erasure.", _begin, _size, _capacity);
+				error(GS_THIS, "(%p, %d, %d, %d) Out of bounds erasure.", _begin, _size, _capacity);
 			}
 
 			--_size;
@@ -134,7 +134,7 @@ namespace common
 
 		void erase(Index index) {
 			if (index >= _size) {
-				gs_error("(%p, %d, %d, %d) Out of bounds erasure.", _begin, _size, _capacity, index);
+				error(GS_THIS, "(%p, %d, %d, %d) Out of bounds erasure.", _begin, _size, _capacity, index);
 			}
 
 			if (index == _size - 1) {

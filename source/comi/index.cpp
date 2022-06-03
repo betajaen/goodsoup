@@ -34,7 +34,7 @@ namespace comi
 		uint32 value = file.readUInt32LE();
 
 		if (value != constantValue) {
-			comi_error("MAXS has an unexpected constant. Expect=%d, Got=%d, For=%s", constantValue, value, name);
+			error(COMI_THIS, "MAXS has an unexpected constant. Expect=%d, Got=%d, For=%s", constantValue, value, name);
 		}
 
 	}
@@ -60,22 +60,22 @@ namespace comi
 		return;
 
 	_error:
-		comi_error("(%d,%2x,%2x,%2x,%2x) Read a bad tagName. Read index is incorrect! ", pos, tagName[0], tagName[1], tagName[2], tagName[3]);
+		error(COMI_THIS, "(%d,%2x,%2x,%2x,%2x) Read a bad tagName. Read index is incorrect! ", pos, tagName[0], tagName[1], tagName[2], tagName[3]);
 	}
 
 	Index::Index() {
-		comi_debug(".");
+		debug(COMI_THIS, ".");
 	}
 
 	Index::~Index() {
-		comi_debug(".");
+		debug(COMI_THIS, ".");
 	}
 
 	template<uint16 Length>
 	static void readResourceList(ResourceList<Length>& resources, ReadFile& file, const char* name) {
 		uint16 testLength = (uint16) file.readUInt32LE();
 		if (testLength != Length) {
-			error("ResourceList length does not match expected length! Expected=%d,Given=%d,Type=%s", Length, testLength, name);
+			error(GS_THIS, "ResourceList length does not match expected length! Expected=%d,Given=%d,Type=%s", Length, testLength, name);
 		}
 
 		for (uint32 i = 0; i < Length; i++) {
@@ -90,7 +90,7 @@ namespace comi
 
 		for (uint32 i = 0; i < Length; i++) {
 			Resource& resource = resources._resources[i];
-			comi_verbose("(%d, %d,%d)", i, resource._roomNum, resource._offset);
+			verbose(COMI_THIS, "(%d, %d,%d)", i, resource._roomNum, resource._offset);
 		}
 	}
 
@@ -116,13 +116,13 @@ namespace comi
 			checkTag(tagName, _file.pos());
 			tagLength = _file.readUInt32BE();
 
-			comi_verbose("(%s, %d, %d, %d)", tagName, tagLength, _file.pos(), _file.length());
+			verbose(COMI_THIS, "(%s, %d, %d, %d)", tagName, tagLength, _file.pos(), _file.length());
 
 
 			// RNAM
 			if (tagEqual(tagName, 'R', 'N', 'A', 'M')) {
 
-				comi_verbose("(RNAM, Read)");
+				verbose(COMI_THIS, "(RNAM, Read)");
 
 				clearMemoryNonAllocated(_roomNames, sizeof(_roomNames));
 
@@ -133,7 +133,7 @@ namespace comi
 						break;
 
 					if (roomNum >= NUM_ROOMS) {
-						error("(RNAM, %d) Room number exceeded!", roomNum);
+						error(GS_THIS, "(RNAM, %d) Room number exceeded!", roomNum);
 					}
 
 					char* roomStr = &_roomNames[roomNum][0];
@@ -143,10 +143,10 @@ namespace comi
 						roomStr[i] ^= 0xFF;
 					}
 
-					comi_verbose("(RNAM, %d, %s)", roomNum, &_roomNames[roomNum][0]);
+					verbose(COMI_THIS, "(RNAM, %d, %s)", roomNum, &_roomNames[roomNum][0]);
 				}
 
-				comi_verbose("(%s, %d) Ok.", tagName, tagLength);
+				verbose(COMI_THIS, "(%s, %d) Ok.", tagName, tagLength);
 				continue;
 			}
 
@@ -176,49 +176,49 @@ namespace comi
 				ENFORCE_MAXS(NUM_ARRAY);
 				ENFORCE_MAXS(NUM_VERBS);
 #undef ENFORCE_MAXS
-				comi_verbose("(%s, %d) Ok.", tagName, tagLength);
+				verbose(COMI_THIS, "(%s, %d) Ok.", tagName, tagLength);
 				continue;
 			}
 
 			// DROO
 			if (tagEqual(tagName, 'D', 'R', 'O', 'O')) {
 				readResourceList(_roomsResources, _file, "DROO (Rooms)");
-				comi_verbose("(%s, %d) Ok.", tagName, tagLength);
+				verbose(COMI_THIS, "(%s, %d) Ok.", tagName, tagLength);
 				continue;
 			}
 
 			// DRSC
 			if (tagEqual(tagName, 'D', 'R', 'S', 'C')) {
 				readResourceList(_roomsScriptsResources, _file, "DRSC (Rooms Scripts)");
-				comi_verbose("(%s, %d) Ok.", tagName, tagLength);
+				verbose(COMI_THIS, "(%s, %d) Ok.", tagName, tagLength);
 				continue;
 			}
 
 			// DSCR
 			if (tagEqual(tagName, 'D', 'S', 'C', 'R')) {
 				readResourceList(_scriptsResources, _file, "DSCR (Scripts)");
-				comi_verbose("(%s, %d) Ok.", tagName, tagLength);
+				verbose(COMI_THIS, "(%s, %d) Ok.", tagName, tagLength);
 				continue;
 			}
 
 			// DSOU
 			if (tagEqual(tagName, 'D', 'S', 'O', 'U')) {
 				readResourceList(_soundsResources, _file, "DSOU (Sounds)");
-				comi_verbose("(%s, %d) Ok.", tagName, tagLength);
+				verbose(COMI_THIS, "(%s, %d) Ok.", tagName, tagLength);
 				continue;
 			}
 
 			// DCOS
 			if (tagEqual(tagName, 'D', 'C', 'O', 'S')) {
 				readResourceList(_costumesResources, _file, "DCOS (Sounds)");
-				comi_verbose("(%s, %d) Ok.", tagName, tagLength);
+				verbose(COMI_THIS, "(%s, %d) Ok.", tagName, tagLength);
 				continue;
 			}
 
 			// DCHR
 			if (tagEqual(tagName, 'D', 'C', 'H', 'R')) {
 				readResourceList(_charsetResources, _file, "DCHR (Charset)");
-				comi_verbose("(%s, %d) Ok.", tagName, tagLength);
+				verbose(COMI_THIS, "(%s, %d) Ok.", tagName, tagLength);
 				continue;
 			}
 
@@ -228,7 +228,7 @@ namespace comi
 				uint32 num = _file.readUInt32LE();
 
 				if (num != NUM_OBJECT_GLOBALS) {
-					error("(%d, %d) Unexpected Object Globals Count (DOBJ)", num, NUM_OBJECT_GLOBALS);
+					error(GS_THIS, "(%d, %d) Unexpected Object Globals Count (DOBJ)", num, NUM_OBJECT_GLOBALS);
 				}
 
 				_objectTable.reset();
@@ -242,7 +242,7 @@ namespace comi
 					entry._class = _file.readUInt32LE();
 					entry._owner = 0xFF;
 
-					comi_verbose("(DOBJ, %i, %s, 0x%04x, 0x%2x, 0x%08x, %d)", i, entry._name, entry._hash, entry._room, entry._class, entry._owner);
+					verbose(COMI_THIS, "(DOBJ, %i, %s, 0x%04x, 0x%2x, 0x%08x, %d)", i, entry._name, entry._hash, entry._room, entry._class, entry._owner);
 				}
 
 				//  check collisions
@@ -264,12 +264,12 @@ namespace comi
 							continue;
 				
 						if (first._hash == second._hash) {
-							comi_error("(%s, %s, %d, %d, %d, %d) quickHash Collision!", &first._name[0], &second._name[0], first._hash, second._hash, i, j);
+							error(COMI_THIS, "(%s, %s, %d, %d, %d, %d) quickHash Collision!", &first._name[0], &second._name[0], first._hash, second._hash, i, j);
 						}
 					}
 				}
 
-				comi_verbose("(%s, %d) Ok.", tagName, tagLength);
+				verbose(COMI_THIS, "(%s, %d) Ok.", tagName, tagLength);
 				continue;
 			}
 
@@ -279,7 +279,7 @@ namespace comi
 				while (_file.isEof() == false) {
 
 					if (count > NUM_AARY) {
-						comi_error("(AARY, %d, %d) Expected AARY count has been exceeded!");
+						error(COMI_THIS, "(AARY, %d, %d) Expected AARY count has been exceeded!");
 					}
 
 					num = _file.readUInt32LE();
@@ -293,7 +293,7 @@ namespace comi
 					spec.a = _file.readUInt32LE();
 					spec.b = _file.readUInt32LE();
 
-					comi_verbose("(AARY, %d, %d, %d, %d)", count, spec.num, spec.a, spec.b);
+					verbose(COMI_THIS, "(AARY, %d, %d, %d, %d)", count, spec.num, spec.a, spec.b);
 					count++;
 					
 				}
@@ -301,7 +301,7 @@ namespace comi
 			}
 
 
-			comi_warn("(%s, %d, %d) Unhandled Tag!", tagName, tagLength, _file.pos());
+			warn(COMI_THIS, "(%s, %d, %d) Unhandled Tag!", tagName, tagLength, _file.pos());
 
 			_file.skip(tagLength - 8);
 		}

@@ -32,7 +32,7 @@ namespace common
             }
         }
 
-        gs_verbose("(%s, %d)", str, length);
+        verbose(GS_THIS, "(%s, %d)", str, length);
         return length;
     }
 
@@ -55,7 +55,7 @@ namespace common
 
         *it = '\0';
 
-        gs_verbose("(%d)", length);
+        verbose(GS_THIS, "(%d)", length);
 
         return dup;
     }
@@ -71,7 +71,7 @@ namespace common
             _length = 0;
         } else {
             _data = stringDuplicate(str, _length);
-            gs_verbose("(%s, %d)", _data, _length);
+            verbose(GS_THIS, "(%s, %d)", _data, _length);
         }
     }
 

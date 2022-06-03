@@ -25,7 +25,7 @@ using namespace common;
 
 namespace comi
 {
-	enum
+	enum  ComiConstants
 	{
 		NUM_CONCURRENT_SCRIPTS = 80,
 

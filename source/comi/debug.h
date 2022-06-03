@@ -20,14 +20,7 @@
 
 #include "common/debug.h"
 
-#ifndef GS_FILE_NAME
-#define GS_FILE_NAME __FILE__
-#endif
+#define COMI_THIS  "COMI", GS_FILE_NAME, __FUNCTION__, __LINE__
 
-#define comi_verbose(FMT, ...) ::common::verbose("COMI %-12s %3i %-24s " FMT,GS_FILE_NAME,__LINE__,__FUNCTION__,##__VA_ARGS__)
-#define comi_debug(FMT, ...)   ::common::debug("COMI %-12s %3i %-24s " FMT,GS_FILE_NAME,__LINE__,__FUNCTION__,##__VA_ARGS__)
-#define comi_info(FMT, ...)    ::common::info("COMI %-12s %3i %-24s " FMT,GS_FILE_NAME,__LINE__,__FUNCTION__,##__VA_ARGS__)
-#define comi_warn(FMT, ...)    ::common::warn("COMI %-12s %3i %-24s " FMT,GS_FILE_NAME,__LINE__,__FUNCTION__,##__VA_ARGS__)
-#define comi_error(FMT, ...)   ::common::error("COMI %-12s %3i %-24s " FMT,GS_FILE_NAME,__LINE__,__FUNCTION__,##__VA_ARGS__)
 
 #endif

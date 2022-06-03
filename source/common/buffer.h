@@ -91,7 +91,7 @@ namespace common
 
 		void set(uint32 idx, const T& newValue) {
 			if (idx >= _size)
-				error("array(Out of bounds, replace, %d)", idx);
+				error(GS_THIS, "array(Out of bounds, replace, %d)", idx);
 
 			_data[idx] = newValue;
 		}
@@ -103,7 +103,7 @@ namespace common
 		T* ptr(uint32 idx) {
 
 			if (idx >= _size)
-				error("array(Out of bounds, ptr, %d)", idx);
+				error(GS_THIS, "array(Out of bounds, ptr, %d)", idx);
 
 			return &_data[idx];
 		}
@@ -111,7 +111,7 @@ namespace common
 		const T* ptr(uint32 idx) const {
 
 			if (idx >= _size)
-				error("array(Out of bounds, const ptr, %d)", idx);
+				error(GS_THIS, "array(Out of bounds, const ptr, %d)", idx);
 
 			return &_data[idx];
 		}
@@ -119,14 +119,14 @@ namespace common
 
 		T& get(uint32 idx) {
 			if (idx >= _size)
-				error("array(Out of bounds, mut, %d)", idx);
+				error(GS_THIS, "array(Out of bounds, mut, %d)", idx);
 
 			return _data[idx];
 		}
 
 		const T& get(uint32 idx) const {
 			if (idx >= _size)
-				error("array(Out of bounds, const, %d)", idx);
+				error(GS_THIS, "array(Out of bounds, const, %d)", idx);
 
 			return _data[idx];
 		}

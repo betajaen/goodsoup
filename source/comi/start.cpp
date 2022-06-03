@@ -33,7 +33,7 @@ namespace comi
 
 	int start()
 	{
-		comi_info("%s\n", &GOODSOUP_VERSION_STR[6]);
+		info(COMI_THIS, "%s\n", &GOODSOUP_VERSION_STR[6]);
 
 		CTX = NEW_OBJECT(Context);
 		CTX->initialize();

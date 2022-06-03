@@ -18,6 +18,7 @@
 #define GS_FILE_NAME "keyarray"
 
 #include "keyarray.h"
+#include "common/debug.h"
 
 namespace common
 {
@@ -27,13 +28,13 @@ namespace common
 		KeyArray<const char*, int32> a;
 		
 		a.addOnce("test", 1234);
-		gs_test(a.get("test") == 1234);
-		gs_test(a.size() == 1);
-		gs_test(a.exists("test2") == false);
-		gs_test(a.exists("test") == true);
+		test(a.get("test") == 1234);
+		test(a.size() == 1);
+		test(a.exists("test2") == false);
+		test(a.exists("test") == true);
 		a.remove("test");
-		gs_test(a.exists("test") == false);
-		gs_test(a.size() == 0);
+		test(a.exists("test") == false);
+		test(a.size() == 0);
 		
 	}
 }

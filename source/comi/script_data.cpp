@@ -25,11 +25,11 @@ using namespace common;
 namespace comi
 {
 	ScriptData::ScriptData() {
-		comi_debug(".");
+		debug(COMI_THIS, ".");
 	}
 
 	ScriptData::~ScriptData() {
-		comi_debug(".");
+		debug(COMI_THIS, ".");
 	}
 
 	uint32 ScriptData::ReadWord() {

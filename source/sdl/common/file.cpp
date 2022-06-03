@@ -18,8 +18,8 @@
 #define GS_FILE_NAME "file"
 
 #include "file.h"
-#include "debug.h"
 
+#include "common/debug.h"
 #include "common/endian.h"
 
 namespace common
@@ -45,10 +45,10 @@ namespace common
 
 		if (_file) {
 			_length = SDL_RWsize(_file);
-			gs_info("(%x, %s, %d) Opened.", this, path, _length);
+			info(GS_THIS, "(%x, %s, %d) Opened.", this, path, _length);
 		}
 		else {
-			gs_error("(%x, %s) Did not open file.", this, path);
+			error(GS_THIS, "(%x, %s) Did not open file.", this, path);
 		}
 	}
 
@@ -58,7 +58,7 @@ namespace common
 			_file = NULL;
 			_pos = 0;
 			_length = 0;
-			gs_info("(%x) Closed");
+			info(GS_THIS, "(%x) Closed");
 		}
 	}
 

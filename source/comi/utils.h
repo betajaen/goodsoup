@@ -27,7 +27,7 @@ namespace comi
 {
 	inline void checkRange(int max, int min, int no, const char* str) {
 		if (no < min || no > max) {
-			comi_error("Value %d is out of bounds (%d,%d) (%s)", no, max, min, str);
+			error(COMI_THIS, "Value %d is out of bounds (%d,%d) (%s)", no, max, min, str);
 		}
 	}
 

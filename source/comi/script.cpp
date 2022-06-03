@@ -32,18 +32,18 @@ namespace comi
 	VirtualMachine::VirtualMachine() :
 		_scriptData(NULL)
 	{
-		comi_debug(".");
+		debug(COMI_THIS, ".");
 	}
 
 	VirtualMachine::~VirtualMachine() {
-		comi_debug(".");
+		debug(COMI_THIS, ".");
 
 		DELETE_OBJECT(_scriptData);
 
 	}
 
 	void VirtualMachine::reset() {
-		comi_debug(".");
+		debug(COMI_THIS, ".");
 
 		int32 i;
 
@@ -78,9 +78,9 @@ namespace comi
 		// Global Ints
 		if (!(var & 0xF0000000)) {
 			if (var >= NUM_INT_GLOBALS) {
-				comi_error("Int Global %d out of range!", var);
+				error(COMI_THIS, "Int Global %d out of range!", var);
 			}
-			comi_verbose("(GLOBAL, INT, %d)", var);
+			verbose(COMI_THIS, "(GLOBAL, INT, %d)", var);
 			return _intGlobals.get_unchecked(var);
 		}
 
@@ -88,9 +88,9 @@ namespace comi
 		if (var & 0x80000000) {
 			var &= 0x7FFFFFFF;
 			if (var >= NUM_BOOL_GLOBALS) {
-				comi_error("Bool Global variable %d out of range!", var);
+				error(COMI_THIS, "Bool Global variable %d out of range!", var);
 			}
-			comi_verbose("(GLOBAL, BOOL, %d)", var);
+			verbose(COMI_THIS, "(GLOBAL, BOOL, %d)", var);
 			return _boolGlobals.get_unchecked(var);
 		}
 
@@ -98,13 +98,13 @@ namespace comi
 		if (var & 0x40000000) {
 			var &= 0xFFFFFFF;
 			if (var >= NUM_INT_LOCALS) {
-				comi_error("Script variable %d out of range!", var);
+				error(COMI_THIS, "Script variable %d out of range!", var);
 			}
-			comi_verbose("(SCRIPT, INT, %d, %d)", _currentScript, var);
+			verbose(COMI_THIS, "(SCRIPT, INT, %d, %d)", _currentScript, var);
 			return _scripts[_currentScript]._locals[var];
 		}
 
-		comi_error("(?, ?, %d) Unsupported variable index! ", var);
+		error(COMI_THIS, "(?, ?, %d) Unsupported variable index! ", var);
 		return -1;
 	}
 
@@ -113,9 +113,9 @@ namespace comi
 		// Global Ints
 		if (!(var & 0xF0000000)) {
 			if (var >= NUM_INT_GLOBALS) {
-				comi_error("Int Global %d out of range!", var);
+				error(COMI_THIS, "Int Global %d out of range!", var);
 			}
-			comi_verbose("(GLOBAL, INT, %d, %d)", var, value);
+			verbose(COMI_THIS, "(GLOBAL, INT, %d, %d)", var, value);
 			_intGlobals.set_unchecked(var, value);
 			return;
 		}
@@ -124,9 +124,9 @@ namespace comi
 		if (var & 0x80000000) {
 			var &= 0x7FFFFFFF;
 			if (var >= NUM_BOOL_GLOBALS) {
-				comi_error("Bool Global variable %d out of range!", var);
+				error(COMI_THIS, "Bool Global variable %d out of range!", var);
 			}
-			comi_verbose("(GLOBAL, BOOL, %d, %d)", var, value);
+			verbose(COMI_THIS, "(GLOBAL, BOOL, %d, %d)", var, value);
 			_boolGlobals.set_unchecked(var, var);
 			return;
 		}
@@ -135,19 +135,19 @@ namespace comi
 		if (var & 0x40000000) {
 			var &= 0xFFFFFFF;
 			if (var >= NUM_INT_LOCALS) {
-				comi_error("Script variable %d out of range!", var);
+				error(COMI_THIS, "Script variable %d out of range!", var);
 			}
-			comi_verbose("(SCRIPT, INT, %d, %d, %d)", _currentScript, var, value);
+			verbose(COMI_THIS, "(SCRIPT, INT, %d, %d, %d)", _currentScript, var, value);
 			_scripts[_currentScript]._locals[var] = value;
 			return;
 		}
 
-		comi_error("(?, ?, %d, %d) Unsupported variable index!", var, value);
+		error(COMI_THIS, "(?, ?, %d, %d) Unsupported variable index!", var, value);
 	}
 
 	void VirtualMachine::runScript(uint16 scriptNum, bool freezeResistant, bool recursive, int32 cycle, int32* data, uint16 dataCount)
 	{
-		comi_debug("(%d, %d, %d, %d, %p, %d", scriptNum, freezeResistant, recursive, cycle, data, dataCount);
+		debug(COMI_THIS, "(%d, %d, %d, %d, %p, %d", scriptNum, freezeResistant, recursive, cycle, data, dataCount);
 
 		if (scriptNum == 0)
 			return;
@@ -164,7 +164,7 @@ namespace comi
 
 	void VirtualMachine::stopScript(uint16 scriptNum)
 	{
-		comi_debug("(%d)", scriptNum);
+		debug(COMI_THIS, "(%d)", scriptNum);
 
 		/* TODO */
 

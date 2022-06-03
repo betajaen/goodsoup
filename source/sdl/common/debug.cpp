@@ -17,7 +17,7 @@
 
 #define GS_FILE_NAME "debug"
 
-#include "debug.h"
+#include "common/debug.h"
 #include <stdio.h>
 
 void SDLCALL writeLog(void* userdata, int category, SDL_LogPriority priority, const char* message)
@@ -47,54 +47,64 @@ void SDLCALL writeLog(void* userdata, int category, SDL_LogPriority priority, co
 namespace common
 {
 
-	void verbose(const char* fmt, ...)
-	{
+	void debug_write(DebugCategory category, const char* module, const char* file, const char* function, uint32 line, const char* message) {	
+		switch (category) {
+			default:
+			case DC_Test: fputs("T ", stdout); break;
+			case DC_Verbose: fputs("V ", stdout); break;
+			case DC_Debug: fputs("D ", stdout); break;
+			case DC_Informational: fputs("I ", stdout); break;
+			case DC_Warning: fputs("W ", stdout); break;
+			case DC_Error: fputs("\n!! ERROR !!\n\nE ", stdout); break;
+		}
+
+		fputs(module, stdout);
+		fprintf(stdout, "\t%-10s\t%-10s\t%d\t", file, function, line);
+
+		fputs(message, stdout);
+
+		fputc('\n', stdout);
+
+		if (category == DC_Error) {
+			fputc('\n', stdout);
+			exit(0);
+		}
+	}
+
+	void debug_writef(DebugCategory category, const char* module, const char* file, const char* function, uint32 line, const char* format, ...) {
+
 		va_list ap;
-		va_start(ap, fmt);
-		SDL_LogMessageV(SDL_LOG_CATEGORY_APPLICATION, SDL_LOG_PRIORITY_VERBOSE, fmt, ap);
+		switch (category) {
+			default:
+			case DC_Test: fputs("T ", stdout); break;
+			case DC_Verbose: fputs("V ", stdout); break;
+			case DC_Debug: fputs("D ", stdout); break;
+			case DC_Informational: fputs("I ", stdout); break;
+			case DC_Warning: fputs("W ", stdout); break;
+			case DC_Error: fputs("\n!! ERROR !!\n\nE ", stdout); break;
+		}
+
+		fputs(module, stdout);
+		fprintf(stdout, "\t%-10s\t%s\t%d\t", file, function, line);
+
+		va_start(ap, format);
+		vfprintf(stdout, format, ap);
 		va_end(ap);
+
+		fputc('\n', stdout);
+
+		if (category == DC_Error) {
+			fputc('\n', stdout);
+			exit(0);
+		}
+
 	}
 
-	void debug(const char* fmt, ...)
-	{
-		va_list ap;
-		va_start(ap, fmt);
-		SDL_LogMessageV(SDL_LOG_CATEGORY_APPLICATION, SDL_LOG_PRIORITY_DEBUG, fmt, ap);
-		va_end(ap);
+	void debug_stop(const char* message) {
+		if (message) {
+			fputs(message, stdout);
+		}
+		exit(0);
 	}
 
-	void info(const char* fmt, ...)
-	{
-		va_list ap;
-		va_start(ap, fmt);
-		SDL_LogMessageV(SDL_LOG_CATEGORY_APPLICATION, SDL_LOG_PRIORITY_INFO, fmt, ap);
-		va_end(ap);
-	}
-
-	void warn(const char* fmt, ...)
-	{
-		va_list ap;
-		va_start(ap, fmt);
-		SDL_LogMessageV(SDL_LOG_CATEGORY_APPLICATION, SDL_LOG_PRIORITY_WARN, fmt, ap);
-		va_end(ap);
-	}
-
-	void error(const char* fmt, ...)
-	{
-		va_list ap;
-		va_start(ap, fmt);
-		SDL_LogMessageV(SDL_LOG_CATEGORY_APPLICATION, SDL_LOG_PRIORITY_ERROR, fmt, ap);
-		va_end(ap);
-	}
-
-	void beginDebug()
-	{
-		SDL_LogSetAllPriority(SDL_LOG_PRIORITY_VERBOSE);
-		SDL_LogSetOutputFunction(writeLog, NULL);
-	}
-
-	void endDebug()
-	{
-		writeLog(NULL, SDL_LOG_CATEGORY_APPLICATION, SDL_LOG_PRIORITY_INFO, "Bye.");
-	}
 }

@@ -51,7 +51,7 @@ namespace common
 
             char operator[](uint16 idx) const {
                 if (idx >= _length) {
-                    gs_error("(%s, %d, %d) Out of string bounds.", _data, _length, idx);
+                    error(GS_THIS, "(%s, %d, %d) Out of string bounds.", _data, _length, idx);
                 }
 
                 return _data[idx];

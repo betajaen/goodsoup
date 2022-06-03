@@ -45,7 +45,7 @@ namespace common
 		HashFunction<K>     _hashFunction;
 
 		void grow() {
-			gs_verbose("/1(%p,%d,%d)", _begin, _size, _capacity);
+			verbose(GS_THIS, "/1(%p,%d,%d)", _begin, _size, _capacity);
 			if (_capacity == 0) {
 				_capacity = 8;
 				_begin = (Node*) ::common::allocateMemory(_capacity, sizeof(Node), MEMF_CLEAR);
@@ -54,7 +54,7 @@ namespace common
 				_capacity *= 2;
 				_begin = (Node*) ::common::reallocateMemory(_begin, _capacity, sizeof(Node));
 			}
-			gs_verbose("/2(%p,%d,%d)", _begin, _size, _capacity);
+			verbose(GS_THIS, "/2(%p,%d,%d)", _begin, _size, _capacity);
 		}
 		void release() {
 			if (_begin) {
@@ -76,7 +76,7 @@ namespace common
 
 		void erase(uint32 index) {
 			if (index >= _size) {
-				gs_error("(%p, %d, %d, %d) Out of bounds erasure.", _begin, _size, _capacity, index);
+				error(GS_THIS, "(%p, %d, %d, %d) Out of bounds erasure.", _begin, _size, _capacity, index);
 			}
 
 			if (index == _size - 1) {

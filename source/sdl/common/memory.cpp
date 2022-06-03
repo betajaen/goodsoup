@@ -18,7 +18,7 @@
 #define GS_FILE_NAME "memory"
 
 #include "memory.h"
-#include "debug.h"
+#include "common/debug.h"
 
 #include <stdio.h>	// for checkMem
 
@@ -80,20 +80,20 @@ namespace common
 	static void checkAllocation(MemHeader* header, MemFooter* footer, const char* from) {
 		if (header->_magic != HEADER_MAGIC)
 		{
-			gs_error("(%s, %p, %x, %x, %d, %d) Memory allocation has a corrupted header!", 
+			error(GS_THIS, "(%s, %p, %x, %x, %d, %d) Memory allocation has a corrupted header!", 
 				from, header, header->_magic, header->_allocationId, header->_totalSize, header->_flags);
 			return;
 		}
 
 		if (footer->_magic != FOOTER_MAGIC)
 		{
-			gs_error("(%s, %p) Memory allocation has a corrupted footer!", from, footer);
+			error(GS_THIS, "(%s, %p) Memory allocation has a corrupted footer!", from, footer);
 			return;
 		}
 
 		if (header->_allocationId != footer->_allocationId)
 		{
-			gs_error("(%s, %p, %p) Memory allocation has a corrupted header or footer!", from, header, footer);
+			error(GS_THIS, "(%s, %p, %p) Memory allocation has a corrupted header or footer!", from, header, footer);
 			return;
 		}
 	}
@@ -146,7 +146,7 @@ namespace common
 
 		allocatedMem = allocateMemoryInternal(itemCount, itemSize, flags);
 
-		gs_verbose("(%p,%d,%d)", allocatedMem, itemCount, itemSize, flags);
+		verbose(GS_THIS, "(%p,%d,%d)", allocatedMem, itemCount, itemSize, flags);
 
 		return allocatedMem;
 	}
@@ -157,7 +157,7 @@ namespace common
 
 		if (allocation == NULL)
 		{
-			gs_warn("(0, 0) - reallocating a null pointer. Is this intentional? Calling allocateMemory.");
+			warn(GS_THIS, "(0, 0) - reallocating a null pointer. Is this intentional? Calling allocateMemory.");
 			return allocateMemory(itemCount, itemSize, MEMF_CLEAR);
 		}
 
@@ -170,7 +170,7 @@ namespace common
 
 		// Exactly the same. Dont reallocate.
 		if (oldUserSize == newUserSize) {
-			gs_warn("(%p,%d,%d) - reallocating a pointer to the same size. Is this intentional?", allocation, oldUserSize, newUserSize);
+			warn(GS_THIS, "(%p,%d,%d) - reallocating a pointer to the same size. Is this intentional?", allocation, oldUserSize, newUserSize);
 			return allocation;
 		}
 
@@ -197,7 +197,7 @@ namespace common
 
 		SDL_free(header);
 
-		gs_verbose("(%p,%d,%d)", allocation, newAllocation, oldUserSize, newUserSize);
+		verbose(GS_THIS, "(%p,%d,%d)", allocation, newAllocation, oldUserSize, newUserSize);
 
 		return newAllocation;
 
@@ -207,7 +207,7 @@ namespace common
 	{
 		if (mem == NULL)
 		{
-			gs_verbose("(0, 0) - Freeing a null pointer. Is this intentional?");
+			verbose(GS_THIS, "(0, 0) - Freeing a null pointer. Is this intentional?");
 			return;
 		}
 
@@ -216,7 +216,7 @@ namespace common
 
 		checkAllocation(header, footer, __FUNCTION__);
 
-		gs_verbose("(%p, %d, 0x%x) released", mem, header->_totalSize, header->_flags);
+		verbose(GS_THIS, "(%p, %d, 0x%x) released", mem, header->_totalSize, header->_flags);
 
 		sMemAllocatedTotal -= header->_totalSize;
 		sMemAllocatedUser -= (header->_totalSize - sizeof(MemHeader) - sizeof(MemFooter));
@@ -228,18 +228,18 @@ namespace common
 	{
 		if (mem == NULL)
 		{
-			error("(NULL, ?, ?) Tried to clear a NULL pointer");
+			error(GS_THIS, "(NULL, ?, ?) Tried to clear a NULL pointer");
 			return;
 		}
 		uint32 maxSize = memSize(mem);
 
 		if (maxSize == 0) {
-			error("(%p, %d, %d) Tried to clear a corrupted/supported pointer!", mem, size, maxSize);
+			error(GS_THIS, "(%p, %d, %d) Tried to clear a corrupted/supported pointer!", mem, size, maxSize);
 			return;
 		}
 
 		if (size > maxSize) {
-			error("(%p, %d, %d) Caught out of bounds write!", mem, size, maxSize);
+			error(GS_THIS, "(%p, %d, %d) Caught out of bounds write!", mem, size, maxSize);
 			return;
 		}
 
@@ -249,7 +249,7 @@ namespace common
 	void clearMemoryNonAllocated(void* mem, uint32 size) {
 		if (mem == NULL)
 		{
-			error("(NULL, ?) Tried to clear a NULL pointer");
+			error(GS_THIS, "(NULL, ?) Tried to clear a NULL pointer");
 			return;
 		}
 
