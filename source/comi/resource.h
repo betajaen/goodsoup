@@ -20,6 +20,7 @@
 
 #include "common/types.h"
 #include "common/buffer.h"
+#include "common/string.h"
 
 #include "constants.h"
 
@@ -48,8 +49,7 @@ namespace comi
 
 	struct ObjectEntry
 	{
-		char   _name[42];
-		uint32 _hash; /* TODO replace with a smaller 16-bit hash. */
+		String  _name;
 		byte   _state;
 		byte   _room;
 		byte   _owner;
