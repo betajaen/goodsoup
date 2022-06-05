@@ -102,12 +102,10 @@ namespace common
     uint16 String::length() const {
         if (isSmallString()) {
             uint32 x = _data._small[STRING_LEN_BYTE];
-            verbose(GS_THIS, "small %u", x);
             return _data._small[STRING_LEN_BYTE];
         }
         else {
             uint32 x = _data._long._str->_length;
-            verbose(GS_THIS, "large %u", x);
             return _data._long._str->_length;
         }
     }
@@ -231,6 +229,21 @@ namespace common
         }
 
         return false;
+    }
+
+    uint32 String::hash() const {
+        if (isSmallString()) {
+            uint32 hash = 5381;
+            const char* str = &_data._small[0];
+            while(*str) {
+                hash = ((hash << 5) + hash) + *str;
+                str++;
+            }
+            return hash;
+        }
+        else {
+            return _data._long._hash;
+        }
     }
 
     TEST_CASE(string_1)
