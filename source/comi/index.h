@@ -24,6 +24,7 @@
 
 #include "resource.h"
 #include "constants.h"
+#include "common/string.h"
 
 using namespace common;
 
@@ -51,7 +52,8 @@ namespace comi
 			uint16 num, a, b;
 		};
 
-		char						_roomNames[NUM_ROOMS + 1][10];
+		String					    _roomNames[NUM_ROOMS + 1];
+		// char						_roomNames[NUM_ROOMS + 1][10];
 		ResourceList<NUM_ROOMS>		_roomsResources;
 		ResourceList<NUM_ROOMS>		_roomsScriptsResources;
 		ResourceList<NUM_SCRIPTS>	_scriptsResources;

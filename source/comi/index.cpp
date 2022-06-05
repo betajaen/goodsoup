@@ -126,6 +126,8 @@ namespace comi
 
 				clearMemoryNonAllocated(&_roomNames[0], sizeof(_roomNames));
 
+				char roomNameTempStr[11] = { 0 };
+
 				while (true) {
 
 					byte roomNum = _file.readByte();
@@ -136,14 +138,17 @@ namespace comi
 						error(GS_THIS, "(RNAM, %d) Room number exceeded!", roomNum);
 					}
 
-					char* roomStr = &_roomNames[roomNum][0];
+					char* roomStr = &roomNameTempStr[0];
 					_file.readBytes(roomStr, 9);
 
 					for (i = 0; i < 10; i++) {
 						roomStr[i] ^= 0xFF;
 					}
 
-					verbose(COMI_THIS, "(RNAM, %d, %s)", roomNum, &_roomNames[roomNum][0]);
+					String& roomName = _roomNames[roomNum];
+					roomName.copyFrom(roomStr);
+
+					verbose(COMI_THIS, "(RNAM, %d, %s)", roomNum, _roomNames[roomNum].string());
 				}
 
 				verbose(COMI_THIS, "(%s, %d) Ok.", tagName, tagLength);
