@@ -190,7 +190,7 @@ namespace common
         }
     }
 
-    void test_string_1()
+    TEST_CASE(string_1)
     {
         String s1;
 
@@ -200,7 +200,7 @@ namespace common
         TEST_EQUAL('\0', s1.string()[0]);
     }
 
-    void test_string_2()
+    TEST_CASE(string_2)
     {
         String s2('a');
         TEST_EQUAL(1, s2.length());
@@ -209,7 +209,7 @@ namespace common
         TEST_EQUAL('\0', s2.string()[1]);
     }
 
-    void test_string_3()
+    TEST_CASE(string_3)
     {
         String s3("Hello");
         TEST_EQUAL(5, s3.length());
@@ -222,21 +222,22 @@ namespace common
         TEST_EQUAL('\0', s3.string()[5]);
     }
 
-    void test_string_4()
+    TEST_CASE(string_4)
     {
         String s4("Hello World");
     }
 
-    void test_string_5()
+    TEST_CASE(string_5)
     {
 
     }
 
-    void test_string()
+    TEST_SUITE(string)
     {
-        test_string_1();
-        test_string_2();
-        test_string_3();
-        test_string_4();
+        TEST_RUN_CASE(string_1);
+        TEST_RUN_CASE(string_2);
+        TEST_RUN_CASE(string_3);
+        TEST_RUN_CASE(string_4);
+        TEST_RUN_CASE(string_5);
     }
 }

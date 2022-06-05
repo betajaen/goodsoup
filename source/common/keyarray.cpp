@@ -24,8 +24,7 @@
 namespace common
 {
 
-
-	void test_keyarray() {
+	TEST_CASE(keyarray_1) {
 		KeyArray<const char*, int32> a;
 		
 		a.addOnce("test", 1234);
@@ -36,6 +35,10 @@ namespace common
 		a.remove("test");
 		TEST_EQUAL(false, a.exists("test"));
 		TEST_EQUAL(0, a.size());
-		
 	}
+
+	TEST_SUITE(keyarray) {
+		TEST_RUN_CASE(keyarray_1);
+	}
+
 }
