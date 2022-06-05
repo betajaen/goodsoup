@@ -22,46 +22,107 @@
 #include "common/string.h"
 #include "common/debug.h"
 #include "common/memory.h"
+#include "common/ext.h"
+
+#define STRING_SMALL_SIZE 12
 
 namespace common
 {
 
-    uint16 stringLength(const char* str);
-    const char* stringDuplicate(const char* str);
+    #pragma pack(push, 4)
+    struct LongStringData {
+        uint16 _users;   
+        uint16 _length;     
+        char   _str[4];
+    };
+    #pragma pack(pop)
 
+
+    #pragma pack(push, 4)
+    union StringData {
+        char _small[STRING_SMALL_SIZE];
+        struct LongData {
+            LongStringData* _str;
+            uint32 _hash;
+            char _padding[
+                STRING_SMALL_SIZE -
+                sizeof(LongStringData*) -
+                sizeof(uint32)
+            ];
+        } _long;
+        uint32 _longs[STRING_SMALL_SIZE >> 2];
+    };
+    #pragma pack(pop)
+
+    GS_STATIC_ASSERT(sizeof(StringData) == STRING_SMALL_SIZE, StringData_length_must_be_STRING_SMALL_SIZE);
+
+    #pragma pack(push, 4)
     struct String {
         private:
-            const char* _data;
-            uint16 _length;
+            StringData _data;
 
-            void release();
+            void clear();            
+            void _copyFrom(char ch);
+            void _copyFrom(const char* str);
+            void _copyFrom(const String& other);
+            void _moveFrom(String& other);
 
         public:
-
             String();
+            String(char ch);
             String(const char* str);
             String(String& str, bool move);
             String(const String& str);
-            
             ~String();
 
-            uint16 length() const {
-                return _length; 
+            void release();
+
+            bool isSmallString() const;
+
+            void copyFrom(char ch) {
+                release();
+                _copyFrom(ch);
             }
 
-            char operator[](uint16 idx) const {
-                if (idx >= _length) {
-                    error(GS_THIS, "(%s, %d, %d) Out of string bounds.", _data, _length, idx);
-                }
-
-                return _data[idx];
+            void copyFrom(const char* str) {
+                release();
+                _copyFrom(str);
             }
 
-            const char* string() const {
-                return _data;
+            void copyFrom(const String& other) {
+                release();
+                _copyFrom(other);
             }
 
+            void copyTo(String& other) const {
+                other.copyFrom(*this);
+            }
+
+            void moveFrom(String& other) {
+                release();
+                _moveFrom(other);
+            }
+
+            void moveTo(String& other) {
+                other.moveFrom(*this);
+            }
+
+            String& operator=(const String& other) {
+                copyFrom(other);
+                return *this;
+            }
+
+            bool operator==(const String& other);
+            bool operator!=(const String& other);
+            bool operator<(const String& other);
+            
+            uint32 hash() const;
+            uint16 length() const;
+            const char* string() const;
     };
+    #pragma pack(pop)
+
+    GS_STATIC_ASSERT(sizeof(String) == STRING_SMALL_SIZE, String_must_be_STRING_SMALL_SIZE);
 
 }
 
