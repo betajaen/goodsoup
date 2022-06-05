@@ -19,6 +19,7 @@
 
 #include "keyarray.h"
 #include "common/debug.h"
+#include "common/test.h"
 
 namespace common
 {
@@ -28,13 +29,13 @@ namespace common
 		KeyArray<const char*, int32> a;
 		
 		a.addOnce("test", 1234);
-		test(a.get("test") == 1234);
-		test(a.size() == 1);
-		test(a.exists("test2") == false);
-		test(a.exists("test") == true);
+		TEST_EQUAL(1234, a.get("test"));
+		TEST_EQUAL(1, a.size());
+		TEST_EQUAL(false, a.exists("test2"));
+		TEST_EQUAL(true, a.exists("test"));
 		a.remove("test");
-		test(a.exists("test") == false);
-		test(a.size() == 0);
+		TEST_EQUAL(false, a.exists("test"));
+		TEST_EQUAL(0, a.size());
 		
 	}
 }
