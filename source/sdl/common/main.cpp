@@ -41,9 +41,9 @@ int main(int argc, char** argv)
 {
 	int rc = 0;
 
-#if 0
-	common::test_array();
-	common::test_keyarray();
+#if 1
+	//common::test_array();
+	//common::test_keyarray();
 	common::test_string();
 #else
 
