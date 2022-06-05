@@ -60,4 +60,9 @@ namespace common
         return;\
     }
 
+#define TEST_CASE(NAME) void testcase_##NAME()
+#define TEST_SUITE(NAME) void test_##NAME()
+
+#define TEST_RUN_CASE(NAME) testcase_##NAME()
+
 #endif
