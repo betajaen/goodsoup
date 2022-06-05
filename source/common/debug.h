@@ -269,12 +269,92 @@ namespace common
         debug_writef(DC_Error, module, file, function, line, format, a0, a1, a2, a3, a4, a5, a6, a7);
     }
 
-    inline void test(bool cond, const char* message = NULL)
-    {
-        if (cond == false) {
-            debug_stop(message);
+    void debug_write_test_fail_location(const char* file, uint32 line, const char* test_name);
+    void debug_write_str(const char* str_value);
+    void debug_write_char(char char_value);
+    void debug_write_byte(byte char_value);
+    void debug_write_unsigned_int(uint32 uint32_value);
+    void debug_write_int(int32 int32_value);
+    void debug_write_bool(bool bool_value);
+    void debug_write_pointer(const void* ptr_value);
+
+    template<typename T>
+    struct debugWriter {
+        static void printable(const T& value);
+    };
+
+    template<typename T>
+    struct debugWriter<T*> {
+        static void printable(const T* ptr) {
+            debug_write_pointer((const void*) ptr);
         }
-    } 
+    };
+
+    template<>
+    struct debugWriter<const char*> {
+        static void printable(const char* str) {
+            debug_write_char('"');
+            debug_write_str(str);
+            debug_write_char('"');
+        }
+    };
+
+    template<>
+    struct debugWriter<bool> {
+        static void printable(bool value) {
+            debug_write_bool(value);
+        }
+    };
+
+    template<>
+    struct debugWriter<char> {
+        static void printable(char value) {
+            debug_write_char('\'');
+            if (value < 33 || value > 126) {
+                debug_write_char('\\');
+                debug_write_unsigned_int((uint32) value);
+            }
+            else {
+                debug_write_char(value);
+            }
+            debug_write_char('\'');
+        }
+    };
+
+    template<>
+    struct debugWriter<byte> {
+        static void printable(byte value) {
+            debug_write_byte(value);
+        }
+    };
+
+    template<>
+    struct debugWriter<int16> {
+        static void printable(int16 value) {
+            debug_write_int(value);
+        }
+    };
+
+    template<>
+    struct debugWriter<int32> {
+        static void printable(int32 value) {
+            debug_write_int(value);
+        }
+    };
+
+    template<>
+    struct debugWriter<uint16> {
+        static void printable(uint16 value) {
+            debug_write_unsigned_int(value);
+        }
+    };
+
+    template<>
+    struct debugWriter<uint32> {
+        static void printable(uint32 value) {
+            debug_write_unsigned_int(value);
+        }
+    };
 
 }
 
