@@ -21,4 +21,8 @@
 
 namespace common
 {
+    uint32 nextPrime(uint32 currentPrime) {
+        /* TODO */
+        return 0;
+    }
 }
