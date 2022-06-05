@@ -40,7 +40,7 @@ namespace common
 
     void debug_write(DebugCategory category, const char* module, const char* file, const char* function, uint32 line, const char* message);
     void debug_writef(DebugCategory category, const char* module, const char* file, const char* function, uint32 line, const char* format, ...);
-    void debug_stop(const char* message);
+    void debug_stop(const char* file, uint32 line, const char* message);
 
     inline void verbose(const char* module, const char* file, const char* function, uint32 line, const char* message) {
         debug_write(DC_Verbose, module, file, function, line, message);
@@ -357,5 +357,7 @@ namespace common
     };
 
 }
+
+#define GS_STOP_NOW(MESSAGE) ::common::debug_stop(__FILE__, __LINE__, MESSAGE)
 
 #endif
