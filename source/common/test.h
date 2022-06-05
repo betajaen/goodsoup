@@ -52,10 +52,6 @@ namespace common
         debug_write_str("\n\n"); 
     }
 
-    void handle_test_good() {
-        debug_write_char('.');
-        
-    }
 }
 
 #define TEST_EQUAL(EXPECTED, RESULT) \
