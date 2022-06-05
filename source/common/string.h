@@ -112,13 +112,26 @@ namespace common
                 return *this;
             }
 
-            bool operator==(const String& other);
-            bool operator!=(const String& other);
-            bool operator<(const String& other);
+            bool equals(const char* str) const;
+            bool equals(const String& other) const;
+
+            inline bool notEquals(const String& other) const {
+                return !equals(other);
+            }
+
+            inline bool operator==(const String& other) const {
+                return equals(other);
+            }
+
+            bool operator!=(const String& other) const {
+                return notEquals(other);
+            }
             
             uint32 hash() const;
             uint16 length() const;
             const char* string() const;
+
+            uint32 _heapSize() const;
     };
     #pragma pack(pop)
 
