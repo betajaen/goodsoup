@@ -18,6 +18,8 @@
 #ifndef COMMON_TYPES_H
 #define COMMON_TYPES_H
 
+typedef char __GS_ASSERT_32BIT_ARCH_ONLY__[(!!(sizeof(void*) == 4))*2-1];
+
 #include <SDL2/SDL.h>
 #include <new>
 

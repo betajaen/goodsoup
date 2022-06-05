@@ -101,4 +101,6 @@ namespace common
 
 }
 
+#define GS_STATIC_ASSERT(COND, MSG) typedef char gs_assert_##MSG[(!!(COND))*2-1]
+
 #endif
