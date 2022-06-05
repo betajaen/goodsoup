@@ -19,6 +19,7 @@
 #define COMMON_HASH_H
 
 #include "common/types.h"
+#include "common/string.h"
 
 namespace common
 {
@@ -63,6 +64,14 @@ namespace common
 			return (int32)value;
 		}
 	};
+
+	template<>
+	struct HashFunction<String> {
+		uint32 hash(const String& value) {
+			return value.hash();
+		}
+	};
+	
 }
 
 
