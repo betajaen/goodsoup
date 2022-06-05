@@ -76,7 +76,6 @@ namespace common
 		Index _size, _capacity;
 
 		void grow() {
-			verbose(GS_THIS, "/1(%p,%d,%d)", _begin, _size, _capacity);
 			if (_capacity == 0) {
 				_capacity = 8;
 				_begin = (T*) ::common::allocateMemory(_capacity, sizeof(T), MEMF_CLEAR);
@@ -85,7 +84,6 @@ namespace common
 				_capacity *= 2;
 				_begin = (T*) ::common::reallocateMemory(_begin, _capacity, sizeof(T));
 			}
-			verbose(GS_THIS, "/2(%p,%d,%d)", _begin, _size, _capacity);
 		}
 		void release() {
 			if (_begin) {
