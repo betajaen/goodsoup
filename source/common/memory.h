@@ -97,6 +97,8 @@ namespace common
 		}
 	}
 
+	uint32 getHeapSize();
+
 }
 
 #define GS_ArraySize(array)    (sizeof(x)/sizeof(x[0]))

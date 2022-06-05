@@ -256,6 +256,11 @@ namespace common
 		SDL_memset(mem, size, 0);
 	}
 
+
+	uint32 getHeapSize() {
+		return sMemAllocatedUser;
+	}
+
 	void checkMem() {
 		printf("D checkMem(%d, %d)\n", sMemAllocatedUser, sMemAllocatedTotal);
 	}

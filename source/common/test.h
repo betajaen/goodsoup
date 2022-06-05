@@ -24,33 +24,31 @@
 namespace common
 {
 
+    void handle_test_fail_write_header(const char* file, uint32 line, const char* testName);
+
+    void handle_test_fail_write_aopb_string(const char* left, const char* right, const char* operatorType);
+
     template<typename TA, typename TB>
-    void handle_test_fail(const char* file, uint32 line, const char* testName, const TA& a, const TB& b, const char* aName, const char* bName, const char* operatorType) {
-        debug_write_char('\n');
-        debug_write_str(file);
-        debug_write_char('(');
-        debug_write_unsigned_int(line);
-        debug_write_char(',');
-        debug_write_str(testName);
-        debug_write_str(") FAILED!\n\t");
-        
-        debug_write_str(aName);
-        debug_write_char(' ');
-        debug_write_str(operatorType);
-        debug_write_char(' ');
-        debug_write_str(bName);
-        debug_write_char('\n');
-        
-        debug_write_str("with expansion:\n\t");
-        
+    void handle_test_fail_write_aopb_value(const TA& a, const TB& b, const char* operatorType) {
         debugWriter<TA>::printable(a);
         debug_write_char(' ');
         debug_write_str(operatorType);
         debug_write_char(' ');
         debugWriter<TB>::printable(b);
-        
+    }
+
+    template<typename TA, typename TB>
+    void handle_test_fail(const char* file, uint32 line, const char* testName, const TA& a, const TB& b, const char* aName, const char* bName, const char* operatorType) {        
+        handle_test_fail_write_header(file, line, testName);
+        handle_test_fail_write_aopb_string(aName, bName, operatorType);
+        debug_write_char('\n');
+        debug_write_str("with expansion:\n\t");
+        handle_test_fail_write_aopb_value(a, b, operatorType);
         debug_write_str("\n\n"); 
     }
+
+    void handle_leak_measure(uint32& m);
+    void handle_test_heap_then_memory_offset(const char* file, int32 line, const char* testName, uint32 marker, int32 bytes);
 
 }
 
@@ -60,9 +58,17 @@ namespace common
         return;\
     }
 
+#define TEST_MEMORY(MARKER, EXPECTED) \
+    ::common::handle_test_heap_then_memory_offset(\
+        __FILE__, __LINE__, __FUNCTION__, test_marker_##MARKER, EXPECTED) 
+
 #define TEST_CASE(NAME) void testcase_##NAME()
 #define TEST_SUITE(NAME) void test_##NAME()
 
 #define TEST_RUN_CASE(NAME) testcase_##NAME()
+
+#define TEST_MEMORY_MEASURE(MARKER) \
+    uint32 test_marker_##MARKER;\
+    ::common::handle_leak_measure(test_marker_##MARKER)
 
 #endif

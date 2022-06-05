@@ -18,6 +18,8 @@
 #define GS_FILE_NAME "debug"
 
 #include "common/debug.h"
+#include "common/memory.h"
+
 #include <stdio.h>
 
 void SDLCALL writeLog(void* userdata, int category, SDL_LogPriority priority, const char* message)
@@ -141,6 +143,51 @@ namespace common
 
 	void debug_write_pointer(const void* ptr) {
 		fprintf(stdout, "%p", ptr);
+	}
+
+    void handle_leak_measure(uint32& m) {
+		m = getHeapSize();
+	}
+
+    void handle_test_fail_write_header(const char* file, uint32 line, const char* testName) {
+        debug_write_char('\n');
+        debug_write_str(file);
+        debug_write_char('(');
+        debug_write_unsigned_int(line);
+        debug_write_char(',');
+        debug_write_str(testName);
+        debug_write_str(") FAILED!\n");
+	}
+
+    void handle_test_fail_write_aopb_string(const char* left, const char* right, const char* operatorType) {    
+        debug_write_str(left);
+        debug_write_char(' ');
+        debug_write_str(operatorType);
+        debug_write_char(' ');
+        debug_write_str(right);
+        debug_write_char('\n');
+	}
+
+    void handle_test_heap_then_memory_offset(const char* file, int32 line, const char* testName, uint32 marker, int32 bytes) {
+		
+		int32 difference = getHeapSize() - marker;
+				
+		if (difference != bytes) {
+			handle_test_fail_write_header(file, line, testName);
+        
+			debug_write_str("Heap size is unexpected.\n");
+
+			debug_write_str("\tExpected: ");
+			debug_write_int(bytes);
+			debug_write_str(" bytes\n");
+
+			debug_write_str("\tActually: ");
+			debug_write_int(difference);
+			debug_write_str(" bytes\n");
+
+	        debug_write_str("\n"); 
+		}
+
 	}
 
 }
