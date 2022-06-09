@@ -29,12 +29,12 @@ namespace common
 		
 		a.addOnce("test", 1234);
 		TEST_EQUAL(1234, a.get("test"));
-		TEST_EQUAL(1, a.size());
+		TEST_EQUAL(1u, a.size());
 		TEST_EQUAL(false, a.exists("test2"));
 		TEST_EQUAL(true, a.exists("test"));
 		a.remove("test");
 		TEST_EQUAL(false, a.exists("test"));
-		TEST_EQUAL(0, a.size());
+		TEST_EQUAL(0u, a.size());
 	}
 
 	TEST_SUITE(keyarray) {

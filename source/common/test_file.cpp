@@ -36,7 +36,7 @@ namespace test
 		file.open("tests/testfile");
 		TEST_EQUAL(true, file.isOpen());
 
-		TEST_EQUAL(8266, file.length());
+		TEST_EQUAL(8266u, file.length());
 
 		file.close();
 		TEST_EQUAL(false, file.isOpen());
@@ -44,17 +44,20 @@ namespace test
 
 	TEST_CASE(file_open_read_close) {
 		ReadFile file;
-		char[5] tag = { 0 };
+		char tag[5] = {0};
 
 		TEST_EQUAL(false, file.isOpen());
 
 		file.open("tests/testfile");
 		TEST_EQUAL(true, file.isOpen());
 
-		TEST_EQUAL(8266, file.length());
+		TEST_EQUAL(8266u, file.length());
 
 		file.readTag(tag);
 
+		bool isForm = equals("FORM", tag);
+
+		TEST_EQUAL(true, isForm);
 
 
 

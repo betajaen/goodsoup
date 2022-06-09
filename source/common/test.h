@@ -20,6 +20,7 @@
 
 #include "common/types.h"
 #include "common/debug.h"
+#include "common/ext.h"
 
 namespace common
 {
@@ -57,7 +58,7 @@ namespace common
 //#if GS_TEST == 1
 
 #define TEST_EQUAL(EXPECTED, RESULT) do {\
-	if ((EXPECTED) == (RESULT)) {\
+	if (equals(EXPECTED, RESULT)) {\
 		::common::handle_test_pass();\
 	} else {\
 		::common::handle_test_fail(__FILE__, __LINE__, __FUNCTION__, EXPECTED, RESULT, #EXPECTED, #RESULT, "==");\
@@ -65,14 +66,6 @@ namespace common
 		return;\
 	} } while(0)
 
-#define TEST_EQUAL_STR(EXPECTED, RESULT) do {\
-	if ((handle_test_equal_str(EXPECTED, RESULT)) {\
-		::common::handle_test_pass();\
-	} else {\
-		::common::handle_test_fail(__FILE__, __LINE__, __FUNCTION__, EXPECTED, RESULT, #EXPECTED, #RESULT, "==");\
-		::common::handle_test_fail();\
-		return;\
-	} } while(0)
 
 #define TEST_MEMORY(MARKER, EXPECTED) \
 	::common::handle_test_heap_then_memory_offset(\

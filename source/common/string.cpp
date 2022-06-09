@@ -251,7 +251,7 @@ namespace common
         String s1;
 
 
-        TEST_EQUAL(0, s1.length());
+        TEST_EQUAL((uint16) 0, s1.length());
         TEST_EQUAL(true, s1.isSmallString());
         TEST_EQUAL('\0', s1.string()[0]);
     }
@@ -259,7 +259,7 @@ namespace common
     TEST_CASE(string_2)
     {
         String s2('a');
-        TEST_EQUAL(1, s2.length());
+        TEST_EQUAL((uint16) 1, s2.length());
         TEST_EQUAL(true, s2.isSmallString());
         TEST_EQUAL('a', s2.string()[0]);
         TEST_EQUAL('\0', s2.string()[1]);
@@ -268,7 +268,7 @@ namespace common
     TEST_CASE(string_3)
     {
         String s3("Hello");
-        TEST_EQUAL(5, s3.length());
+        TEST_EQUAL((uint16) 5, s3.length());
         TEST_EQUAL(true, s3.isSmallString());
         TEST_EQUAL('H', s3.string()[0]);
         TEST_EQUAL('e', s3.string()[1]);
@@ -281,36 +281,36 @@ namespace common
     void string_4_impl() {
         TEST_MEMORY_MEASURE(m1);
         String s4("Hello World");
-        TEST_EQUAL(11, s4.length());
+        TEST_EQUAL((uint16) 11, s4.length());
         TEST_EQUAL(false, s4.isSmallString());
-        TEST_EQUAL((2 + 2 + 11 + 1), s4._heapSize());
-        TEST_MEMORY(m1, (2 + 2 + 11 + 1));
+        TEST_EQUAL((2u + 2u + 11u + 1u), s4._heapSize());
+        TEST_MEMORY(m1, (2u + 2u + 11u + 1u));
     }
 
     TEST_CASE(string_4)
     {
         TEST_MEMORY_MEASURE(m1);
-        TEST_MEMORY(m1, 0);
+        TEST_MEMORY(m1, 0u);
         string_4_impl();
-        TEST_MEMORY(m1, 0);
+        TEST_MEMORY(m1, 0u);
     }
 
     TEST_CASE(string_5)
     {
         TEST_MEMORY_MEASURE(m1);
-        TEST_MEMORY(m1, 0);
+        TEST_MEMORY(m1, 0UL);
         String s5("Hello World2");
-        TEST_EQUAL(12, s5.length());
-        TEST_EQUAL((12 + 1 + 2 + 2), s5._heapSize());
-        TEST_MEMORY(m1, (12 + 1 + 2 + 2));
+        TEST_EQUAL((uint16) 12, s5.length());
+        TEST_EQUAL((12u + 1u + 2u + 2u), s5._heapSize());
+        TEST_MEMORY(m1, (12u + 1u + 2u + 2u));
 
         String s6(s5);
-        TEST_EQUAL(12, s6.length());
-        TEST_EQUAL((12 + 1 + 2 + 2), s6._heapSize());
+        TEST_EQUAL((uint16) 12u, s6.length());
+        TEST_EQUAL((12u + 1u + 2u + 2u), s6._heapSize());
 
         // s5 and s6 should use the same memory since
         // the string is the same.
-        TEST_MEMORY(m1, (12 + 1 + 2 + 2));
+        TEST_MEMORY(m1, (12u + 1u + 2u + 2u));
     }
 
     TEST_CASE(string_6)
@@ -318,15 +318,15 @@ namespace common
         TEST_MEMORY_MEASURE(m1);
         TEST_MEMORY(m1, 0);
         String s5("Hello World2");
-        TEST_EQUAL(12, s5.length());
-        TEST_EQUAL((12 + 1 + 2 + 2), s5._heapSize());
+        TEST_EQUAL((uint16) 12, s5.length());
+        TEST_EQUAL((12u + 1u + 2u + 2u), s5._heapSize());
         String s6(s5, true);
-        TEST_EQUAL(12, s6.length());
-        TEST_EQUAL((12 + 1 + 2 + 2), s6._heapSize());
+        TEST_EQUAL((uint16) 12, s6.length());
+        TEST_EQUAL((12u + 1u + 2u + 2u), s6._heapSize());
 
-        TEST_MEMORY(m1, (12 + 1 + 2 + 2));
+        TEST_MEMORY(m1, (12u + 1u + 2u + 2u));
 
-        TEST_EQUAL(0, s5.length());
+        TEST_EQUAL((uint16) 0, s5.length());
         TEST_EQUAL(true, s5.isSmallString());
     }
 
