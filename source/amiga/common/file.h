@@ -15,41 +15,51 @@
  *
  */
 
-#define GS_FILE_NAME "common/main"
+#ifndef COMMON_FILE_H
+#define COMMON_FILE_H
 
 #include "types.h"
 
-extern const char GOODSOUP_VERSION_STR[] = "$VER: goodsoup 0.1 (" __AMIGADATE__ ")";
-
 namespace common
 {
-	void beginDebug();
-	void endDebug();
-	void checkMem();
+	class ReadFile
+	{
+	public:
+		ReadFile();
+		~ReadFile();
 
-	void test_array();
-	void test_keyarray();
-	void test_string();
+		void open(const char* path);
+		void close();
+
+		bool isOpen() const;
+		bool isEof() const;
+
+		uint32 pos() const;
+		uint32 length() const;
+
+		int32 skip(uint32 bytes);
+
+		byte readByte();
+		uint32 readBytes(void* dst, uint32 length);
+		uint16 readUInt16LE();
+		uint16 readUInt16BE();
+		uint32 readUInt32LE();
+		uint32 readUInt32BE();
+
+		int16 readInt16LE();
+		int16 readInt16BE();
+		int32 readInt32LE();
+		int32 readInt32BE();
+
+		void readTag(char* tag);
+
+	protected:
+		ULONG      _file;
+		uint32     _length, _pos;
+	};
+
+	bool fileExists(const char* path);
 }
 
-namespace comi
-{
-	int start();
-}
 
-int main(int argc, char** argv)
-{
-	int rc = 0;
-
-#if 1
-	common::test_array();
-	common::test_keyarray();
-	common::test_string();
-#else
-
-	rc = comi::start();
 #endif
-
-	common::checkMem();
-	return rc;
-}

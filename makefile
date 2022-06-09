@@ -1,4 +1,4 @@
-PLATFORM = sdl
+PLATFORM = amiga
 PROGRAM = goodsoup
 DATESTR  = $(shell date +"%-d.%-m.%Y")
 
@@ -6,10 +6,14 @@ CFLAGS = -Isource -D__AMIGADATE__="\"$(DATESTR)\""
 
 ifeq ($(PLATFORM), amiga)
 	OBJ		=	source/amiga/common/entry.o \
-				source/amiga/common/start.o
+				source/amiga/common/start.o \
+				source/amiga/common/debug.o \
+				source/amiga/common/memory.o\
+				source/amiga/common/file.o
+
 	CC		= m68k-amigaos-gcc
 	DELETE	= rm
-	CFLAGS	+= -Isource/amiga -DGS_AMIGA -DGS_BIG -nostartfiles -nostdlib -noixemul -fno-exceptions -fno-rtti
+	CFLAGS	+= -Isource/amiga -DGS_AMIGA -DGS_BIG -DGS_PROTECT_MEMORY=1 -nostartfiles -nostdlib -noixemul -fno-exceptions -fno-rtti -m68020
 endif
 
 ifeq ($(PLATFORM), sdl)
