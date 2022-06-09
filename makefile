@@ -1,5 +1,6 @@
 PLATFORM = amiga
 PROGRAM = goodsoup
+TEST = 1
 DATESTR  = $(shell date +"%-d.%-m.%Y")
 
 CFLAGS = -Isource -D__AMIGADATE__="\"$(DATESTR)\""
@@ -13,7 +14,7 @@ ifeq ($(PLATFORM), amiga)
 
 	CC		= m68k-amigaos-gcc
 	DELETE	= rm
-	CFLAGS	+= -Isource/amiga -DGS_AMIGA -DGS_BIG -DGS_PROTECT_MEMORY=1 -nostartfiles -nostdlib -noixemul -fno-exceptions -fno-rtti -m68020
+	CFLAGS	+= -Isource/amiga -DGS_AMIGA -DGS_BIG -DGS_PROTECT_MEMORY=1 -DGS_TEST=$(TEST) -nostartfiles -nostdlib -noixemul -fno-exceptions -fno-rtti -m68020
 endif
 
 ifeq ($(PLATFORM), sdl)
@@ -24,14 +25,17 @@ ifeq ($(PLATFORM), sdl)
 
 	CC		= gcc
 	DELETE	= rm
-	CFLAGS	+= -m32 -std=c++98 -Wpedantic -Isource/sdl -DGS_LITTLE -lSDL2 -lstdc++
+	CFLAGS	+= -m32 -std=c++98 -Wpedantic -Isource/sdl -DGS_LITTLE -DGS_TEST=$(TEST) -lSDL2 -lstdc++
 endif
 
-OBJ +=	source/common/hash.o\
+OBJ +=	source/common/main.o\
+		source/common/hash.o\
 		source/common/hashmap.o\
 		source/common/array.o\
 		source/common/keyarray.o\
-		source/common/string.o
+		source/common/string.o\
+		source/common/test.o\
+		source/common/test_file.o
 
 # Game Sources
 OBJ +=	source/comi/start.o\

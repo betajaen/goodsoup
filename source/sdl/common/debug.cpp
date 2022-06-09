@@ -190,4 +190,21 @@ namespace common
 
 	}
 
+
+	bool handle_test_equal_str(const char* expected, const char* result) {
+		if (expected == NULL && result == NULL)
+			return true;
+
+		while (true) {
+			if (*expected != *result)
+				return false;
+
+			if (*expected == '\0')
+				return true;
+
+			expected++;
+			result++;
+		}
+	}
+
 }
