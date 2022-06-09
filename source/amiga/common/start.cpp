@@ -15,44 +15,12 @@
   *
   */
 
-#include <proto/exec.h>
-#include <proto/dos.h>
-
-#define GS_FILE_NAME "common/main"
-
-#include "types.h"
-
-extern const char GOODSOUP_VERSION_STR[] = "$VER: goodsoup 0.1 (" __AMIGADATE__ ")";
-
 namespace common
 {
-	void beginDebug();
-	void endDebug();
-	void checkMem();
-
-	void test_array();
-	void test_keyarray();
-	void test_string();
+	int common_main();
 }
 
-namespace comi
+int main()
 {
-	int start();
-}
-
-int common_main()
-{
-	int rc = 0;
-
-#if 1
-	common::test_array();
-	common::test_keyarray();
-	common::test_string();
-#else
-
-	rc = comi::start();
-#endif
-
-	common::checkMem();
-	return rc;
+	return common::common_main();
 }

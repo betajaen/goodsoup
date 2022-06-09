@@ -15,12 +15,47 @@
  *
  */
 
+#define GS_FILE_NAME "common/main"
+
+#include "common/types.h"
+#include "common/debug.h"
+
+extern const char GOODSOUP_VERSION_STR[] = "$VER: goodsoup 0.1 (" __AMIGADATE__ ")";
+
 namespace common
 {
-	int common_main();
+	void checkMem();
 }
 
-int main(int argc, char** argv)
+#if GS_TEST == 1
+namespace test
 {
-	return common::common_main();
+	int run();
+}
+#endif
+
+namespace comi
+{
+	int start();
+}
+
+namespace common
+{
+
+	int common_main()
+	{
+		int rc = 0;
+
+		debug_write_str(GOODSOUP_VERSION_STR);
+		debug_write_char('\n');
+
+#if GS_TEST == 1
+		rc = test::run();
+#else
+		rc = comi::start();
+#endif
+
+		common::checkMem();
+		return rc;
+	}
 }
