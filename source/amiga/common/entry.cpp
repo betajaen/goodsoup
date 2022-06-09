@@ -30,7 +30,7 @@ struct DosLibrary* DOSBase = NULL;
 struct IntuitionBase* IntuitionBase = NULL;
 struct GfxBase* GfxBase = NULL;
 
-extern int common_main();
+extern int main();
 extern void exit();
 extern void __initlibraries();
 extern void __exitlibraries();
@@ -39,7 +39,7 @@ __entrypoint void __startup(void)
 {
 	SysBase = (*((struct ExecBase**)4));
 	__initlibraries();
-	common_main();
+	main();
 	__exitlibraries();
 }
 
