@@ -116,23 +116,23 @@ namespace common
 	}
 
 	void debug_write_str(const char* str_value) {
-		gs_print(str_value);
+		FPuts(Output(), str_value);
 	}
 
-	void debug_write_char(byte byte_value) {
-		gs_printf("%2x", (uint32)byte_value);
+	void debug_write_byte(byte byte_value) {
+		gs_printf("%2cx", byte_value);
 	}
 
 	void debug_write_char(char char_value) {
-		gs_printf("%c", char_value);
+		FPutC(Output(), char_value);
 	}
 
 	void debug_write_unsigned_int(uint32 uint32_value) {
-		gs_printf("%u", uint32_value);
+		gs_printf("%lu", uint32_value);
 	}
 
 	void debug_write_int(int32 int32_value) {
-		gs_printf("%d", int32_value);
+		gs_printf("%ld", int32_value);
 	}
 
 	void debug_write_bool(bool bool_value) {
@@ -143,7 +143,7 @@ namespace common
 	}
 
 	void debug_write_pointer(const void* ptr) {
-		gs_printf("%p", ptr);
+		gs_printf("0x%lx", (uint32) ptr);
 	}
 
 	void handle_leak_measure(uint32& m) {

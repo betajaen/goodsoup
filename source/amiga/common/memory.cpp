@@ -288,10 +288,11 @@ namespace common
 	}
 
 	void checkMem() {
-		debug_write_str("checkMem ");
+		debug_write_str("checkMem(");
 		debug_write_unsigned_int(sMemAllocatedUser);
-		debug_write_char(' ');
+		debug_write_char(',');
 		debug_write_unsigned_int(sMemAllocatedTotal);
+		debug_write_char(')');
 		debug_write_char('\n');
 	}
 }
