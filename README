@@ -1,7 +1,7 @@
 Goodsoup
 ========
 
-This is a game interpreter for the Lucasarts game "Curse of Monkey Island" (COMI) for the Commodore Amiga range of computers. Goodsoup is a fork of the ScummVM 0.9.1 interpreter by the ScummVM Team.
+This is a game interpreter for the Lucasarts game "Curse of Monkey Island" (COMI) for the Commodore Amiga range of computers. Goodsoup is a partial fork of the ScummVM 0.9.1 SCUMM V8 Code by the ScummVM Team.
 
 Copying
 -------
