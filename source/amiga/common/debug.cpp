@@ -57,7 +57,7 @@ namespace common
 		}
 
 		gs_print(module);
-		gs_printf("\t%-10s\t%-10s\t%d\t", file, function, line);
+		gs_printf("\t%-10s\t%-10s\t%ld\t", file, function, line);
 
 		gs_print(message);
 
@@ -83,7 +83,7 @@ namespace common
 
 
 		gs_print(module);
-		gs_printf("\t%-10s\t%s\t%d\t", file, function, line);
+		gs_printf("\t%-10s\t%s\t%ld\t", file, function, line);
 
 		/* TODO */
 		// va_start(ap, format);
@@ -104,7 +104,7 @@ namespace common
 	}
 
 	void debug_stop(const char* file, uint32 line, const char* message) {
-		gs_printf("%s:%u\n", file, line);
+		gs_printf("%s:%lu\n", file, line);
 		if (message) {
 			gs_print(message);
 		}
@@ -112,7 +112,7 @@ namespace common
 	}
 
 	void debug_write_test_fail_location(const char* file, uint32 line, const char* test_name) {
-		gs_printf("%s failed\n:\n\t%s:%u\n", test_name, file, line);
+		gs_printf("%s failed\n:\n\t%s:%lu\n", test_name, file, line);
 	}
 
 	void debug_write_str(const char* str_value) {
