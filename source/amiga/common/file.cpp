@@ -82,7 +82,8 @@ namespace common
 	}
 
 	int32 ReadFile::skip(uint32 bytes) {
-		_pos = Seek(_file, bytes, OFFSET_CURRENT);
+		Seek(_file, bytes, OFFSET_CURRENT);
+		_pos = Seek(_file, 0, OFFSET_CURRENT);
 		return _pos;
 	}
 
