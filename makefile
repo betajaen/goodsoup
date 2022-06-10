@@ -1,5 +1,5 @@
 PLATFORM = amiga
-PROGRAM = goodsoup
+PROGRAM = dist/goodsoup
 TEST = 1
 DATESTR  = $(shell date +"%-d.%-m.%Y")
 
