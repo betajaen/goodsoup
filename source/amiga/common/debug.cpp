@@ -98,7 +98,7 @@ namespace common
 
 		if (category == DC_Error) {
 			gs_print("\n");
-			exit(0);
+			Exit(0);
 		}
 
 	}
@@ -108,7 +108,7 @@ namespace common
 		if (message) {
 			gs_print(message);
 		}
-		exit(0);
+		Exit(0);
 	}
 
 	void debug_write_test_fail_location(const char* file, uint32 line, const char* test_name) {
