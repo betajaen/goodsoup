@@ -29,4 +29,10 @@ An CBM Amiga (or CBM Amiga Emulator) with the following features:-
 Compiling
 ---------
 
-Goodsoup is written in strict C++98 and should be compiled with the GCC compiler.
+Goodsoup is written in strict C++98 and should be compiled with a GCC compiler.
+
+Options:
+
+	make PLATFORM=amiga		To compile for Amiga Platforms using the Bebbo GCC Compiler.
+	make PLATFORM=sdl		To compile for Linux Platforms using a 32-bit GCC Compiler.
+	make clean				To clean object files and compiled executables.
