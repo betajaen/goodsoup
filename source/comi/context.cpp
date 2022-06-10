@@ -49,7 +49,7 @@ namespace comi
 			index = INDEX = newObject<Index>();
 		}
 
-		return index->readFromFile("COMI.LA0");
+		return index->readFromFile(GS_GAME_PATH "COMI.LA0");
 	}
 
 	void Context::run() {
