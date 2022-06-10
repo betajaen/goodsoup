@@ -42,7 +42,7 @@ namespace comi
 namespace common
 {
 
-	int common_main()
+	int common_main(int param)
 	{
 		int rc = 0;
 

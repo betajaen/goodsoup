@@ -17,10 +17,10 @@
 
 namespace common
 {
-	int common_main();
+	int common_main(int param);
 }
 
 int main()
 {
-	return common::common_main();
+	return common::common_main(0);
 }
