@@ -2,9 +2,6 @@
 .vscode
 *.o
 
-Data
-Saves
-Goodsoup
-goodsoup
-data
-saves
+dist/goodsoup
+dist/saves
+dist/data
