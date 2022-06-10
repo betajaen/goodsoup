@@ -147,9 +147,9 @@ namespace common
 		void* allocatedMem;
 
 		allocatedMem = allocateMemoryInternal(itemCount, itemSize, flags);
-
+#if GS_TEST==3
 		verbose(GS_THIS, "(%p,%d,%d,%d)", allocatedMem, itemCount, itemSize, flags);
-
+#endif
 		return allocatedMem;
 	}
 
@@ -210,9 +210,9 @@ namespace common
 #endif
 
 		FreeMem(header, header->_totalSize);
-
+#if GS_TEST==3
 		verbose(GS_THIS, "(%p,%d,%d)", allocation, newAllocation, oldUserSize, newUserSize);
-
+#endif
 		return newAllocation;
 
 	}
@@ -231,7 +231,9 @@ namespace common
 
 		checkAllocation(header, footer, __FUNCTION__);
 #endif
+#if GS_TEST==3
 		verbose(GS_THIS, "(%p, %d) released", mem, header->_totalSize);
+#endif
 
 		sMemAllocatedTotal -= header->_totalSize;
 #if GS_PROTECT_MEMORY == 1

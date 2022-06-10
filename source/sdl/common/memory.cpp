@@ -145,9 +145,9 @@ namespace common
 		void* allocatedMem;
 
 		allocatedMem = allocateMemoryInternal(itemCount, itemSize, flags);
-
+#if GS_TEST==3
 		verbose(GS_THIS, "(%p,%d,%d)", allocatedMem, itemCount, itemSize, flags);
-
+#endif
 		return allocatedMem;
 	}
 
@@ -196,9 +196,9 @@ namespace common
 
 
 		SDL_free(header);
-
+#if GS_TEST==3
 		verbose(GS_THIS, "(%p,%d,%d)", allocation, newAllocation, oldUserSize, newUserSize);
-
+#endif
 		return newAllocation;
 
 	}
@@ -215,9 +215,9 @@ namespace common
 		MemFooter* footer = getFooter(header);
 
 		checkAllocation(header, footer, __FUNCTION__);
-
+#if GS_TEST==3
 		verbose(GS_THIS, "(%p, %d, 0x%x) released", mem, header->_totalSize, header->_flags);
-
+#endif
 		sMemAllocatedTotal -= header->_totalSize;
 		sMemAllocatedUser -= (header->_totalSize - sizeof(MemHeader) - sizeof(MemFooter));
 
