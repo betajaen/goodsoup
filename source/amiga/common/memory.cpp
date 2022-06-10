@@ -21,6 +21,7 @@
 #include "common/debug.h"
 
 #include <proto/exec.h>
+#include <proto/dos.h>
 
 namespace common
 {
@@ -48,6 +49,7 @@ namespace common
 
 	static uint32 sMemAllocatedUser;
 	static uint32 sMemAllocatedTotal;
+	static uint32 sMemAllocatedHighest;
 
 	// Memory
 
@@ -127,7 +129,9 @@ namespace common
 
 		header = (MemHeader*)allocatedMem;
 		header->_totalSize = allocationSize;
+#if GS_PROTECT_MEMORY == 1
 		header->_magic = HEADER_MAGIC;
+#endif
 
 		userMem = (void*)(allocatedMem + sizeof(MemHeader));
 
@@ -137,6 +141,10 @@ namespace common
 #endif
 		sMemAllocatedTotal += allocationSize;
 		sMemAllocatedUser += userSize;
+
+		if (sMemAllocatedTotal > sMemAllocatedHighest) {
+			sMemAllocatedHighest = sMemAllocatedTotal;
+		}
 
 		return userMem;
 	}
@@ -206,7 +214,7 @@ namespace common
 #if GS_PROTECT_MEMORY == 1
 		sMemAllocatedUser -= (header->_totalSize - sizeof(MemHeader) - sizeof(MemFooter));
 #else
-		sMemAllocatedUser -= (header->_totalSize - sizeof(MemHeader);
+		sMemAllocatedUser -= (header->_totalSize - sizeof(MemHeader));
 #endif
 
 		FreeMem(header, header->_totalSize);
@@ -234,12 +242,11 @@ namespace common
 #if GS_TEST==3
 		verbose(GS_THIS, "(%p, %d) released", mem, header->_totalSize);
 #endif
-
 		sMemAllocatedTotal -= header->_totalSize;
 #if GS_PROTECT_MEMORY == 1
 		sMemAllocatedUser -= (header->_totalSize - sizeof(MemHeader) - sizeof(MemFooter));
 #else
-		sMemAllocatedUser -= (header->_totalSize - sizeof(MemHeader);
+		sMemAllocatedUser -= (header->_totalSize - sizeof(MemHeader));
 #endif
 
 		FreeMem(header, header->_totalSize);
@@ -290,11 +297,18 @@ namespace common
 	}
 
 	void checkMem() {
-		debug_write_str("checkMem(");
-		debug_write_unsigned_int(sMemAllocatedUser);
-		debug_write_char(',');
-		debug_write_unsigned_int(sMemAllocatedTotal);
-		debug_write_char(')');
-		debug_write_char('\n');
+		debug_write_str("Memory Stats:\nAllocation/Overhead = ");
+		debug_write_unsigned_int(sMemAllocatedUser >> 10);
+		debug_write_str(" / ");
+		debug_write_unsigned_int((sMemAllocatedTotal - sMemAllocatedUser) >> 10);
+		debug_write_str(" KiB\n");
+		
+		if (sMemAllocatedTotal > 0) {
+			debug_write_str(" ** Leaks Detected!\n");
+		}
+
+		debug_write_str("Highest = ");
+		debug_write_unsigned_int(sMemAllocatedHighest >> 10);
+		debug_write_str(" KiB\n");
 	}
 }
