@@ -112,7 +112,7 @@ namespace common
 	}
 
 	void debug_write_test_fail_location(const char* file, uint32 line, const char* test_name) {
-		gs_printf("%s failed\n:\n\t%s:%lu\n", test_name, file, line);
+		// Printf("%s failed\n:\n\t%s:%lu\n", test_name, file, line);
 	}
 
 	void debug_write_str(const char* str_value) {
@@ -120,7 +120,7 @@ namespace common
 	}
 
 	void debug_write_byte(byte byte_value) {
-		gs_printf("%2cx", byte_value);
+		Printf("%2cx", byte_value);
 	}
 
 	void debug_write_char(char char_value) {
@@ -128,22 +128,22 @@ namespace common
 	}
 
 	void debug_write_unsigned_int(uint32 uint32_value) {
-		gs_printf("%lu", uint32_value);
+		Printf("%lu", uint32_value);
 	}
 
 	void debug_write_int(int32 int32_value) {
-		gs_printf("%ld", int32_value);
+		Printf("%ld", int32_value);
 	}
 
 	void debug_write_bool(bool bool_value) {
 		if (bool_value)
-			gs_print("true");
+			FPuts(Output(), "true");
 		else
-			gs_print("false");
+			FPuts(Output(), "false");
 	}
 
 	void debug_write_pointer(const void* ptr) {
-		gs_printf("0x%lx", (uint32) ptr);
+		Printf("0x%lx", (uint32) ptr);
 	}
 
 	void handle_leak_measure(uint32& m) {

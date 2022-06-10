@@ -127,11 +127,11 @@ namespace common
 	}
 
     void debug_write_unsigned_int(uint32 uint32_value) {
-		fprintf(stdout, "%u", uint32_value);
+		fprintf(stdout, "%lu", uint32_value);
 	}
 
     void debug_write_int(int32 int32_value) {
-		fprintf(stdout, "%d", int32_value);
+		fprintf(stdout, "%ld", int32_value);
 	}
 
     void debug_write_bool(bool bool_value) {

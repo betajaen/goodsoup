@@ -42,185 +42,258 @@ namespace common
     void debug_writef(DebugCategory category, const char* module, const char* file, const char* function, uint32 line, const char* format, ...);
     void debug_stop(const char* file, uint32 line, const char* message);
 
+
     inline void verbose(const char* module, const char* file, const char* function, uint32 line, const char* message) {
+#if GS_DEBUG_LEVEL <= 1
         debug_write(DC_Verbose, module, file, function, line, message);
+#endif
     }
 
     template<typename T0>
     inline void verbose(const char* module, const char* file, const char* function, uint32 line, const char* format, const T0& a0) {
+#if GS_DEBUG_LEVEL <= 1
         debug_writef(DC_Verbose, module, file, function, line, format, a0);
+#endif
     }
 
     template<typename T0, typename T1>
     inline void verbose(const char* module, const char* file, const char* function, uint32 line, const char* format, const T0& a0, const T1& a1) {
+#if GS_DEBUG_LEVEL <= 1
         debug_writef(DC_Verbose, module, file, function, line, format, a0, a1);
+#endif
     }
 
     template<typename T0, typename T1, typename T2>
     inline void verbose(const char* module, const char* file, const char* function, uint32 line, const char* format, const T0& a0, const T1& a1, const T2& a2) {
+#if GS_DEBUG_LEVEL <= 1
         debug_writef(DC_Verbose, module, file, function, line, format, a0, a1, a2);
+#endif
     }
 
     template<typename T0, typename T1, typename T2, typename T3>
     inline void verbose(const char* module, const char* file, const char* function, uint32 line, const char* format, const T0& a0, const T1& a1, const T2& a2, const T3& a3) {
+#if GS_DEBUG_LEVEL <= 1
         debug_writef(DC_Verbose, module, file, function, line, format, a0, a1, a2, a3);
+#endif
     }
 
     template<typename T0, typename T1, typename T2, typename T3, typename T4>
     inline void verbose(const char* module, const char* file, const char* function, uint32 line, const char* format, const T0& a0, const T1& a1, const T2& a2, const T3& a3, const T4& a4) {
+#if GS_DEBUG_LEVEL <= 1
         debug_writef(DC_Verbose, module, file, function, line, format, a0, a1, a2, a3, a4);
+#endif
     }
 
     template<typename T0, typename T1, typename T2, typename T3, typename T4, typename T5>
     inline void verbose(const char* module, const char* file, const char* function, uint32 line, const char* format, const T0& a0, const T1& a1, const T2& a2, const T3& a3, const T4& a4, const T5& a5) {
+#if GS_DEBUG_LEVEL <= 1
         debug_writef(DC_Verbose, module, file, function, line, format, a0, a1, a2, a3, a4, a5);
+#endif
     }
 
     template<typename T0, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6>
     inline void verbose(const char* module, const char* file, const char* function, uint32 line, const char* format, const T0& a0, const T1& a1, const T2& a2, const T3& a3, const T4& a4, const T5& a5, const T6& a6) {
+#if GS_DEBUG_LEVEL <= 1
         debug_writef(DC_Verbose, module, file, function, line, format, a0, a1, a2, a3, a4, a5, a6);
+#endif
     }
 
     template<typename T0, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7>
     inline void verbose(const char* module, const char* file, const char* function, uint32 line, const char* format, const T0& a0, const T1& a1, const T2& a2, const T3& a3, const T4& a4, const T5& a5, const T6& a6, const T7& a7) {
+#if GS_DEBUG_LEVEL <= 1
         debug_writef(DC_Verbose, module, file, function, line, format, a0, a1, a2, a3, a4, a5, a6, a7);
+#endif
     }
 
 
 
     inline void debug(const char* module, const char* file, const char* function, uint32 line, const char* message) {
+#if GS_DEBUG_LEVEL <= 2
         debug_write(DC_Debug, module, file, function, line, message);
+#endif
     }
 
     template<typename T0>
     inline void debug(const char* module, const char* file, const char* function, uint32 line, const char* format, const T0& a0) {
+#if GS_DEBUG_LEVEL <= 2
         debug_writef(DC_Debug, module, file, function, line, format, a0);
+#endif
     }
 
     template<typename T0, typename T1>
     inline void debug(const char* module, const char* file, const char* function, uint32 line, const char* format, const T0& a0, const T1& a1) {
+#if GS_DEBUG_LEVEL <= 2
         debug_writef(DC_Debug, module, file, function, line, format, a0, a1);
+#endif
     }
 
     template<typename T0, typename T1, typename T2>
     inline void debug(const char* module, const char* file, const char* function, uint32 line, const char* format, const T0& a0, const T1& a1, const T2& a2) {
+#if GS_DEBUG_LEVEL <= 2
         debug_writef(DC_Debug, module, file, function, line, format, a0, a1, a2);
+#endif
     }
 
     template<typename T0, typename T1, typename T2, typename T3>
     inline void debug(const char* module, const char* file, const char* function, uint32 line, const char* format, const T0& a0, const T1& a1, const T2& a2, const T3& a3) {
+#if GS_DEBUG_LEVEL <= 2
         debug_writef(DC_Debug, module, file, function, line, format, a0, a1, a2, a3);
+#endif
     }
 
     template<typename T0, typename T1, typename T2, typename T3, typename T4>
     inline void debug(const char* module, const char* file, const char* function, uint32 line, const char* format, const T0& a0, const T1& a1, const T2& a2, const T3& a3, const T4& a4) {
+#if GS_DEBUG_LEVEL <= 2
         debug_writef(DC_Debug, module, file, function, line, format, a0, a1, a2, a3, a4);
+#endif
     }
 
     template<typename T0, typename T1, typename T2, typename T3, typename T4, typename T5>
     inline void debug(const char* module, const char* file, const char* function, uint32 line, const char* format, const T0& a0, const T1& a1, const T2& a2, const T3& a3, const T4& a4, const T5& a5) {
+#if GS_DEBUG_LEVEL <= 2
         debug_writef(DC_Debug, module, file, function, line, format, a0, a1, a2, a3, a4, a5);
+#endif
     }
 
     template<typename T0, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6>
     inline void debug(const char* module, const char* file, const char* function, uint32 line, const char* format, const T0& a0, const T1& a1, const T2& a2, const T3& a3, const T4& a4, const T5& a5, const T6& a6) {
+#if GS_DEBUG_LEVEL <= 2
         debug_writef(DC_Debug, module, file, function, line, format, a0, a1, a2, a3, a4, a5, a6);
+#endif
     }
 
     template<typename T0, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7>
     inline void debug(const char* module, const char* file, const char* function, uint32 line, const char* format, const T0& a0, const T1& a1, const T2& a2, const T3& a3, const T4& a4, const T5& a5, const T6& a6, const T7& a7) {
+#if GS_DEBUG_LEVEL <= 2
         debug_writef(DC_Debug, module, file, function, line, format, a0, a1, a2, a3, a4, a5, a6, a7);
+#endif
     }
 
 
     inline void info(const char* module, const char* file, const char* function, uint32 line, const char* message) {
+#if GS_DEBUG_LEVEL <= 3
         debug_write(DC_Informational, module, file, function, line, message);
+#endif
     }
 
     template<typename T0>
     inline void info(const char* module, const char* file, const char* function, uint32 line, const char* format, const T0& a0) {
+#if GS_DEBUG_LEVEL <= 3
         debug_writef(DC_Informational, module, file, function, line, format, a0);
+#endif
     }
 
     template<typename T0, typename T1>
     inline void info(const char* module, const char* file, const char* function, uint32 line, const char* format, const T0& a0, const T1& a1) {
+#if GS_DEBUG_LEVEL <= 3
         debug_writef(DC_Informational, module, file, function, line, format, a0, a1);
+#endif
     }
 
     template<typename T0, typename T1, typename T2>
     inline void info(const char* module, const char* file, const char* function, uint32 line, const char* format, const T0& a0, const T1& a1, const T2& a2) {
+#if GS_DEBUG_LEVEL <= 3
         debug_writef(DC_Informational, module, file, function, line, format, a0, a1, a2);
+#endif
     }
 
     template<typename T0, typename T1, typename T2, typename T3>
     inline void info(const char* module, const char* file, const char* function, uint32 line, const char* format, const T0& a0, const T1& a1, const T2& a2, const T3& a3) {
+#if GS_DEBUG_LEVEL <= 3
         debug_writef(DC_Informational, module, file, function, line, format, a0, a1, a2, a3);
+#endif
     }
 
     template<typename T0, typename T1, typename T2, typename T3, typename T4>
     inline void info(const char* module, const char* file, const char* function, uint32 line, const char* format, const T0& a0, const T1& a1, const T2& a2, const T3& a3, const T4& a4) {
+#if GS_DEBUG_LEVEL <= 3
         debug_writef(DC_Informational, module, file, function, line, format, a0, a1, a2, a3, a4);
+#endif
     }
 
     template<typename T0, typename T1, typename T2, typename T3, typename T4, typename T5>
     inline void info(const char* module, const char* file, const char* function, uint32 line, const char* format, const T0& a0, const T1& a1, const T2& a2, const T3& a3, const T4& a4, const T5& a5) {
+#if GS_DEBUG_LEVEL <= 3
         debug_writef(DC_Informational, module, file, function, line, format, a0, a1, a2, a3, a4, a5);
+#endif
     }
 
     template<typename T0, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6>
     inline void info(const char* module, const char* file, const char* function, uint32 line, const char* format, const T0& a0, const T1& a1, const T2& a2, const T3& a3, const T4& a4, const T5& a5, const T6& a6) {
+#if GS_DEBUG_LEVEL <= 3
         debug_writef(DC_Informational, module, file, function, line, format, a0, a1, a2, a3, a4, a5, a6);
+#endif
     }
 
     template<typename T0, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7>
     inline void info(const char* module, const char* file, const char* function, uint32 line, const char* format, const T0& a0, const T1& a1, const T2& a2, const T3& a3, const T4& a4, const T5& a5, const T6& a6, const T7& a7) {
+#if GS_DEBUG_LEVEL <= 3
         debug_writef(DC_Informational, module, file, function, line, format, a0, a1, a2, a3, a4, a5, a6, a7);
+#endif
     }
 
 
 
     inline void warn(const char* module, const char* file, const char* function, uint32 line, const char* message) {
+#if GS_DEBUG_LEVEL <= 4
         debug_write(DC_Warning, module, file, function, line, message);
+#endif
     }
 
     template<typename T0>
     inline void warn(const char* module, const char* file, const char* function, uint32 line, const char* format, const T0& a0) {
+#if GS_DEBUG_LEVEL <= 4
         debug_writef(DC_Warning, module, file, function, line, format, a0);
+#endif
     }
 
     template<typename T0, typename T1>
     inline void warn(const char* module, const char* file, const char* function, uint32 line, const char* format, const T0& a0, const T1& a1) {
+#if GS_DEBUG_LEVEL <= 4
         debug_writef(DC_Warning, module, file, function, line, format, a0, a1);
+#endif
     }
 
     template<typename T0, typename T1, typename T2>
     inline void warn(const char* module, const char* file, const char* function, uint32 line, const char* format, const T0& a0, const T1& a1, const T2& a2) {
+#if GS_DEBUG_LEVEL <= 4
         debug_writef(DC_Warning, module, file, function, line, format, a0, a1, a2);
+#endif
     }
 
     template<typename T0, typename T1, typename T2, typename T3>
     inline void warn(const char* module, const char* file, const char* function, uint32 line, const char* format, const T0& a0, const T1& a1, const T2& a2, const T3& a3) {
+#if GS_DEBUG_LEVEL <= 4
         debug_writef(DC_Warning, module, file, function, line, format, a0, a1, a2, a3);
+#endif
     }
 
     template<typename T0, typename T1, typename T2, typename T3, typename T4>
     inline void warn(const char* module, const char* file, const char* function, uint32 line, const char* format, const T0& a0, const T1& a1, const T2& a2, const T3& a3, const T4& a4) {
+#if GS_DEBUG_LEVEL <= 4
         debug_writef(DC_Warning, module, file, function, line, format, a0, a1, a2, a3, a4);
+#endif
     }
 
     template<typename T0, typename T1, typename T2, typename T3, typename T4, typename T5>
     inline void warn(const char* module, const char* file, const char* function, uint32 line, const char* format, const T0& a0, const T1& a1, const T2& a2, const T3& a3, const T4& a4, const T5& a5) {
+#if GS_DEBUG_LEVEL <= 4
         debug_writef(DC_Warning, module, file, function, line, format, a0, a1, a2, a3, a4, a5);
+#endif
     }
 
     template<typename T0, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6>
     inline void warn(const char* module, const char* file, const char* function, uint32 line, const char* format, const T0& a0, const T1& a1, const T2& a2, const T3& a3, const T4& a4, const T5& a5, const T6& a6) {
+#if GS_DEBUG_LEVEL <= 4
         debug_writef(DC_Warning, module, file, function, line, format, a0, a1, a2, a3, a4, a5, a6);
+#endif
     }
 
     template<typename T0, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7>
     inline void warn(const char* module, const char* file, const char* function, uint32 line, const char* format, const T0& a0, const T1& a1, const T2& a2, const T3& a3, const T4& a4, const T5& a5, const T6& a6, const T7& a7) {
+#if GS_DEBUG_LEVEL <= 4
         debug_writef(DC_Warning, module, file, function, line, format, a0, a1, a2, a3, a4, a5, a6, a7);
+#endif
     }
 
 
