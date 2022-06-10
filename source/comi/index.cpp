@@ -63,10 +63,11 @@ namespace comi
 	}
 
 	template<uint16 Length>
-	static void readResourceList(ResourceList<Length>& resources, ReadFile& file, const char* name) {
+	static bool readResourceList(ResourceList<Length>& resources, ReadFile& file, const char* name) {
 		uint16 testLength = (uint16) file.readUInt32LE();
 		if (testLength != Length) {
 			error(GS_THIS, "ResourceList length does not match expected length! Expected=%ld,Given=%ld,Type=%s", Length, testLength, name);
+			return false;
 		}
 
 		for (uint32 i = 0; i < Length; i++) {
@@ -81,8 +82,10 @@ namespace comi
 
 		for (uint32 i = 0; i < Length; i++) {
 			Resource& resource = resources._resources[i];
-			verbose(COMI_THIS, "(%ld, %ld,%ld)", i, resource._roomNum, resource._offset);
 		}
+
+		verbose(COMI_THIS, "(%ld, %s)", testLength, name);
+		return true;
 	}
 
 	bool Index::readFromFile(const char* path) {
@@ -102,6 +105,9 @@ namespace comi
 
 
 		while (_file.isEof() == false) {
+
+			verbose(COMI_THIS, "(%ld, %ld, %ld)", _file.isEof(), _file.pos(), _file.length());
+
 			_file.readTag(tagName);
 			
 			checkTag(tagName, _file.pos());
@@ -182,42 +188,48 @@ namespace comi
 
 			// DROO
 			if (tagEqual(tagName, 'D', 'R', 'O', 'O')) {
-				readResourceList(_roomsResources, _file, "DROO (Rooms)");
+				if (readResourceList(_roomsResources, _file, "DROO (Rooms)") == false)
+					return false;
 				verbose(COMI_THIS, "(%s, %ld) Ok.", tagName, tagLength);
 				continue;
 			}
 
 			// DRSC
 			if (tagEqual(tagName, 'D', 'R', 'S', 'C')) {
-				readResourceList(_roomsScriptsResources, _file, "DRSC (Rooms Scripts)");
+				if (readResourceList(_roomsScriptsResources, _file, "DRSC (Rooms Scripts)") == false)
+					return false;
 				verbose(COMI_THIS, "(%s, %ld) Ok.", tagName, tagLength);
 				continue;
 			}
 
 			// DSCR
 			if (tagEqual(tagName, 'D', 'S', 'C', 'R')) {
-				readResourceList(_scriptsResources, _file, "DSCR (Scripts)");
+				if (readResourceList(_scriptsResources, _file, "DSCR (Scripts)") == false)
+					return false;
 				verbose(COMI_THIS, "(%s, %ld) Ok.", tagName, tagLength);
 				continue;
 			}
 
 			// DSOU
 			if (tagEqual(tagName, 'D', 'S', 'O', 'U')) {
-				readResourceList(_soundsResources, _file, "DSOU (Sounds)");
+				if (readResourceList(_soundsResources, _file, "DSOU (Sounds)") == false)
+					return false;
 				verbose(COMI_THIS, "(%s, %ld) Ok.", tagName, tagLength);
 				continue;
 			}
 
 			// DCOS
 			if (tagEqual(tagName, 'D', 'C', 'O', 'S')) {
-				readResourceList(_costumesResources, _file, "DCOS (Sounds)");
+				if (readResourceList(_costumesResources, _file, "DCOS (Sounds)") == false)
+					return false;
 				verbose(COMI_THIS, "(%s, %ld) Ok.", tagName, tagLength);
 				continue;
 			}
 
 			// DCHR
 			if (tagEqual(tagName, 'D', 'C', 'H', 'R')) {
-				readResourceList(_charsetResources, _file, "DCHR (Charset)");
+				if (readResourceList(_charsetResources, _file, "DCHR (Charset)") == false)
+					return false;
 				verbose(COMI_THIS, "(%s, %ld) Ok.", tagName, tagLength);
 				continue;
 			}
@@ -245,7 +257,7 @@ namespace comi
 					entry._class = _file.readUInt32LE();
 					entry._owner = 0xFF;
 
-					verbose(COMI_THIS, "(DOBJ, %i, %s, 0x%2x, 0x%08x, %ld)", i, entry._name.string(), entry._room, entry._class, entry._owner);
+					verbose(COMI_THIS, "(DOBJ, %ld, %s, 0x%2x, 0x%08x, %ld)", i, entry._name.string(), entry._room, entry._class, entry._owner);
 				}
 
 #if GS_TEST == 2
