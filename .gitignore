@@ -4,4 +4,13 @@
 
 dist/goodsoup
 dist/saves
-dist/data
+dist/*.LA0
+dist/*.la0
+dist/*.LA1
+dist/*.la1
+dist/*.LA2
+dist/*.la2
+dist/RESOURCE
+dist/resource
+
+
