@@ -25,6 +25,7 @@
 namespace common
 {
 
+#if GS_TEST == 1
 	void handle_test_fail_write_header(const char* file, uint32 line, const char* testName);
 
 	void handle_test_fail_write_aopb_string(const char* left, const char* right, const char* operatorType);
@@ -53,9 +54,10 @@ namespace common
 	void handle_test_pass();
 	void handle_test_fail();
 	void handle_test_equal_str(const char* expected, const char* result);
+#endif
 }
 
-//#if GS_TEST == 1
+#if GS_TEST == 1
 
 #define TEST_EQUAL(EXPECTED, RESULT) do {\
 	if (equals(EXPECTED, RESULT)) {\
@@ -76,13 +78,13 @@ namespace common
 	uint32 test_marker_##MARKER;\
 	::common::handle_leak_measure(test_marker_##MARKER)
 
-// #else
-// 
-// #define TEST_EQUAL(EXPECTED, RESULT)
-// #define TEST_MEMORY(MARKER, EXPECTED)
-// #define TEST_MEMORY_MEASURE(MARKER)
-// 
-// #endif
+#else
+
+#define TEST_EQUAL(EXPECTED, RESULT)
+#define TEST_MEMORY(MARKER, EXPECTED)
+#define TEST_MEMORY_MEASURE(MARKER)
+
+#endif
 
 
 #define TEST_CASE(NAME) void testcase_##NAME()
