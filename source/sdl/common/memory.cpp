@@ -42,8 +42,9 @@ namespace common
 		uint32 _allocationId;
 	};
 
-	static uint32 sMemAllocatedUser;
-	static uint32 sMemAllocatedTotal;
+	static uint32 sMemAllocatedUser = 0;
+	static uint32 sMemAllocatedTotal = 0;
+	static uint32 sMemAllocatedHighest = 0;
 
 
 	// Memory
@@ -135,6 +136,10 @@ namespace common
 
 		sMemAllocatedTotal += allocationSize;
 		sMemAllocatedUser += userSize;
+
+		if (sMemAllocatedTotal > sMemAllocatedHighest) {
+			sMemAllocatedHighest = sMemAllocatedTotal;
+		}
 
 		return userMem;
 	}
@@ -262,6 +267,18 @@ namespace common
 	}
 
 	void checkMem() {
-		printf("D checkMem(%d, %d)\n", sMemAllocatedUser, sMemAllocatedTotal);
+		debug_write_str("Memory Stats:\nAllocation/Overhead = ");
+		debug_write_unsigned_int(sMemAllocatedUser >> 10);
+		debug_write_str(" / ");
+		debug_write_unsigned_int((sMemAllocatedTotal - sMemAllocatedUser) >> 10);
+		debug_write_str(" KiB\n");
+
+		if (sMemAllocatedTotal > 0) {
+			debug_write_str(" ** Leaks Detected!\n");
+		}
+
+		debug_write_str("Highest = ");
+		debug_write_unsigned_int(sMemAllocatedHighest >> 10);
+		debug_write_str(" KiB\n");
 	}
 }
