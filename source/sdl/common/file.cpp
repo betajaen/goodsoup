@@ -45,7 +45,7 @@ namespace common
 
 		if (_file) {
 			_length = SDL_RWsize(_file);
-			info(GS_THIS, "(%x, %s, %d) Opened.", this, path, _length);
+			debug(GS_THIS, "(%x, %s, %d) Opened.", this, path, _length);
 		}
 		else {
 			error(GS_THIS, "(%x, %s) Did not open file.", this, path);
@@ -58,7 +58,7 @@ namespace common
 			_file = NULL;
 			_pos = 0;
 			_length = 0;
-			info(GS_THIS, "(%x) Closed", this);
+			debug(GS_THIS, "(%x) Closed", this);
 		}
 	}
 

@@ -48,7 +48,7 @@ namespace common
 		if (_file) {
 			Seek(_file, 0, OFFSET_END);
 			_length = Seek(_file, 0, OFFSET_BEGINNING);
-			info(GS_THIS, "(0x%lx, %s, %ld) Opened.", this, path, _length);
+			debug(GS_THIS, "(0x%lx, %s, %ld) Opened.", this, path, _length);
 		}
 		else {
 			error(GS_THIS, "(0x%lx, %s) Did not open file.", this, path);
@@ -61,7 +61,7 @@ namespace common
 			_file = NULL;
 			_pos = 0;
 			_length = 0;
-			info(GS_THIS, "(0x%lx) Closed", this);
+			debug(GS_THIS, "(0x%lx) Closed", this);
 		}
 	}
 
