@@ -28,6 +28,18 @@ using namespace common;
 namespace comi
 {
 
+	class DiskReader {
+	private:
+		ReadFile& _file;
+	public:
+
+		DiskReader(ReadFile& file);
+		~DiskReader();
+
+		bool readAndExpectTag(char a, char b, char c, char d);
+
+	};
+
 	class Disk {
 	private:
 
@@ -54,6 +66,7 @@ namespace comi
 
 		bool getRoomOffset(uint8 num, uint32& offset) const;
 
+		DiskReader readSection(uint32 offset);
 
 	};
 

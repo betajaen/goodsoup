@@ -156,7 +156,7 @@ namespace comi
 
 		if (scriptNum < NUM_SCRIPTS) {
 			debug(COMI_THIS, "%ld load script", (uint32) scriptNum);
-			RESOURCES->loadScript(scriptNum);
+			RESOURCES->loadScriptFromRoom(scriptNum);
 			// INDEX->loadScript(scriptNum);
 		}
 		else {

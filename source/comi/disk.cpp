@@ -151,6 +151,8 @@ namespace comi
 				_maxRoomOffset = offset._room;
 			}
 		}
+
+		return true;
 	}
 
 	bool Disk::getRoomOffset(uint8 num, uint32& offset) const {
@@ -174,6 +176,29 @@ namespace comi
 		}
 
 		return false;
+	}
+
+	DiskReader Disk::readSection(uint32 offset) {
+		_file.seek(offset);
+
+		return DiskReader(_file);
+	}
+
+
+	DiskReader::DiskReader(ReadFile& file)
+		: _file(file) {
+	}
+
+	DiskReader::~DiskReader() {
+	}
+
+
+	bool DiskReader::readAndExpectTag(char a, char b, char c, char d) {
+
+		char tagName[5] = { 0 };
+		_file.readTag(tagName);
+
+		return tagEqual(tagName, a, b, c, d);
 	}
 
 }

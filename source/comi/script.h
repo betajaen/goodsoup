@@ -27,7 +27,7 @@ using namespace common;
 
 namespace comi
 {
-	class ResourceParser;
+	class DiskReader;
 
 	class Script : public ResourceObject
 	{
@@ -35,10 +35,10 @@ namespace comi
 		Buffer<byte> _data;
 	public:
 
-		Script(uint16 num, uint8 kind, uint8 disk, uint8 flags);
+		Script(uint16 num, uint8 disk, uint8 flags);
 		~Script();
 
-		void readFromParser(ResourceParser& parser);
+		bool readFromDisk(DiskReader& reader);
 
 	};
 

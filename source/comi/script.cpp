@@ -20,6 +20,7 @@
 #include "script.h"
 #include "resource.h"
 
+#include "disk.h"
 #include "debug.h"
 #include "constants.h"
 
@@ -27,7 +28,7 @@ using namespace common;
 
 namespace comi
 {
-	Script::Script(uint16 num, uint8 kind, uint8 disk, uint8 flags) {
+	Script::Script(uint16 num, uint8 disk, uint8 flags) {
 		_num = num;
 		_users = 1;
 		_kind = RK_SCRIPT;
@@ -37,9 +38,12 @@ namespace comi
 
 	Script::~Script() {
 	}
+	
+	bool Script::readFromDisk(DiskReader& reader) {
+		if (reader.readAndExpectTag('S', 'C', 'R', 'P') == false)
+			return false;
 
-	void Script::readFromParser(ResourceParser& parser) {
-		/* TODO */
+		return true;
 	}
 
 

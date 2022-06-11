@@ -82,10 +82,47 @@ namespace comi
 		return true;
 	}
 
-	Script* Resources::loadScript(uint16 num)
+	Disk& Resources::_getDisk(uint8 num) {
+
+		if (num >= NUM_DISKS) {
+			error(COMI_THIS, "Unknown disk %ld", num);
+			return _disk[0];
+		}
+
+		return _disk[num - 1];
+	}
+
+	Script* Resources::loadScriptFromRoom(uint16 num)
 	{
-		/* TODO */
-		return NULL;
+		uint8 script_roomNum;
+		uint32 script_offset;
+
+		if (INDEX->getScript(num, script_roomNum, script_offset) == false) {
+			return NULL;
+		}
+
+		uint8 room_diskNum;
+		uint32 room_resOffset;
+
+		if (INDEX->getRoom(script_roomNum, room_diskNum, room_resOffset) == false) {
+			return NULL;
+		}
+
+		uint32 room_offset;
+		Disk& disk = _getDisk(room_diskNum);
+		disk.getRoomOffset(script_roomNum, room_offset);
+
+		Script* script = newObject<Script>(num, room_diskNum, 0);
+		DiskReader reader = disk.readSection(room_offset + script_offset);
+
+		if (script->readFromDisk(reader) == false) {
+			deleteObject_unchecked(script);
+			return NULL;
+		}
+
+		_resources.push(script);
+
+		return script;
 	}
 
 	Room* Resources::loadRoom(uint16 num)

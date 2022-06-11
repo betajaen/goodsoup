@@ -34,9 +34,9 @@ using namespace common;
 namespace comi
 {
 	class Resources;
-	class ResourceParser;
 	class ResourceObject;
 	class Disk;
+	class DiskParser;
 
 	class Room;
 	class Script;
@@ -49,14 +49,14 @@ namespace comi
 		uint8  _users;
 	};
 
-	typedef Buffer<byte> ResourceData;
-
 	class Resources {
 	private:
 
 		Disk _disk[NUM_DISKS];
 
 		Array<ResourceObject*> _resources;
+
+		Disk& _getDisk(uint8 num);
 
 	public:
 
@@ -66,26 +66,9 @@ namespace comi
 		bool open();
 		void close();
 
-		Script* loadScript(uint16 num);
+		Script* loadScriptFromRoom(uint16 num);
 		Room* loadRoom(uint16 num);
 
-	};
-
-	class ResourceParser {
-	private:
-		ReadFile& _file;
-	public:
-
-		ResourceParser(ReadFile& file)
-			: _file(file) {
-		}
-
-		~ResourceParser() {
-		}
-
-		void Seek(uint32 position) {
-			_file.seek(position);
-		}
 	};
 
 }
