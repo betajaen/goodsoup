@@ -17,7 +17,7 @@ ifeq ($(PLATFORM), amiga)
 
 	CC		= m68k-amigaos-gcc
 	DELETE	= rm
-	CFLAGS	+= -Isource/amiga -DGS_AMIGA -DGS_BIG -nostartfiles -nostdlib -noixemul -fno-exceptions -fno-rtti -m68020
+	CFLAGS	+= -Isource/amiga -DGS_AMIGA -DGS_BIG -noixemul -fno-exceptions -fno-rtti -m68020
 ifeq ($(RELEASE), 1)
 	CFLAGS	+= -O2 -fno-builtin -DGS_RELEASE -DGS_DEBUG_LEVEL=4 -DGS_PROTECT_MEMORY=0
 else

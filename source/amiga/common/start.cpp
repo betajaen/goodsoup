@@ -20,7 +20,7 @@ namespace common
 	int common_main(int param);
 }
 
-int main()
+int amiga_main()
 {
 	return common::common_main(0);
 }

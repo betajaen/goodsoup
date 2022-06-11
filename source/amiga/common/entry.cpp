@@ -17,62 +17,63 @@
 
 #include <proto/exec.h>
 #include <proto/dos.h>
+#include <proto/intuition.h>
 
-#define DOS_LIB_NAME   "dos.library"
-#define DOS_LIB_VERS   33L
-#define INT_LIB_NAME   "intuition.library"
-#define INT_LIB_VERS   33L
-#define GFX_LIB_NAME   "graphics.library"
-#define GFX_LIB_VERS   33L
+#include <dos/dos.h>
+#include <workbench/workbench.h>
+#include <inline/exec.h>
+#include <inline/dos.h>
 
-struct ExecBase* SysBase = NULL;
+int __nocommandline = 1;
+int __initlibraries = 0;
+
 struct DosLibrary* DOSBase = NULL;
 struct IntuitionBase* IntuitionBase = NULL;
 struct GfxBase* GfxBase = NULL;
+extern struct WBStartup* _WBenchMsg;
 
-extern int main();
-extern void exit();
-extern void __initlibraries();
-extern void __exitlibraries();
+extern int amiga_main();
 
-__entrypoint void __startup(void)
-{
-	SysBase = (*((struct ExecBase**)4));
-	__initlibraries();
-	main();
-	__exitlibraries();
-}
+int main(void) {
 
-void __exit(int rc)
-{
-	__exitlibraries();
-	Exit(rc);
-}
 
-void __initlibraries()
-{
-	DOSBase = (struct DosLibrary*)OpenLibrary(DOS_LIB_NAME, DOS_LIB_VERS);
-	GfxBase = (struct GfxBase*)OpenLibrary(GFX_LIB_NAME, GFX_LIB_VERS);
-	IntuitionBase = (struct IntuitionBase*)OpenLibrary(INT_LIB_NAME, INT_LIB_VERS);
-}
-
-void __exitlibraries()
-{
-	if (IntuitionBase)
+	if ((DOSBase = (struct DosLibrary*)OpenLibrary("dos.library", 33)) == NULL)
 	{
-		CloseLibrary((struct Library*)IntuitionBase);
-		IntuitionBase = NULL;
+		return RETURN_FAIL;
 	}
 
-	if (GfxBase)
-	{
-		CloseLibrary((struct Library*)GfxBase);
-		GfxBase = NULL;
-	}
-
-	if (DOSBase)
+	if ((IntuitionBase = (struct IntuitionBase*)OpenLibrary("intuition.library", 33)) == NULL)
 	{
 		CloseLibrary((struct Library*)DOSBase);
-		DOSBase = NULL;
+		return RETURN_FAIL;
 	}
+
+	if ((GfxBase = (struct GfxBase*)OpenLibrary("graphics.library", 33)) == NULL)
+	{
+		CloseLibrary((struct Library*)IntuitionBase);
+		CloseLibrary((struct Library*)DOSBase);
+		return RETURN_FAIL;
+	}
+
+	amiga_main();
+
+	if (_WBenchMsg) {
+		EasyStruct str;
+		str.es_StructSize = sizeof(EasyStruct);
+		str.es_Flags = 0;
+		str.es_GadgetFormat = (UBYTE*)"OK";
+		str.es_TextFormat = (UBYTE*)"Thanks for playing!";
+		str.es_Title = (UBYTE*)"Goodsoup";
+
+		EasyRequest(NULL, &str, NULL);
+	}
+	else {
+		PutStr("Thanks for playing!\n");
+	}
+
+	CloseLibrary((struct Library*)GfxBase);
+	CloseLibrary((struct Library*)IntuitionBase);
+	CloseLibrary((struct Library*)DOSBase);
+
+	return RETURN_OK;
 }
