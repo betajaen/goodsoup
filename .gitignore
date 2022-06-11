@@ -2,7 +2,7 @@
 .vscode
 *.o
 
-dist/goodsoup
+dist/monkey3
 dist/saves
 dist/*.LA0
 dist/*.la0
@@ -12,5 +12,4 @@ dist/*.LA2
 dist/*.la2
 dist/RESOURCE
 dist/resource
-
 

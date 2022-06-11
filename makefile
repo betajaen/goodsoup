@@ -1,5 +1,5 @@
 PLATFORM = amiga
-PROGRAM = dist/goodsoup
+PROGRAM = dist/monkey3
 TEST = 0
 DEBUG_LEVEL = 1
 DATESTR  = $(shell date +"%-d.%-m.%Y")
