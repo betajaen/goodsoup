@@ -83,6 +83,10 @@ namespace common
 		return _pos;
 	}
 
+	void ReadFile::seek(uint32 offset) {
+		_pos = SDL_RWseek(_file, offset, RW_SEEK_SET);
+	}
+
 	byte ReadFile::readByte() {
 		byte val;
 		_pos += (uint32) SDL_RWread(_file, &val, sizeof(val), 1) * sizeof(val);

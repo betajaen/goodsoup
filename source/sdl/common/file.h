@@ -38,6 +38,7 @@ namespace common
 			uint32 length() const;
 
 			int32 skip(uint32 bytes);
+			void seek(uint32 offset);
 
 			byte readByte();
 			uint32 readBytes(void* dst, uint32 length);

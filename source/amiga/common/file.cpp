@@ -87,6 +87,11 @@ namespace common
 		return _pos;
 	}
 
+	void ReadFile::seek(uint32 position) {
+		Seek(_file, position, OFFSET_BEGINNING);
+		_pos = Seek(_file, 0, OFFSET_CURRENT);
+	}
+
 	byte ReadFile::readByte() {
 		byte val;
 		_pos += (uint32)Read(_file, &val, sizeof(val));

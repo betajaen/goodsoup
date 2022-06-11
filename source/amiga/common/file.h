@@ -37,6 +37,7 @@ namespace common
 		uint32 pos() const;
 		uint32 length() const;
 
+		void seek(uint32 position);
 		int32 skip(uint32 bytes);
 
 		byte readByte();
