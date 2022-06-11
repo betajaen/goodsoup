@@ -325,6 +325,7 @@ namespace comi
 			_file.skip(tagLength - 8);
 		}
 
+		info(COMI_THIS, "Read Index File at %s", path);
 		return true;
 	}
 
