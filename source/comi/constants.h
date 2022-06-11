@@ -46,20 +46,29 @@ namespace comi
 		NUM_ARRAY = 200,
 		NUM_VERBS = 50,
 		NUM_GLOBAL_SCRIPTS = 2000,
-		NUM_AARY = 142
+		NUM_AARY = 142,
+		NUM_DISKS = 2
 
 	};
 
-	enum ObjectLocation
+	enum ObjectWhere
 	{
-		NotFound = -1,
-		Inventory = 0,
-		Room = 1,
-		Global = 2,
-		Local = 3,
-		FLObject = 4
+		OW_NotFound = -1,
+		OW_Inventory = 0,
+		OW_Room = 1,
+		OW_Global = 2,
+		OW_Local = 3,
+		OW_FLObject = 4
 	};
 
+	enum ResourceKind
+	{
+		RK_SCRIPT,
+		RK_ROOM,
+		RK_SOUND,
+		RK_COSTUME,
+		RK_CHARSET
+	};
 }
 
 #endif

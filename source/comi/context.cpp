@@ -22,6 +22,7 @@
 #include "common/file.h"
 #include "context.h"
 #include "index.h"
+#include "resource.h"
 
 using namespace common;
 
@@ -30,13 +31,17 @@ extern const char GOODSOUP_VERSION_STR[];
 namespace comi
 {
 	Context::Context()
-	: index(NULL) {
+	: index(NULL), resources(NULL) {
 	}
 
 	Context::~Context() {
 		if (index != NULL) {
 			deleteObject(index);
 			INDEX = NULL;
+		}
+		if (resources != NULL) {
+			deleteObject(resources);
+			RESOURCES = NULL;
 		}
 	}
 
@@ -49,7 +54,16 @@ namespace comi
 			index = INDEX = newObject<Index>();
 		}
 
-		return index->readFromFile(GS_GAME_PATH "COMI.LA0");
+		bool canReadIndex = index->readFromFile(GS_GAME_PATH "COMI.LA0");
+
+		if (canReadIndex == false)
+			return false;
+
+		if (resources == NULL) {
+			resources = RESOURCES = newObject<Resources>();
+		}
+
+		return resources->open();
 	}
 
 	void Context::run() {

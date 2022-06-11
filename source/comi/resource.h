@@ -21,73 +21,36 @@
 #include "common/types.h"
 #include "common/buffer.h"
 #include "common/string.h"
+#include "common/memory.h"
+#include "common/file.h"
 
 #include "constants.h"
+#include "debug.h"
 
 using namespace common;
 
 namespace comi
 {
-	enum ResourceKind
-	{
-		RK_SCRIPT
-	};
+	class Resources;
 
-	struct Resource
-	{
-		uint16 _roomNum;
-		uint32 _offset;		// Word aligned.
-	};
+	extern Resources* RESOURCES;
+
+	typedef Buffer<byte> ResourceData;
 
 
-	template<uint16 length>
-	class ResourceList
-	{
-	public:
-		Resource _resources[length];
-	};
+	class Resources {
+	private:
 
-	struct ObjectEntry
-	{
-		String  _name;
-		byte   _state;
-		byte   _room;
-		byte   _owner;
-		byte   _padding;
-		uint32 _class;
-	};
-
-	class ObjectTable
-	{
-	public:
-		void reset();
-
-		ObjectEntry     _objects[NUM_OBJECT_GLOBALS];
-	};
-
-	typedef Buffer<byte> ResourceBytes;
-
-	class ResourceDictionary
-	{
-		struct ResourceData
-		{
-			uint16         _num;
-			uint16         _reserved;
-			uint32         _flags;
-			ResourceBytes*  _data;
-		};
+		ReadFile _disk[NUM_DISKS];
 
 	public:
 
-		ResourceDictionary();
-		~ResourceDictionary();
+		Resources();
+		~Resources();
 
-		void clear();
-		ResourceBytes* get(uint16 num);
-		ResourceBytes* set(uint16 num);
-		void remove(uint16 num);
-
-
+		bool open();
+		void close();
+		
 	};
 
 }

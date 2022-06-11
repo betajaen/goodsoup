@@ -62,26 +62,23 @@ namespace comi
 		debug(COMI_THIS, ".");
 	}
 
-	template<uint16 Length>
-	static bool readResourceList(ResourceList<Length>& resources, ReadFile& file, const char* name) {
+	template<int kind, uint16 length>
+	static bool readResourceIndexTable(ResourceIndexTable<kind, length>& table, ReadFile& file, const char* name) {
 		uint16 testLength = (uint16) file.readUInt32LE();
-		if (testLength != Length) {
-			error(GS_THIS, "ResourceList length does not match expected length! Expected=%ld,Given=%ld,Type=%s", Length, testLength, name);
+		if (testLength != length) {
+			error(GS_THIS, "ResourceList length does not match expected length! Expected=%ld,Given=%ld,Type=%s", length, testLength, name);
 			return false;
 		}
 
-		for (uint32 i = 0; i < Length; i++) {
-			Resource& resource = resources._resources[i];
-			resource._roomNum = file.readByte();
-		}
+		table.reset();
+		table._name = name;
 
-		for (uint32 i = 0; i < Length; i++) {
-			Resource& resource = resources._resources[i];
-			resource._offset = file.readUInt32LE();
-		}
+		file.readBytes(table._roomNum, length);
 
-		for (uint32 i = 0; i < Length; i++) {
-			Resource& resource = resources._resources[i];
+		uint32* offset = &table._offset[0];
+		for (uint32 i = 0; i < length; i++) {
+			*offset = file.readUInt32LE();
+			offset++;
 		}
 
 		verbose(COMI_THIS, "(%ld, %s)", testLength, name);
@@ -188,7 +185,7 @@ namespace comi
 
 			// DROO
 			if (tagEqual(tagName, 'D', 'R', 'O', 'O')) {
-				if (readResourceList(_roomsResources, _file, "DROO (Rooms)") == false)
+				if (readResourceIndexTable(_roomsResources, _file, "DROO (Rooms)") == false)
 					return false;
 				verbose(COMI_THIS, "(%s, %ld) Ok.", tagName, tagLength);
 				continue;
@@ -196,7 +193,7 @@ namespace comi
 
 			// DRSC
 			if (tagEqual(tagName, 'D', 'R', 'S', 'C')) {
-				if (readResourceList(_roomsScriptsResources, _file, "DRSC (Rooms Scripts)") == false)
+				if (readResourceIndexTable(_roomsScriptsResources, _file, "DRSC (Rooms Scripts)") == false)
 					return false;
 				verbose(COMI_THIS, "(%s, %ld) Ok.", tagName, tagLength);
 				continue;
@@ -204,7 +201,7 @@ namespace comi
 
 			// DSCR
 			if (tagEqual(tagName, 'D', 'S', 'C', 'R')) {
-				if (readResourceList(_scriptsResources, _file, "DSCR (Scripts)") == false)
+				if (readResourceIndexTable(_scriptsResources, _file, "DSCR (Scripts)") == false)
 					return false;
 				verbose(COMI_THIS, "(%s, %ld) Ok.", tagName, tagLength);
 				continue;
@@ -212,7 +209,7 @@ namespace comi
 
 			// DSOU
 			if (tagEqual(tagName, 'D', 'S', 'O', 'U')) {
-				if (readResourceList(_soundsResources, _file, "DSOU (Sounds)") == false)
+				if (readResourceIndexTable(_soundsResources, _file, "DSOU (Sounds)") == false)
 					return false;
 				verbose(COMI_THIS, "(%s, %ld) Ok.", tagName, tagLength);
 				continue;
@@ -220,7 +217,7 @@ namespace comi
 
 			// DCOS
 			if (tagEqual(tagName, 'D', 'C', 'O', 'S')) {
-				if (readResourceList(_costumesResources, _file, "DCOS (Sounds)") == false)
+				if (readResourceIndexTable(_costumesResources, _file, "DCOS (Sounds)") == false)
 					return false;
 				verbose(COMI_THIS, "(%s, %ld) Ok.", tagName, tagLength);
 				continue;
@@ -228,7 +225,7 @@ namespace comi
 
 			// DCHR
 			if (tagEqual(tagName, 'D', 'C', 'H', 'R')) {
-				if (readResourceList(_charsetResources, _file, "DCHR (Charset)") == false)
+				if (readResourceIndexTable(_charsetResources, _file, "DCHR (Charset)") == false)
 					return false;
 				verbose(COMI_THIS, "(%s, %ld) Ok.", tagName, tagLength);
 				continue;
@@ -249,7 +246,7 @@ namespace comi
 				char objectNameTemp[42] = { 0 };
 
 				for (uint32 i = 0; i < NUM_OBJECT_GLOBALS; i++) {
-					ObjectEntry& entry = _objectTable._objects[i];
+					ObjectLocation& entry = _objectTable._objects[i];
 					_file.readBytes(&objectNameTemp, 40);
 					entry._name.copyFrom(&objectNameTemp[0]);
 					entry._state = _file.readByte();
@@ -329,16 +326,8 @@ namespace comi
 		return true;
 	}
 
-
-	bool Index::loadScript(uint16 id, Buffer<byte>& data)
-	{
-		if (id == 0)
-			return false;
-		
-		/* TODO */
-
-		return false;
+	void ObjectLocationTable::reset() {
+		clearMemoryNonAllocated(_objects, sizeof(_objects));
 	}
-
 
 }

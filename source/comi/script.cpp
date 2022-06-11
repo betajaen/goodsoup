@@ -19,9 +19,10 @@
 
 #include "script.h"
 #include "script_data.h"
-
+#include "index.h"
 #include "debug.h"
 #include "constants.h"
+
 #include "common/endian.h"
 
 using namespace common;
@@ -32,7 +33,7 @@ namespace comi
 	VirtualMachine::VirtualMachine() :
 		_scriptData(NULL)
 	{
-		debug(COMI_THIS, ".");
+		verbose(COMI_THIS, ".");
 	}
 
 	VirtualMachine::~VirtualMachine() {
@@ -43,7 +44,7 @@ namespace comi
 	}
 
 	void VirtualMachine::reset() {
-		debug(COMI_THIS, ".");
+		verbose(COMI_THIS, ".");
 
 		int32 i;
 
@@ -157,7 +158,7 @@ namespace comi
 		}
 
 		if (scriptNum < NUM_SCRIPTS) {
-
+			// INDEX->loadScript(scriptNum);
 		}
 
 	}

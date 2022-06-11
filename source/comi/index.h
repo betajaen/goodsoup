@@ -34,6 +34,40 @@ namespace comi
 
 	extern Index* INDEX;
 
+	template<int Kind, uint16 Capacity>
+	class ResourceIndexTable {
+	public:
+
+		void reset() {
+			clearMemoryNonAllocated(_roomNum, sizeof(_roomNum));
+			clearMemoryNonAllocated(_offset, sizeof(_offset));
+		}
+
+		const char* _name;
+		uint8  _roomNum[Capacity];
+		uint32 _offset[Capacity];
+	};
+
+
+	struct ObjectLocation
+	{
+		String  _name;
+		byte   _state;
+		byte   _room;
+		byte   _owner;
+		byte   _padding;
+		uint32 _class;
+	};
+
+	class ObjectLocationTable
+	{
+	public:
+		void reset();
+
+		ObjectLocation	_objects[NUM_OBJECT_GLOBALS];
+	};
+
+
 	class Index
 	{
 	public:
@@ -43,8 +77,6 @@ namespace comi
 
 		bool readFromFile(const char* path);
 
-		bool loadScript(uint16 id, Buffer<byte>& data);
-
 	private:
 
 		struct ArraySpec
@@ -53,14 +85,13 @@ namespace comi
 		};
 
 		String					    _roomNames[NUM_ROOMS + 1];
-		// char						_roomNames[NUM_ROOMS + 1][10];
-		ResourceList<NUM_ROOMS>		_roomsResources;
-		ResourceList<NUM_ROOMS>		_roomsScriptsResources;
-		ResourceList<NUM_SCRIPTS>	_scriptsResources;
-		ResourceList<NUM_SOUNDS>	_soundsResources;
-		ResourceList<NUM_COSTUMES>	_costumesResources;
-		ResourceList<NUM_CHARSETS>	_charsetResources;
-		ObjectTable					_objectTable;
+		ResourceIndexTable<RK_ROOM, NUM_ROOMS>		_roomsResources;
+		ResourceIndexTable<RK_SCRIPT, NUM_ROOMS>		_roomsScriptsResources;
+		ResourceIndexTable<RK_SCRIPT, NUM_SCRIPTS>	_scriptsResources;
+		ResourceIndexTable<RK_SOUND, NUM_SOUNDS>	_soundsResources;
+		ResourceIndexTable<RK_COSTUME, NUM_COSTUMES>	_costumesResources;
+		ResourceIndexTable<RK_CHARSET, NUM_CHARSETS>	_charsetResources;
+		ObjectLocationTable					_objectTable;
 		ArraySpec					_arraySpec[NUM_AARY];
 
 	};

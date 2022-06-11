@@ -28,6 +28,7 @@ namespace comi
 {
 	class Context;
 	class Index;
+	class Resources;
 	
 	extern Context* CTX;
 
@@ -44,6 +45,7 @@ namespace comi
 
 		VirtualMachine vm;
 		Index* index;
+		Resources* resources;
 	};
 }
 

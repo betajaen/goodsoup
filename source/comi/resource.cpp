@@ -18,6 +18,7 @@
 #define GS_FILE_NAME "resource"
 
 #include "resource.h"
+#include "index.h"
 
 #include "debug.h"
 #include "constants.h"
@@ -26,22 +27,42 @@ using namespace common;
 
 namespace comi
 {
-	void ObjectTable::reset() {
-		clearMemoryNonAllocated(_objects, sizeof(_objects));
+
+	Resources* RESOURCES = NULL;
+
+	Resources::Resources() {
 	}
 
-
-	ResourceDictionary::ResourceDictionary()
-	{
+	Resources::~Resources() {
+		close();
 	}
 
-	ResourceDictionary::~ResourceDictionary() {
-		clear();
+	void Resources::close() {
+		uint16 i;
+
+		for (i = 0; i < NUM_DISKS; i++) {
+			_disk[i].close();
+		}
 	}
 
-	void ResourceDictionary::clear() {
-		/* TODO */
-	}
+	bool Resources::open() {
+		uint16 i;
 
+		for (i = 0; i < NUM_DISKS; i++) {
+			uint32 diskNum = 1 + i;
+
+			verbose(COMI_THIS, "Building path for Disk %ld", diskNum);
+			String path;
+			String::format(path, "%sCOMI.LA%ld", GS_GAME_PATH, diskNum);
+			verbose(COMI_THIS, "Opening Disk %ld at %s", diskNum, path.string());
+			_disk[i].open(path.string());
+
+			if (_disk[i].isOpen() == false)
+				return false;
+			info(COMI_THIS, "Opened Disk %ld at %s", diskNum, path.string());
+		}
+
+		return true;
+	}
 
 }
