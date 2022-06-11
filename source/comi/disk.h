@@ -37,10 +37,12 @@ namespace comi
 		};
 
 		uint8 _num;
-		Buffer<RoomOffset> _roomOffsets;
+		uint8 _minRoomOffset, _maxRoomOffset;
+		Buffer<RoomOffset, uint8> _roomOffsets;
 		ReadFile _file;
 
 		bool _readSections();
+		bool _readRoomOffsets();
 
 	public:
 
@@ -49,6 +51,9 @@ namespace comi
 
 		bool open(uint8 num);
 		void close();
+
+		bool getRoomOffset(uint8 num, uint32& offset) const;
+
 
 	};
 

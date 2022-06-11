@@ -111,14 +111,69 @@ namespace comi
 			checkTag(tagName, _file.pos());
 			tagLength = _file.readUInt32BE();
 
-			debug(COMI_THIS, "(%s, %ld, %ld, %ld)", tagName, tagLength, _file.pos(), _file.length());
+			if (tagEqual(tagName, 'L', 'O', 'F', 'F') == true) {
+				_readRoomOffsets();
+				continue;
+			}
+
+			if (tagEqual(tagName, 'L', 'F', 'L', 'F') == true) {
+				// Purposely unhandled.
+				_file.skip(tagLength - 8);
+				continue;
+			}
 
 			warn(COMI_THIS, "(%s, %ld, %ld) Unhandled Tag!", tagName, tagLength, _file.pos());
 
 			_file.skip(tagLength - 8);
 		}
 
+		info(COMI_THIS, "Read Disk File at %sCOMI.LA%ld", GS_GAME_PATH, (uint32)_num);
+
 		return true;
+	}
+
+	bool Disk::_readRoomOffsets() {
+		uint8 _numRooms = _file.readByte();
+		_roomOffsets.setSize(_numRooms);
+		_minRoomOffset = 255;
+		_maxRoomOffset = 0;
+
+		for (uint8 i = 0; i < _numRooms;i++) {
+			RoomOffset& offset = _roomOffsets.get_unchecked(i);
+			offset._room = _file.readByte();
+			offset._offset = _file.readUInt32LE();
+
+			if (offset._room < _minRoomOffset) {
+				_minRoomOffset = offset._room;
+			}
+
+			if (offset._room > _maxRoomOffset) {
+				_maxRoomOffset = offset._room;
+			}
+		}
+	}
+
+	bool Disk::getRoomOffset(uint8 num, uint32& offset) const {
+		if (num < _minRoomOffset) {
+			return false;
+		}
+
+		if (num > _maxRoomOffset) {
+			return false;
+		}
+
+		const uint8 size = _roomOffsets.getSize();
+
+		for (uint8 i = 0; i < size; i++) {
+			const RoomOffset& roomOffset = _roomOffsets.get_unchecked(i);
+
+			if (roomOffset._room == num) {
+				offset = roomOffset._offset;
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 }
