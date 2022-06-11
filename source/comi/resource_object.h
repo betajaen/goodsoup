@@ -15,32 +15,54 @@
  *
  */
 
-#ifndef COMI_SCRIPT_DATA_H
-#define COMI_SCRIPT_DATA_H
+#ifndef COMI_RESOURCE_OBJECT_H
+#define COMI_RESOURCE_OBJECT_H
 
 #include "common/types.h"
-#include "common/buffer.h"
-
-using namespace common;
 
 namespace comi
 {
-	class ScriptData
-	{
+
+	class ResourceObject {
+	protected:
+		uint16  _num;
+		uint8   _users;
+		uint8   _kind;
+		uint8   _flags;
+		uint8   _disk;
 	public:
 
-		ScriptData();
-		~ScriptData();
+		uint16 getNum() const {
+			return _num;
+		}
 
-		uint32 ReadWord();
-		int32  ReadWordSigned();
+		uint16 getResourceUsers() const {
+			return _users;
+		}
 
-	protected:
+		uint8 getResourceKind() const {
+			return _kind;
+		}
 
-		Buffer<byte> _data;
-		uint32 _index, _length;
+		uint8 getResourceFlags() const {
+			return _flags;
+		}
 
+		uint8 getResourceDisk() const {
+			return _disk;
+		}
+
+		void increaseUse() {
+			_users++;
+		}
+
+		void decreaseUse() {
+			if (_users) {
+				_users--;
+			}
+		}
 	};
+
 
 }
 

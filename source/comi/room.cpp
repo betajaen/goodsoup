@@ -15,33 +15,32 @@
  *
  */
 
-#ifndef COMI_SCRIPT_H
-#define COMI_SCRIPT_H
+#define GS_FILE_NAME "room"
 
-#include "common/types.h"
-#include "common/buffer.h"
+#include "room.h"
+#include "resource.h"
 
-#include "resource_object.h"
+#include "debug.h"
+#include "constants.h"
 
 using namespace common;
 
 namespace comi
 {
-	class ResourceParser;
+	Room::Room(uint16 num, uint8 kind, uint8 disk, uint8 flags) {
+		_num = num;
+		_users = 1;
+		_kind = RK_ROOM;
+		_flags = 0;
+		_disk = disk;
+	}
 
-	class Script : public ResourceObject
-	{
-	private:
-		Buffer<byte> _data;
-	public:
+	Room::~Room() {
 
-		Script(uint16 num, uint8 kind, uint8 disk, uint8 flags);
-		~Script();
+	}
 
-		void readFromParser(ResourceParser& parser);
-
-	};
+	void Room::readFromParser(ResourceParser& parser) {
+		/* TODO */
+	}
 
 }
-
-#endif

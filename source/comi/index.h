@@ -77,6 +77,32 @@ namespace comi
 
 		bool readFromFile(const char* path);
 
+		bool getRoom(uint16 num, uint8& roomNum, uint32& offset) {
+
+			if (num >= NUM_ROOMS) {
+				error(COMI_THIS, "Attempted to load room out of bounds! %ld", (uint32)num);
+				return false;
+			}
+
+			roomNum = _scriptsResources._roomNum[num];
+			offset = _scriptsResources._offset[num];
+
+			return true;
+		}
+
+		bool getScript(uint16 num, uint8& roomNum, uint32& offset) {
+
+			if (num >= NUM_SCRIPTS) {
+				error(COMI_THIS, "Attempted to load script out of bounds! %ld", (uint32)num);
+				return false;
+			}
+
+			roomNum = _scriptsResources._roomNum[num];
+			offset = _scriptsResources._offset[num];
+
+			return true;
+		}
+
 	private:
 
 		struct ArraySpec

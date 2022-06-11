@@ -15,77 +15,39 @@
  *
  */
 
-#ifndef COMI_RESOURCE_H
-#define COMI_RESOURCE_H
+#ifndef COMI_DISK_H
+#define COMI_DISK_H
 
 #include "common/types.h"
 #include "common/buffer.h"
 #include "common/string.h"
-#include "common/memory.h"
 #include "common/file.h"
-#include "common/array.h"
-
-#include "disk.h"
-#include "constants.h"
-#include "debug.h"
 
 using namespace common;
 
 namespace comi
 {
-	class Resources;
-	class ResourceParser;
-	class ResourceObject;
-	class Disk;
 
-	class Room;
-	class Script;
-
-	extern Resources* RESOURCES;
-
-	struct Resource {
-		void*  _object;
-		uint8  _kind;
-		uint8  _users;
-	};
-
-	typedef Buffer<byte> ResourceData;
-
-	class Resources {
+	class Disk {
 	private:
 
-		Disk _disk[NUM_DISKS];
+		struct RoomOffset {
+			uint8 _room;
+			uint32 _offset;
+		};
 
-		Array<ResourceObject*> _resources;
+		uint8 _num;
+		Buffer<RoomOffset> _roomOffsets;
+		ReadFile _file;
 
 	public:
 
-		Resources();
-		~Resources();
+		Disk();
+		~Disk();
 
-		bool open();
+		bool open(uint8 num);
 		void close();
 
-		Script* loadScript(uint16 num);
-		Room* loadRoom(uint16 num);
-
-	};
-
-	class ResourceParser {
-	private:
-		ReadFile& _file;
-	public:
-
-		ResourceParser(ReadFile& file)
-			: _file(file) {
-		}
-
-		~ResourceParser() {
-		}
-
-		void Seek(uint32 position) {
-			_file.seek(position);
-		}
 	};
 
 }

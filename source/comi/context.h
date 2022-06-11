@@ -20,8 +20,6 @@
 
 #include "common/types.h"
 
-#include "script.h"
-
 using namespace common;
 
 namespace comi
@@ -29,6 +27,7 @@ namespace comi
 	class Context;
 	class Index;
 	class Resources;
+	class VirtualMachine;
 	
 	extern Context* CTX;
 
@@ -43,7 +42,7 @@ namespace comi
 		bool canRun();
 		void run();
 
-		VirtualMachine vm;
+		VirtualMachine* vm;
 		Index* index;
 		Resources* resources;
 	};

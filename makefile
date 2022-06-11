@@ -57,10 +57,12 @@ OBJ +=	source/common/main.o\
 # Game Sources
 OBJ +=	source/comi/start.o\
 		source/comi/context.o\
+		source/comi/vm.o\
 		source/comi/script.o\
-		source/comi/script_data.o\
+		source/comi/room.o\
 		source/comi/index.o\
-		source/comi/resource.o
+		source/comi/resource.o\
+		source/comi/disk.o
 
 all: $(OBJ)
 	$(CC) -o $(PROGRAM) $(OBJ) $(CFLAGS)

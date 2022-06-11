@@ -15,31 +15,25 @@
  *
  */
 
-#ifndef COMI_SCRIPT_H
-#define COMI_SCRIPT_H
+#ifndef COMI_ROOM_H
+#define COMI_ROOM_H
 
 #include "common/types.h"
-#include "common/buffer.h"
-
 #include "resource_object.h"
-
-using namespace common;
 
 namespace comi
 {
 	class ResourceParser;
 
-	class Script : public ResourceObject
+	class Room : public ResourceObject
 	{
-	private:
-		Buffer<byte> _data;
 	public:
 
-		Script(uint16 num, uint8 kind, uint8 disk, uint8 flags);
-		~Script();
+		Room(uint16 num, uint8 kind, uint8 disk, uint8 flags);
+		~Room();
 
 		void readFromParser(ResourceParser& parser);
-
+		
 	};
 
 }

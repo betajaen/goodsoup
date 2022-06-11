@@ -15,32 +15,52 @@
  *
  */
 
-#define GS_FILE_NAME "script_data"
+#define GS_FILE_NAME "disk"
 
-#include "script_data.h"
+#include "resource.h"
+#include "index.h"
+#include "resource_object.h"
+#include "room.h"
+#include "script.h"
+
 #include "debug.h"
+#include "constants.h"
 
 using namespace common;
 
 namespace comi
 {
-	ScriptData::ScriptData() {
-		verbose(COMI_THIS, ".");
+
+	Disk::Disk() {
 	}
 
-	ScriptData::~ScriptData() {
-		verbose(COMI_THIS, ".");
+	Disk::~Disk() {
+		close();
 	}
 
-	uint32 ScriptData::ReadWord() {
+	bool Disk::open(uint8 num) {
+		
+		verbose(COMI_THIS, "Building path for Disk %ld", num);
+		String path;
+		String::format(path, "%sCOMI.LA%ld", GS_GAME_PATH, num);
+		verbose(COMI_THIS, "Opening Disk %ld at %s", num, path.string());
+		_file.open(path.string());
+
+		if (_file.isOpen() == false)
+			return false;
+	
+		info(COMI_THIS, "Opened Disk %ld at %s", num, path.string());
+	
+		// Read Room Offsets and other bits
+
 		/* TODO */
-		return 0;
+
+		return true;
 	}
 
-	int32  ScriptData::ReadWordSigned() {
-		/* TODO */
-		return 0;
+	void Disk::close() {
+		_file.close();
+		_roomOffsets.release();
 	}
-
 
 }

@@ -23,6 +23,7 @@
 #include "context.h"
 #include "index.h"
 #include "resource.h"
+#include "vm.h"
 
 using namespace common;
 
@@ -31,10 +32,15 @@ extern const char GOODSOUP_VERSION_STR[];
 namespace comi
 {
 	Context::Context()
-	: index(NULL), resources(NULL) {
+	: index(NULL), resources(NULL), vm(NULL) {
 	}
 
 	Context::~Context() {
+		if (vm != NULL) {
+			deleteObject(vm);
+			VM = NULL;
+		}
+
 		if (index != NULL) {
 			deleteObject(index);
 			INDEX = NULL;
@@ -67,7 +73,12 @@ namespace comi
 	}
 
 	void Context::run() {
-		vm.reset();
-		vm.runScript(1, false, false, 0, NULL, 0);
+		
+		if (vm == NULL) {
+			vm = VM = newObject<VirtualMachine>();
+		}
+
+		vm->reset();
+		vm->runScript(1, false, false, 0, NULL, 0);
 	}
 }
