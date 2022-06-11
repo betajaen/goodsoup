@@ -40,6 +40,8 @@ namespace comi
 		Buffer<RoomOffset> _roomOffsets;
 		ReadFile _file;
 
+		bool _readSections();
+
 	public:
 
 		Disk();
