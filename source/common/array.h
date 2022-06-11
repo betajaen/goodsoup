@@ -85,14 +85,6 @@ namespace common
 				_begin = (T*) ::common::reallocateMemory(_begin, _capacity, sizeof(T));
 			}
 		}
-		void release() {
-			if (_begin) {
-				::common::releaseMemory(_begin);
-				_begin = NULL;
-				_size = 0;
-				_capacity = 0;
-			}
-		}
 
 	public:
 
@@ -104,6 +96,15 @@ namespace common
 			release();
 		}
 
+
+		void release() {
+			if (_begin) {
+				::common::releaseMemory(_begin);
+				_begin = NULL;
+				_size = 0;
+				_capacity = 0;
+			}
+		}
 
 		Index size() const {
 			return _size;
@@ -144,6 +145,21 @@ namespace common
 			}
 		}
 
+		inline T& operator[](Index idx) {
+			if (idx >= _size) {
+				error(GS_THIS, "(FIXED, %d, %d) Out of bounds access", _size, idx);
+			}
+
+			return _begin[idx];
+		}
+
+		inline const T& operator[](Index idx) const {
+			if (idx >= _size) {
+				error(GS_THIS, "(FIXED, %d, %d) Out of bounds access", _size, idx);
+			}
+
+			return _begin[idx];
+		}
 	};
 
 }
