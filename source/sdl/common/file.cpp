@@ -58,7 +58,7 @@ namespace common
 			_file = NULL;
 			_pos = 0;
 			_length = 0;
-			info(GS_THIS, "(%x) Closed");
+			info(GS_THIS, "(%x) Closed", this);
 		}
 	}
 
