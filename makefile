@@ -1,9 +1,9 @@
 PLATFORM = amiga
 PROGRAM = dist/goodsoup
-TEST = 1
+TEST = 0
 DEBUG_LEVEL = 1
 DATESTR  = $(shell date +"%-d.%-m.%Y")
-GAMEPATH = ""
+GAME_PATH = "COMI:"
 
 CFLAGS = -Isource -D__AMIGADATE__="\"$(DATESTR)\""
 
@@ -16,7 +16,7 @@ ifeq ($(PLATFORM), amiga)
 
 	CC		= m68k-amigaos-gcc
 	DELETE	= rm
-	CFLAGS	+= -Isource/amiga -DGS_AMIGA -DGS_BIG -DGS_TEST=$(TEST) -DGS_GAME_PATH="\"COMI:\""  -nostartfiles -nostdlib -noixemul -fno-exceptions -fno-rtti -m68020
+	CFLAGS	+= -Isource/amiga -DGS_AMIGA -DGS_BIG -nostartfiles -nostdlib -noixemul -fno-exceptions -fno-rtti -m68020
 ifeq ($(RELEASE), 1)
 	CFLAGS	+= -O2 -fno-builtin -DGS_RELEASE -DGS_DEBUG_LEVEL=4 -DGS_PROTECT_MEMORY=0
 else
@@ -32,13 +32,16 @@ ifeq ($(PLATFORM), sdl)
 
 	CC		= gcc
 	DELETE	= rm
-	CFLAGS	+= -m32 -std=c++98 -Wpedantic -Isource/sdl -DGS_GAME_PATH="\"\"" -DGS_LITTLE -DGS_TEST=$(TEST) -DGS_DEBUG_LEVEL=$(DEBUG_LEVEL) -lSDL2 -lstdc++
+	CFLAGS	+= -m32 -std=c++98 -Wpedantic -Isource/sdl -DGS_LITTLE -DGS_DEBUG_LEVEL=$(DEBUG_LEVEL) -lSDL2 -lstdc++
 ifeq ($(RELEASE), 1)
 	CFLAGS	+= -O3 -DGS_RELEASE -DGS_DEBUG_LEVEL=4 -DGS_PROTECT_MEMORY=0
 else
 	CFLAGS	+= -O0 -DGS_DEBUG -DGS_DEBUG_LEVEL=$(DEBUG_LEVEL) -DGS_PROTECT_MEMORY=1
 endif
 endif
+
+CFLAGS += -DGS_GAME_PATH="\"$(GAME_PATH)\""
+CFLAGS += -DGS_TEST=$(TEST)
 
 OBJ +=	source/common/main.o\
 		source/common/hash.o\
