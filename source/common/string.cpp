@@ -26,317 +26,376 @@
 
 namespace common
 {
+	uint16 stringLength(const char* str) {
+		uint16 length = 0;
 
-    uint16 stringLength(const char* str) {
-        uint16 length = 0;
+		if (str) {
+			while(*str++) {
+				length++;
+			}
+		}
 
-        if (str) {
-            while(*str++) {
-                length++;
-            }
-        }
+		return length;
+	}
 
-        return length;
-    }
+	String::String() {
+		clear();
+	}
 
-    String::String() {
-        clear();
-    }
+	String::String(char ch) {
+		clear();
+		_copyFrom(ch);
+	}
 
-    String::String(char ch) {
-        clear();
-        _copyFrom(ch);
-    }
+	String::String(const char* str) {
+		clear();
+		_copyFrom(str);
+	}
 
-    String::String(const char* str) {
-        clear();
-        _copyFrom(str);
-    }
+	String::String(String& str, bool move) {
+		clear();
+		if (move) {
+			_moveFrom(str);
+		}
+		else {
+			_copyFrom(str);
+		}
+	}
 
-    String::String(String& str, bool move) {
-        clear();
-        if (move) {
-            _moveFrom(str);
-        }
-        else {
-            _copyFrom(str);
-        }
-    }
+	String::String(const String& str) {        
+		clear();
+		_copyFrom(str);
+	}
 
-    String::String(const String& str) {        
-        clear();
-        _copyFrom(str);
-    }
+	String::~String() {
+		release();
+	}
 
-    String::~String() {
-        release();
-    }
+	void String::clear() {                      
+		for(uint16 i=0;i < (STRING_SMALL_SIZE / 4);i++){
+			_data._longs[i] = 0;
+		}
+	}
 
-    void String::clear() {                      
-        for(uint16 i=0;i < (STRING_SMALL_SIZE / 4);i++){
-            _data._longs[i] = 0;
-        }
-    }
+	void String::release() {
+		
+		if (isSmallString() == false) {
+			LongStringData* longData = _data._long._str;
 
-    void String::release() {
-        
-        if (isSmallString() == false) {
-            LongStringData* longData = _data._long._str;
+			longData->_users--;
 
-            longData->_users--;
+			if (longData->_users == 0) {
+				releaseMemory(longData);
+			}
 
-            if (longData->_users == 0) {
-                releaseMemory(longData);
-            }
+			_data._long._str = NULL;
+		}
 
-            _data._long._str = NULL;
-        }
+		clear();
+	}
 
-        clear();
-    }
+	void String::_reserve(uint16 length) {
+		uint16 i;
 
-    bool String::isSmallString() const {
-        return !(_data._small[STRING_LEN_BYTE] == STRING_BIG_STRING_MARKER);
-    }
-    
-    uint16 String::length() const {
-        if (isSmallString()) {
-            uint32 x = _data._small[STRING_LEN_BYTE];
-            return _data._small[STRING_LEN_BYTE];
-        }
-        else {
-            uint32 x = _data._long._str->_length;
-            return _data._long._str->_length;
-        }
-    }
+		release();
 
-    const char* String::string() const {
-        if (isSmallString()) {
-            return &_data._small[0];
-        }
-        else {
-            return &_data._long._str->_str[0];
-        }
-    }
+		if (length < STRING_SMALL_MAX_SIZE) {
+			_data._small[STRING_LEN_BYTE - 1] = 0;
+			_data._small[STRING_LEN_BYTE] = length;
+		}
+		else {
 
-    void String::_copyFrom(char ch) {
-        _data._small[0] = ch;
-        _data._small[1] = 0;
-        _data._small[STRING_LEN_BYTE] = 1;
-    }
+			LongStringData* longData = (LongStringData*)
+				allocateMemory(
+					1,
+					sizeof(uint16) +
+					sizeof(uint16) +
+					length + 1,
+					MEMF_ANY
+				);
 
-    void String::_copyFrom(const char* str) {
-        uint16 length = stringLength(str);
-        uint16 i;
-        uint32 hash;
-        char ch;
+			longData->_length = length;
+			longData->_users = 1;
 
-        if (length < STRING_SMALL_MAX_SIZE) {
+			char* dst = &longData->_str[0];
+			*dst = '\0';
 
-            for(uint16 i=0;i < length;i++) {
-                _data._small[i] = str[i];
-            }
+			_data._long._str = longData;
+			_data._long._hash = 0;
+			_data._small[STRING_LEN_BYTE] = STRING_BIG_STRING_MARKER;
+		}
+	}
 
-            _data._small[STRING_LEN_BYTE-1] = 0;
-            _data._small[STRING_LEN_BYTE] = length;
-        }
-        else {
+	void String::_refreshHash() {
+		if (isSmallString() == false) {
+			LongStringData* longData = _data._long._str;
 
-            LongStringData* longData = (LongStringData*)
-                allocateMemory(
-                    1,
-                    sizeof(uint16) +
-                    sizeof(uint16) +
-                    length + 1,
-                    MEMF_ANY
-            );
+			char* str = &longData->_str[0];
+			char ch;
 
-            longData->_length = length;
-            longData->_users = 1;
+			uint32 hash = 5381;
 
-            hash = 5381;
-            char* dst = &longData->_str[0];
-            while(*str) {
-                ch = *str;
-                hash = ((hash << 5) + hash) + ch;
-                *dst = ch;
-                dst++;
-                str++;
-            }
-            *dst = '\0';
+			while (*str) {
+				ch = *str;
+				hash = ((hash << 5) + hash) + ch;
+				str++;
+			}
 
-            _data._long._str = longData;
-            _data._long._hash = hash;
-            _data._small[STRING_LEN_BYTE] = STRING_BIG_STRING_MARKER;
-        }
-    }
+			_data._long._hash = hash;
+		}
+	}
 
-    void String::_copyFrom(const String& other) {
-        for(uint16 i=0;i < (STRING_SMALL_SIZE / 4);i++) {
-            _data._longs[i] = other._data._longs[i];
-        }
+	char* String::_stringWritable() {
+		if (isSmallString()) {
+			return &_data._small[0];
+		}
+		else {
+			return &_data._long._str->_str[0];
+		}
+	}
 
-        if (_data._small[STRING_LEN_BYTE] == STRING_BIG_STRING_MARKER) {
-            _data._long._str->_users++;
-        }
-    }
+	bool String::isSmallString() const {
+		return !(_data._small[STRING_LEN_BYTE] == STRING_BIG_STRING_MARKER);
+	}
+	
+	uint16 String::length() const {
+		if (isSmallString()) {
+			uint32 x = _data._small[STRING_LEN_BYTE];
+			return _data._small[STRING_LEN_BYTE];
+		}
+		else {
+			uint32 x = _data._long._str->_length;
+			return _data._long._str->_length;
+		}
+	}
 
-    void String::_moveFrom(String& other) {
-        for(uint16 i=0;i < (STRING_SMALL_SIZE / 4);i++) {
-            _data._longs[i] = other._data._longs[i];
-            other._data._longs[i] = 0;
-        }
-    }
+	const char* String::string() const {
+		if (isSmallString()) {
+			return &_data._small[0];
+		}
+		else {
+			return &_data._long._str->_str[0];
+		}
+	}
 
-    uint32 String::_heapSize() const
-    {
-        if (isSmallString()) {
-            return 0;
-        }
+	void String::_copyFrom(char ch) {
+		_data._small[0] = ch;
+		_data._small[1] = 0;
+		_data._small[STRING_LEN_BYTE] = 1;
+	}
 
-        LongStringData* data = _data._long._str;
-        return sizeof(uint16) + sizeof(uint16) + data->_length + 1;
-    }
+	void String::_copyFrom(const char* str) {
+		uint16 length = stringLength(str);
+		uint16 i;
+		uint32 hash;
+		char ch;
 
+		if (length < STRING_SMALL_MAX_SIZE) {
 
-    bool String::equals(const char* str) const {
-        const char* this_str = string();
-        while(true) {
-            if (*this_str != *str)
-                return false;
-            
-            if (*this_str == '\0')
-                return true;
+			for(uint16 i=0;i < length;i++) {
+				_data._small[i] = str[i];
+			}
 
-            str++;
-            this_str++;
-        }
-    }
+			_data._small[STRING_LEN_BYTE-1] = 0;
+			_data._small[STRING_LEN_BYTE] = length;
+		}
+		else {
 
-    bool String::equals(const String& other) const {
-        const bool sm0 = isSmallString();
-        const bool sm1 = other.isSmallString();
+			LongStringData* longData = (LongStringData*)
+				allocateMemory(
+					1,
+					sizeof(uint16) +
+					sizeof(uint16) +
+					length + 1,
+					MEMF_ANY
+			);
 
-        if (sm0 && sm1) {
-            for(uint16 i=0; i < (STRING_SMALL_SIZE) / 4;i++) {
-                if (_data._longs[i] != other._data._longs[i])
-                    return false;
-            } 
-            return true;
-        }
-        else if (!sm0 && !sm1) {
-            return _data._long._hash == other._data._long._hash;
-        }
+			longData->_length = length;
+			longData->_users = 1;
 
-        return false;
-    }
+			hash = 5381;
+			char* dst = &longData->_str[0];
+			while(*str) {
+				ch = *str;
+				hash = ((hash << 5) + hash) + ch;
+				*dst = ch;
+				dst++;
+				str++;
+			}
+			*dst = '\0';
 
-    uint32 String::hash() const {
-        if (isSmallString()) {
-            uint32 hash = 5381;
-            const char* str = &_data._small[0];
-            while(*str) {
-                hash = ((hash << 5) + hash) + *str;
-                str++;
-            }
-            return hash;
-        }
-        else {
-            return _data._long._hash;
-        }
-    }
+			_data._long._str = longData;
+			_data._long._hash = hash;
+			_data._small[STRING_LEN_BYTE] = STRING_BIG_STRING_MARKER;
+		}
+	}
 
-    TEST_CASE(string_1)
-    {
-        String s1;
+	void String::_copyFrom(const String& other) {
+		for(uint16 i=0;i < (STRING_SMALL_SIZE / 4);i++) {
+			_data._longs[i] = other._data._longs[i];
+		}
+
+		if (_data._small[STRING_LEN_BYTE] == STRING_BIG_STRING_MARKER) {
+			_data._long._str->_users++;
+		}
+	}
+
+	void String::_moveFrom(String& other) {
+		for(uint16 i=0;i < (STRING_SMALL_SIZE / 4);i++) {
+			_data._longs[i] = other._data._longs[i];
+			other._data._longs[i] = 0;
+		}
+	}
+
+	uint32 String::_heapSize() const
+	{
+		if (isSmallString()) {
+			return 0;
+		}
+
+		LongStringData* data = _data._long._str;
+		return sizeof(uint16) + sizeof(uint16) + data->_length + 1;
+	}
 
 
-        TEST_EQUAL((uint16) 0, s1.length());
-        TEST_EQUAL(true, s1.isSmallString());
-        TEST_EQUAL('\0', s1.string()[0]);
-    }
+	bool String::equals(const char* str) const {
+		const char* this_str = string();
+		while(true) {
+			if (*this_str != *str)
+				return false;
+			
+			if (*this_str == '\0')
+				return true;
 
-    TEST_CASE(string_2)
-    {
-        String s2('a');
-        TEST_EQUAL((uint16) 1, s2.length());
-        TEST_EQUAL(true, s2.isSmallString());
-        TEST_EQUAL('a', s2.string()[0]);
-        TEST_EQUAL('\0', s2.string()[1]);
-    }
+			str++;
+			this_str++;
+		}
+	}
 
-    TEST_CASE(string_3)
-    {
-        String s3("Hello");
-        TEST_EQUAL((uint16) 5, s3.length());
-        TEST_EQUAL(true, s3.isSmallString());
-        TEST_EQUAL('H', s3.string()[0]);
-        TEST_EQUAL('e', s3.string()[1]);
-        TEST_EQUAL('l', s3.string()[2]);
-        TEST_EQUAL('l', s3.string()[3]);
-        TEST_EQUAL('o', s3.string()[4]);        
-        TEST_EQUAL('\0', s3.string()[5]);
-    }
+	bool String::equals(const String& other) const {
+		const bool sm0 = isSmallString();
+		const bool sm1 = other.isSmallString();
 
-    void string_4_impl() {
-        TEST_MEMORY_MEASURE(m1);
-        String s4("Hello World");
-        TEST_EQUAL((uint16) 11, s4.length());
-        TEST_EQUAL(false, s4.isSmallString());
-        TEST_EQUAL((2u + 2u + 11u + 1u), s4._heapSize());
-        TEST_MEMORY(m1, (2u + 2u + 11u + 1u));
-    }
+		if (sm0 && sm1) {
+			for(uint16 i=0; i < (STRING_SMALL_SIZE) / 4;i++) {
+				if (_data._longs[i] != other._data._longs[i])
+					return false;
+			} 
+			return true;
+		}
+		else if (!sm0 && !sm1) {
+			return _data._long._hash == other._data._long._hash;
+		}
 
-    TEST_CASE(string_4)
-    {
-        TEST_MEMORY_MEASURE(m1);
-        TEST_MEMORY(m1, 0u);
-        string_4_impl();
-        TEST_MEMORY(m1, 0u);
-    }
+		return false;
+	}
 
-    TEST_CASE(string_5)
-    {
-        TEST_MEMORY_MEASURE(m1);
-        TEST_MEMORY(m1, 0UL);
-        String s5("Hello World2");
-        TEST_EQUAL((uint16) 12, s5.length());
-        TEST_EQUAL((12u + 1u + 2u + 2u), s5._heapSize());
-        TEST_MEMORY(m1, (12u + 1u + 2u + 2u));
+	uint32 String::hash() const {
+		if (isSmallString()) {
+			uint32 hash = 5381;
+			const char* str = &_data._small[0];
+			while(*str) {
+				hash = ((hash << 5) + hash) + *str;
+				str++;
+			}
+			return hash;
+		}
+		else {
+			return _data._long._hash;
+		}
+	}
 
-        String s6(s5);
-        TEST_EQUAL((uint16) 12u, s6.length());
-        TEST_EQUAL((12u + 1u + 2u + 2u), s6._heapSize());
+	TEST_CASE(string_1)
+	{
+		String s1;
 
-        // s5 and s6 should use the same memory since
-        // the string is the same.
-        TEST_MEMORY(m1, (12u + 1u + 2u + 2u));
-    }
 
-    TEST_CASE(string_6)
-    {
-        TEST_MEMORY_MEASURE(m1);
-        TEST_MEMORY(m1, 0);
-        String s5("Hello World2");
-        TEST_EQUAL((uint16) 12, s5.length());
-        TEST_EQUAL((12u + 1u + 2u + 2u), s5._heapSize());
-        String s6(s5, true);
-        TEST_EQUAL((uint16) 12, s6.length());
-        TEST_EQUAL((12u + 1u + 2u + 2u), s6._heapSize());
+		TEST_EQUAL((uint16) 0, s1.length());
+		TEST_EQUAL(true, s1.isSmallString());
+		TEST_EQUAL('\0', s1.string()[0]);
+	}
 
-        TEST_MEMORY(m1, (12u + 1u + 2u + 2u));
+	TEST_CASE(string_2)
+	{
+		String s2('a');
+		TEST_EQUAL((uint16) 1, s2.length());
+		TEST_EQUAL(true, s2.isSmallString());
+		TEST_EQUAL('a', s2.string()[0]);
+		TEST_EQUAL('\0', s2.string()[1]);
+	}
 
-        TEST_EQUAL((uint16) 0, s5.length());
-        TEST_EQUAL(true, s5.isSmallString());
-    }
+	TEST_CASE(string_3)
+	{
+		String s3("Hello");
+		TEST_EQUAL((uint16) 5, s3.length());
+		TEST_EQUAL(true, s3.isSmallString());
+		TEST_EQUAL('H', s3.string()[0]);
+		TEST_EQUAL('e', s3.string()[1]);
+		TEST_EQUAL('l', s3.string()[2]);
+		TEST_EQUAL('l', s3.string()[3]);
+		TEST_EQUAL('o', s3.string()[4]);        
+		TEST_EQUAL('\0', s3.string()[5]);
+	}
 
-    TEST_SUITE(string)
-    {
-        TEST_RUN_CASE(string_1);
-        TEST_RUN_CASE(string_2);
-        TEST_RUN_CASE(string_3);
-        TEST_RUN_CASE(string_4);
-        TEST_RUN_CASE(string_5);
-        TEST_RUN_CASE(string_6);
-    }
+	void string_4_impl() {
+		TEST_MEMORY_MEASURE(m1);
+		String s4("Hello World");
+		TEST_EQUAL((uint16) 11, s4.length());
+		TEST_EQUAL(false, s4.isSmallString());
+		TEST_EQUAL((2u + 2u + 11u + 1u), s4._heapSize());
+		TEST_MEMORY(m1, (2u + 2u + 11u + 1u));
+	}
+
+	TEST_CASE(string_4)
+	{
+		TEST_MEMORY_MEASURE(m1);
+		TEST_MEMORY(m1, 0u);
+		string_4_impl();
+		TEST_MEMORY(m1, 0u);
+	}
+
+	TEST_CASE(string_5)
+	{
+		TEST_MEMORY_MEASURE(m1);
+		TEST_MEMORY(m1, 0UL);
+		String s5("Hello World2");
+		TEST_EQUAL((uint16) 12, s5.length());
+		TEST_EQUAL((12u + 1u + 2u + 2u), s5._heapSize());
+		TEST_MEMORY(m1, (12u + 1u + 2u + 2u));
+
+		String s6(s5);
+		TEST_EQUAL((uint16) 12u, s6.length());
+		TEST_EQUAL((12u + 1u + 2u + 2u), s6._heapSize());
+
+		// s5 and s6 should use the same memory since
+		// the string is the same.
+		TEST_MEMORY(m1, (12u + 1u + 2u + 2u));
+	}
+
+	TEST_CASE(string_6)
+	{
+		TEST_MEMORY_MEASURE(m1);
+		TEST_MEMORY(m1, 0);
+		String s5("Hello World2");
+		TEST_EQUAL((uint16) 12, s5.length());
+		TEST_EQUAL((12u + 1u + 2u + 2u), s5._heapSize());
+		String s6(s5, true);
+		TEST_EQUAL((uint16) 12, s6.length());
+		TEST_EQUAL((12u + 1u + 2u + 2u), s6._heapSize());
+
+		TEST_MEMORY(m1, (12u + 1u + 2u + 2u));
+
+		TEST_EQUAL((uint16) 0, s5.length());
+		TEST_EQUAL(true, s5.isSmallString());
+	}
+
+	TEST_SUITE(string)
+	{
+		TEST_RUN_CASE(string_1);
+		TEST_RUN_CASE(string_2);
+		TEST_RUN_CASE(string_3);
+		TEST_RUN_CASE(string_4);
+		TEST_RUN_CASE(string_5);
+		TEST_RUN_CASE(string_6);
+	}
 }

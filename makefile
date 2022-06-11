@@ -1,7 +1,7 @@
 PLATFORM = amiga
 PROGRAM = dist/monkey3
 TEST = 0
-DEBUG_LEVEL = 1
+DEBUG_LEVEL = 2
 DATESTR  = $(shell date +"%-d.%-m.%Y")
 GAME_PATH = "COMI:"
 
@@ -12,7 +12,8 @@ ifeq ($(PLATFORM), amiga)
 				source/amiga/common/start.o \
 				source/amiga/common/debug.o \
 				source/amiga/common/memory.o\
-				source/amiga/common/file.o
+				source/amiga/common/file.o\
+				source/amiga/common/string.o
 
 	CC		= m68k-amigaos-gcc
 	DELETE	= rm
@@ -28,7 +29,8 @@ ifeq ($(PLATFORM), sdl)
 	OBJ		=	source/sdl/common/main.o\
 				source/sdl/common/memory.o\
 				source/sdl/common/debug.o\
-				source/sdl/common/file.o
+				source/sdl/common/file.o\
+				source/sdl/common/string.o
 
 	CC		= gcc
 	DELETE	= rm
