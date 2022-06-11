@@ -26,7 +26,7 @@ namespace common
 {
 
 	ReadFile::ReadFile() 
-		: _file(NULL) {
+		: _file(NULL), _pos(0), _length(0) {
 
 	}
 
