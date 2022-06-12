@@ -32,6 +32,10 @@ namespace comi
 		uint8   _disk;
 	public:
 
+		inline bool equals(uint16 num, uint8 kind) {
+			return _num == num && _kind == kind;
+		}
+
 		uint16 getNum() const {
 			return _num;
 		}

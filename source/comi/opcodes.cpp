@@ -15,37 +15,47 @@
  *
  */
 
-#ifndef COMI_SCRIPT_H
-#define COMI_SCRIPT_H
+#define GS_FILE_NAME "opcodes"
 
-#include "common/types.h"
-#include "common/buffer.h"
-
-#include "resource_object.h"
-
-using namespace common;
+#include "opcodes.h"
+#include "vm.h"
+#include "context.h"
+#include "debug.h"
 
 namespace comi
 {
-	class DiskReader;
+	static const uint8 NO_CONTEXT = 0xFF;
 
-	class Script : public ResourceObject
-	{
-	private:
-		Buffer<byte> _data;
-	public:
+	void VirtualMachine::_step() {
+		_opcode = _readByte();
 
-		Script(uint16 num, uint8 disk, uint8 flags);
-		~Script();
+		switch (_opcode) {
+			case OP_SysCall: {
 
-		bool readFromDisk(DiskReader& reader);
+				byte param = _readByte();
 
-		Buffer<byte>* getDataPtr() {
-			return &_data;
+				if (param == OpSyscall_Quit) {
+					CTX->quit = true;
+					info(COMI_THIS, "Quit has been called");
+					return;
+				}
+				
+				error(COMI_THIS, "Unhandled SysCall! %ld", (uint32) param);
+				_currentContext = NO_CONTEXT;
+
+			}
+			return;
+			default:
+
+				debug_write_str("opcode=");
+				debug_write_unsigned_int(_opcode);
+				debug_write_str("\n");
+
+				error(COMI_THIS, "(%2x) Unhandled Opcode!", _opcode);
+				_currentContext = NO_CONTEXT;
+			return;
+			
 		}
-
-	};
+	}
 
 }
-
-#endif

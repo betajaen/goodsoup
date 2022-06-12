@@ -32,7 +32,7 @@ extern const char GOODSOUP_VERSION_STR[];
 namespace comi
 {
 	Context::Context()
-	: index(NULL), resources(NULL), vm(NULL) {
+	: index(NULL), resources(NULL), vm(NULL), quit(false) {
 	}
 
 	Context::~Context() {
@@ -79,6 +79,6 @@ namespace comi
 		}
 
 		vm->reset();
-		vm->runScript(1, false, false, 0, NULL, 0);
+		vm->runScript(1, false, false);
 	}
 }

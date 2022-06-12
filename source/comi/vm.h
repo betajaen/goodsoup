@@ -126,21 +126,92 @@ namespace comi
 		VAR_SYNC = 134
 	};
 
-	struct ConcurrentScript
+	enum ScriptSlotState
 	{
-	public:
+		SSS_Dead = 0,
+		SSS_Paused = 1,
+		SSS_Running = 2,
+		SSS_Frozen = 0x80
+	};
 
-		ConcurrentScript();
-		~ConcurrentScript();
-
+	struct ScriptContext
+	{
 		void reset();
 
-		int32 _locals[NUM_INT_LOCALS];
+		bool isFrozen() const {
+			return _freezeCount > 0;
+		}
 
+		bool isDead() const {
+			return _state == 0;
+		}
+
+		void freeze() {
+			_freezeCount++;
+			if (_freezeCount) {
+				_state |= SSS_Frozen;
+			}
+		}
+
+		void unfreeze() {
+			if (_freezeCount) {
+				_freezeCount--;
+				if (_freezeCount == 0) {
+					_state &= ~SSS_Frozen;
+				}
+			}
+		}
+
+		void unfreezeAll() {
+			_freezeCount = 0;
+			_state &= ~SSS_Frozen;
+		}
+
+		uint16 _scriptNum;
+		uint32 _lastPC;
+		int32  _delay;
+		uint16 _delayFrameCount;
+		uint8  _scriptWhere;
+		uint8  _state;
+		uint8  _freezeCount;
+		uint8  _bFreezeResistant;
+		uint8  _bRecursive;
+		uint8  _bIsExecuted;
+		uint8  _cutsceneOverride;
+		int32  _locals[NUM_INT_LOCALS];
+	};
+
+	struct ScriptStackItem
+	{
+		void reset();
+
+		uint16 _scriptNum;
+		uint8  _scriptWhere;
+		uint8  _contextNum;
 	};
 
 	class VirtualMachine
 	{
+	private:
+
+		Buffer<byte>		_nullScript;
+		Buffer<int32>		_intGlobals;
+		Buffer<byte>		_boolGlobals;
+		ScriptContext		_context[MAX_SCRIPT_CONTEXTS];
+		ScriptStackItem		_stack[NUM_STACK_SCRIPTS];
+		uint16				_currentContext;
+		uint16				_stackSize;
+		uint32				_pc;
+		Buffer<byte>*		_script;
+		byte				_opcode;
+
+		bool _findFreeContext(uint8& num);
+		void _updateScriptData(ScriptContext& context);
+		void _placeContextOnStackAndRun(uint8 newContextNum);
+		void _step();
+
+		byte _readByte();
+
 	public:
 
 		VirtualMachine();
@@ -150,16 +221,10 @@ namespace comi
 		int32  readVar(uint32 var);
 		void   writeVar(uint32 var, int32 value);
 
-		void runScript(uint16 scriptNum, bool freezeResistant, bool recursive, int32 cycle, int32* data, uint16 dataCount);
+		void runCurrentScript();
+		void runScript(uint16 scriptNum, bool freezeResistant, bool recursive, int32* data = NULL, uint8 dataCount = 0);
 		void stopScript(uint16 scriptNum);
 
-	private:
-
-		Buffer<int32>		_intGlobals;
-		Buffer<byte>		_boolGlobals;
-		ConcurrentScript	_scripts[NUM_CONCURRENT_SCRIPTS];
-		uint8				_currentScript;
-		Script*				_script;
 	};
 }
 

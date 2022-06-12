@@ -58,6 +58,8 @@ namespace comi
 
 		Disk& _getDisk(uint8 num);
 
+		ResourceObject* _findResource(uint16 num, uint8 kind);
+
 	public:
 
 		Resources();
@@ -66,8 +68,10 @@ namespace comi
 		bool open();
 		void close();
 
-		Script* loadScriptFromRoom(uint16 num);
+		Script* loadGlobalScript(uint16 num);
 		Room* loadRoom(uint16 num);
+
+		Script* getGlobalScript(uint16 num);
 
 	};
 

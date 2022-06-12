@@ -36,6 +36,30 @@ namespace comi
 		DiskReader(ReadFile& file);
 		~DiskReader();
 
+		inline void readBytes(void* data, uint32 length) {
+			_file.readBytes(data, length);
+		}
+
+		inline byte readByte() {
+			return _file.readByte();
+		}
+
+		inline uint16 readUInt16BE() {
+			return _file.readUInt16BE();
+		}
+
+		inline uint32 readUInt32BE() {
+			return _file.readUInt32BE();
+		}
+
+		inline uint16 readUInt16LE() {
+			return _file.readUInt16LE();
+		}
+
+		inline uint32 readUInt32LE() {
+			return _file.readUInt32LE();
+		}
+
 		bool readAndExpectTag(char a, char b, char c, char d);
 
 	};

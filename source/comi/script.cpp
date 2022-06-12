@@ -37,11 +37,31 @@ namespace comi
 	}
 
 	Script::~Script() {
+		_data.release();
 	}
 	
 	bool Script::readFromDisk(DiskReader& reader) {
 		if (reader.readAndExpectTag('S', 'C', 'R', 'P') == false)
 			return false;
+
+		uint32 length = reader.readUInt32BE();
+
+		if (length == 0) {
+			error(COMI_THIS, "Script length %ld is 0 bytes!", _num);
+			return false;
+		}
+
+		if (length > 16384) {
+			warn(COMI_THIS, "Very large script detected for %ld of %ld bytes!", _num, length);
+		}
+
+		length -= 8;
+
+		_data.setSize(length, 0);
+		reader.readBytes((void*) _data.ptr(0), length);
+
+		debug(COMI_THIS, "Read Script %ld of %ld bytes", _num, length);
+
 
 		return true;
 	}

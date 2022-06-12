@@ -82,6 +82,18 @@ namespace comi
 		return true;
 	}
 
+	ResourceObject* Resources::_findResource(uint16 num, uint8 kind) {
+		/* OPTIMIZE */
+		const uint16 size = _resources.size();
+		for (uint16 i = 0; i < size; i++) {
+			ResourceObject* object = _resources.get_unchecked(i);
+			if (object->equals(num, kind)) {
+				return object;
+			}
+		}
+		return NULL;
+	}
+
 	Disk& Resources::_getDisk(uint8 num) {
 
 		if (num >= NUM_DISKS) {
@@ -92,7 +104,7 @@ namespace comi
 		return _disk[num - 1];
 	}
 
-	Script* Resources::loadScriptFromRoom(uint16 num)
+	Script* Resources::loadGlobalScript(uint16 num)
 	{
 		uint8 script_roomNum;
 		uint32 script_offset;
@@ -131,5 +143,15 @@ namespace comi
 		return NULL;
 	}
 
+
+	Script* Resources::getGlobalScript(uint16 num) {
+		Script* script = (Script*)_findResource(num, RK_SCRIPT);
+
+		if (script == NULL) {
+			script = loadGlobalScript(num);
+		}
+
+		return script;
+	}
 
 }

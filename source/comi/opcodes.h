@@ -15,37 +15,21 @@
  *
  */
 
-#ifndef COMI_CONTEXT_H
-#define COMI_CONTEXT_H
-
-#include "common/types.h"
-
-using namespace common;
+#ifndef COMI_OPCODES_H
+#define COMI_OPCODES_H
 
 namespace comi
 {
-	class Context;
-	class Index;
-	class Resources;
-	class VirtualMachine;
-	
-	extern Context* CTX;
-
-	class Context
+	enum Opcodes
 	{
-	public:
-		Context();
-		~Context();
+		OP_SysCall = 0xB3
+	};
 
-		void initialize();
-
-		bool canRun();
-		void run();
-
-		bool quit;
-		VirtualMachine* vm;
-		Index* index;
-		Resources* resources;
+	enum OpSysCall
+	{
+		OpSyscall_Restart = 158,
+		OpSyscall_Pause = 159,
+		OpSyscall_Quit = 160
 	};
 }
 

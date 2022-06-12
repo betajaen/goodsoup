@@ -27,7 +27,8 @@ namespace comi
 {
 	enum  ComiConstants
 	{
-		NUM_CONCURRENT_SCRIPTS = 80,
+		MAX_SCRIPT_CONTEXTS = 80,
+		NUM_STACK_SCRIPTS = 15,
 
 		// MAXS Constants
 		NUM_INT_GLOBALS = 1500,
