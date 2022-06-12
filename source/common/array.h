@@ -96,6 +96,12 @@ namespace common
 			release();
 		}
 
+		void reserve(Index capacity) {
+			release();
+			_begin = (T*) ::common::allocateMemory(capacity, sizeof(T), MEMF_CLEAR);
+			_capacity = capacity;
+			_size = 0;
+		}
 
 		void release() {
 			if (_begin) {
@@ -104,6 +110,18 @@ namespace common
 				_size = 0;
 				_capacity = 0;
 			}
+		}
+
+		void clear() {
+			_size = 0;
+		}
+
+		T* ptr() {
+			return _begin;
+		}
+
+		const T* ptr() const {
+			return _begin;
 		}
 
 		Index size() const {
