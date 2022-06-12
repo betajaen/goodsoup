@@ -53,6 +53,8 @@ namespace comi
 			_stack[i].reset();
 		}
 
+		_vmStack.setSize(150);
+
 	}
 
 	VirtualMachine::~VirtualMachine() {
@@ -297,6 +299,32 @@ namespace comi
 	byte VirtualMachine::_readByte() {
 		byte value = _script->get_unchecked(_pc++);
 		return value;
+	}
+	
+	int32 VirtualMachine::_readWord() {
+		int32 value = *( (int32*) _script->ptr(_pc));
+		value = FROM_LE_32(value);
+		_pc += 4;
+		return value;
+	}
+
+	uint32 VirtualMachine::_readUnsignedWord() {
+
+		uint32 value = *((uint32*) _script->ptr(_pc));
+		value = FROM_LE_32(value);
+		_pc += 4;
+		return value;
+	}
+
+
+	void VirtualMachine::_pushStack(int32 value) {
+		_vmStack.set_unchecked(_stackSize, value);
+		_stackSize++;
+	}
+
+	int32 VirtualMachine::_popStack() {
+		_stackSize--;
+		_vmStack.get_unchecked(_stackSize);
 	}
 
 	void ScriptContext::reset() {

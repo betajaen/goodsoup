@@ -204,13 +204,21 @@ namespace comi
 		uint32				_pc;
 		Buffer<byte>*		_script;
 		byte				_opcode;
+		Buffer<int32>		_vmStack;
+		int8				_vmStackSize;
 
 		bool _findFreeContext(uint8& num);
 		void _updateScriptData(ScriptContext& context);
 		void _placeContextOnStackAndRun(uint8 newContextNum);
 		void _step();
 
+		void _pushStack(int32 value);
+		int32 _popStack();
+
 		byte _readByte();
+		int32  _readWord();
+		uint32  _readUnsignedWord();
+
 
 	public:
 
