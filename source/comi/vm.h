@@ -222,6 +222,7 @@ namespace comi
 		uint32  _readUnsignedWord();
 		void _readMessage();
 		uint16 _readMessageSize();
+		uint8 _readStackList(int32* args, uint8 capacity);
 
 		void _decodeParseString(uint8 m, uint8 n);
 

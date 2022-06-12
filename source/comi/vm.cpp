@@ -328,6 +328,29 @@ namespace comi
 		return value;
 	}
 	
+	uint8 VirtualMachine::_readStackList(int32* args, uint8 capacity) {
+		uint8 i, size;
+
+		for (i = 0; i < capacity; i++) {
+			args[i] = 0;
+		}
+
+		size = _popStack();
+
+		if (size > capacity) {
+			error(COMI_THIS, "Amount (%ld) of pop from stack is higher than capacity (%ld)", (uint32) size, (uint32) capacity);
+			return 0;
+		}
+
+		for (i = 0; i < size; i++) {
+			args[i] = _popStack();
+		}
+
+		debug(COMI_THIS, "%ld of %ld", (uint32) size, (uint32) capacity);
+
+		return size;
+	}
+	
 	void VirtualMachine::_readMessage() {
 
 		uint32 pc = _pc;

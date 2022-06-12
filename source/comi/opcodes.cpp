@@ -645,10 +645,18 @@ namespace comi
 				CTX->quit = true;
 				_currentContext = NO_CONTEXT;
 			return;
-			case OP_startScript:
-				error(COMI_THIS, "Unhandled OP_startScript");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+			case OP_startScript: {
+				int32 args[25];
+				uint32 script, flags;
+
+				uint8 count = _readStackList(args, 25);
+				script = _popStack();
+				flags = _popStack();
+
+				debug(COMI_THIS, "startScript %ld, %lx, %ld", script, flags, (uint32) count);
+
+				runScript(script, (flags & 1) !=0, (flags & 2) !=0, args, count);
+			}
 			return;
 			case OP_startScriptQuick:
 				error(COMI_THIS, "Unhandled OP_startScriptQuick");
