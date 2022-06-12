@@ -160,6 +160,31 @@ namespace common
 
 			return _begin[idx];
 		}
+
+		inline T& get(Index idx) {
+			if (idx >= _size) {
+				error(GS_THIS, "(FIXED, %d, %d) Out of bounds access", _size, idx);
+			}
+
+			return _begin[idx];
+		}
+
+		inline const T& get(Index idx) const {
+			if (idx >= _size) {
+				error(GS_THIS, "(FIXED, %d, %d) Out of bounds access", _size, idx);
+			}
+
+			return _begin[idx];
+		}
+
+		inline T& get_unchecked(Index idx) {
+			return _begin[idx];
+		}
+
+		inline const T& get_unchecked(Index idx) const {
+			return _begin[idx];
+		}
+
 	};
 
 }
