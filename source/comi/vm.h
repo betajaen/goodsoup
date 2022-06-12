@@ -20,6 +20,7 @@
 
 #include "common/types.h"
 #include "common/buffer.h"
+#include "common/array.h"
 #include "constants.h"
 
 using namespace common;
@@ -206,6 +207,7 @@ namespace comi
 		byte				_opcode;
 		Buffer<int32>		_vmStack;
 		int8				_vmStackSize;
+		Array<char>			_messageTemp;
 
 		bool _findFreeContext(uint8& num);
 		void _updateScriptData(ScriptContext& context);
@@ -218,7 +220,10 @@ namespace comi
 		byte _readByte();
 		int32  _readWord();
 		uint32  _readUnsignedWord();
+		void _readMessage();
+		uint16 _readMessageSize();
 
+		void _decodeParseString(uint8 m, uint8 n);
 
 	public:
 

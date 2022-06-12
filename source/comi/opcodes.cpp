@@ -746,14 +746,11 @@ namespace comi
 				_currentContext = NO_CONTEXT;
 			return;
 			case OP_printActor:
-				error(COMI_THIS, "Unhandled OP_printActor");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				_decodeParseString(0, 1);
 			return;
 			case OP_printEgo:
-				error(COMI_THIS, "Unhandled OP_printEgo");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				_pushStack(readVar(VAR_EGO));
+				_decodeParseString(0, 1);
 			return;
 			case OP_talkActor:
 				error(COMI_THIS, "Unhandled OP_talkActor");
@@ -766,24 +763,16 @@ namespace comi
 				_currentContext = NO_CONTEXT;
 			return;
 			case OP_printLine:
-				error(COMI_THIS, "Unhandled OP_printLine");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
-			return;
+				_decodeParseString(0, 0);
+				return;
 			case OP_printText:
-				error(COMI_THIS, "Unhandled OP_printText");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				_decodeParseString(1, 0);
 			return;
 			case OP_printDebug:
-				error(COMI_THIS, "Unhandled OP_printDebug");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				_decodeParseString(2, 0);
 			return;
 			case OP_printSystem:
-				error(COMI_THIS, "Unhandled OP_printSystem");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				_decodeParseString(3, 0);
 			return;
 			case OP_blastText:
 				error(COMI_THIS, "Unhandled OP_blastText");
@@ -810,10 +799,49 @@ namespace comi
 				CTX->quit = true;
 				_currentContext = NO_CONTEXT;
 			return;
-			case OP_cursorCommand:
-				error(COMI_THIS, "Unhandled OP_cursorCommand");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+			case OP_cursorCommand: {
+				/* NOT PROPERLY IMPLEMENTED */
+				byte param = _readByte();
+				warn(COMI_THIS, "Not properly implemented OP_cursorCommand(%ld)", (uint32) param);
+
+				switch (param) {
+					case 0xDC:
+					break;
+					case 0xDD:
+					break;
+					case 0xDE:
+					break;
+					case 0xDF:
+					break;
+					case 0xE0:
+					break;
+					case 0xE1:
+					break;
+					case 0xE2:
+					break;
+					case 0xE3:
+					break;
+					case 0xE4:
+						_popStack();
+					break;
+					case 0xE5:
+						_popStack();
+						_popStack();
+					break;
+					case 0xE6:
+						_popStack();
+					break;
+					case 0xE7:
+						_popStack();
+					break;
+					case 0xE8:
+					break;
+					case 0xE9:
+						_popStack();
+						_popStack();
+					break;
+				}
+			}
 			return;
 			case OP_loadRoom:
 				error(COMI_THIS, "Unhandled OP_loadRoom");

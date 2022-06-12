@@ -45,6 +45,8 @@ namespace comi
 		_nullScript.set(2, 0xFF);
 		_nullScript.set(3, 0xFF);
 
+		_messageTemp.reserve(384);
+		
 		for (uint8 i = 0; i < MAX_SCRIPT_CONTEXTS; i++) {
 			_context[i].reset();
 		}
@@ -61,8 +63,6 @@ namespace comi
 	}
 
 	void VirtualMachine::reset() {
-		verbose(COMI_THIS, ".");
-
 		int32 i;
 
 		_script = NULL;
@@ -227,6 +227,17 @@ namespace comi
 	void VirtualMachine::_updateScriptData(ScriptContext& context) {
 		uint16 _scriptNum = context._scriptNum;
 
+		if (context._scriptNum < NUM_GLOBAL_SCRIPTS && context._scriptWhere == OW_Global) {
+			Script* script = RESOURCES->getGlobalScript(context._scriptNum);
+			if (script) {
+				_script = script->getDataPtr();
+				return;
+			}
+			else {
+				warn(COMI_THIS, "Unhandled ID Where for Script Data! Num=%ld, Where=%ld", (uint32)_scriptNum, (uint32)context._scriptWhere);
+				_script = &_nullScript;
+			}
+		}
 
 		warn(COMI_THIS, "Unhandled ID Where for Script Data! Num=%ld, Where=%ld", (uint32) _scriptNum, (uint32) context._scriptWhere);
 		_script = &_nullScript;
@@ -315,7 +326,95 @@ namespace comi
 		_pc += 4;
 		return value;
 	}
+	
+	void VirtualMachine::_readMessage() {
 
+		uint32 pc = _pc;
+
+		_messageTemp.clear();
+		while (true) {
+			byte ch = (char) _readByte();
+			_messageTemp.push(ch);
+			if (ch == 0)
+				break;
+			if (ch == 0xFF) {
+				ch = _readByte();
+				_messageTemp.push(ch);
+
+				if (ch != 1 && ch != 2 && ch != 3 && ch != 8) {
+					_messageTemp.push(_readByte());
+					_messageTemp.push(_readByte());
+					_messageTemp.push(_readByte());
+					_messageTemp.push(_readByte());
+				}
+			}
+			else {
+			}
+		}
+		debug(COMI_THIS, "Read message %ld %ld", pc, (uint32) _messageTemp.size());
+	}
+	
+	uint16 VirtualMachine::_readMessageSize() {
+		uint16 size = 0;
+		while (true) {
+			byte ch = _readByte();
+			size++;
+			if (ch == 0)
+				break;
+			if (ch == 0xFF) {
+				ch = _readByte();
+				size++;
+				
+				if (ch != 1 && ch != 2 && ch != 3 && ch != 8) {
+					_pc += 4;
+					size += 4;
+				}
+			}
+		}
+		return size;
+	}
+
+	void VirtualMachine::_decodeParseString(uint8 m, uint8 n) {
+		byte b = _readByte();
+
+		warn(COMI_THIS, "Not properly implemented");
+
+		switch (b) {
+			case 0xC8: {	// Print BaseOP
+				// ...
+				if (n != 0) {
+					_popStack();
+				}
+			}
+			break;
+			case 0xC9:		// Print End
+			break;
+			case 0xCA:		// Print At
+				_popStack();
+				_popStack();
+			break;
+			case 0xCB:		// Print Colour
+			break;
+			case 0xCC:		// Print Center
+			break;
+			case 0xCD:		// Print Charset
+				_popStack();
+			break;
+			case 0xCE:		// Print Left
+			break;
+			case 0xCF:		// Print Overhead
+			break;
+			case 0xD0:		// Print Mumble
+			break;
+			case 0xD1:		// Print String
+			{
+				_readMessageSize();	/* Not Implemented */
+			}
+			break;
+			case 0xD2:
+			break;
+		}
+	}
 
 	void VirtualMachine::_pushStack(int32 value) {
 		_vmStack.set_unchecked(_stackSize, value);
