@@ -40,8 +40,8 @@ namespace comi
 		_stackSize(0)
 	{
 		_nullScript.setSize(4);
-		_nullScript.set(0, OP_SysCall);
-		_nullScript.set(1, OpSyscall_Quit);
+		_nullScript.set(0, OP_systemOps);
+		_nullScript.set(1, SysOps_Quit);
 		_nullScript.set(2, 0xFF);
 		_nullScript.set(3, 0xFF);
 
