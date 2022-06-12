@@ -276,6 +276,11 @@ namespace comi
 			_stackSize--;
 		}
 
+		if (CTX->quit) {
+			_currentContext = NO_CONTEXT;
+			return;
+		}
+
 		// Resume.
 		if (last._scriptNum != 0 && last._contextNum < MAX_SCRIPT_CONTEXTS) {
 			ScriptContext& lastContext = _context[last._contextNum];
@@ -300,9 +305,6 @@ namespace comi
 	}
 
 	void VirtualMachine::runCurrentScript() {
-		/* TODO */
-		debug(GS_THIS, "RUN %ld", (uint32) _currentContext);
-
 		while (_currentContext != 0xFF) {
 			_step();
 		}
@@ -342,11 +344,12 @@ namespace comi
 			return 0;
 		}
 
-		for (i = 0; i < size; i++) {
+		i = size;
+		while(i-- != 0) {
 			args[i] = _popStack();
 		}
 
-		debug(COMI_THIS, "%ld of %ld", (uint32) size, (uint32) capacity);
+		verbose(COMI_THIS, "%ld of %ld", (uint32) size, (uint32) capacity);
 
 		return size;
 	}
