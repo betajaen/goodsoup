@@ -28,6 +28,7 @@ namespace comi
 
 	void VirtualMachine::_step() {
 		_opcode = _readByte();
+		debug(COMI_THIS, "%ld : %2lx", _pc-1, (uint32) _opcode);
 
 		switch (_opcode) {
 			case OP_00:
@@ -36,14 +37,10 @@ namespace comi
 				_currentContext = NO_CONTEXT;
 			return;
 			case OP_pushWord:
-				error(COMI_THIS, "Unhandled OP_pushWord");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				_pushStack(_readUnsignedWord());
 			return;
 			case OP_pushWordVar:
-				error(COMI_THIS, "Unhandled OP_pushWordVar");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				_pushStack(readVar(_readUnsignedWord()));
 			return;
 			case OP_wordArrayRead:
 				error(COMI_THIS, "Unhandled OP_wordArrayRead");
@@ -70,10 +67,13 @@ namespace comi
 				CTX->quit = true;
 				_currentContext = NO_CONTEXT;
 			return;
-			case OP_eq:
-				error(COMI_THIS, "Unhandled OP_eq");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+			case OP_eq: {
+				debug_write_unsigned_int(_pc);
+				debug_write_str(",");
+				int32 left = _popStack();
+				int32 right = _popStack();
+				_pushStack(left == right ? 1 : 0);
+			}
 			return;
 			case OP_neq:
 				error(COMI_THIS, "Unhandled OP_neq");
@@ -120,10 +120,11 @@ namespace comi
 				CTX->quit = true;
 				_currentContext = NO_CONTEXT;
 			return;
-			case OP_land:
-				error(COMI_THIS, "Unhandled OP_land");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+			case OP_land: {
+				int32 a = _popStack();
+				int32 b = _popStack();
+				_pushStack(a && b);
+			}
 			return;
 			case OP_lor:
 				error(COMI_THIS, "Unhandled OP_lor");
@@ -530,20 +531,28 @@ namespace comi
 				CTX->quit = true;
 				_currentContext = NO_CONTEXT;
 			return;
-			case OP_if:
-				error(COMI_THIS, "Unhandled OP_if");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+			case OP_if: {
+				int32 cond = _popStack();
+				int32 relOffset = _readWord();
+				
+				if (cond != 0) {
+					_pc += relOffset;
+				}
+			}
 			return;
-			case OP_ifNot:
-				error(COMI_THIS, "Unhandled OP_ifNot");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+			case OP_ifNot: {
+				int32 cond = _popStack();
+				int32 relOffset = _readWord();
+				
+				if (cond == 0) {
+					_pc += relOffset;
+				}
+			}
 			return;
-			case OP_jump:
-				error(COMI_THIS, "Unhandled OP_jump");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+			case OP_jump: {
+				int32 relOffset = _readWord();
+				_pc += relOffset;
+			}
 			return;
 			case OP_breakHere:
 				error(COMI_THIS, "Unhandled OP_breakHere");

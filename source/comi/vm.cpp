@@ -23,6 +23,7 @@
 #include "debug.h"
 #include "constants.h"
 #include "opcodes.h"
+#include "context.h"
 
 #include "common/endian.h"
 
@@ -422,8 +423,16 @@ namespace comi
 	}
 
 	int32 VirtualMachine::_popStack() {
+
+		if (_stackSize == 0) {
+			error(COMI_THIS, "VM Stack execption!");
+			CTX->quit = true;
+			_currentContext = NO_CONTEXT;
+			return 0;
+		}
+
 		_stackSize--;
-		_vmStack.get_unchecked(_stackSize);
+		return _vmStack.get_unchecked(_stackSize);
 	}
 
 	void ScriptContext::reset() {
