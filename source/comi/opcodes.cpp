@@ -28,7 +28,7 @@ namespace comi
 
 	void VirtualMachine::_step() {
 		_opcode = _readByte();
-		debug(COMI_THIS, "%ld : %2lx", _pc-1, (uint32) _opcode);
+		// debug(COMI_THIS, "%ld : %2lx", _pc-1, (uint32) _opcode);
 
 		switch (_opcode) {
 			case OP_00:
@@ -653,8 +653,6 @@ namespace comi
 				script = _popStack();
 				flags = _popStack();
 
-				debug(COMI_THIS, "startScript %ld, %lx, %ld", script, flags, (uint32) count);
-
 				runScript(script, (flags & 1) !=0, (flags & 2) !=0, args, count);
 			}
 			return;
@@ -926,10 +924,14 @@ namespace comi
 				CTX->quit = true;
 				_currentContext = NO_CONTEXT;
 			return;
-			case OP_resourceRoutines:
-				error(COMI_THIS, "Unhandled OP_resourceRoutines");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+			case OP_resourceRoutines: {
+				byte  subOp = _readByte();
+				int32 resId = _popStack();
+
+				warn(COMI_THIS, "Not properly implemented OP_resourceRoutines(%ld,%ld)", (uint32) subOp, (uint32) resId);
+
+				/* UNHANDLED */
+			}
 			return;
 			case OP_roomOps:
 				error(COMI_THIS, "Unhandled OP_roomOps");
@@ -1014,10 +1016,15 @@ namespace comi
 				CTX->quit = true;
 				_currentContext = NO_CONTEXT;
 			return;
-			case OP_kernelSetFunctions:
-				error(COMI_THIS, "Unhandled OP_kernelSetFunctions");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+			case OP_kernelSetFunctions: {
+
+				int32 args[30];
+				uint8 length = _readStackList(args, 30);
+				
+				warn(COMI_THIS, "Not properly implemented KernelSetFunctions(%ld,%ld)", (uint32) args[0], length);
+
+				/* NOT PROPERLY IMPLEMENTED */
+			}
 			return;
 			case OP_bb:
 				error(COMI_THIS, "Unhandled OP_bb");
