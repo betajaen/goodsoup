@@ -69,7 +69,6 @@ namespace common
 
 		if (category == DC_Error) {
 			fputc('\n', stdout);
-			exit(0);
 		}
 	}
 
@@ -97,7 +96,6 @@ namespace common
 
 		if (category == DC_Error) {
 			fputc('\n', stdout);
-			exit(0);
 		}
 
 	}

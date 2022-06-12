@@ -65,7 +65,6 @@ namespace common
 
 		if (category == DC_Error) {
 			gs_print("\n");
-			exit(0);
 		}
 	}
 
@@ -98,7 +97,6 @@ namespace common
 
 		if (category == DC_Error) {
 			gs_print("\n");
-			Exit(0);
 		}
 
 	}
@@ -120,7 +118,7 @@ namespace common
 	}
 
 	void debug_write_byte(byte byte_value) {
-		Printf("%2cx", byte_value);
+		Printf("%2x", byte_value);
 	}
 
 	void debug_write_char(char char_value) {
@@ -128,11 +126,11 @@ namespace common
 	}
 
 	void debug_write_unsigned_int(uint32 uint32_value) {
-		Printf("%lu", uint32_value);
+		Printf("%u", uint32_value);
 	}
 
 	void debug_write_int(int32 int32_value) {
-		Printf("%ld", int32_value);
+		Printf("%d", int32_value);
 	}
 
 	void debug_write_bool(bool bool_value) {
