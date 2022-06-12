@@ -584,10 +584,11 @@ namespace comi
 				CTX->quit = true;
 				_currentContext = NO_CONTEXT;
 			return;
-			case OP_writeWordVar:
-				error(COMI_THIS, "Unhandled OP_writeWordVar");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+			case OP_writeWordVar: {
+				uint32 varWhere = _readUnsignedWord();
+				int32 value = _popStack();
+				writeVar(varWhere, value);
+			}
 			return;
 			case OP_wordVarInc:
 				error(COMI_THIS, "Unhandled OP_wordVarInc");
