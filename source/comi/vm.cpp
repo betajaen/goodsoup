@@ -46,7 +46,6 @@ namespace comi
 		_nullScript.set(2, 0xFF);
 		_nullScript.set(3, 0xFF);
 
-		_messageTemp.reserve(384);
 		
 		for (uint8 i = 0; i < MAX_SCRIPT_CONTEXTS; i++) {
 			_context[i].reset();
@@ -56,17 +55,50 @@ namespace comi
 			_stack[i].reset();
 		}
 
-		_vmStack.setSize(150);
-
 	}
 
 	VirtualMachine::~VirtualMachine() {
+	
+		if (_arrays.hasMem()) {
+			for (uint8 i = 0; i < NUM_ARRAY; i++) {
+				ArrayHeader* arrayHeader = _arrays.get_unchecked(i);
+				releaseMemoryChecked(arrayHeader);
+			}
+		}
+
 	}
 
 	void VirtualMachine::reset() {
 		int32 i;
 
 		_script = NULL;
+
+		if (_messageTemp.capacity() == 0) {
+			_messageTemp.reserve(384);
+		}
+		else {
+			_messageTemp.clear();
+		}
+		
+		if (_arrays.hasMem() == false) {
+			_arrays.setSize(NUM_ARRAY, MEMF_CLEAR);
+		}
+		else {
+			for (uint8 i = 0; i < NUM_ARRAY; i++) {
+				ArrayHeader* arrayHeader = _arrays.get_unchecked(i);
+				releaseMemoryChecked(arrayHeader);
+			}
+			_arrays.zeroMem();
+		}
+		
+		if (_vmStack.hasMem() == false) {
+			_vmStack.setSize(150);
+			_vmStackSize = 0;
+		}
+		else {
+			_vmStack.zeroMem();
+			_vmStackSize = 0;
+		}
 
 		if (_intGlobals.hasMem() == false) {
 			_intGlobals.setSize(NUM_INT_GLOBALS);
@@ -244,13 +276,78 @@ namespace comi
 			}
 		}
 
-		_nukeArrays(_currentContext);
+		_deleteContextArrays(_currentContext);
 
 		context.markDead();
 		_currentContext = NO_CONTEXT;
 	}
 	
-	void VirtualMachine::_nukeArrays(uint8 contextNum) {
+	uint8 VirtualMachine::_findFreeArrayIndex() {
+		for (uint8 i = 0; i < NUM_ARRAY; i++) {
+			ArrayHeader* arrayHeader = _arrays.get_unchecked(i);
+			if (arrayHeader == NULL) {
+				return i;
+			}
+		}
+
+		error(COMI_THIS, "Out of Array space!");
+		CTX->quit = true;
+		_currentContext = NO_CONTEXT;
+		return NUM_ARRAY;
+	}
+	
+	ArrayHeader* VirtualMachine::_newArray(uint32 arrayNum, uint8 kind, uint16 dim2, uint16 dim1) {
+		
+		uint32 allocSize = 4;
+
+		_deleteArray(arrayNum);
+
+		uint8 arrayIdx = _findFreeArrayIndex();
+		if (arrayIdx == NUM_ARRAY) {
+			return NULL;
+		}
+
+		if (kind != AK_Int) {
+			kind = 1;
+		}
+
+		writeVar(arrayNum, arrayIdx);
+		allocSize *= dim2 + 1;
+		allocSize *= dim1 + 1;
+
+		// sizeof ArrayHeader
+		allocSize += sizeof(uint16) + sizeof(uint16) + sizeof(uint8) + sizeof(uint8);
+
+		ArrayHeader* header = (ArrayHeader*) allocateMemory(1, allocSize, MEMF_CLEAR);
+		header->kind = kind;
+		header->dim1 = dim1 + 1;
+		header->dim2 = dim2 + 1;
+
+		_arrays.set_unchecked(arrayIdx, header);
+
+		return header;
+	}
+
+	void VirtualMachine::_deleteArray(uint32 arrayNum) {
+		
+		uint32 arrayIndex = readVar(arrayNum);
+
+		if (arrayIndex >= NUM_ARRAY) {
+			warn(COMI_THIS, "Tried to delete an array out of bounds!");
+			CTX->quit = true;
+			_currentContext = NO_CONTEXT;
+			return;
+		}
+
+		ArrayHeader* arrayHeader = _arrays.get_unchecked(arrayIndex);
+
+		if (arrayHeader != NULL) {
+			_arrays.set_unchecked(arrayIndex, NULL);
+			releaseMemoryChecked(arrayHeader);
+		}
+	}
+	
+	void VirtualMachine::_deleteContextArrays(uint8 contextNum) {
 		warn(COMI_THIS, "Unimplemented feature for Context %ld", (uint32) contextNum);
 	}
 

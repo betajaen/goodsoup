@@ -332,6 +332,13 @@ namespace comi
 		ArrayOps_Assign2DimList = 0x16
 	};
 
+	enum DimArrayOp
+	{
+		DimArrayOp_NewInt = 0xA,
+		DimArrayOp_NewString = 0xB,
+		DimArrayOp_Delete = 0xC
+	};
+
 	enum VerbOp {
 		VerbOp_Init = 0x96,
 		VerbOp_New = 0x97,

@@ -33,6 +33,8 @@ namespace comi
 		_currentContext = NO_CONTEXT;\
 	} while(0);
 
+
+
 	void VirtualMachine::_step() {
 		_opcode = _readByte();
 		// debug(COMI_THIS, "%ld : %2lx", _pc-1, (uint32) _opcode);! pc = %ld
@@ -397,8 +399,30 @@ namespace comi
 			case OP_wordVarDec:
 				GS_UNHANDLED_OP("OP_wordVarDec!");
 			return;
-			case OP_dimArray:
-				GS_UNHANDLED_OP("OP_dimArray!");
+			case OP_dimArray: {
+				byte subOp = _readByte();
+				int32 arrayNum = _readUnsignedWord();
+				int32 size;
+
+				switch (subOp) {
+					case DimArrayOp_NewInt:
+						size = _popStack();
+						_newArray(arrayNum, AK_Int, 0, size);
+					break;
+					case DimArrayOp_NewString:
+						size = _popStack();
+						_newArray(arrayNum, AK_String, 0, size);
+					break;
+					case DimArrayOp_Delete:
+						_deleteArray(arrayNum);
+					break;
+					default:
+						error(COMI_THIS, "Unhandled subop for OP_dimArray %ld", subOp);
+						CTX->quit = true;
+						_currentContext = NO_CONTEXT;
+					break;
+				}
+			}
 			return;
 			case OP_wordArrayWrite:
 				GS_UNHANDLED_OP("OP_wordArrayWrite!");

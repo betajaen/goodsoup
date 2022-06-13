@@ -135,6 +135,16 @@ namespace comi
 		SCS_Frozen = 0x80
 	};
 
+	enum ArrayKind
+	{
+		AK_Bit = 1,
+		AK_Nibble = 2,
+		AK_Byte = 3,
+		AK_String = 4,
+		AK_Int = 5,
+		AK_DWord = 6
+	};
+
 	struct ScriptContext
 	{
 		void reset();
@@ -188,8 +198,7 @@ namespace comi
 		int32  _locals[NUM_INT_LOCALS];
 	};
 
-	struct ScriptStackItem
-	{
+	struct ScriptStackItem {
 		void reset();
 
 		uint16 _scriptNum;
@@ -197,30 +206,42 @@ namespace comi
 		uint8  _contextNum;
 	};
 
+	struct ArrayHeader {
+		uint16 dim1;
+		uint16 dim2;
+		uint8  kind;
+		uint8  data[1];
+	};
+
 	class VirtualMachine
 	{
 	private:
 
-		Buffer<byte>		_nullScript;
-		Buffer<int32>		_intGlobals;
-		Buffer<byte>		_boolGlobals;
-		ScriptContext		_context[MAX_SCRIPT_CONTEXTS];
-		ScriptStackItem		_stack[NUM_STACK_SCRIPTS];
-		uint16				_currentContext;
-		uint16				_stackSize;
-		uint32				_pc;
-		Buffer<byte>*		_script;
-		byte				_opcode;
-		Buffer<int32>		_vmStack;
-		int8				_vmStackSize;
-		Array<char>			_messageTemp;
+		Buffer<byte>				_nullScript;
+		Buffer<int32>				_intGlobals;
+		Buffer<byte>				_boolGlobals;
+		ScriptContext				_context[MAX_SCRIPT_CONTEXTS];
+		ScriptStackItem				_stack[NUM_STACK_SCRIPTS];
+		uint16						_currentContext;
+		uint16						_stackSize;
+		uint32						_pc;
+		Buffer<byte>*				_script;
+		byte						_opcode;
+		Buffer<int32>				_vmStack;
+		int8						_vmStackSize;
+		Array<char>					_messageTemp;
+		Buffer<ArrayHeader*>		_arrays;
 
 		bool _findFreeContext(uint8& num);
 		void _updateScriptData(ScriptContext& context);
 		void _placeContextOnStackAndRun(uint8 newContextNum);
 		void _step();
+		void _stopObjectCode();
 
-		void _nukeArrays(uint8 contextNum);
+		uint8 _findFreeArrayIndex();
+		ArrayHeader* _newArray(uint32 num, uint8 kind, uint16 dim2, uint16 dim1);
+		void _deleteArray(uint32 num);
+		void _deleteContextArrays(uint8 contextNum);
 
 		void _pushStack(int32 value);
 		int32 _popStack();
@@ -231,10 +252,8 @@ namespace comi
 		void _readMessage();
 		uint16 _readMessageSize();
 		uint8 _readStackList(int32* args, uint8 capacity);
-
 		void _decodeParseString(uint8 m, uint8 n);
 
-		void _stopObjectCode();
 
 	public:
 
