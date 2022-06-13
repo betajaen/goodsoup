@@ -26,15 +26,20 @@ namespace comi
 {
 	static const uint8 NO_CONTEXT = 0xFF;
 
+#define GS_UNHANDLED_OP(NAME)\
+	do {\
+		error(COMI_THIS, "Unhandled %s! pc = %ld, op = 0x%lx, script = %ld", NAME, (uint32) _pc - 1, (uint32) _opcode, (uint32) _context[_currentContext]._scriptNum);\
+		CTX->quit = true;\
+		_currentContext = NO_CONTEXT;\
+	} while(0);
+
 	void VirtualMachine::_step() {
 		_opcode = _readByte();
-		// debug(COMI_THIS, "%ld : %2lx", _pc-1, (uint32) _opcode);
+		// debug(COMI_THIS, "%ld : %2lx", _pc-1, (uint32) _opcode);! pc = %ld
 
 		switch (_opcode) {
 			case OP_00:
-				error(COMI_THIS, "Unhandled OP_00");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_00!");
 			return;
 			case OP_pushWord:
 				_pushStack(_readUnsignedWord());
@@ -43,82 +48,52 @@ namespace comi
 				_pushStack(readVar(_readUnsignedWord()));
 			return;
 			case OP_wordArrayRead:
-				error(COMI_THIS, "Unhandled OP_wordArrayRead");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_wordArrayRead!");
 			return;
 			case OP_wordArrayIndexedRead:
-				error(COMI_THIS, "Unhandled OP_wordArrayIndexedRead");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_wordArrayIndexedRead!");
 			return;
 			case OP_dup:
-				error(COMI_THIS, "Unhandled OP_dup");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_dup!");
 			return;
 			case OP_pop:
-				error(COMI_THIS, "Unhandled OP_pop");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_pop!");
 			return;
 			case OP_not:
-				error(COMI_THIS, "Unhandled OP_not");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_not!");
 			return;
 			case OP_eq: {
-				debug_write_unsigned_int(_pc);
-				debug_write_str(",");
 				int32 left = _popStack();
 				int32 right = _popStack();
 				_pushStack(left == right ? 1 : 0);
 			}
 			return;
 			case OP_neq:
-				error(COMI_THIS, "Unhandled OP_neq");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_neq!");
 			return;
 			case OP_gt:
-				error(COMI_THIS, "Unhandled OP_gt");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_gt!");
 			return;
 			case OP_lt:
-				error(COMI_THIS, "Unhandled OP_lt");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_lt!");
 			return;
 			case OP_le:
-				error(COMI_THIS, "Unhandled OP_le");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_le!");
 			return;
 			case OP_ge:
-				error(COMI_THIS, "Unhandled OP_ge");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_ge!");
 			return;
 			case OP_add:
-				error(COMI_THIS, "Unhandled OP_add");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_add!");
 			return;
 			case OP_sub:
-				error(COMI_THIS, "Unhandled OP_sub");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_sub!");
 			return;
 			case OP_mul:
-				error(COMI_THIS, "Unhandled OP_mul");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_mul!");
 			return;
 			case OP_div:
-				error(COMI_THIS, "Unhandled OP_div");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_div!");
 			return;
 			case OP_land: {
 				int32 a = _popStack();
@@ -127,409 +102,247 @@ namespace comi
 			}
 			return;
 			case OP_lor:
-				error(COMI_THIS, "Unhandled OP_lor");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_lor!");
 			return;
 			case OP_band:
-				error(COMI_THIS, "Unhandled OP_band");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_band!");
 			return;
 			case OP_bor:
-				error(COMI_THIS, "Unhandled OP_bor");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_bor!");
 			return;
 			case OP_mod:
-				error(COMI_THIS, "Unhandled OP_mod");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_mod!");
 			return;
 			case OP_17:
-				error(COMI_THIS, "Unhandled OP_17");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_17!");
 			return;
 			case OP_18:
-				error(COMI_THIS, "Unhandled OP_18");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_18!");
 			return;
 			case OP_19:
-				error(COMI_THIS, "Unhandled OP_19");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_19!");
 			return;
 			case OP_1a:
-				error(COMI_THIS, "Unhandled OP_1a");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_1a!");
 			return;
 			case OP_1b:
-				error(COMI_THIS, "Unhandled OP_1b");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_1b!");
 			return;
 			case OP_1c:
-				error(COMI_THIS, "Unhandled OP_1c");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_1c!");
 			return;
 			case OP_1d:
-				error(COMI_THIS, "Unhandled OP_1d");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_1d!");
 			return;
 			case OP_1e:
-				error(COMI_THIS, "Unhandled OP_1e");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_1e!");
 			return;
 			case OP_1f:
-				error(COMI_THIS, "Unhandled OP_1f");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_1f!");
 			return;
 			case OP_20:
-				error(COMI_THIS, "Unhandled OP_20");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_20!");
 			return;
 			case OP_21:
-				error(COMI_THIS, "Unhandled OP_21");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_21!");
 			return;
 			case OP_22:
-				error(COMI_THIS, "Unhandled OP_22");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_22!");
 			return;
 			case OP_23:
-				error(COMI_THIS, "Unhandled OP_23");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_23!");
 			return;
 			case OP_24:
-				error(COMI_THIS, "Unhandled OP_24");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_24!");
 			return;
 			case OP_25:
-				error(COMI_THIS, "Unhandled OP_25");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_25!");
 			return;
 			case OP_26:
-				error(COMI_THIS, "Unhandled OP_26");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_26!");
 			return;
 			case OP_27:
-				error(COMI_THIS, "Unhandled OP_27");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_27!");
 			return;
 			case OP_28:
-				error(COMI_THIS, "Unhandled OP_28");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_28!");
 			return;
 			case OP_29:
-				error(COMI_THIS, "Unhandled OP_29");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_29!");
 			return;
 			case OP_2a:
-				error(COMI_THIS, "Unhandled OP_2a");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_2a!");
 			return;
 			case OP_2b:
-				error(COMI_THIS, "Unhandled OP_2b");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_2b!");
 			return;
 			case OP_2c:
-				error(COMI_THIS, "Unhandled OP_2c");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_2c!");
 			return;
 			case OP_2d:
-				error(COMI_THIS, "Unhandled OP_2d");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_2d!");
 			return;
 			case OP_2e:
-				error(COMI_THIS, "Unhandled OP_2e");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_2e!");
 			return;
 			case OP_2f:
-				error(COMI_THIS, "Unhandled OP_2f");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_2f!");
 			return;
 			case OP_30:
-				error(COMI_THIS, "Unhandled OP_30");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_30!");
 			return;
 			case OP_31:
-				error(COMI_THIS, "Unhandled OP_31");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_31!");
 			return;
 			case OP_32:
-				error(COMI_THIS, "Unhandled OP_32");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_32!");
 			return;
 			case OP_33:
-				error(COMI_THIS, "Unhandled OP_33");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_33!");
 			return;
 			case OP_34:
-				error(COMI_THIS, "Unhandled OP_34");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_34!");
 			return;
 			case OP_35:
-				error(COMI_THIS, "Unhandled OP_35");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_35!");
 			return;
 			case OP_36:
-				error(COMI_THIS, "Unhandled OP_36");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_36!");
 			return;
 			case OP_37:
-				error(COMI_THIS, "Unhandled OP_37");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_37!");
 			return;
 			case OP_38:
-				error(COMI_THIS, "Unhandled OP_38");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_38!");
 			return;
 			case OP_39:
-				error(COMI_THIS, "Unhandled OP_39");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_39!");
 			return;
 			case OP_3a:
-				error(COMI_THIS, "Unhandled OP_3a");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_3a!");
 			return;
 			case OP_3b:
-				error(COMI_THIS, "Unhandled OP_3b");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_3b!");
 			return;
 			case OP_3c:
-				error(COMI_THIS, "Unhandled OP_3c");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_3c!");
 			return;
 			case OP_3d:
-				error(COMI_THIS, "Unhandled OP_3d");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_3d!");
 			return;
 			case OP_3e:
-				error(COMI_THIS, "Unhandled OP_3e");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_3e!");
 			return;
 			case OP_3f:
-				error(COMI_THIS, "Unhandled OP_3f");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_3f!");
 			return;
 			case OP_40:
-				error(COMI_THIS, "Unhandled OP_40");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_40!");
 			return;
 			case OP_41:
-				error(COMI_THIS, "Unhandled OP_41");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_41!");
 			return;
 			case OP_42:
-				error(COMI_THIS, "Unhandled OP_42");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_42!");
 			return;
 			case OP_43:
-				error(COMI_THIS, "Unhandled OP_43");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_43!");
 			return;
 			case OP_44:
-				error(COMI_THIS, "Unhandled OP_44");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_44!");
 			return;
 			case OP_45:
-				error(COMI_THIS, "Unhandled OP_45");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_45!");
 			return;
 			case OP_46:
-				error(COMI_THIS, "Unhandled OP_46");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_46!");
 			return;
 			case OP_47:
-				error(COMI_THIS, "Unhandled OP_47");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_47!");
 			return;
 			case OP_48:
-				error(COMI_THIS, "Unhandled OP_48");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_48!");
 			return;
 			case OP_49:
-				error(COMI_THIS, "Unhandled OP_49");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_49!");
 			return;
 			case OP_4a:
-				error(COMI_THIS, "Unhandled OP_4a");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_4a!");
 			return;
 			case OP_4b:
-				error(COMI_THIS, "Unhandled OP_4b");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_4b!");
 			return;
 			case OP_4c:
-				error(COMI_THIS, "Unhandled OP_4c");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_4c!");
 			return;
 			case OP_4d:
-				error(COMI_THIS, "Unhandled OP_4d");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_4d!");
 			return;
 			case OP_4e:
-				error(COMI_THIS, "Unhandled OP_4e");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_4e!");
 			return;
 			case OP_4f:
-				error(COMI_THIS, "Unhandled OP_4f");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_4f!");
 			return;
 			case OP_50:
-				error(COMI_THIS, "Unhandled OP_50");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_50!");
 			return;
 			case OP_51:
-				error(COMI_THIS, "Unhandled OP_51");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_51!");
 			return;
 			case OP_52:
-				error(COMI_THIS, "Unhandled OP_52");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_52!");
 			return;
 			case OP_53:
-				error(COMI_THIS, "Unhandled OP_53");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_53!");
 			return;
 			case OP_54:
-				error(COMI_THIS, "Unhandled OP_54");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_54!");
 			return;
 			case OP_55:
-				error(COMI_THIS, "Unhandled OP_55");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_55!");
 			return;
 			case OP_56:
-				error(COMI_THIS, "Unhandled OP_56");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_56!");
 			return;
 			case OP_57:
-				error(COMI_THIS, "Unhandled OP_57");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_57!");
 			return;
 			case OP_58:
-				error(COMI_THIS, "Unhandled OP_58");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_58!");
 			return;
 			case OP_59:
-				error(COMI_THIS, "Unhandled OP_59");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_59!");
 			return;
 			case OP_5a:
-				error(COMI_THIS, "Unhandled OP_5a");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_5a!");
 			return;
 			case OP_5b:
-				error(COMI_THIS, "Unhandled OP_5b");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_5b!");
 			return;
 			case OP_5c:
-				error(COMI_THIS, "Unhandled OP_5c");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_5c!");
 			return;
 			case OP_5d:
-				error(COMI_THIS, "Unhandled OP_5d");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_5d!");
 			return;
 			case OP_5e:
-				error(COMI_THIS, "Unhandled OP_5e");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_5e!");
 			return;
 			case OP_5f:
-				error(COMI_THIS, "Unhandled OP_5f");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_5f!");
 			return;
 			case OP_60:
-				error(COMI_THIS, "Unhandled OP_60");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_60!");
 			return;
 			case OP_61:
-				error(COMI_THIS, "Unhandled OP_61");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_61!");
 			return;
 			case OP_62:
-				error(COMI_THIS, "Unhandled OP_62");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_62!");
 			return;
 			case OP_63:
-				error(COMI_THIS, "Unhandled OP_63");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_63!");
 			return;
 			case OP_if: {
 				int32 cond = _popStack();
@@ -555,34 +368,22 @@ namespace comi
 			}
 			return;
 			case OP_breakHere:
-				error(COMI_THIS, "Unhandled OP_breakHere");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_breakHere!");
 			return;
 			case OP_delayFrames:
-				error(COMI_THIS, "Unhandled OP_delayFrames");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_delayFrames!");
 			return;
 			case OP_wait:
-				error(COMI_THIS, "Unhandled OP_wait");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_wait!");
 			return;
 			case OP_delay:
-				error(COMI_THIS, "Unhandled OP_delay");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_delay!");
 			return;
 			case OP_delaySeconds:
-				error(COMI_THIS, "Unhandled OP_delaySeconds");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_delaySeconds!");
 			return;
 			case OP_delayMinutes:
-				error(COMI_THIS, "Unhandled OP_delayMinutes");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_delayMinutes!");
 			return;
 			case OP_writeWordVar: {
 				uint32 varWhere = _readUnsignedWord();
@@ -591,59 +392,37 @@ namespace comi
 			}
 			return;
 			case OP_wordVarInc:
-				error(COMI_THIS, "Unhandled OP_wordVarInc");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_wordVarInc!");
 			return;
 			case OP_wordVarDec:
-				error(COMI_THIS, "Unhandled OP_wordVarDec");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_wordVarDec!");
 			return;
 			case OP_dimArray:
-				error(COMI_THIS, "Unhandled OP_dimArray");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_dimArray!");
 			return;
 			case OP_wordArrayWrite:
-				error(COMI_THIS, "Unhandled OP_wordArrayWrite");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_wordArrayWrite!");
 			return;
 			case OP_wordArrayInc:
-				error(COMI_THIS, "Unhandled OP_wordArrayInc");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_wordArrayInc!");
 			return;
 			case OP_wordArrayDec:
-				error(COMI_THIS, "Unhandled OP_wordArrayDec");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_wordArrayDec!");
 			return;
 			case OP_dim2dimArray:
-				error(COMI_THIS, "Unhandled OP_dim2dimArray");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_dim2dimArray!");
 			return;
 			case OP_wordArrayIndexedWrite:
-				error(COMI_THIS, "Unhandled OP_wordArrayIndexedWrite");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_wordArrayIndexedWrite!");
 			return;
 			case OP_arrayOps:
-				error(COMI_THIS, "Unhandled OP_arrayOps");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_arrayOps!");
 			return;
 			case OP_77:
-				error(COMI_THIS, "Unhandled OP_77");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_77!");
 			return;
 			case OP_78:
-				error(COMI_THIS, "Unhandled OP_78");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_78!");
 			return;
 			case OP_startScript: {
 				int32 args[25];
@@ -657,109 +436,67 @@ namespace comi
 			}
 			return;
 			case OP_startScriptQuick:
-				error(COMI_THIS, "Unhandled OP_startScriptQuick");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_startScriptQuick!");
 			return;
 			case OP_stopObjectCode:
-				error(COMI_THIS, "Unhandled OP_stopObjectCode");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				_stopObjectCode();
 			return;
 			case OP_stopScript:
-				error(COMI_THIS, "Unhandled OP_stopScript");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_stopScript!");
 			return;
 			case OP_jumpToScript:
-				error(COMI_THIS, "Unhandled OP_jumpToScript");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_jumpToScript!");
 			return;
 			case OP_dummy:
-				error(COMI_THIS, "Unhandled OP_dummy");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_dummy!");
 			return;
 			case OP_startObject:
-				error(COMI_THIS, "Unhandled OP_startObject");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_startObject!");
 			return;
 			case OP_stopObjectScript:
-				error(COMI_THIS, "Unhandled OP_stopObjectScript");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_stopObjectScript!");
 			return;
 			case OP_cutscene:
-				error(COMI_THIS, "Unhandled OP_cutscene");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_cutscene!");
 			return;
 			case OP_endCutscene:
-				error(COMI_THIS, "Unhandled OP_endCutscene");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_endCutscene!");
 			return;
 			case OP_freezeUnfreeze:
-				error(COMI_THIS, "Unhandled OP_freezeUnfreeze");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_freezeUnfreeze!");
 			return;
 			case OP_beginOverride:
-				error(COMI_THIS, "Unhandled OP_beginOverride");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_beginOverride!");
 			return;
 			case OP_endOverride:
-				error(COMI_THIS, "Unhandled OP_endOverride");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_endOverride!");
 			return;
 			case OP_stopSentence:
-				error(COMI_THIS, "Unhandled OP_stopSentence");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_stopSentence!");
 			return;
 			case OP_87:
-				error(COMI_THIS, "Unhandled OP_87");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_87!");
 			return;
 			case OP_88:
-				error(COMI_THIS, "Unhandled OP_88");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_88!");
 			return;
 			case OP_setClass:
-				error(COMI_THIS, "Unhandled OP_setClass");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_setClass!");
 			return;
 			case OP_setState:
-				error(COMI_THIS, "Unhandled OP_setState");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_setState!");
 			return;
 			case OP_setOwner:
-				error(COMI_THIS, "Unhandled OP_setOwner");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_setOwner!");
 			return;
 			case OP_panCameraTo:
-				error(COMI_THIS, "Unhandled OP_panCameraTo");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_panCameraTo!");
 			return;
 			case OP_actorFollowCamera:
-				error(COMI_THIS, "Unhandled OP_actorFollowCamera");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_actorFollowCamera!");
 			return;
 			case OP_setCameraAt:
-				error(COMI_THIS, "Unhandled OP_setCameraAt");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_setCameraAt!");
 			return;
 			case OP_printActor:
 				_decodeParseString(0, 1);
@@ -769,14 +506,10 @@ namespace comi
 				_decodeParseString(0, 1);
 			return;
 			case OP_talkActor:
-				error(COMI_THIS, "Unhandled OP_talkActor");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_talkActor!");
 			return;
 			case OP_talkEgo:
-				error(COMI_THIS, "Unhandled OP_talkEgo");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_talkEgo!");
 			return;
 			case OP_printLine:
 				_decodeParseString(0, 0);
@@ -791,32 +524,24 @@ namespace comi
 				_decodeParseString(3, 0);
 			return;
 			case OP_blastText:
-				error(COMI_THIS, "Unhandled OP_blastText");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_blastText!");
 			return;
 			case OP_drawObject:
-				error(COMI_THIS, "Unhandled OP_drawObject");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_drawObject!");
 			return;
 			case OP_99:
-				error(COMI_THIS, "Unhandled OP_99");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_99!");
 			return;
 			case OP_9a:
-				error(COMI_THIS, "Unhandled OP_9a");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_9a!");
 			return;
 			case OP_9b:
-				error(COMI_THIS, "Unhandled OP_9b");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_9b!");
 			return;
 			case OP_cursorCommand: {
-				/* NOT PROPERLY IMPLEMENTED */
+				
+				/* UNHANDLED */
+
 				byte param = _readByte();
 				warn(COMI_THIS, "Not properly implemented OP_cursorCommand(%ld)", (uint32) param);
 
@@ -860,69 +585,43 @@ namespace comi
 			}
 			return;
 			case OP_loadRoom:
-				error(COMI_THIS, "Unhandled OP_loadRoom");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_loadRoom!");
 			return;
 			case OP_loadRoomWithEgo:
-				error(COMI_THIS, "Unhandled OP_loadRoomWithEgo");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_loadRoomWithEgo!");
 			return;
 			case OP_walkActorToObj:
-				error(COMI_THIS, "Unhandled OP_walkActorToObj");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_walkActorToObj!");
 			return;
 			case OP_walkActorTo:
-				error(COMI_THIS, "Unhandled OP_walkActorTo");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_walkActorTo!");
 			return;
 			case OP_putActorAtXY:
-				error(COMI_THIS, "Unhandled OP_putActorAtXY");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_putActorAtXY!");
 			return;
 			case OP_putActorAtObject:
-				error(COMI_THIS, "Unhandled OP_putActorAtObject");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_putActorAtObject!");
 			return;
 			case OP_faceActor:
-				error(COMI_THIS, "Unhandled OP_faceActor");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_faceActor!");
 			return;
 			case OP_animateActor:
-				error(COMI_THIS, "Unhandled OP_animateActor");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_animateActor!");
 			return;
 			case OP_doSentence:
-				error(COMI_THIS, "Unhandled OP_doSentence");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_doSentence!");
 			return;
 			case OP_pickupObject:
-				error(COMI_THIS, "Unhandled OP_pickupObject");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_pickupObject!");
 			return;
 			case OP_setBoxFlags:
-				error(COMI_THIS, "Unhandled OP_setBoxFlags");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_setBoxFlags!");
 			return;
 			case OP_createBoxMatrix:
-				error(COMI_THIS, "Unhandled OP_createBoxMatrix");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_createBoxMatrix!");
 			return;
 			case OP_a9:
-				error(COMI_THIS, "Unhandled OP_a9");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_a9!");
 			return;
 			case OP_resourceRoutines: {
 				byte  subOp = _readByte();
@@ -934,87 +633,61 @@ namespace comi
 			}
 			return;
 			case OP_roomOps:
-				error(COMI_THIS, "Unhandled OP_roomOps");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_roomOps!");
 			return;
 			case OP_actorOps:
-				error(COMI_THIS, "Unhandled OP_actorOps");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_actorOps!");
 			return;
 			case OP_cameraOps:
-				error(COMI_THIS, "Unhandled OP_cameraOps");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_cameraOps!");
 			return;
 			case OP_verbOps:
-				error(COMI_THIS, "Unhandled OP_verbOps");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_verbOps!");
 			return;
 			case OP_startSound:
-				error(COMI_THIS, "Unhandled OP_startSound");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_startSound!");
 			return;
 			case OP_startMusic:
-				error(COMI_THIS, "Unhandled OP_startMusic");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_startMusic!");
 			return;
 			case OP_stopSound:
-				error(COMI_THIS, "Unhandled OP_stopSound");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_stopSound!");
 			return;
 			case OP_soundKludge:
-				error(COMI_THIS, "Unhandled OP_soundKludge");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_soundKludge!");
 			return;
 			case OP_systemOps: {
 				byte param = _readByte();
 
 				if (param == SystemOps_Quit) {
 					CTX->quit = true;
-					info(COMI_THIS, "Quit has been called");
+					_currentContext = NO_CONTEXT;
+					info(COMI_THIS, "Quit has been called!");
 					return;
 				}
 
-				error(COMI_THIS, "Unhandled SysCall! %ld", (uint32)param);
-				_currentContext = NO_CONTEXT;
+				warn(COMI_THIS, "Not properly implemented SysCall! %ld", (uint32)param);
+				
+				/* UNHANDLED */
 			}
 			return;
 			case OP_saveRestoreVerbs:
-				error(COMI_THIS, "Unhandled OP_saveRestoreVerbs");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_saveRestoreVerbs!");
 			return;
 			case OP_setObjectName:
-				error(COMI_THIS, "Unhandled OP_setObjectName");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_setObjectName!");
 			return;
 			case OP_getDateTime:
-				error(COMI_THIS, "Unhandled OP_getDateTime");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_getDateTime!");
 			return;
 			case OP_drawBox:
-				error(COMI_THIS, "Unhandled OP_drawBox");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_drawBox!");
 			return;
 			case OP_b8:
-				error(COMI_THIS, "Unhandled OP_b8");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_b8!");
 			return;
 			case OP_startVideo:
-				error(COMI_THIS, "Unhandled OP_startVideo");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_startVideo!");
 			return;
 			case OP_kernelSetFunctions: {
 
@@ -1022,354 +695,216 @@ namespace comi
 				uint8 length = _readStackList(args, 30);
 				
 				warn(COMI_THIS, "Not properly implemented KernelSetFunctions(%ld,%ld)", (uint32) args[0], length);
-
-				/* NOT PROPERLY IMPLEMENTED */
+				
+				/* UNHANDLED */
 			}
 			return;
 			case OP_bb:
-				error(COMI_THIS, "Unhandled OP_bb");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_bb!");
 			return;
 			case OP_bc:
-				error(COMI_THIS, "Unhandled OP_bc");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_bc!");
 			return;
 			case OP_bd:
-				error(COMI_THIS, "Unhandled OP_bd");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_bd!");
 			return;
 			case OP_be:
-				error(COMI_THIS, "Unhandled OP_be");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_be!");
 			return;
 			case OP_bf:
-				error(COMI_THIS, "Unhandled OP_bf");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_bf!");
 			return;
 			case OP_c0:
-				error(COMI_THIS, "Unhandled OP_c0");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_c0!");
 			return;
 			case OP_c1:
-				error(COMI_THIS, "Unhandled OP_c1");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_c1!");
 			return;
 			case OP_c2:
-				error(COMI_THIS, "Unhandled OP_c2");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_c2!");
 			return;
 			case OP_c3:
-				error(COMI_THIS, "Unhandled OP_c3");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_c3!");
 			return;
 			case OP_c4:
-				error(COMI_THIS, "Unhandled OP_c4");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_c4!");
 			return;
 			case OP_c5:
-				error(COMI_THIS, "Unhandled OP_c5");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_c5!");
 			return;
 			case OP_c6:
-				error(COMI_THIS, "Unhandled OP_c6");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_c6!");
 			return;
 			case OP_c7:
-				error(COMI_THIS, "Unhandled OP_c7");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_c7!");
 			return;
 			case OP_startScriptQuick2:
-				error(COMI_THIS, "Unhandled OP_startScriptQuick2");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_startScriptQuick2!");
 			return;
 			case OP_startObjectQuick:
-				error(COMI_THIS, "Unhandled OP_startObjectQuick");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_startObjectQuick!");
 			return;
 			case OP_pickOneOf:
-				error(COMI_THIS, "Unhandled OP_pickOneOf");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_pickOneOf!");
 			return;
 			case OP_pickOneOfDefault:
-				error(COMI_THIS, "Unhandled OP_pickOneOfDefault");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_pickOneOfDefault!");
 			return;
 			case OP_cc:
-				error(COMI_THIS, "Unhandled OP_cc");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_cc!");
 			return;
 			case OP_isAnyOf:
-				error(COMI_THIS, "Unhandled OP_isAnyOf");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_isAnyOf!");
 			return;
 			case OP_getRandomNumber:
-				error(COMI_THIS, "Unhandled OP_getRandomNumber");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_getRandomNumber!");
 			return;
 			case OP_getRandomNumberRange:
-				error(COMI_THIS, "Unhandled OP_getRandomNumberRange");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_getRandomNumberRange!");
 			return;
 			case OP_ifClassOfIs:
-				error(COMI_THIS, "Unhandled OP_ifClassOfIs");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_ifClassOfIs!");
 			return;
 			case OP_getState:
-				error(COMI_THIS, "Unhandled OP_getState");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_getState!");
 			return;
 			case OP_getOwner:
-				error(COMI_THIS, "Unhandled OP_getOwner");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_getOwner!");
 			return;
 			case OP_isScriptRunning:
-				error(COMI_THIS, "Unhandled OP_isScriptRunning");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_isScriptRunning!");
 			return;
 			case OP_d4:
-				error(COMI_THIS, "Unhandled OP_d4");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_d4!");
 			return;
 			case OP_isSoundRunning:
-				error(COMI_THIS, "Unhandled OP_isSoundRunning");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_isSoundRunning!");
 			return;
 			case OP_abs:
-				error(COMI_THIS, "Unhandled OP_abs");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_abs!");
 			return;
 			case OP_d7:
-				error(COMI_THIS, "Unhandled OP_d7");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_d7!");
 			return;
 			case OP_kernelGetFunctions:
-				error(COMI_THIS, "Unhandled OP_kernelGetFunctions");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_kernelGetFunctions!");
 			return;
 			case OP_isActorInBox:
-				error(COMI_THIS, "Unhandled OP_isActorInBox");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_isActorInBox!");
 			return;
 			case OP_getVerbEntrypoint:
-				error(COMI_THIS, "Unhandled OP_getVerbEntrypoint");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_getVerbEntrypoint!");
 			return;
 			case OP_getActorFromXY:
-				error(COMI_THIS, "Unhandled OP_getActorFromXY");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_getActorFromXY!");
 			return;
 			case OP_findObject:
-				error(COMI_THIS, "Unhandled OP_findObject");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_findObject!");
 			return;
 			case OP_getVerbFromXY:
-				error(COMI_THIS, "Unhandled OP_getVerbFromXY");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_getVerbFromXY!");
 			return;
 			case OP_de:
-				error(COMI_THIS, "Unhandled OP_de");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_de!");
 			return;
 			case OP_findInventory:
-				error(COMI_THIS, "Unhandled OP_findInventory");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_findInventory!");
 			return;
 			case OP_getInventoryCount:
-				error(COMI_THIS, "Unhandled OP_getInventoryCount");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_getInventoryCount!");
 			return;
 			case OP_getAnimateVariable:
-				error(COMI_THIS, "Unhandled OP_getAnimateVariable");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_getAnimateVariable!");
 			return;
 			case OP_getActorRoom:
-				error(COMI_THIS, "Unhandled OP_getActorRoom");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_getActorRoom!");
 			return;
 			case OP_getActorWalkBox:
-				error(COMI_THIS, "Unhandled OP_getActorWalkBox");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_getActorWalkBox!");
 			return;
 			case OP_getActorMoving:
-				error(COMI_THIS, "Unhandled OP_getActorMoving");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_getActorMoving!");
 			return;
 			case OP_getActorCostume:
-				error(COMI_THIS, "Unhandled OP_getActorCostume");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_getActorCostume!");
 			return;
 			case OP_getActorScaleX:
-				error(COMI_THIS, "Unhandled OP_getActorScaleX");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_getActorScaleX!");
 			return;
 			case OP_getActorLayer:
-				error(COMI_THIS, "Unhandled OP_getActorLayer");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_getActorLayer!");
 			return;
 			case OP_getActorElevation:
-				error(COMI_THIS, "Unhandled OP_getActorElevation");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_getActorElevation!");
 			return;
 			case OP_getActorWidth:
-				error(COMI_THIS, "Unhandled OP_getActorWidth");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_getActorWidth!");
 			return;
 			case OP_getObjectNewDir:
-				error(COMI_THIS, "Unhandled OP_getObjectNewDir");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_getObjectNewDir!");
 			return;
 			case OP_getObjectX:
-				error(COMI_THIS, "Unhandled OP_getObjectX");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_getObjectX!");
 			return;
 			case OP_getObjectY:
-				error(COMI_THIS, "Unhandled OP_getObjectY");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_getObjectY!");
 			return;
 			case OP_getActorChore:
-				error(COMI_THIS, "Unhandled OP_getActorChore");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_getActorChore!");
 			return;
 			case OP_distObjectObject:
-				error(COMI_THIS, "Unhandled OP_distObjectObject");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_distObjectObject!");
 			return;
 			case OP_distPtPt:
-				error(COMI_THIS, "Unhandled OP_distPtPt");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_distPtPt!");
 			return;
 			case OP_getObjectImageX:
-				error(COMI_THIS, "Unhandled OP_getObjectImageX");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_getObjectImageX!");
 			return;
 			case OP_getObjectImageY:
-				error(COMI_THIS, "Unhandled OP_getObjectImageY");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_getObjectImageY!");
 			return;
 			case OP_getObjectImageWidth:
-				error(COMI_THIS, "Unhandled OP_getObjectImageWidth");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_getObjectImageWidth!");
 			return;
 			case OP_getObjectImageHeight:
-				error(COMI_THIS, "Unhandled OP_getObjectImageHeight");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_getObjectImageHeight!");
 			return;
 			case OP_f4:
-				error(COMI_THIS, "Unhandled OP_f4");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_f4!");
 			return;
 			case OP_f5:
-				error(COMI_THIS, "Unhandled OP_f5");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_f5!");
 			return;
 			case OP_getStringWidth:
-				error(COMI_THIS, "Unhandled OP_getStringWidth");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_getStringWidth!");
 			return;
 			case OP_getActorZPlane:
-				error(COMI_THIS, "Unhandled OP_getActorZPlane");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_getActorZPlane!");
 			return;
 			case OP_f8:
-				error(COMI_THIS, "Unhandled OP_f8");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_f8!");
 			return;
 			case OP_f9:
-				error(COMI_THIS, "Unhandled OP_f9");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_f9!");
 			return;
 			case OP_fa:
-				error(COMI_THIS, "Unhandled OP_fa");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_fa!");
 			return;
 			case OP_fb:
-				error(COMI_THIS, "Unhandled OP_fb");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_fb!");
 			return;
 			case OP_fc:
-				error(COMI_THIS, "Unhandled OP_fc");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_fc!");
 			return;
 			case OP_fd:
-				error(COMI_THIS, "Unhandled OP_fd");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_fd!");
 			return;
 			case OP_fe:
-				error(COMI_THIS, "Unhandled OP_fe");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_fe!");
 			return;
 			case OP_ff:
-				error(COMI_THIS, "Unhandled OP_ff");
-				CTX->quit = true;
-				_currentContext = NO_CONTEXT;
+				GS_UNHANDLED_OP("OP_ff!");
 			return;
 		}
 	}

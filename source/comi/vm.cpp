@@ -194,7 +194,7 @@ namespace comi
 		ScriptContext& context = _context[contextNum];
 		context.reset();
 		context._scriptNum = scriptNum;
-		context._state = SSS_Running;
+		context._state = SCS_Running;
 		context._bFreezeResistant = freezeResistant;
 		context._bRecursive = recursive;
 		context._scriptWhere = (scriptNum < NUM_SCRIPTS) ? OW_Global : OW_Local;
@@ -223,6 +223,35 @@ namespace comi
 			}
 		}
 		return false;
+	}
+
+	void VirtualMachine::_stopObjectCode() {
+		ScriptContext& context = _context[_currentContext];
+
+		if (context._cutsceneOverride == 255) {
+			context._cutsceneOverride = 0;
+		}
+
+
+		if (context._scriptWhere != OW_Global && context._scriptWhere != OW_Local) {
+			if (context._cutsceneOverride) {
+				context._cutsceneOverride = 0;
+			}
+		}
+		else {
+			if (context._cutsceneOverride) {
+				context._cutsceneOverride = 0;
+			}
+		}
+
+		_nukeArrays(_currentContext);
+
+		context.markDead();
+		_currentContext = NO_CONTEXT;
+	}
+	
+	void VirtualMachine::_nukeArrays(uint8 contextNum) {
+		warn(COMI_THIS, "Unimplemented feature for Context %ld", (uint32) contextNum);
 	}
 
 	void VirtualMachine::_updateScriptData(ScriptContext& context) {

@@ -127,45 +127,51 @@ namespace comi
 		VAR_SYNC = 134
 	};
 
-	enum ScriptSlotState
+	enum ScriptContextState
 	{
-		SSS_Dead = 0,
-		SSS_Paused = 1,
-		SSS_Running = 2,
-		SSS_Frozen = 0x80
+		SCS_Dead = 0,
+		SCS_Paused = 1,
+		SCS_Running = 2,
+		SCS_Frozen = 0x80
 	};
 
 	struct ScriptContext
 	{
 		void reset();
 
-		bool isFrozen() const {
+		inline void markDead() {
+			_scriptNum = 0;
+			_scriptWhere = OW_NotFound;
+			_state = SCS_Dead;
+		}
+
+		inline bool isFrozen() const {
 			return _freezeCount > 0;
 		}
 
-		bool isDead() const {
+		inline bool isDead() const {
 			return _state == 0;
 		}
 
-		void freeze() {
+		inline void freeze() {
 			_freezeCount++;
 			if (_freezeCount) {
-				_state |= SSS_Frozen;
+				_state |= SCS_Frozen;
 			}
 		}
 
-		void unfreeze() {
+		inline void unfreeze() {
 			if (_freezeCount) {
 				_freezeCount--;
 				if (_freezeCount == 0) {
-					_state &= ~SSS_Frozen;
+					_state &= ~SCS_Frozen;
 				}
 			}
 		}
 
-		void unfreezeAll() {
+		inline void unfreezeAll() {
 			_freezeCount = 0;
-			_state &= ~SSS_Frozen;
+			_state &= ~SCS_Frozen;
 		}
 
 		uint16 _scriptNum;
@@ -214,6 +220,8 @@ namespace comi
 		void _placeContextOnStackAndRun(uint8 newContextNum);
 		void _step();
 
+		void _nukeArrays(uint8 contextNum);
+
 		void _pushStack(int32 value);
 		int32 _popStack();
 
@@ -225,6 +233,8 @@ namespace comi
 		uint8 _readStackList(int32* args, uint8 capacity);
 
 		void _decodeParseString(uint8 m, uint8 n);
+
+		void _stopObjectCode();
 
 	public:
 
