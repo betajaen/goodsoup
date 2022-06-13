@@ -42,7 +42,7 @@ namespace comi
 	{
 		_nullScript.setSize(4);
 		_nullScript.set(0, OP_systemOps);
-		_nullScript.set(1, SysOps_Quit);
+		_nullScript.set(1, SystemOps_Quit);
 		_nullScript.set(2, 0xFF);
 		_nullScript.set(3, 0xFF);
 

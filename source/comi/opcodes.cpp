@@ -976,7 +976,7 @@ namespace comi
 			case OP_systemOps: {
 				byte param = _readByte();
 
-				if (param == SysOps_Quit) {
+				if (param == SystemOps_Quit) {
 					CTX->quit = true;
 					info(COMI_THIS, "Quit has been called");
 					return;

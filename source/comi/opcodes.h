@@ -20,8 +20,7 @@
 
 namespace comi
 {
-	enum Opcodes
-	{
+	enum Opcodes {
 		OP_00 = 0x00,
 		OP_pushWord = 0x01,
 		OP_pushWordVar = 0x02,
@@ -277,14 +276,118 @@ namespace comi
 		OP_fc = 0xfc,
 		OP_fd = 0xfd,
 		OP_fe = 0xfe,
-		OP_ff = 0xff,
+		OP_ff = 0xff
 	};
 
-	enum SysOps
+	enum SystemOps {
+		SystemOps_Restart = 158,
+		SystemOps_Pause = 159,
+		SystemOps_Quit = 160
+	};
+	
+	enum ActorOp {
+		ActorOp_SetCostume = 0x64,
+		ActorOp_SetWalkSpeed = 0x65,
+		ActorOp_SetAnimationDefault = 0x67,
+		ActorOp_InitAnimation = 0x68,
+		ActorOp_SetAnimationTalk = 0x69,
+		ActorOp_SetAnimationWalk = 0x6A,
+		ActorOp_SetAnimationStand = 0x6B,
+		ActorOp_SetAnimationSpeed = 0x6C,
+		ActorOp_Default = 0x6D,
+		ActorOp_SetElevation = 0x6E,
+		ActorOp_SetPalette = 0x6F,
+		ActorOp_SetTalkColour = 0x70,
+		ActorOp_SetActorName = 0x71,
+		ActorOp_SetActorWidth = 0x72,
+		ActorOp_SetActorScale = 0x73,
+		ActorOp_SetNeverZClip = 0x74,
+		ActorOP_SetAlwaysZClip = 0x75,
+		ActorOp_SetIgnoreBoxes = 0x76,
+		ActorOp_SetFollowBoxes = 0x77,
+		ActorOp_SetSpecialDraw = 0x78,
+		ActorOp_SetTextOffset = 0x79,
+		ActorOp_Init = 0x7A,
+		ActorOp_SetActorVariable = 0x7B,
+		ActorOp_SetIgnoreTurnsOn = 0x7C,
+		ActorOp_SetIgnoreTurnsOff= 0x7D,
+		ActorOp_ActorNew = 0x7E,
+		ActorOp_SetActorZ = 0x7F,
+		ActorOp_ActorStop = 0x80,
+		ActorOp_SetAngle = 0x81,
+		ActorOp_TurnAngle = 0x82,
+		ActorOp_SetWalkScript = 0x83,
+		ActorOp_SetTalkScript = 0x84,
+		ActorOp_WalkPause = 0x85,
+		ActorOp_WalkResume = 0x86,
+		ActorOp_SetTalkVolume = 0x87,
+		ActorOp_SetTalkFrequency = 0x88,
+		ActorOp_SetActorPan = 0x89
+	};
+
+	enum ArrayOp
 	{
-		SysOps_Restart = 158,
-		SysOps_Pause = 159,
-		SysOps_Quit = 160
+		ArrayOps_AssignString = 0x14,
+		ArrayOps_AssignScummVarList = 0x15,
+		ArrayOps_Assign2DimList = 0x16
+	};
+
+	enum VerbOp {
+		VerbOp_Init = 0x96,
+		VerbOp_New = 0x97,
+		VerbOp_Delete = 0x98,
+		VerbOp_SetName = 0x99,
+		VerbOp_SetPosition = 0x9A,
+		VerbOp_Enable = 0x9B,
+		VerbOp_Disable = 0x9C,
+		VerbOp_SetColour = 0x9D,
+		VerbOp_SetHilightColour = 0x9E,
+		VerbOp_SetDimmedColour = 0xA0,
+		VerbOp_Dim = 0xA1,
+		VerbOp_SetKey = 0xA2,
+		VerbOp_SetImage = 0xA3,
+		VerbOp_SetNameString = 0xA4,
+		VerbOp_Centre = 0xA5,
+		VerbOp_SetCharSet = 0xA6,
+		VerbOp_SetLineSpacing = 0xA7
+	};
+
+	enum CursorCommandOp {
+		CursorCommandOp_CursorOn = 0xDC,
+		CursorCommandOp_CursorOff = 0xDD,
+		CursorCommandOp_SoftCursorOn = 0xDE,
+		CursorCommandOp_SoftCursorOff = 0xDF,
+		CursorCommandOp_UserPutOn = 0xE0,
+		CursorCommandOp_UserPutOff = 0xE1,
+		CursorCommandOp_SoftUserPutOn = 0xE2,
+		CursorCommandOp_SoftUserPutOff = 0xE3,
+		CursorCommandOp_CursorImage = 0xE4,
+		CursorCommandOp_HotSpot = 0xE5,
+		CursorCommandOp_Transparency = 0xE6,
+		CursorCommandOp_CharsetSet = 0xE7,
+		CursorCommandOp_CharsetColour = 0xE8,
+		CursorCommandOp_CursorPut = 0xE9
+	};
+
+	enum ResourceRoutineOp {
+		ResourceRoutineOp_Dummy = 0x3C,
+		ResourceRoutineOp_LoadCostume = 0x3D,
+		ResourceRoutineOp_LoadObject = 0x3E,
+		ResourceRoutineOp_LoadRoom = 0x3F,
+		ResourceRoutineOp_LoadScript = 0x40,
+		ResourceRoutineOp_LoadSound = 0x41,
+		ResourceRoutineOp_LockCostume = 0x42,
+		ResourceRoutineOp_LockRoom = 0x43,
+		ResourceRoutineOp_LockScript = 0x44,
+		ResourceRoutineOp_LockSound = 0x45,
+		ResourceRoutineOp_UnlockCostume = 0x46,
+		ResourceRoutineOp_UnlockRoom = 0x47,
+		ResourceRoutineOp_UnlockScript = 0x48,
+		ResourceRoutineOp_UnlockSound = 0x49,
+		ResourceRoutineOp_SetResourceCounterCostume = 0x4A,
+		ResourceRoutineOp_SetResourceCounterRoom = 0x4B,
+		ResourceRoutineOp_SetResourceCounterScript = 0x4C,
+		ResourceRoutineOp_SetResourceCounterSound = 0x4D
 	};
 }
 
