@@ -34,6 +34,8 @@ extern struct WBStartup* _WBenchMsg;
 
 extern int amiga_main();
 
+#define MIN_STACK_SIZE 65536
+
 int main(void) {
 
 
@@ -41,6 +43,18 @@ int main(void) {
 	{
 		return RETURN_FAIL;
 	}
+
+	struct Task *me=FindTask(NULL);
+	ULONG currentstack=(ULONG)me->tc_SPUpper-(ULONG)me->tc_SPLower;
+
+	if (currentstack < MIN_STACK_SIZE) {
+		
+		Printf("Not enough stack space. Need %lu\n",MIN_STACK_SIZE);
+		CloseLibrary((struct Library*)DOSBase);
+
+		return RETURN_FAIL;
+	}
+
 
 	if ((IntuitionBase = (struct IntuitionBase*)OpenLibrary("intuition.library", 33)) == NULL)
 	{
