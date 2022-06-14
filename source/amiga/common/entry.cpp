@@ -34,7 +34,7 @@ extern struct WBStartup* _WBenchMsg;
 
 extern int amiga_main();
 
-#define MIN_STACK_SIZE 65536
+#define MIN_STACK_SIZE 65536U
 
 int main(void) {
 
@@ -49,12 +49,31 @@ int main(void) {
 
 	if (currentstack < MIN_STACK_SIZE) {
 		
-		Printf("Not enough stack space. Need %lu\n",MIN_STACK_SIZE);
+		if (_WBenchMsg) {
+			if ((IntuitionBase = (struct IntuitionBase*)OpenLibrary("intuition.library", 33)) == NULL)
+			{
+				CloseLibrary((struct Library*)DOSBase);
+				return RETURN_FAIL;
+			}
+
+			EasyStruct str;
+			str.es_StructSize = sizeof(EasyStruct);
+			str.es_Flags = 0;
+			str.es_GadgetFormat = (UBYTE*)"OK";
+			str.es_TextFormat = (UBYTE*)"Not enough stack space!\n\nPlease increase it to at least %ld bytes\nin the Workbench Information Window.";
+			str.es_Title = (UBYTE*)"Goodsoup";
+
+			EasyRequest(NULL, &str, NULL, MIN_STACK_SIZE);
+			CloseLibrary((struct Library*)IntuitionBase);
+		}
+		else {
+			Printf("Not enough stack space!\nPlease run the command \"stack %lu\" before running this program from the CLI.\n",MIN_STACK_SIZE);
+		}
+
 		CloseLibrary((struct Library*)DOSBase);
 
 		return RETURN_FAIL;
 	}
-
 
 	if ((IntuitionBase = (struct IntuitionBase*)OpenLibrary("intuition.library", 33)) == NULL)
 	{
