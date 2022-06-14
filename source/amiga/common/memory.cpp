@@ -125,7 +125,7 @@ namespace common
 		allocationSize = sizeof(MemHeader) + userSize;
 #endif
 
-		allocatedMem = (byte*) AllocMem(allocationSize, (flags & (MEMF_CLEAR-1)));
+		allocatedMem = (byte*) AllocMem(allocationSize, flags);
 
 		header = (MemHeader*)allocatedMem;
 		header->_totalSize = allocationSize;
