@@ -38,36 +38,30 @@ extern int amiga_main();
 
 int main(void) {
 
-
-	if ((DOSBase = (struct DosLibrary*)OpenLibrary("dos.library", 33)) == NULL)
-	{
+	if ((DOSBase = (struct DosLibrary*)OpenLibrary("dos.library", 33)) == NULL) {
 		return RETURN_FAIL;
 	}
 
-	struct Task *me=FindTask(NULL);
-	ULONG currentstack=(ULONG)me->tc_SPUpper-(ULONG)me->tc_SPLower;
+	struct Task*thisTask = FindTask(NULL);
+	ULONG currentStack=(ULONG) thisTask->tc_SPUpper-(ULONG)thisTask->tc_SPLower;
 
-	if (currentstack < MIN_STACK_SIZE) {
+	if (currentStack < MIN_STACK_SIZE) {
 		
 		if (_WBenchMsg) {
-			if ((IntuitionBase = (struct IntuitionBase*)OpenLibrary("intuition.library", 33)) == NULL)
-			{
-				CloseLibrary((struct Library*)DOSBase);
-				return RETURN_FAIL;
+			if ((IntuitionBase = (struct IntuitionBase*)OpenLibrary("intuition.library", 33)) != NULL) {
+				EasyStruct str;
+				str.es_StructSize = sizeof(EasyStruct);
+				str.es_Flags = 0;
+				str.es_GadgetFormat = (UBYTE*)"OK";
+				str.es_TextFormat = (UBYTE*)"Not enough stack space!\n\n%ld bytes given.\n\nPlease increase it to at least %ld bytes\nin the Workbench Information Window.";
+				str.es_Title = (UBYTE*)"Goodsoup";
+
+				EasyRequest(NULL, &str, NULL, currentStack, MIN_STACK_SIZE);
+				CloseLibrary((struct Library*)IntuitionBase);
 			}
-
-			EasyStruct str;
-			str.es_StructSize = sizeof(EasyStruct);
-			str.es_Flags = 0;
-			str.es_GadgetFormat = (UBYTE*)"OK";
-			str.es_TextFormat = (UBYTE*)"Not enough stack space!\n\nPlease increase it to at least %ld bytes\nin the Workbench Information Window.";
-			str.es_Title = (UBYTE*)"Goodsoup";
-
-			EasyRequest(NULL, &str, NULL, MIN_STACK_SIZE);
-			CloseLibrary((struct Library*)IntuitionBase);
 		}
 		else {
-			Printf("Not enough stack space!\nPlease run the command \"stack %lu\" before running this program from the CLI.\n",MIN_STACK_SIZE);
+			Printf("Not enough stack space!\n\n%ld bytes given.\n\nPlease run the command \"stack %lu\" before running this program from the CLI.\n", currentStack, MIN_STACK_SIZE);
 		}
 
 		CloseLibrary((struct Library*)DOSBase);
@@ -75,14 +69,12 @@ int main(void) {
 		return RETURN_FAIL;
 	}
 
-	if ((IntuitionBase = (struct IntuitionBase*)OpenLibrary("intuition.library", 33)) == NULL)
-	{
+	if ((IntuitionBase = (struct IntuitionBase*)OpenLibrary("intuition.library", 33)) == NULL) {
 		CloseLibrary((struct Library*)DOSBase);
 		return RETURN_FAIL;
 	}
 
-	if ((GfxBase = (struct GfxBase*)OpenLibrary("graphics.library", 33)) == NULL)
-	{
+	if ((GfxBase = (struct GfxBase*)OpenLibrary("graphics.library", 33)) == NULL) {
 		CloseLibrary((struct Library*)IntuitionBase);
 		CloseLibrary((struct Library*)DOSBase);
 		return RETURN_FAIL;
