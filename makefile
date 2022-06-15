@@ -58,6 +58,7 @@ OBJ +=	source/common/main.o\
 OBJ +=	source/comi/start.o\
 		source/comi/context.o\
 		source/comi/vm.o\
+		source/comi/vm_array.o\
 		source/comi/opcodes.o\
 		source/comi/script.o\
 		source/comi/room.o\

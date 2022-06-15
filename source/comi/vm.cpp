@@ -38,7 +38,8 @@ namespace comi
 	VirtualMachine::VirtualMachine() :
 		_currentContext(NO_CONTEXT),
 		_script(NULL), 
-		_stackSize(0)
+		_stackSize(0),
+		_arrays(NULL)
 	{
 		_nullScript.setSize(4);
 		_nullScript.set(0, OP_systemOps);
@@ -59,11 +60,8 @@ namespace comi
 
 	VirtualMachine::~VirtualMachine() {
 	
-		if (_arrays.hasMem()) {
-			for (uint8 i = 0; i < NUM_ARRAY; i++) {
-				ArrayHeader* arrayHeader = _arrays.get_unchecked(i);
-				releaseMemoryChecked(arrayHeader);
-			}
+		if (_arrays) {
+			deleteObject(_arrays);
 		}
 
 	}
@@ -80,16 +78,12 @@ namespace comi
 			_messageTemp.clear();
 		}
 		
-		if (_arrays.hasMem() == false) {
-			_arrays.setSize(NUM_ARRAY, MEMF_CLEAR);
+		if (_arrays == NULL) {
+			_arrays = newObject<VmArrayAllocator>();
 		}
-		else {
-			for (uint8 i = 0; i < NUM_ARRAY; i++) {
-				ArrayHeader* arrayHeader = _arrays.get_unchecked(i);
-				releaseMemoryChecked(arrayHeader);
-			}
-			_arrays.zeroMem();
-		}
+
+		_arrays->reset();
+		
 		
 		if (_vmStack.hasMem() == false) {
 			_vmStack.setSize(150);
@@ -282,50 +276,17 @@ namespace comi
 		_currentContext = NO_CONTEXT;
 	}
 	
-	uint8 VirtualMachine::_findFreeArrayIndex() {
-		for (uint8 i = 0; i < NUM_ARRAY; i++) {
-			ArrayHeader* arrayHeader = _arrays.get_unchecked(i);
-			if (arrayHeader == NULL) {
-				return i;
-			}
-		}
-
-		error(COMI_THIS, "Out of Array space!");
-		CTX->quit = true;
-		_currentContext = NO_CONTEXT;
-		return NUM_ARRAY;
-	}
-	
-	ArrayHeader* VirtualMachine::_newArray(uint32 arrayNum, uint8 kind, uint16 dim2, uint16 dim1) {
+	VmArray* VirtualMachine::_newArray(uint32 arrayNum, uint8 kind, uint16 dim2, uint16 dim1) {
 		
-		uint32 allocSize = 4;
+		VmArray* array = _arrays->allocate(arrayNum, dim1, dim2, kind);
 
-		_deleteArray(arrayNum);
-
-		uint8 arrayIdx = _findFreeArrayIndex();
-		if (arrayIdx == NUM_ARRAY) {
-			return NULL;
+		if (array == NULL) {
+			return array;
 		}
 
-		if (kind != AK_Int) {
-			kind = 1;
-		}
+		writeVar(arrayNum, array->_idx);
 
-		writeVar(arrayNum, arrayIdx);
-		allocSize *= dim2 + 1;
-		allocSize *= dim1 + 1;
-
-		// sizeof ArrayHeader
-		allocSize += sizeof(uint16) + sizeof(uint16) + sizeof(uint8) + sizeof(uint8);
-
-		ArrayHeader* header = (ArrayHeader*) allocateMemory(1, allocSize, MEMF_CLEAR);
-		header->kind = kind;
-		header->dim1 = dim1 + 1;
-		header->dim2 = dim2 + 1;
-
-		_arrays.set_unchecked(arrayIdx, header);
-
-		return header;
+		return array;
 	}
 
 	void VirtualMachine::_deleteArray(uint32 arrayNum) {
@@ -339,11 +300,11 @@ namespace comi
 			return;
 		}
 
-		ArrayHeader* arrayHeader = _arrays.get_unchecked(arrayIndex);
+		VmArray* arrayHeader = _arrays->getFromIndex(arrayIndex);
 
 		if (arrayHeader != NULL) {
-			_arrays.set_unchecked(arrayIndex, NULL);
-			releaseMemoryChecked(arrayHeader);
+			_arrays->deallocateFromArray(arrayHeader);
+			writeVar(arrayNum, 0);
 		}
 	}
 	

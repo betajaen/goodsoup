@@ -21,6 +21,7 @@
 #include "common/types.h"
 #include "common/buffer.h"
 #include "common/array.h"
+#include "vm_array.h"
 #include "constants.h"
 
 using namespace common;
@@ -211,6 +212,21 @@ namespace comi
 		uint16 dim2;
 		uint8  kind;
 		uint8  data[1];
+
+		inline void WriteByte(uint16 offset, byte value) {
+			data[offset] = value;
+		}
+		
+		inline void WriteUInt16_Native(uint16 offset, uint16 value) {
+#if GS_BIG
+			data[offset] = value >> 8;
+			data[offset+1] = value & 0xFF;
+#else
+			data[offset] = value & 0xFF;
+			data[offset+1] = value >> 8;
+#endif
+		}
+
 	};
 
 	class VirtualMachine
@@ -230,7 +246,7 @@ namespace comi
 		Buffer<int32>				_vmStack;
 		int8						_vmStackSize;
 		Array<char>					_messageTemp;
-		Buffer<ArrayHeader*>		_arrays;
+		VmArrayAllocator*			_arrays;
 
 		bool _findFreeContext(uint8& num);
 		void _updateScriptData(ScriptContext& context);
@@ -238,8 +254,7 @@ namespace comi
 		void _step();
 		void _stopObjectCode();
 
-		uint8 _findFreeArrayIndex();
-		ArrayHeader* _newArray(uint32 num, uint8 kind, uint16 dim2, uint16 dim1);
+		VmArray* _newArray(uint32 num, uint8 kind, uint16 dim2, uint16 dim1);
 		void _deleteArray(uint32 num);
 		void _deleteContextArrays(uint8 contextNum);
 
