@@ -46,8 +46,6 @@ namespace common
 	inline uint16 SWAP_BYTES_16(uint16 a) {
 		return ((a >> 8) & 0x00FF) + ((a << 8) & 0xFF00);
 	}
-}
-
 
 #if defined(GS_LITTLE)
 
@@ -71,9 +69,6 @@ namespace common
 
 #elif defined(GS_BIG)
 
-#define MKID(a) ((uint32)(a))
-#define MKID_BE(a) ((uint32)(a))
-
 #define READ_UINT16(a) READ_BE_UINT16(a)
 #define READ_UINT32(a) READ_BE_UINT32(a)
 
@@ -93,10 +88,102 @@ namespace common
 #define TO_BE_16(a) ((uint16)(a))
 
 #else
-
 #error No endianness defined
+#endif
+
+
+	
+#if defined(GS_LITTLE)
+	inline uint16 READ_LE_UINT16(const void *ptr) {
+		return *(const uint16 *)(ptr);
+	}
+	inline uint32 READ_LE_UINT32(const void *ptr) {
+		return *(const uint32 *)(ptr);
+	}
+	inline void WRITE_LE_UINT16(void *ptr, uint16 value) {
+		*(uint16 *)(ptr) = value;
+	}
+	inline void WRITE_LE_UINT32(void *ptr, uint32 value) {
+		*(uint32 *)(ptr) = value;
+	}
+#elif defined(GS_BIG)
+	inline uint16 READ_LE_UINT16(const void *ptr) {
+		const byte *b = (const byte *)ptr;
+		return (b[1] << 8) + b[0];
+	}
+	inline uint32 READ_LE_UINT32(const void *ptr) {
+		const byte *b = (const byte *)ptr;
+		return (b[3] << 24) + (b[2] << 16) + (b[1] << 8) + (b[0]);
+	}
+	inline void WRITE_LE_UINT16(void *ptr, uint16 value) {
+		byte *b = (byte *)ptr;
+		b[0] = (byte)(value >> 0);
+		b[1] = (byte)(value >> 8);
+	}
+	inline void WRITE_LE_UINT32(void *ptr, uint32 value) {
+		byte *b = (byte *)ptr;
+		b[0] = (byte)(value >>  0);
+		b[1] = (byte)(value >>  8);
+		b[2] = (byte)(value >> 16);
+		b[3] = (byte)(value >> 24);
+	}
+#else
+#error No endianness defined
+#endif
+
+
+
+
+#if defined(GS_LITTLE)
+	inline uint16 READ_BE_UINT16(const void *ptr) {
+		const byte *b = (const byte *)ptr;
+		return (b[0] << 8) + b[1];
+	}
+	inline uint32 READ_BE_UINT32(const void *ptr) {
+		const byte *b = (const byte*)ptr;
+		return (b[0] << 24) + (b[1] << 16) + (b[2] << 8) + (b[3]);
+	}
+	inline void WRITE_BE_UINT16(void *ptr, uint16 value) {
+		byte *b = (byte *)ptr;
+		b[0] = (byte)(value >> 8);
+		b[1] = (byte)(value >> 0);
+	}
+	inline void WRITE_BE_UINT32(void *ptr, uint32 value) {
+		byte *b = (byte *)ptr;
+		b[0] = (byte)(value >> 24);
+		b[1] = (byte)(value >> 16);
+		b[2] = (byte)(value >>  8);
+		b[3] = (byte)(value >>  0);
+	}
+#elif defined(GS_BIG)
+	inline uint16 READ_BE_UINT16(const void *ptr) {
+		return *(const uint16 *)(ptr);
+	}
+	inline uint32 READ_BE_UINT32(const void *ptr) {
+		return *(const uint32 *)(ptr);
+	}
+	inline void WRITE_BE_UINT16(void *ptr, uint16 value) {
+		*(uint16 *)(ptr) = value;
+	}
+	inline void WRITE_BE_UINT32(void *ptr, uint32 value) {
+		*(uint32 *)(ptr) = value;
+	}
+#else
+#error No endianness defined
+#endif
+
+	inline uint32 READ_LE_UINT24(const void *ptr) {
+		const byte *b = (const byte *)ptr;
+		return (b[2] << 16) + (b[1] << 8) + (b[0]);
+	}
+
+	inline uint32 READ_BE_UINT24(const void *ptr) {
+		const byte *b = (const byte*)ptr;
+		return (b[0] << 16) + (b[1] << 8) + (b[2]);
+	}
+
+}
 
 
 #endif
 
-#endif
