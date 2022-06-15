@@ -73,7 +73,7 @@ namespace common
 	private:
 
 		T* _begin;
-		Index _size, _capacity;
+		Index _end, _capacity;
 
 		void grow() {
 			if (_capacity == 0) {
@@ -89,7 +89,7 @@ namespace common
 	public:
 
 		Array() :
-			_begin(NULL), _size(0), _capacity(0) {
+			_begin(NULL), _end(0), _capacity(0) {
 		}
 
 		~Array() {
@@ -100,20 +100,20 @@ namespace common
 			release();
 			_begin = (T*) ::common::allocateMemory(capacity, sizeof(T), MEMF_CLEAR);
 			_capacity = capacity;
-			_size = 0;
+			_end = 0;
 		}
 
 		void release() {
 			if (_begin) {
 				::common::releaseMemory(_begin);
 				_begin = NULL;
-				_size = 0;
+				_end = 0;
 				_capacity = 0;
 			}
 		}
 
 		void clear() {
-			_size = 0;
+			_end = 0;
 		}
 
 		T* ptr() {
@@ -125,7 +125,7 @@ namespace common
 		}
 
 		Index size() const {
-			return _size;
+			return _end;
 		}
 
 		Index capacity() const {
@@ -133,63 +133,72 @@ namespace common
 		}
 
 		void push(const T& value) {
-			if (_size == _capacity) {
+			if (_end == _capacity) {
 				grow();
 			}
 
-			_begin[_size] = value;
-			++_size;
+			_begin[_end] = value;
+			++_end;
 		}
 
 		void pop() {
-			if (_size == 0) {
-				error(GS_THIS, "(%p, %d, %d, %d) Out of bounds erasure.", _begin, _size, _capacity);
+			if (_end == 0) {
+				error(GS_THIS, "(%p, %d, %d, %d) Out of bounds erasure.", _begin, _end, _capacity);
 			}
 
-			--_size;
+			--_end;
+		}
+
+		T popItem() {
+			if (_end == 0) {
+				error(GS_THIS, "(%p, %d, %d, %d) Out of bounds erasure.", _begin, _end, _capacity);
+			}
+
+			--_end;
+			return _begin[_end];
 		}
 
 		void erase(Index index) {
-			if (index >= _size) {
-				error(GS_THIS, "(%p, %d, %d, %d) Out of bounds erasure.", _begin, _size, _capacity, index);
+			if (index >= _end) {
+				error(GS_THIS, "(%p, %d, %d, %d) Out of bounds erasure.", _begin, _end, _capacity, index);
 			}
 
-			if (index == _size - 1) {
-				--_size;
+			if (index == _end - 1) {
+				--_end;
 			}
 			else {
-				_begin[index] = _begin[_size - 1];
-				--_size;
+				_begin[index] = _begin[_end - 1];
+				--_end;
 			}
 		}
 
 		inline T& operator[](Index idx) {
-			if (idx >= _size) {
-				error(GS_THIS, "(FIXED, %d, %d) Out of bounds access", _size, idx);
+			if (idx >= _end) {
+				error(GS_THIS, "(FIXED, %d, %d) Out of bounds access", _end, idx);
 			}
 
 			return _begin[idx];
 		}
 
 		inline const T& operator[](Index idx) const {
-			if (idx >= _size) {
-				error(GS_THIS, "(FIXED, %d, %d) Out of bounds access", _size, idx);
+			if (idx >= _end) {
+				error(GS_THIS, "(FIXED, %d, %d) Out of bounds access", _end, idx);
 			}
 
 			return _begin[idx];
 		}
 
 		inline T& get(Index idx) {
-			if (idx >= _size) {
-				error(GS_THIS, "(FIXED, %d, %d) Out of bounds access", _size, idx);
+			if (idx >= _end) {
+				error(GS_THIS, "(FIXED, %d, %d) Out of bounds access", _end, idx);
 			}
 
 			return _begin[idx];
 		}
 
 		inline const T& get(Index idx) const {
-			if (idx >= _size) {
-				error(GS_THIS, "(FIXED, %d, %d) Out of bounds access", _size, idx);
+			if (idx >= _end) {
+				error(GS_THIS, "(FIXED, %d, %d) Out of bounds access", _end, idx);
 			}
 
 			return _begin[idx];
