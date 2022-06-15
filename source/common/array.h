@@ -214,6 +214,146 @@ namespace common
 
 	};
 
+
+	template<typename T, typename Index, Index Capacity>
+	class InlineArray {
+		T _items[Capacity];
+		Index _end;
+
+	public:
+
+		inline InlineArray() 
+			: _end(0) {
+			clearMemoryNonAllocated(_items, sizeof(T) * Capacity);
+		}
+
+		inline ~InlineArray() {
+		}
+
+		inline void clear() {
+			_end = 0;
+		}
+
+		inline T* ptr() {
+			return &_items[0];
+		}
+
+		inline const T* ptr() const {
+			return &_items[0];
+		}
+
+		inline Index size() const {
+			return _end;
+		}
+
+		inline Index capacity() const {
+			return Capacity;
+		}
+
+		inline bool isFull() const {
+			return _end == Capacity;
+		}
+
+		inline bool isEmpty() const {
+			return _end == 0;
+		}
+
+		inline bool hasAny() const {
+			return _end != 0;
+		}
+		
+		inline T& get_unchecked(Index idx) {
+			return _items[idx];
+		}
+		
+		inline const T& get_unchecked(Index idx) const {
+			return _items[idx];
+		}
+
+		inline T& get(Index idx) {
+			if (idx >= _end) {
+				error(GS_THIS, "(FIXED, %d, %d) Out of bounds access", _end, idx);
+			}
+
+			return _items[idx];
+		}
+		
+		inline const T& get(Index idx) const {
+			if (idx >= _end) {
+				error(GS_THIS, "(FIXED, %d, %d) Out of bounds access", _end, idx);
+			}
+
+			return _items[idx];
+		}
+
+		inline T& operator[](Index idx) {
+			return _get(idx);
+		}
+		
+		inline const T& operator[](Index idx) const {
+			return _get(idx);
+		}
+
+		inline bool tryPush(const T& item) {
+			if (isFull() == false) {
+				_items[_end++] = item;
+				return true;
+			}
+			else {
+				return false;
+			}
+		}
+		
+		inline void push_unchecked(const T& item) {
+			_items[_end++] = item;
+		}
+
+		inline void push(const T& item) {
+			if (isFull()) {
+				error(GS_THIS, "Out of bounds access");
+			}
+			_items[_end++] = item;
+		}
+
+		inline bool tryPop(T& item) const {
+			if (hasAny()) {
+				_end--;
+				item = _items[_end];
+				return true;
+			}
+			else {
+				return false;
+			}
+		}
+
+		inline T& pop() const {
+			if (_end == 0) {
+				error(GS_THIS, "Out of bounds access");
+			}
+
+			_end--;
+			return _items[_end];
+		}
+
+		inline T& pop_unchecked() const {
+			_end--;
+			return _items[_end];
+		}
+
+		inline void popDiscard() {
+			if (hasAny()) {
+				--_end;
+			}
+		}
+
+		inline void popDiscard_unchecked() {
+			--_end;
+		}
+
+
+	};
+
+
 }
 
 
