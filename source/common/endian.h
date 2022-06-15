@@ -106,6 +106,18 @@ namespace common
 	inline void WRITE_LE_UINT32(void *ptr, uint32 value) {
 		*(uint32 *)(ptr) = value;
 	}
+	inline uint16 READ_LE_INT16(const void *ptr) {
+		return *(const uint16 *)(ptr);
+	}
+	inline uint32 READ_LE_INT32(const void *ptr) {
+		return *(const uint32 *)(ptr);
+	}
+	inline void WRITE_LE_INT16(void *ptr, int16 value) {
+		*(uint16 *)(ptr) = value;
+	}
+	inline void WRITE_LE_INT32(void *ptr, int32 value) {
+		*(uint32 *)(ptr) = value;
+	}
 #elif defined(GS_BIG)
 	inline uint16 READ_LE_UINT16(const void *ptr) {
 		const byte *b = (const byte *)ptr;
@@ -121,6 +133,26 @@ namespace common
 		b[1] = (byte)(value >> 8);
 	}
 	inline void WRITE_LE_UINT32(void *ptr, uint32 value) {
+		byte *b = (byte *)ptr;
+		b[0] = (byte)(value >>  0);
+		b[1] = (byte)(value >>  8);
+		b[2] = (byte)(value >> 16);
+		b[3] = (byte)(value >> 24);
+	}
+	inline int16 READ_LE_INT16(const void *ptr) {
+		const byte *b = (const byte *)ptr;
+		return (b[1] << 8) + b[0];
+	}
+	inline int32 READ_LE_INT32(const void *ptr) {
+		const byte *b = (const byte *)ptr;
+		return (b[3] << 24) + (b[2] << 16) + (b[1] << 8) + (b[0]);
+	}
+	inline void WRITE_LE_INT16(void *ptr, int16 value) {
+		byte *b = (byte *)ptr;
+		b[0] = (byte)(value >> 0);
+		b[1] = (byte)(value >> 8);
+	}
+	inline void WRITE_LE_INT32(void *ptr, int32 value) {
 		byte *b = (byte *)ptr;
 		b[0] = (byte)(value >>  0);
 		b[1] = (byte)(value >>  8);
@@ -155,6 +187,29 @@ namespace common
 		b[2] = (byte)(value >>  8);
 		b[3] = (byte)(value >>  0);
 	}
+
+	
+	inline int16 READ_BE_INT16(const void *ptr) {
+		const byte *b = (const byte *)ptr;
+		return (b[0] << 8) + b[1];
+	}
+	inline int32 READ_BE_INT32(const void *ptr) {
+		const byte *b = (const byte*)ptr;
+		return (b[0] << 24) + (b[1] << 16) + (b[2] << 8) + (b[3]);
+	}
+	inline void WRITE_BE_INT16(void *ptr, int16 value) {
+		byte *b = (byte *)ptr;
+		b[0] = (byte)(value >> 8);
+		b[1] = (byte)(value >> 0);
+	}
+	inline void WRITE_BE_INT32(void *ptr, int32 value) {
+		byte *b = (byte *)ptr;
+		b[0] = (byte)(value >> 24);
+		b[1] = (byte)(value >> 16);
+		b[2] = (byte)(value >>  8);
+		b[3] = (byte)(value >>  0);
+	}
+
 #elif defined(GS_BIG)
 	inline uint16 READ_BE_UINT16(const void *ptr) {
 		return *(const uint16 *)(ptr);
@@ -166,6 +221,19 @@ namespace common
 		*(uint16 *)(ptr) = value;
 	}
 	inline void WRITE_BE_UINT32(void *ptr, uint32 value) {
+		*(uint32 *)(ptr) = value;
+	}
+
+	inline uint16 READ_BE_INT16(const void *ptr) {
+		return *(const uint16 *)(ptr);
+	}
+	inline uint32 READ_BE_INT32(const void *ptr) {
+		return *(const uint32 *)(ptr);
+	}
+	inline void WRITE_BE_INT16(void *ptr, int16 value) {
+		*(uint16 *)(ptr) = value;
+	}
+	inline void WRITE_BE_INT32(void *ptr, int32 value) {
 		*(uint32 *)(ptr) = value;
 	}
 #else
