@@ -294,9 +294,8 @@ namespace comi
 		uint32 arrayIndex = readVar(arrayNum);
 
 		if (arrayIndex >= NUM_ARRAY) {
-			warn(COMI_THIS, "Tried to delete an array out of bounds!");
-			CTX->quit = true;
-			_currentContext = NO_CONTEXT;
+			error(COMI_THIS, "Tried to delete an array out of bounds!");
+			_forceQuit();
 			return;
 		}
 
@@ -393,6 +392,9 @@ namespace comi
 
 	void VirtualMachine::runCurrentScript() {
 		while (_currentContext != 0xFF) {
+			_lastOpcodePc = _opcodePc;
+			_opcodePc = _pc;
+			_lastOpcode = _opcode;
 			_step();
 		}
 	}
@@ -441,51 +443,24 @@ namespace comi
 		return size;
 	}
 	
-	void VirtualMachine::_readMessage() {
-
-		uint32 pc = _pc;
-
-		_messageTemp.clear();
-		while (true) {
-			byte ch = (char) _readByte();
-			_messageTemp.push(ch);
-			if (ch == 0)
-				break;
-			if (ch == 0xFF) {
-				ch = _readByte();
-				_messageTemp.push(ch);
-
-				if (ch != 1 && ch != 2 && ch != 3 && ch != 8) {
-					_messageTemp.push(_readByte());
-					_messageTemp.push(_readByte());
-					_messageTemp.push(_readByte());
-					_messageTemp.push(_readByte());
-				}
-			}
-			else {
-			}
-		}
-		debug(COMI_THIS, "Read message %ld %ld", pc, (uint32) _messageTemp.size());
-	}
-	
-	uint16 VirtualMachine::_readMessageSize() {
-		uint16 size = 0;
+	void VirtualMachine::_readStringLength(uint16& from, uint16& len) {
+		len = 0;
+		from = _pc;
 		while (true) {
 			byte ch = _readByte();
-			size++;
 			if (ch == 0)
 				break;
+			len++;
 			if (ch == 0xFF) {
 				ch = _readByte();
-				size++;
+				len++;
 				
 				if (ch != 1 && ch != 2 && ch != 3 && ch != 8) {
 					_pc += 4;
-					size += 4;
+					len += 4;
 				}
 			}
 		}
-		return size;
 	}
 
 	void VirtualMachine::_decodeParseString(uint8 m, uint8 n) {
@@ -522,7 +497,8 @@ namespace comi
 			break;
 			case 0xD1:		// Print String
 			{
-				_readMessageSize();	/* Not Implemented */
+				uint16 from, length;
+				_readStringLength(from, length);	/* Not Implemented */
 			}
 			break;
 			case 0xD2:
@@ -539,13 +515,82 @@ namespace comi
 
 		if (_stackSize == 0) {
 			error(COMI_THIS, "VM Stack execption!");
-			CTX->quit = true;
-			_currentContext = NO_CONTEXT;
+			_forceQuit();
 			return 0;
 		}
 
 		_stackSize--;
 		return _vmStack.get_unchecked(_stackSize);
+	}
+	
+	void VirtualMachine::_dumpState() {
+		
+		debug_write(DC_Debug, GS_FILE_NAME, __FILE__, __FUNCTION__, __LINE__, "VM State as follows:");
+
+		if (_currentContext != NO_CONTEXT) {
+		
+			ScriptContext& context = _context[_currentContext];
+			Script* script = NULL;
+
+			debug_write_str_int("pc", _pc); debug_write_char('\n');
+			debug_write_str_int("opcode", _opcode); debug_write_char('\n');
+			debug_write_str_int("context-num", _currentContext); debug_write_char('\n');
+			debug_write_str_int("script-num", context._scriptNum); debug_write_char('\n');
+			debug_write_str_int("script-where", context._scriptWhere); debug_write_char('\n');
+			debug_write_str_int("script-length", _script->getSize()); debug_write_char('\n');
+			debug_write_str_int("last-pc", _lastOpcodePc); debug_write_char('\n');
+			debug_write_str_int("last-opcode", _lastOpcode); debug_write_char('\n');
+
+			if (context._scriptWhere == OW_Global) {
+				script = RESOURCES->getGlobalScript(context._scriptNum);
+			}
+
+			if (script != NULL) {
+				debug_write_str_int("script-disk", script->getResourceDisk()); debug_write_char('\n');
+			}
+			int i = _opcodePc - 33;
+			if (i < 0)
+				i = 0;
+			for (; i < _opcodePc + 17; i++) {
+
+				byte b = _script->get_unchecked(i);
+				
+				if (i == _opcodePc) {
+					debug_write_char('>');
+				}
+				else {
+					if (i == _lastOpcodePc) {
+						debug_write_char('*');
+					}
+					else  {
+						debug_write_char(' ');
+					}
+				}
+
+				debug_write_int(i);
+				debug_write_char(':');
+				debug_write_hex(_script->get_unchecked(i));
+
+				if (b > 33 && b < 127) {
+					debug_write_char(' ');
+					debug_write_char((char) b);
+				}
+
+				debug_write_char('\n');
+			}
+		}
+		else {
+			debug_write_str("** NO CONTEXT **");
+		}
+		
+		debug_write_char('\n');
+		debug_write_char('\n');
+
+	}
+
+	void VirtualMachine::_forceQuit() {
+		CTX->quit = true;
+		_currentContext = NO_CONTEXT;
 	}
 
 	void ScriptContext::reset() {

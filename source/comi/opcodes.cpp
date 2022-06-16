@@ -21,6 +21,7 @@
 #include "vm.h"
 #include "context.h"
 #include "debug.h"
+#include "vm_array.h"
 
 namespace comi
 {
@@ -28,16 +29,14 @@ namespace comi
 
 #define GS_UNHANDLED_OP(NAME)\
 	do {\
-		error(COMI_THIS, "Unhandled %s! pc = %ld, op = 0x%lx, script = %ld", NAME, (uint32) _pc - 1, (uint32) _opcode, (uint32) _context[_currentContext]._scriptNum);\
-		CTX->quit = true;\
-		_currentContext = NO_CONTEXT;\
+		_dumpState();\
+		_forceQuit();\
+		error(COMI_THIS, "Unhandled Opcode! %lx '%s'", _opcode, NAME);\
 	} while(0);
-
-
 
 	void VirtualMachine::_step() {
 		_opcode = _readByte();
-		// debug(COMI_THIS, "%ld : %2lx", _pc-1, (uint32) _opcode);! pc = %ld
+		// debug(COMI_THIS, "%ld : %2lx", _pc-1, (uint32) _opcode);
 
 		switch (_opcode) {
 			case OP_00:
@@ -418,8 +417,7 @@ namespace comi
 					break;
 					default:
 						error(COMI_THIS, "Unhandled subop for OP_dimArray %ld", subOp);
-						CTX->quit = true;
-						_currentContext = NO_CONTEXT;
+						_forceQuit();
 					break;
 				}
 			}
@@ -439,8 +437,37 @@ namespace comi
 			case OP_wordArrayIndexedWrite:
 				GS_UNHANDLED_OP("OP_wordArrayIndexedWrite!");
 			return;
-			case OP_arrayOps:
-				GS_UNHANDLED_OP("OP_arrayOps!");
+			case OP_arrayOps: {
+				byte subOp = _readByte();
+				uint32 arrayNum = _readUnsignedWord();
+				VmArray* array;
+				switch (subOp) {
+					case ArrayOps_AssignString: {
+						uint16 offset = _popStack();
+						uint16 from, len;
+						_readStringLength(from, len);
+						array = _newArray(arrayNum, VAK_String, 0, len);
+						array->writeBytes(
+							_script->ptr(from),
+							offset,
+							len
+						);
+					}
+					return;
+					case ArrayOps_AssignScummVarList: {
+						int32 list[128];
+						/* TODO */
+						error(COMI_THIS, "not implemented");
+					}
+					return;
+					case ArrayOps_Assign2DimList: {
+						int32 list[128];
+						/* TODO */
+						error(COMI_THIS, "not implemented");
+					}
+					return;
+				}
+			}
 			return;
 			case OP_77:
 				GS_UNHANDLED_OP("OP_77!");
@@ -684,8 +711,7 @@ namespace comi
 				byte param = _readByte();
 
 				if (param == SystemOps_Quit) {
-					CTX->quit = true;
-					_currentContext = NO_CONTEXT;
+					_forceQuit();
 					info(COMI_THIS, "Quit has been called!");
 					return;
 				}

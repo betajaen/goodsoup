@@ -240,9 +240,9 @@ namespace comi
 		ScriptStackItem				_stack[NUM_STACK_SCRIPTS];
 		uint16						_currentContext;
 		uint16						_stackSize;
-		uint32						_pc;
+		uint32						_pc, _lastOpcodePc, _opcodePc;
 		Buffer<byte>*				_script;
-		byte						_opcode;
+		byte						_opcode, _lastOpcode;
 		Buffer<int32>				_vmStack;
 		int8						_vmStackSize;
 		Array<char>					_messageTemp;
@@ -264,11 +264,12 @@ namespace comi
 		byte _readByte();
 		int32  _readWord();
 		uint32  _readUnsignedWord();
-		void _readMessage();
-		uint16 _readMessageSize();
+		void _readStringLength(uint16& from, uint16& length);
 		uint8 _readStackList(int32* args, uint8 capacity);
 		void _decodeParseString(uint8 m, uint8 n);
 
+		void _dumpState();
+		void _forceQuit();
 
 	public:
 

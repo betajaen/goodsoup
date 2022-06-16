@@ -42,6 +42,7 @@ namespace comi
 			}
 		}
 	}
+	
 
 	void VmArrayAllocator::reset() {
 		
@@ -150,5 +151,5 @@ namespace comi
 		}
 		return NULL;
 	}
-
+	
 }

@@ -20,6 +20,7 @@
 
 #include "common/types.h"
 #include "common/array.h"
+#include "common/buffer.h"
 #include "common/endian.h"
 
 #include "constants.h"
@@ -62,7 +63,7 @@ namespace comi
 			WRITE_LE_INT32(&_data[offset], data);
 		}
 
-		inline void writeBytes(uint32 offset, byte* data, uint32 length) {
+		inline void writeBytes(const byte* data, uint32 offset, uint32 length) {
 			while (length--) {
 				_data[offset++] = *data++;
 			}
