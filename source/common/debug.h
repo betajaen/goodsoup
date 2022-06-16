@@ -348,6 +348,8 @@ namespace common
     void debug_write_byte(byte char_value);
     void debug_write_unsigned_int(uint32 uint32_value);
     void debug_write_int(int32 int32_value);
+    void debug_write_hex(uint32 uint32_value);
+	void debug_write_str_int(const char* str_value, int32 value);
     void debug_write_bool(bool bool_value);
     void debug_write_pointer(const void* ptr_value);
 

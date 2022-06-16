@@ -116,7 +116,7 @@ namespace common
 		fputs(str_value, stdout);
 	}
 
-    void debug_write_char(byte byte_value) {
+    void debug_write_byte(byte byte_value) {
 		fprintf(stdout, "%2x", (uint32) byte_value);
 	}
 
@@ -130,6 +130,13 @@ namespace common
 
     void debug_write_int(int32 int32_value) {
 		fprintf(stdout, "%ld", int32_value);
+	}
+	
+	void debug_write_hex(uint32 uint32_value) {
+		fprintf(stdout, "0x%lx", uint32_value);
+	}
+	void debug_write_str_int(const char* str_value, int32 value) {
+		fprintf(stdout, "%s : %ld", str_value, value);
 	}
 
     void debug_write_bool(bool bool_value) {

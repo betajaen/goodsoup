@@ -126,11 +126,19 @@ namespace common
 	}
 
 	void debug_write_unsigned_int(uint32 uint32_value) {
-		Printf("%u", uint32_value);
+		Printf("%lu", uint32_value);
 	}
 
 	void debug_write_int(int32 int32_value) {
-		Printf("%d", int32_value);
+		Printf("%ld", int32_value);
+	}
+	
+	void debug_write_hex(uint32 hex_value) {
+		Printf("%lx", hex_value);
+	}
+
+	void debug_write_str_int(const char* str, int32 int32_value) {
+		Printf("%s:%ld", (ULONG) str, int32_value);
 	}
 
 	void debug_write_bool(bool bool_value) {
