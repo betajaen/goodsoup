@@ -353,6 +353,57 @@ namespace common
 
 	};
 
+	template<typename T, typename Index, Index PO2_Capacity>
+	struct RingArray {
+
+
+		T _items[PO2_Capacity];
+		Index _read, _write;
+
+		inline RingArray() 
+			: _read(0), _write(0) {
+			clearMemoryNonAllocated(_items, sizeof(T) * PO2_Capacity);
+		}
+
+		inline ~RingArray() {
+		}
+
+		inline Index capacity() const {
+			return PO2_Capacity;
+		}
+
+		bool write(const T& value) {
+			Index next = (_write + 1) & (PO2_Capacity - 1);
+			if (next == _read)
+				return false;
+
+			_items[next] = value;
+		}
+
+		void overwrite(const T& value) {
+			_write = (_write + 1) & (PO2_Capacity - 1);
+			_items[_write] = value;
+		}
+
+		bool read(T& out_value) {
+			if (_read == _write)
+				return false;
+
+			out_value = _items[_read];
+			_read = (_read + 1) & (PO2_Capacity - 1);
+			return true;
+		}
+		
+		bool peek(T& out_value) {
+			if (_read == _write)
+				return false;
+
+			out_value = _items[_read];
+			return true;
+		}
+
+	};
+
 
 }
 
