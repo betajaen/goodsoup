@@ -33,6 +33,265 @@ namespace comi
 {
 	static const uint8 NO_CONTEXT = 0xFF;
 
+	static const char* OPCODE_NAME[256] = {
+		"00",
+		"pushWord",
+		"pushWordVar",
+		"wordArrayRead",
+		"wordArrayIndexedRead",
+		"dup",
+		"pop",
+		"not",
+		"eq",
+		"neq",
+		"gt",
+		"lt",
+		"le",
+		"ge",
+		"add",
+		"sub",
+		"mul",
+		"div",
+		"land",
+		"lor",
+		"band",
+		"bor",
+		"mod",
+		"17",
+		"18",
+		"19",
+		"1a",
+		"1b",
+		"1c",
+		"1d",
+		"1e",
+		"1f",
+		"20",
+		"21",
+		"22",
+		"23",
+		"24",
+		"25",
+		"26",
+		"27",
+		"28",
+		"29",
+		"2a",
+		"2b",
+		"2c",
+		"2d",
+		"2e",
+		"2f",
+		"30",
+		"31",
+		"32",
+		"33",
+		"34",
+		"35",
+		"36",
+		"37",
+		"38",
+		"39",
+		"3a",
+		"3b",
+		"3c",
+		"3d",
+		"3e",
+		"3f",
+		"40",
+		"41",
+		"42",
+		"43",
+		"44",
+		"45",
+		"46",
+		"47",
+		"48",
+		"49",
+		"4a",
+		"4b",
+		"4c",
+		"4d",
+		"4e",
+		"4f",
+		"50",
+		"51",
+		"52",
+		"53",
+		"54",
+		"55",
+		"56",
+		"57",
+		"58",
+		"59",
+		"5a",
+		"5b",
+		"5c",
+		"5d",
+		"5e",
+		"5f",
+		"60",
+		"61",
+		"62",
+		"63",
+		"if",
+		"ifNot",
+		"jump",
+		"breakHere",
+		"delayFrames",
+		"wait",
+		"delay",
+		"delaySeconds",
+		"delayMinutes",
+		"writeWordVar",
+		"wordVarInc",
+		"wordVarDec",
+		"dimArray",
+		"wordArrayWrite",
+		"wordArrayInc",
+		"wordArrayDec",
+		"dim2dimArray",
+		"wordArrayIndexedWrite",
+		"arrayOps",
+		"77",
+		"78",
+		"startScript",
+		"startScriptQuick",
+		"stopObjectCode",
+		"stopScript",
+		"jumpToScript",
+		"dummy",
+		"startObject",
+		"stopObjectScript",
+		"cutscene",
+		"endCutscene",
+		"freezeUnfreeze",
+		"beginOverride",
+		"endOverride",
+		"stopSentence",
+		"87",
+		"88",
+		"setClass",
+		"setState",
+		"setOwner",
+		"panCameraTo",
+		"actorFollowCamera",
+		"setCameraAt",
+		"printActor",
+		"printEgo",
+		"talkActor",
+		"talkEgo",
+		"printLine",
+		"printText",
+		"printDebug",
+		"printSystem",
+		"blastText",
+		"drawObject",
+		"99",
+		"9a",
+		"9b",
+		"cursorCommand",
+		"loadRoom",
+		"loadRoomWithEgo",
+		"walkActorToObj",
+		"walkActorTo",
+		"putActorAtXY",
+		"putActorAtObject",
+		"faceActor",
+		"animateActor",
+		"doSentence",
+		"pickupObject",
+		"setBoxFlags",
+		"createBoxMatrix",
+		"a9",
+		"resourceRoutines",
+		"roomOps",
+		"actorOps",
+		"cameraOps",
+		"verbOps",
+		"startSound",
+		"startMusic",
+		"stopSound",
+		"soundKludge",
+		"systemOps",
+		"saveRestoreVerbs",
+		"setObjectName",
+		"getDateTime",
+		"drawBox",
+		"b8",
+		"startVideo",
+		"kernelSetFunctions",
+		"bb",
+		"bc",
+		"bd",
+		"be",
+		"bf",
+		"c0",
+		"c1",
+		"c2",
+		"c3",
+		"c4",
+		"c5",
+		"c6",
+		"c7",
+		"startScriptQuick2",
+		"startObjectQuick",
+		"pickOneOf",
+		"pickOneOfDefault",
+		"cc",
+		"isAnyOf",
+		"getRandomNumber",
+		"getRandomNumberRange",
+		"ifClassOfIs",
+		"getState",
+		"getOwner",
+		"isScriptRunning",
+		"d4",
+		"isSoundRunning",
+		"abs",
+		"d7",
+		"kernelGetFunctions",
+		"isActorInBox",
+		"getVerbEntrypoint",
+		"getActorFromXY",
+		"findObject",
+		"getVerbFromXY",
+		"de",
+		"findInventory",
+		"getInventoryCount",
+		"getAnimateVariable",
+		"getActorRoom",
+		"getActorWalkBox",
+		"getActorMoving",
+		"getActorCostume",
+		"getActorScaleX",
+		"getActorLayer",
+		"getActorElevation",
+		"getActorWidth",
+		"getObjectNewDir",
+		"getObjectX",
+		"getObjectY",
+		"getActorChore",
+		"distObjectObject",
+		"distPtPt",
+		"getObjectImageX",
+		"getObjectImageY",
+		"getObjectImageWidth",
+		"getObjectImageHeight",
+		"f4",
+		"f5",
+		"getStringWidth",
+		"getActorZPlane",
+		"f8",
+		"f9",
+		"fa",
+		"fb",
+		"fc",
+		"fd",
+		"fe",
+		"ff",
+	};
+
 	VirtualMachine* VM = NULL;
 	
 	VirtualMachine::VirtualMachine() :
@@ -270,8 +529,6 @@ namespace comi
 			}
 		}
 
-		_deleteContextArrays(_currentContext);
-
 		context.markDead();
 		_currentContext = NO_CONTEXT;
 	}
@@ -392,10 +649,13 @@ namespace comi
 
 	void VirtualMachine::runCurrentScript() {
 		while (_currentContext != 0xFF) {
-			_lastOpcodePc = _opcodePc;
-			_opcodePc = _pc;
-			_lastOpcode = _opcode;
+			PcState state;
+			state.opcode = _opcode;
+			state.pc = _pc;
+			state.context = _currentContext;
 			_step();
+			state.pcAfter = _pc;
+			_pcState.overwrite(state);
 		}
 	}
 
@@ -526,64 +786,103 @@ namespace comi
 	void VirtualMachine::_dumpState() {
 		
 		debug_write(DC_Debug, GS_FILE_NAME, __FILE__, __FUNCTION__, __LINE__, "VM State as follows:");
+		
+		int16 stackMin = _vmStackSize - 16;
+		if (stackMin < 0)
+			stackMin = 0;
+
+		int16 stackMax = _vmStackSize;
+		
+		if (stackMax > 0) {
+			debug_write_str_int("Stack Trace", stackMax);
+
+			for (int16 i = stackMin; i < stackMax; i++) {
+			
+				debug_write_char('[');
+				debug_write_int(i);
+				debug_write_char(']');
+				debug_write_char('=');
+				debug_write_int(_vmStack.get_unchecked(i));
+				debug_write_char('\n');
+			}
+		}
 
 		if (_currentContext != NO_CONTEXT) {
 		
 			ScriptContext& context = _context[_currentContext];
 			Script* script = NULL;
 
-			debug_write_str_int("pc", _pc); debug_write_char('\n');
-			debug_write_str_int("opcode", _opcode); debug_write_char('\n');
-			debug_write_str_int("context-num", _currentContext); debug_write_char('\n');
-			debug_write_str_int("script-num", context._scriptNum); debug_write_char('\n');
-			debug_write_str_int("script-where", context._scriptWhere); debug_write_char('\n');
-			debug_write_str_int("script-length", _script->getSize()); debug_write_char('\n');
-			debug_write_str_int("last-pc", _lastOpcodePc); debug_write_char('\n');
-			debug_write_str_int("last-opcode", _lastOpcode); debug_write_char('\n');
+			debug_write_str_int("Script", context._scriptNum);
 
 			if (context._scriptWhere == OW_Global) {
 				script = RESOURCES->getGlobalScript(context._scriptNum);
+				
+				debug_write_str(", Type : Global ");
+				debug_write_str_int("Disk", script->getResourceDisk());
 			}
+			
+			debug_write_str_int(", Length", _script->getSize());
+			debug_write_str_int(", Context", _currentContext);
+			debug_write_char('\n');
 
 			if (script != NULL) {
-				debug_write_str_int("script-disk", script->getResourceDisk()); debug_write_char('\n');
 			}
-			int i = _opcodePc - 33;
-			if (i < 0)
-				i = 0;
-			for (; i < _opcodePc + 17; i++) {
 
-				byte b = _script->get_unchecked(i);
+			for (uint8 i = 0; i < _pcState.capacity(); i++) {
+				PcState state;
+				if (_pcState.read(state) == false)
+					break;
 				
-				if (i == _opcodePc) {
-					debug_write_char('>');
-				}
-				else {
-					if (i == _lastOpcodePc) {
-						debug_write_char('*');
-					}
-					else  {
+				debug_write_int(state.pc);
+				debug_write_char(' ');
+				debug_write_str(_getOpcodeName(state.opcode));
+				debug_write_char('@');
+				debug_write_byte(state.opcode);
+				
+				debug_write_char('(');
+
+				for (uint16 j = state.pc; j < state.pcAfter; j++) {
+					if (j != state.pc) {
 						debug_write_char(' ');
 					}
+					debug_write_byte(_script->get_unchecked(j));
 				}
-
-				debug_write_int(i);
-				debug_write_char(':');
-				debug_write_hex(_script->get_unchecked(i));
-
-				if (b > 33 && b < 127) {
-					debug_write_char(' ');
-					debug_write_char((char) b);
-				}
+				
+				debug_write_char(')');
 
 				debug_write_char('\n');
 			}
+
+			debug_write_int(_pc - 1);
+			debug_write_char(' ');
+			debug_write_str(_getOpcodeName(_opcode));
+			debug_write_char('@');
+			debug_write_byte(_opcode);
+
+			uint16 end = _pc + 15;
+			if (end > _script->getSize()) {
+				end = _script->getSize();
+			}
+			
+			debug_write_char('(');
+			
+
+
+			for (uint16 i = _pc; i < end; i++) {
+				if (i != _pc) {
+					debug_write_char(' ');
+				}
+				debug_write_byte(_script->get_unchecked(i));
+			}
+			
+			debug_write_str(" ...)\n");
+
 		}
 		else {
 			debug_write_str("** NO CONTEXT **");
 		}
+
 		
-		debug_write_char('\n');
 		debug_write_char('\n');
 
 	}
@@ -591,6 +890,10 @@ namespace comi
 	void VirtualMachine::_forceQuit() {
 		CTX->quit = true;
 		_currentContext = NO_CONTEXT;
+	}
+	
+	const char* VirtualMachine::_getOpcodeName(uint8 opcode) const {
+		return OPCODE_NAME[opcode];
 	}
 
 	void ScriptContext::reset() {

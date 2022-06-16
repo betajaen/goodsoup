@@ -233,20 +233,28 @@ namespace comi
 	{
 	private:
 
-		Buffer<byte>				_nullScript;
-		Buffer<int32>				_intGlobals;
-		Buffer<byte>				_boolGlobals;
-		ScriptContext				_context[MAX_SCRIPT_CONTEXTS];
-		ScriptStackItem				_stack[NUM_STACK_SCRIPTS];
-		uint16						_currentContext;
-		uint16						_stackSize;
-		uint32						_pc, _lastOpcodePc, _opcodePc;
-		Buffer<byte>*				_script;
-		byte						_opcode, _lastOpcode;
-		Buffer<int32>				_vmStack;
-		int8						_vmStackSize;
-		Array<char>					_messageTemp;
-		VmArrayAllocator*			_arrays;
+		struct PcState
+		{
+			uint16 pc, pcAfter;
+			uint8  opcode;
+			uint8  context;
+		};
+
+		Buffer<byte>					_nullScript;
+		Buffer<int32>					_intGlobals;
+		Buffer<byte>					_boolGlobals;
+		ScriptContext					_context[MAX_SCRIPT_CONTEXTS];
+		ScriptStackItem					_stack[NUM_STACK_SCRIPTS];
+		uint16							_currentContext;
+		uint16							_stackSize;
+		uint32							_pc;
+		Buffer<byte>*					_script;
+		byte							_opcode;
+		Buffer<int32>					_vmStack;
+		int8							_vmStackSize;
+		Array<char>						_messageTemp;
+		VmArrayAllocator*				_arrays;
+		RingArray<PcState, uint8, 8>	_pcState;
 
 		bool _findFreeContext(uint8& num);
 		void _updateScriptData(ScriptContext& context);
@@ -256,7 +264,6 @@ namespace comi
 
 		VmArray* _newArray(uint32 num, uint8 kind, uint16 dim2, uint16 dim1);
 		void _deleteArray(uint32 num);
-		void _deleteContextArrays(uint8 contextNum);
 
 		void _pushStack(int32 value);
 		int32 _popStack();
@@ -270,6 +277,8 @@ namespace comi
 
 		void _dumpState();
 		void _forceQuit();
+
+		const char* _getOpcodeName(uint8 opcode) const;
 
 	public:
 

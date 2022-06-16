@@ -27,11 +27,11 @@ namespace comi
 {
 	static const uint8 NO_CONTEXT = 0xFF;
 
-#define GS_UNHANDLED_OP(NAME)\
+#define GS_UNHANDLED_OP\
 	do {\
 		_dumpState();\
 		_forceQuit();\
-		error(COMI_THIS, "Unhandled Opcode! %lx '%s'", _opcode, NAME);\
+		error(COMI_THIS, "Unhandled Opcode! %lx 'OP_%s'", _opcode, _getOpcodeName(_opcode));\
 	} while(0);
 
 	void VirtualMachine::_step() {
@@ -40,7 +40,7 @@ namespace comi
 
 		switch (_opcode) {
 			case OP_00:
-				GS_UNHANDLED_OP("OP_00!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_pushWord:
 				_pushStack(_readUnsignedWord());
@@ -49,19 +49,19 @@ namespace comi
 				_pushStack(readVar(_readUnsignedWord()));
 			return;
 			case OP_wordArrayRead:
-				GS_UNHANDLED_OP("OP_wordArrayRead!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_wordArrayIndexedRead:
-				GS_UNHANDLED_OP("OP_wordArrayIndexedRead!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_dup:
-				GS_UNHANDLED_OP("OP_dup!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_pop:
-				GS_UNHANDLED_OP("OP_pop!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_not:
-				GS_UNHANDLED_OP("OP_not!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_eq: {
 				int32 left = _popStack();
@@ -70,31 +70,31 @@ namespace comi
 			}
 			return;
 			case OP_neq:
-				GS_UNHANDLED_OP("OP_neq!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_gt:
-				GS_UNHANDLED_OP("OP_gt!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_lt:
-				GS_UNHANDLED_OP("OP_lt!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_le:
-				GS_UNHANDLED_OP("OP_le!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_ge:
-				GS_UNHANDLED_OP("OP_ge!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_add:
-				GS_UNHANDLED_OP("OP_add!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_sub:
-				GS_UNHANDLED_OP("OP_sub!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_mul:
-				GS_UNHANDLED_OP("OP_mul!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_div:
-				GS_UNHANDLED_OP("OP_div!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_land: {
 				int32 a = _popStack();
@@ -103,247 +103,247 @@ namespace comi
 			}
 			return;
 			case OP_lor:
-				GS_UNHANDLED_OP("OP_lor!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_band:
-				GS_UNHANDLED_OP("OP_band!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_bor:
-				GS_UNHANDLED_OP("OP_bor!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_mod:
-				GS_UNHANDLED_OP("OP_mod!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_17:
-				GS_UNHANDLED_OP("OP_17!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_18:
-				GS_UNHANDLED_OP("OP_18!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_19:
-				GS_UNHANDLED_OP("OP_19!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_1a:
-				GS_UNHANDLED_OP("OP_1a!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_1b:
-				GS_UNHANDLED_OP("OP_1b!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_1c:
-				GS_UNHANDLED_OP("OP_1c!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_1d:
-				GS_UNHANDLED_OP("OP_1d!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_1e:
-				GS_UNHANDLED_OP("OP_1e!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_1f:
-				GS_UNHANDLED_OP("OP_1f!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_20:
-				GS_UNHANDLED_OP("OP_20!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_21:
-				GS_UNHANDLED_OP("OP_21!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_22:
-				GS_UNHANDLED_OP("OP_22!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_23:
-				GS_UNHANDLED_OP("OP_23!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_24:
-				GS_UNHANDLED_OP("OP_24!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_25:
-				GS_UNHANDLED_OP("OP_25!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_26:
-				GS_UNHANDLED_OP("OP_26!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_27:
-				GS_UNHANDLED_OP("OP_27!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_28:
-				GS_UNHANDLED_OP("OP_28!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_29:
-				GS_UNHANDLED_OP("OP_29!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_2a:
-				GS_UNHANDLED_OP("OP_2a!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_2b:
-				GS_UNHANDLED_OP("OP_2b!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_2c:
-				GS_UNHANDLED_OP("OP_2c!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_2d:
-				GS_UNHANDLED_OP("OP_2d!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_2e:
-				GS_UNHANDLED_OP("OP_2e!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_2f:
-				GS_UNHANDLED_OP("OP_2f!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_30:
-				GS_UNHANDLED_OP("OP_30!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_31:
-				GS_UNHANDLED_OP("OP_31!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_32:
-				GS_UNHANDLED_OP("OP_32!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_33:
-				GS_UNHANDLED_OP("OP_33!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_34:
-				GS_UNHANDLED_OP("OP_34!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_35:
-				GS_UNHANDLED_OP("OP_35!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_36:
-				GS_UNHANDLED_OP("OP_36!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_37:
-				GS_UNHANDLED_OP("OP_37!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_38:
-				GS_UNHANDLED_OP("OP_38!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_39:
-				GS_UNHANDLED_OP("OP_39!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_3a:
-				GS_UNHANDLED_OP("OP_3a!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_3b:
-				GS_UNHANDLED_OP("OP_3b!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_3c:
-				GS_UNHANDLED_OP("OP_3c!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_3d:
-				GS_UNHANDLED_OP("OP_3d!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_3e:
-				GS_UNHANDLED_OP("OP_3e!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_3f:
-				GS_UNHANDLED_OP("OP_3f!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_40:
-				GS_UNHANDLED_OP("OP_40!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_41:
-				GS_UNHANDLED_OP("OP_41!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_42:
-				GS_UNHANDLED_OP("OP_42!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_43:
-				GS_UNHANDLED_OP("OP_43!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_44:
-				GS_UNHANDLED_OP("OP_44!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_45:
-				GS_UNHANDLED_OP("OP_45!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_46:
-				GS_UNHANDLED_OP("OP_46!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_47:
-				GS_UNHANDLED_OP("OP_47!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_48:
-				GS_UNHANDLED_OP("OP_48!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_49:
-				GS_UNHANDLED_OP("OP_49!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_4a:
-				GS_UNHANDLED_OP("OP_4a!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_4b:
-				GS_UNHANDLED_OP("OP_4b!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_4c:
-				GS_UNHANDLED_OP("OP_4c!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_4d:
-				GS_UNHANDLED_OP("OP_4d!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_4e:
-				GS_UNHANDLED_OP("OP_4e!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_4f:
-				GS_UNHANDLED_OP("OP_4f!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_50:
-				GS_UNHANDLED_OP("OP_50!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_51:
-				GS_UNHANDLED_OP("OP_51!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_52:
-				GS_UNHANDLED_OP("OP_52!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_53:
-				GS_UNHANDLED_OP("OP_53!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_54:
-				GS_UNHANDLED_OP("OP_54!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_55:
-				GS_UNHANDLED_OP("OP_55!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_56:
-				GS_UNHANDLED_OP("OP_56!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_57:
-				GS_UNHANDLED_OP("OP_57!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_58:
-				GS_UNHANDLED_OP("OP_58!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_59:
-				GS_UNHANDLED_OP("OP_59!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_5a:
-				GS_UNHANDLED_OP("OP_5a!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_5b:
-				GS_UNHANDLED_OP("OP_5b!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_5c:
-				GS_UNHANDLED_OP("OP_5c!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_5d:
-				GS_UNHANDLED_OP("OP_5d!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_5e:
-				GS_UNHANDLED_OP("OP_5e!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_5f:
-				GS_UNHANDLED_OP("OP_5f!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_60:
-				GS_UNHANDLED_OP("OP_60!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_61:
-				GS_UNHANDLED_OP("OP_61!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_62:
-				GS_UNHANDLED_OP("OP_62!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_63:
-				GS_UNHANDLED_OP("OP_63!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_if: {
 				int32 cond = _popStack();
@@ -369,22 +369,22 @@ namespace comi
 			}
 			return;
 			case OP_breakHere:
-				GS_UNHANDLED_OP("OP_breakHere!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_delayFrames:
-				GS_UNHANDLED_OP("OP_delayFrames!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_wait:
-				GS_UNHANDLED_OP("OP_wait!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_delay:
-				GS_UNHANDLED_OP("OP_delay!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_delaySeconds:
-				GS_UNHANDLED_OP("OP_delaySeconds!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_delayMinutes:
-				GS_UNHANDLED_OP("OP_delayMinutes!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_writeWordVar: {
 				uint32 varWhere = _readUnsignedWord();
@@ -393,10 +393,10 @@ namespace comi
 			}
 			return;
 			case OP_wordVarInc:
-				GS_UNHANDLED_OP("OP_wordVarInc!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_wordVarDec:
-				GS_UNHANDLED_OP("OP_wordVarDec!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_dimArray: {
 				byte subOp = _readByte();
@@ -423,19 +423,19 @@ namespace comi
 			}
 			return;
 			case OP_wordArrayWrite:
-				GS_UNHANDLED_OP("OP_wordArrayWrite!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_wordArrayInc:
-				GS_UNHANDLED_OP("OP_wordArrayInc!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_wordArrayDec:
-				GS_UNHANDLED_OP("OP_wordArrayDec!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_dim2dimArray:
-				GS_UNHANDLED_OP("OP_dim2dimArray!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_wordArrayIndexedWrite:
-				GS_UNHANDLED_OP("OP_wordArrayIndexedWrite!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_arrayOps: {
 				byte subOp = _readByte();
@@ -455,13 +455,11 @@ namespace comi
 					}
 					return;
 					case ArrayOps_AssignScummVarList: {
-						int32 list[128];
 						/* TODO */
 						error(COMI_THIS, "not implemented");
 					}
 					return;
 					case ArrayOps_Assign2DimList: {
-						int32 list[128];
 						/* TODO */
 						error(COMI_THIS, "not implemented");
 					}
@@ -470,10 +468,10 @@ namespace comi
 			}
 			return;
 			case OP_77:
-				GS_UNHANDLED_OP("OP_77!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_78:
-				GS_UNHANDLED_OP("OP_78!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_startScript: {
 				int32 args[25];
@@ -487,67 +485,67 @@ namespace comi
 			}
 			return;
 			case OP_startScriptQuick:
-				GS_UNHANDLED_OP("OP_startScriptQuick!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_stopObjectCode:
 				_stopObjectCode();
 			return;
 			case OP_stopScript:
-				GS_UNHANDLED_OP("OP_stopScript!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_jumpToScript:
-				GS_UNHANDLED_OP("OP_jumpToScript!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_dummy:
-				GS_UNHANDLED_OP("OP_dummy!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_startObject:
-				GS_UNHANDLED_OP("OP_startObject!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_stopObjectScript:
-				GS_UNHANDLED_OP("OP_stopObjectScript!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_cutscene:
-				GS_UNHANDLED_OP("OP_cutscene!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_endCutscene:
-				GS_UNHANDLED_OP("OP_endCutscene!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_freezeUnfreeze:
-				GS_UNHANDLED_OP("OP_freezeUnfreeze!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_beginOverride:
-				GS_UNHANDLED_OP("OP_beginOverride!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_endOverride:
-				GS_UNHANDLED_OP("OP_endOverride!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_stopSentence:
-				GS_UNHANDLED_OP("OP_stopSentence!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_87:
-				GS_UNHANDLED_OP("OP_87!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_88:
-				GS_UNHANDLED_OP("OP_88!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_setClass:
-				GS_UNHANDLED_OP("OP_setClass!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_setState:
-				GS_UNHANDLED_OP("OP_setState!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_setOwner:
-				GS_UNHANDLED_OP("OP_setOwner!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_panCameraTo:
-				GS_UNHANDLED_OP("OP_panCameraTo!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_actorFollowCamera:
-				GS_UNHANDLED_OP("OP_actorFollowCamera!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_setCameraAt:
-				GS_UNHANDLED_OP("OP_setCameraAt!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_printActor:
 				_decodeParseString(0, 1);
@@ -557,10 +555,10 @@ namespace comi
 				_decodeParseString(0, 1);
 			return;
 			case OP_talkActor:
-				GS_UNHANDLED_OP("OP_talkActor!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_talkEgo:
-				GS_UNHANDLED_OP("OP_talkEgo!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_printLine:
 				_decodeParseString(0, 0);
@@ -575,19 +573,19 @@ namespace comi
 				_decodeParseString(3, 0);
 			return;
 			case OP_blastText:
-				GS_UNHANDLED_OP("OP_blastText!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_drawObject:
-				GS_UNHANDLED_OP("OP_drawObject!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_99:
-				GS_UNHANDLED_OP("OP_99!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_9a:
-				GS_UNHANDLED_OP("OP_9a!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_9b:
-				GS_UNHANDLED_OP("OP_9b!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_cursorCommand: {
 				
@@ -636,43 +634,43 @@ namespace comi
 			}
 			return;
 			case OP_loadRoom:
-				GS_UNHANDLED_OP("OP_loadRoom!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_loadRoomWithEgo:
-				GS_UNHANDLED_OP("OP_loadRoomWithEgo!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_walkActorToObj:
-				GS_UNHANDLED_OP("OP_walkActorToObj!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_walkActorTo:
-				GS_UNHANDLED_OP("OP_walkActorTo!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_putActorAtXY:
-				GS_UNHANDLED_OP("OP_putActorAtXY!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_putActorAtObject:
-				GS_UNHANDLED_OP("OP_putActorAtObject!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_faceActor:
-				GS_UNHANDLED_OP("OP_faceActor!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_animateActor:
-				GS_UNHANDLED_OP("OP_animateActor!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_doSentence:
-				GS_UNHANDLED_OP("OP_doSentence!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_pickupObject:
-				GS_UNHANDLED_OP("OP_pickupObject!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_setBoxFlags:
-				GS_UNHANDLED_OP("OP_setBoxFlags!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_createBoxMatrix:
-				GS_UNHANDLED_OP("OP_createBoxMatrix!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_a9:
-				GS_UNHANDLED_OP("OP_a9!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_resourceRoutines: {
 				byte  subOp = _readByte();
@@ -684,28 +682,28 @@ namespace comi
 			}
 			return;
 			case OP_roomOps:
-				GS_UNHANDLED_OP("OP_roomOps!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_actorOps:
-				GS_UNHANDLED_OP("OP_actorOps!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_cameraOps:
-				GS_UNHANDLED_OP("OP_cameraOps!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_verbOps:
-				GS_UNHANDLED_OP("OP_verbOps!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_startSound:
-				GS_UNHANDLED_OP("OP_startSound!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_startMusic:
-				GS_UNHANDLED_OP("OP_startMusic!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_stopSound:
-				GS_UNHANDLED_OP("OP_stopSound!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_soundKludge:
-				GS_UNHANDLED_OP("OP_soundKludge!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_systemOps: {
 				byte param = _readByte();
@@ -722,22 +720,22 @@ namespace comi
 			}
 			return;
 			case OP_saveRestoreVerbs:
-				GS_UNHANDLED_OP("OP_saveRestoreVerbs!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_setObjectName:
-				GS_UNHANDLED_OP("OP_setObjectName!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_getDateTime:
-				GS_UNHANDLED_OP("OP_getDateTime!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_drawBox:
-				GS_UNHANDLED_OP("OP_drawBox!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_b8:
-				GS_UNHANDLED_OP("OP_b8!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_startVideo:
-				GS_UNHANDLED_OP("OP_startVideo!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_kernelSetFunctions: {
 
@@ -750,211 +748,211 @@ namespace comi
 			}
 			return;
 			case OP_bb:
-				GS_UNHANDLED_OP("OP_bb!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_bc:
-				GS_UNHANDLED_OP("OP_bc!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_bd:
-				GS_UNHANDLED_OP("OP_bd!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_be:
-				GS_UNHANDLED_OP("OP_be!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_bf:
-				GS_UNHANDLED_OP("OP_bf!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_c0:
-				GS_UNHANDLED_OP("OP_c0!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_c1:
-				GS_UNHANDLED_OP("OP_c1!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_c2:
-				GS_UNHANDLED_OP("OP_c2!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_c3:
-				GS_UNHANDLED_OP("OP_c3!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_c4:
-				GS_UNHANDLED_OP("OP_c4!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_c5:
-				GS_UNHANDLED_OP("OP_c5!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_c6:
-				GS_UNHANDLED_OP("OP_c6!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_c7:
-				GS_UNHANDLED_OP("OP_c7!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_startScriptQuick2:
-				GS_UNHANDLED_OP("OP_startScriptQuick2!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_startObjectQuick:
-				GS_UNHANDLED_OP("OP_startObjectQuick!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_pickOneOf:
-				GS_UNHANDLED_OP("OP_pickOneOf!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_pickOneOfDefault:
-				GS_UNHANDLED_OP("OP_pickOneOfDefault!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_cc:
-				GS_UNHANDLED_OP("OP_cc!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_isAnyOf:
-				GS_UNHANDLED_OP("OP_isAnyOf!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_getRandomNumber:
-				GS_UNHANDLED_OP("OP_getRandomNumber!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_getRandomNumberRange:
-				GS_UNHANDLED_OP("OP_getRandomNumberRange!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_ifClassOfIs:
-				GS_UNHANDLED_OP("OP_ifClassOfIs!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_getState:
-				GS_UNHANDLED_OP("OP_getState!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_getOwner:
-				GS_UNHANDLED_OP("OP_getOwner!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_isScriptRunning:
-				GS_UNHANDLED_OP("OP_isScriptRunning!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_d4:
-				GS_UNHANDLED_OP("OP_d4!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_isSoundRunning:
-				GS_UNHANDLED_OP("OP_isSoundRunning!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_abs:
-				GS_UNHANDLED_OP("OP_abs!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_d7:
-				GS_UNHANDLED_OP("OP_d7!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_kernelGetFunctions:
-				GS_UNHANDLED_OP("OP_kernelGetFunctions!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_isActorInBox:
-				GS_UNHANDLED_OP("OP_isActorInBox!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_getVerbEntrypoint:
-				GS_UNHANDLED_OP("OP_getVerbEntrypoint!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_getActorFromXY:
-				GS_UNHANDLED_OP("OP_getActorFromXY!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_findObject:
-				GS_UNHANDLED_OP("OP_findObject!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_getVerbFromXY:
-				GS_UNHANDLED_OP("OP_getVerbFromXY!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_de:
-				GS_UNHANDLED_OP("OP_de!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_findInventory:
-				GS_UNHANDLED_OP("OP_findInventory!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_getInventoryCount:
-				GS_UNHANDLED_OP("OP_getInventoryCount!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_getAnimateVariable:
-				GS_UNHANDLED_OP("OP_getAnimateVariable!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_getActorRoom:
-				GS_UNHANDLED_OP("OP_getActorRoom!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_getActorWalkBox:
-				GS_UNHANDLED_OP("OP_getActorWalkBox!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_getActorMoving:
-				GS_UNHANDLED_OP("OP_getActorMoving!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_getActorCostume:
-				GS_UNHANDLED_OP("OP_getActorCostume!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_getActorScaleX:
-				GS_UNHANDLED_OP("OP_getActorScaleX!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_getActorLayer:
-				GS_UNHANDLED_OP("OP_getActorLayer!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_getActorElevation:
-				GS_UNHANDLED_OP("OP_getActorElevation!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_getActorWidth:
-				GS_UNHANDLED_OP("OP_getActorWidth!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_getObjectNewDir:
-				GS_UNHANDLED_OP("OP_getObjectNewDir!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_getObjectX:
-				GS_UNHANDLED_OP("OP_getObjectX!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_getObjectY:
-				GS_UNHANDLED_OP("OP_getObjectY!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_getActorChore:
-				GS_UNHANDLED_OP("OP_getActorChore!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_distObjectObject:
-				GS_UNHANDLED_OP("OP_distObjectObject!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_distPtPt:
-				GS_UNHANDLED_OP("OP_distPtPt!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_getObjectImageX:
-				GS_UNHANDLED_OP("OP_getObjectImageX!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_getObjectImageY:
-				GS_UNHANDLED_OP("OP_getObjectImageY!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_getObjectImageWidth:
-				GS_UNHANDLED_OP("OP_getObjectImageWidth!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_getObjectImageHeight:
-				GS_UNHANDLED_OP("OP_getObjectImageHeight!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_f4:
-				GS_UNHANDLED_OP("OP_f4!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_f5:
-				GS_UNHANDLED_OP("OP_f5!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_getStringWidth:
-				GS_UNHANDLED_OP("OP_getStringWidth!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_getActorZPlane:
-				GS_UNHANDLED_OP("OP_getActorZPlane!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_f8:
-				GS_UNHANDLED_OP("OP_f8!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_f9:
-				GS_UNHANDLED_OP("OP_f9!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_fa:
-				GS_UNHANDLED_OP("OP_fa!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_fb:
-				GS_UNHANDLED_OP("OP_fb!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_fc:
-				GS_UNHANDLED_OP("OP_fc!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_fd:
-				GS_UNHANDLED_OP("OP_fd!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_fe:
-				GS_UNHANDLED_OP("OP_fe!");
+				GS_UNHANDLED_OP;
 			return;
 			case OP_ff:
-				GS_UNHANDLED_OP("OP_ff!");
+				GS_UNHANDLED_OP;
 			return;
 		}
 	}
