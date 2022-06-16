@@ -30,6 +30,25 @@ namespace common
 	static const uint32 PutChar = 0x16c04e75;
 	static const uint32 LenChar = 0x52934e75;
 	static char BufChar[1024] = { 0 };
+	
+	static const char HEX_CHAR[16] = {
+		'0',
+		'1',
+		'2',
+		'3',
+		'4',
+		'5',
+		'6',
+		'7',
+		'8',
+		'9',
+		'A',
+		'B',
+		'C',
+		'D',
+		'E',
+		'F',
+	};
 
 	static inline void gs_printf(const char* fmt, ...) {
 		const char* arg = (const char*)(&fmt + 1);
@@ -118,7 +137,15 @@ namespace common
 	}
 
 	void debug_write_byte(byte byte_value) {
-		Printf("%2x", byte_value);
+
+		char str_temp[3];
+		str_temp[0] = HEX_CHAR[((byte_value >> 4) & 0xF)];
+		str_temp[1] = HEX_CHAR[(byte_value & 0xF)];
+		str_temp[2] = 0;
+		
+		FPuts(Output(), str_temp);
+
+		//Printf("%02x", byte_value);
 	}
 
 	void debug_write_char(char char_value) {

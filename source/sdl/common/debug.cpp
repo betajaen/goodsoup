@@ -117,7 +117,7 @@ namespace common
 	}
 
     void debug_write_byte(byte byte_value) {
-		fprintf(stdout, "%2x", (uint32) byte_value);
+		fprintf(stdout, "%02x", byte_value);
 	}
 
     void debug_write_char(char char_value) {
