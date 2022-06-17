@@ -27,7 +27,9 @@ namespace comi
 {
 	const uint16 NO_ARRAY = 0;
 
-	VmArrayAllocator::VmArrayAllocator() {
+	VmArrayAllocator::VmArrayAllocator() 
+		: _lastUsed(NULL)
+	{
 		for (uint8 i = 0; i < NUM_ARRAY; i++) {
 			_slots[i] = NULL;
 		}
@@ -69,6 +71,8 @@ namespace comi
 		for (uint8 i = 0; i < NUM_ARRAY; i++) {
 			_nums[i] = NO_ARRAY;
 		}
+
+		_lastUsed = NULL;
 		
 	}
 	
@@ -113,6 +117,8 @@ namespace comi
 		array->_idx = arrayIdx;
 
 		_nums[arrayIdx] = arrayNum;
+
+		_lastUsed = array;
 		
 		return array;
 	}
@@ -130,6 +136,10 @@ namespace comi
 		_free.push(index);
 		_nums[index] = NO_ARRAY;
 
+		if (_lastUsed == array) {
+			_lastUsed = NULL;
+		}
+
 		releaseMemory(array);
 	}
 
@@ -139,14 +149,21 @@ namespace comi
 			return NULL;
 		}
 
-		return _slots[index];
+		_lastUsed = _slots[index];
+
+		return _lastUsed;
 	}
 
 	VmArray* VmArrayAllocator::findFromNum(uint16 num) {
 
+		if (_lastUsed != NULL && _lastUsed->_num == num) {
+			return _lastUsed;
+		}
+
 		for (uint8 i = 0; i < NUM_ARRAY; i++) {
 			if (_nums[i] == num) {
-				return _slots[i];
+				_lastUsed = _slots[i];
+				return _lastUsed;
 			}
 		}
 		return NULL;
