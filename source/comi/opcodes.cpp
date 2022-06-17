@@ -407,14 +407,14 @@ namespace comi
 					case DimArrayOp_NewInt:
 						size = _popStack();
 						_newArray(arrayNum, AK_Int, 0, size);
-					break;
+					return;
 					case DimArrayOp_NewString:
 						size = _popStack();
 						_newArray(arrayNum, AK_String, 0, size);
-					break;
+					return;
 					case DimArrayOp_Delete:
 						_deleteArray(arrayNum);
-					break;
+					return;
 				}
 				
 				error(COMI_THIS, "Not implemented OP_dimArray(%ld,%ld)", (uint32) subOp, (uint32) arrayNum);
@@ -456,15 +456,23 @@ namespace comi
 					return;
 					case ArrayOps_AssignScummVarList: {
 						/* TODO */
-						error(COMI_THIS, "not implemented");
+						error(COMI_THIS, "Not implemented OP_arrayOps ArrayOps_AssignString");
+						_dumpState();
+						_forceQuit();
 					}
 					return;
 					case ArrayOps_Assign2DimList: {
 						/* TODO */
-						error(COMI_THIS, "not implemented");
+						error(COMI_THIS, "Not implemented OP_arrayOps ArrayOps_Assign2DimList");
+						_dumpState();
+						_forceQuit();
 					}
 					return;
 				}
+
+				error(COMI_THIS, "Not implemented OP_arrayOps (%ld, %ld)", (uint32) subOp, (uint32) arrayNum);
+				_dumpState();
+				_forceQuit();
 			}
 			return;
 			case OP_77:
@@ -589,48 +597,63 @@ namespace comi
 			return;
 			case OP_cursorCommand: {
 				
-				/* UNHANDLED */
-
 				byte param = _readByte();
-				warn(COMI_THIS, "Not implemented OP_cursorCommand(%ld)", (uint32) param);
 
 				switch (param) {
-					case 0xDC:
-					break;
-					case 0xDD:
-					break;
-					case 0xDE:
-					break;
-					case 0xDF:
-					break;
-					case 0xE0:
-					break;
-					case 0xE1:
-					break;
-					case 0xE2:
-					break;
-					case 0xE3:
-					break;
-					case 0xE4:
+					case CursorCommandOp_CursorOn:
+						warn(COMI_THIS, "Not implemented OP_cursorCommand CursorCommandOp_CursorOn");
+					return;
+					case CursorCommandOp_CursorOff:
+						warn(COMI_THIS, "Not implemented OP_cursorCommand CursorCommandOp_CursorOff");
+					return;
+					case CursorCommandOp_SoftCursorOn:
+						warn(COMI_THIS, "Not implemented OP_cursorCommand CursorCommandOp_SoftCursorOn");
+					return;
+					case CursorCommandOp_SoftCursorOff:
+						warn(COMI_THIS, "Not implemented OP_cursorCommand CursorCommandOp_SoftCursorOff");
+					return;
+					case CursorCommandOp_UserPutOn:
+						warn(COMI_THIS, "Not implemented OP_cursorCommand CursorCommandOp_UserPutOn");
+					return;
+					case CursorCommandOp_UserPutOff:
+						warn(COMI_THIS, "Not implemented OP_cursorCommand CursorCommandOp_UserPutOff");
+					return;
+					case CursorCommandOp_SoftUserPutOn:
+						warn(COMI_THIS, "Not implemented OP_cursorCommand CursorCommandOp_SoftUserPutOn");
+					return;
+					case CursorCommandOp_SoftUserPutOff:
+						warn(COMI_THIS, "Not implemented OP_cursorCommand CursorCommandOp_SoftUserPutOff");
+					return;
+					case CursorCommandOp_CursorImage:
 						_popStack();
-					break;
-					case 0xE5:
-						_popStack();
-						_popStack();
-					break;
-					case 0xE6:
-						_popStack();
-					break;
-					case 0xE7:
-						_popStack();
-					break;
-					case 0xE8:
-					break;
-					case 0xE9:
+						warn(COMI_THIS, "Not implemented OP_cursorCommand CursorCommandOp_CursorImage");
+					return;
+					case CursorCommandOp_HotSpot:
 						_popStack();
 						_popStack();
-					break;
+						warn(COMI_THIS, "Not implemented OP_cursorCommand CursorCommandOp_HotSpot");
+					return;
+					case CursorCommandOp_Transparency:
+						_popStack();
+						warn(COMI_THIS, "Not implemented OP_cursorCommand CursorCommandOp_Transparency");
+					return;
+					case CursorCommandOp_CharsetSet:
+						_popStack();
+						warn(COMI_THIS, "Not implemented OP_cursorCommand CursorCommandOp_CharsetSet");
+					return;
+					case CursorCommandOp_CharsetColour:
+						warn(COMI_THIS, "Not implemented OP_cursorCommand CursorCommandOp_CharsetColour");
+					return;
+					case CursorCommandOp_CursorPut:
+						_popStack();
+						_popStack();
+						warn(COMI_THIS, "Not implemented OP_cursorCommand CursorCommandOp_CursorPut");
+					return;
 				}
+
+				error(COMI_THIS, "Not implemented OP_cursorCommand(%ld)", (uint32) param);
+				_dumpState();
+				_forceQuit();
 			}
 			return;
 			case OP_loadRoom:
