@@ -422,8 +422,21 @@ namespace comi
 				_forceQuit();
 			}
 			return;
-			case OP_wordArrayWrite:
-				GS_UNHANDLED_OP;
+			case OP_wordArrayWrite: {
+				uint16 arrayNum = _readWord();
+				int32 value = _popStack();
+				int32 base = _popStack();
+
+				VmArray* array = _arrays->findFromNum(arrayNum);
+				if (array) {
+					array->write(value, 0, base);
+				}
+				else {
+					error(COMI_THIS, "NULL VmArray (%ld) used with OP_wordArrayWrite", (uint32) arrayNum);
+					_dumpState();
+					_forceQuit();
+				}
+			}
 			return;
 			case OP_wordArrayInc:
 				GS_UNHANDLED_OP;
@@ -763,8 +776,61 @@ namespace comi
 
 			}
 			return;
-			case OP_roomOps:
-				GS_UNHANDLED_OP;
+			case OP_roomOps: {
+
+				byte subOp = _readByte();
+
+				switch (subOp) {
+					case RoomOp_SetColour:
+						_popStack();
+						_popStack();
+						_popStack();
+						_popStack();
+						warn(COMI_THIS, "Not implemented OP_roomOps RoomOp_SetColour");
+					return;
+					case RoomOp_FadePalette:
+						_popStack();
+						warn(COMI_THIS, "Not implemented OP_roomOps RoomOp_FadePalette");
+					return;
+					case RoomOp_DarkenPalette:
+						_popStack();
+						_popStack();
+						_popStack();
+						_popStack();
+						_popStack();
+						warn(COMI_THIS, "Not implemented OP_roomOps RoomOp_DarkenPalette");
+					return;
+					case RoomOp_PaletteManipulate:
+						_popStack();
+						_popStack();
+						_popStack();
+						_popStack();
+						warn(COMI_THIS, "Not implemented OP_roomOps RoomOp_PaletteManipulate");
+					return;
+					case RoomOp_SetPalette:
+						_popStack();
+						warn(COMI_THIS, "Not implemented OP_roomOps RoomOp_SetPalette");
+					return;
+					case RoomOp_SaveGame:
+						warn(COMI_THIS, "Not implemented OP_roomOps RoomOp_SaveGame");
+					return;
+					case RoomOp_LoadGame:
+						warn(COMI_THIS, "Not implemented OP_roomOps RoomOp_LoadGame");
+					return;
+					case RoomOp_DesaturatePalette:
+						_popStack();
+						_popStack();
+						_popStack();
+						_popStack();
+						_popStack();
+						warn(COMI_THIS, "Not implemented OP_roomOps RoomOp_DesaturatePalette");
+					return;
+				}
+
+				error(COMI_THIS, "Not implemented OP_roomOps(%ld)", (uint32) subOp);
+				_dumpState();
+				_forceQuit();
+			}
 			return;
 			case OP_actorOps:
 				GS_UNHANDLED_OP;

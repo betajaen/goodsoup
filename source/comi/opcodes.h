@@ -375,6 +375,17 @@ namespace comi
 		KernelOp_SuperBlastObject = 0x77
 	};
 
+	enum RoomOp {
+		RoomOp_SetColour = 0x52,
+		RoomOp_FadePalette = 0x57,
+		RoomOp_DarkenPalette = 0x58,
+		RoomOp_PaletteManipulate = 0x59,
+		RoomOp_SetPalette = 0x5C,
+		RoomOp_SaveGame = 0x5D,
+		RoomOp_LoadGame = 0x5E,
+		RoomOp_DesaturatePalette = 0x5F
+	};
+
 
 	enum ResourceRoutineOp {
 		ResourceRoutineOp_Dummy = 0x3C,
