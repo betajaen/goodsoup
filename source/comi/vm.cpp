@@ -564,10 +564,6 @@ namespace comi
 		}
 	}
 	
-	void VirtualMachine::_deleteContextArrays(uint8 contextNum) {
-		warn(COMI_THIS, "Unimplemented feature for Context %ld", (uint32) contextNum);
-	}
-
 	void VirtualMachine::_updateScriptData(ScriptContext& context) {
 		uint16 _scriptNum = context._scriptNum;
 
