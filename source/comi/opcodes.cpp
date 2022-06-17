@@ -377,14 +377,20 @@ namespace comi
 			case OP_wait:
 				GS_UNHANDLED_OP;
 			return;
-			case OP_delay:
-				GS_UNHANDLED_OP;
+			case OP_delay: {
+				int32 time = _popStack();
+				_delay(time);
+			}
 			return;
-			case OP_delaySeconds:
-				GS_UNHANDLED_OP;
+			case OP_delaySeconds: {
+				int32 time = _popStack() * 60;
+				_delay(time);
+			}
 			return;
-			case OP_delayMinutes:
-				GS_UNHANDLED_OP;
+			case OP_delayMinutes: {
+				int32 time = _popStack() * 3600;
+				_delay(time);
+			}
 			return;
 			case OP_writeWordVar: {
 				uint32 varWhere = _readUnsignedWord();

@@ -532,7 +532,7 @@ namespace comi
 		context.markDead();
 		_currentContext = NO_CONTEXT;
 	}
-	
+
 	VmArray* VirtualMachine::_newArray(uint32 arrayNum, uint8 kind, uint16 dim2, uint16 dim1) {
 		
 		VmArray* array = _arrays->allocate(arrayNum, dim1, dim2, kind);
@@ -644,7 +644,7 @@ namespace comi
 	}
 
 	void VirtualMachine::runCurrentScript() {
-		while (_currentContext != 0xFF) {
+		while (_currentContext != NO_CONTEXT) {
 			PcState state;
 			state.opcode = _opcode;
 			state.pc = _pc;
@@ -652,6 +652,23 @@ namespace comi
 			_step();
 			state.pcAfter = _pc;
 			_pcState.overwrite(state);
+		}
+	}
+
+	void VirtualMachine::_delay(uint32 time) {
+		if (_currentContext != NO_CONTEXT) {
+			ScriptContext& context = _context[_currentContext];
+			context._delay = time;
+			context._state = SCS_Paused;
+			_break();
+		}
+	}
+
+	void VirtualMachine::_break() {
+		if (_currentContext != NO_CONTEXT) {
+			ScriptContext& context = _context[_currentContext];
+			context._lastPC = _pc;
+			_currentContext = NO_CONTEXT;
 		}
 	}
 

@@ -261,6 +261,8 @@ namespace comi
 		void _placeContextOnStackAndRun(uint8 newContextNum);
 		void _step();
 		void _stopObjectCode();
+		void _delay(uint32 seconds);
+		void _break();
 
 		VmArray* _newArray(uint32 num, uint8 kind, uint16 dim2, uint16 dim1);
 		void _deleteArray(uint32 num);
