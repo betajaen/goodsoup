@@ -415,11 +415,11 @@ namespace comi
 					case DimArrayOp_Delete:
 						_deleteArray(arrayNum);
 					break;
-					default:
-						error(COMI_THIS, "Unhandled subop for OP_dimArray %ld", subOp);
-						_forceQuit();
-					break;
 				}
+				
+				error(COMI_THIS, "Not implemented OP_dimArray(%ld,%ld)", (uint32) subOp, (uint32) arrayNum);
+				_dumpState();
+				_forceQuit();
 			}
 			return;
 			case OP_wordArrayWrite:
@@ -592,7 +592,7 @@ namespace comi
 				/* UNHANDLED */
 
 				byte param = _readByte();
-				warn(COMI_THIS, "Not properly implemented OP_cursorCommand(%ld)", (uint32) param);
+				warn(COMI_THIS, "Not implemented OP_cursorCommand(%ld)", (uint32) param);
 
 				switch (param) {
 					case 0xDC:
@@ -676,9 +676,68 @@ namespace comi
 				byte  subOp = _readByte();
 				int32 resId = _popStack();
 
-				warn(COMI_THIS, "Not properly implemented OP_resourceRoutines(%ld,%ld)", (uint32) subOp, (uint32) resId);
+				switch (subOp) {
+					case ResourceRoutineOp_Dummy:
+						warn(COMI_THIS, "Not implemented OP_resourceRoutines ResourceRoutineOp_Dummy");
+					return;
+					case ResourceRoutineOp_LoadCostume:
+						warn(COMI_THIS, "Not implemented OP_resourceRoutines ResourceRoutineOp_LoadCostume");
+					return;
+					case ResourceRoutineOp_LoadObject:
+						warn(COMI_THIS, "Not implemented OP_resourceRoutines ResourceRoutineOp_LoadObject");
+					return;
+					case ResourceRoutineOp_LoadRoom:
+						warn(COMI_THIS, "Not implemented OP_resourceRoutines ResourceRoutineOp_LoadRoom");
+					return;
+					case ResourceRoutineOp_LoadScript:
+						warn(COMI_THIS, "Not implemented OP_resourceRoutines ResourceRoutineOp_LoadScript");
+					return;
+					case ResourceRoutineOp_LoadSound:
+						warn(COMI_THIS, "Not implemented OP_resourceRoutines ResourceRoutineOp_LoadSound");
+					return;
+					case ResourceRoutineOp_LockCostume:
+						warn(COMI_THIS, "Not implemented OP_resourceRoutines ResourceRoutineOp_LockCostume");
+					return;
+					case ResourceRoutineOp_LockRoom:
+						warn(COMI_THIS, "Not implemented OP_resourceRoutines ResourceRoutineOp_LockRoom");
+					return;
+					case ResourceRoutineOp_LockScript:
+						warn(COMI_THIS, "Not implemented OP_resourceRoutines ResourceRoutineOp_LockScript");
+					return;
+					case ResourceRoutineOp_LockSound:
+						warn(COMI_THIS, "Not implemented OP_resourceRoutines ResourceRoutineOp_LockSound");
+					return;
+					case ResourceRoutineOp_UnlockCostume:
+						warn(COMI_THIS, "Not implemented OP_resourceRoutines ResourceRoutineOp_UnlockCostume");
+					return;
+					case ResourceRoutineOp_UnlockRoom:
+						warn(COMI_THIS, "Not implemented OP_resourceRoutines ResourceRoutineOp_UnlockRoom");
+					return;
+					case ResourceRoutineOp_UnlockScript:
+						warn(COMI_THIS, "Not implemented OP_resourceRoutines ResourceRoutineOp_UnlockScript");
+					return;
+					case ResourceRoutineOp_UnlockSound:
+						warn(COMI_THIS, "Not implemented OP_resourceRoutines ResourceRoutineOp_UnlockSound");
+					return;
+					case ResourceRoutineOp_SetResourceCounterCostume:
+						warn(COMI_THIS, "Not implemented OP_resourceRoutines ResourceRoutineOp_SetResourceCounterCostume");
+					return;
+					case ResourceRoutineOp_SetResourceCounterRoom:
+						warn(COMI_THIS, "Not implemented OP_resourceRoutines ResourceRoutineOp_SetResourceCounterRoom");
+					return;
+					case ResourceRoutineOp_SetResourceCounterScript:
+						warn(COMI_THIS, "Not implemented OP_resourceRoutines ResourceRoutineOp_SetResourceCounterScript");
+					return;
+					case ResourceRoutineOp_SetResourceCounterSound:
+						warn(COMI_THIS, "Not implemented OP_resourceRoutines ResourceRoutineOp_SetResourceCounterSound");
+					return;
+				}
 
-				/* UNHANDLED */
+
+				error(COMI_THIS, "Not implemented OP_resourceRoutines(%ld,%ld)", (uint32) subOp, (uint32) resId);
+				_dumpState();
+				_forceQuit();
+
 			}
 			return;
 			case OP_roomOps:
@@ -714,7 +773,7 @@ namespace comi
 					return;
 				}
 
-				warn(COMI_THIS, "Not properly implemented SysCall! %ld", (uint32)param);
+				warn(COMI_THIS, "Not implemented SysCall! %ld", (uint32)param);
 				
 				/* UNHANDLED */
 			}
@@ -745,62 +804,61 @@ namespace comi
 				switch(args[0]) {
 
 					case KernelOp_LockObject:
-						warn(COMI_THIS, "Not Properly implemented KernelOp_LockObject");
+						warn(COMI_THIS, "Not implemented KernelOp_LockObject");
 					return;
 					case KernelOp_UnlockObject:
-						warn(COMI_THIS, "Not Properly implemented KernelOp_UnlockObject");
+						warn(COMI_THIS, "Not implemented KernelOp_UnlockObject");
 					return;
 					case KernelOp_RemapCostume:
-						warn(COMI_THIS, "Not Properly implemented KernelOp_RemapCostume");
+						warn(COMI_THIS, "Not implemented KernelOp_RemapCostume");
 					return;
 					case KernelOp_RemapCostumeInert:
-						warn(COMI_THIS, "Not Properly implemented KernelOp_RemapCostumeInert");
+						warn(COMI_THIS, "Not implemented KernelOp_RemapCostumeInert");
 					return;
 					case KernelOp_SetBoxScaleSlot:
-						warn(COMI_THIS, "Not Properly implemented KernelOp_SetBoxScaleSlot");
+						warn(COMI_THIS, "Not implemented KernelOp_SetBoxScaleSlot");
 					return;
 					case KernelOp_SetScaleSlot:
-						warn(COMI_THIS, "Not Properly implemented KernelOp_SetScaleSlot");
+						warn(COMI_THIS, "Not implemented KernelOp_SetScaleSlot");
 					return;
 					case KernelOp_SetBannerColours:
-						warn(COMI_THIS, "Not Properly implemented KernelOp_SetBannerColours");
+						warn(COMI_THIS, "Not implemented KernelOp_SetBannerColours");
 					return;
 					case KernelOp_SetActorChoreLimbFrame:
-						warn(COMI_THIS, "Not Properly implemented KernelOp_SetActorChoreLimbFrame");
+						warn(COMI_THIS, "Not implemented KernelOp_SetActorChoreLimbFrame");
 					return;
 					case KernelOp_ClearTextQueue:
-						warn(COMI_THIS, "Not Properly implemented KernelOp_ClearTextQueue");
+						warn(COMI_THIS, "Not implemented KernelOp_ClearTextQueue");
 					return;
 					case KernelOp_KillAllScriptsExceptCurrent:
-						warn(COMI_THIS, "Not Properly implemented KernelOp_KillAllScriptsExceptCurrent");
+						warn(COMI_THIS, "Not implemented KernelOp_KillAllScriptsExceptCurrent");
 					return;
 					case KernelOp_StopAllVideo:
-						warn(COMI_THIS, "Not Properly implemented KernelOp_StopAllVideo");
+						warn(COMI_THIS, "Not implemented KernelOp_StopAllVideo");
 					return;
 					case KernelOp_WriteRegistryValue:
-						warn(COMI_THIS, "Not Properly implemented KernelOp_WriteRegistryValue");
+						warn(COMI_THIS, "Not implemented KernelOp_WriteRegistryValue");
 					return;
 					case KernelOp_QueryQuit:
-						warn(COMI_THIS, "Not Properly implemented KernelOp_QueryQuit");
+						warn(COMI_THIS, "Not implemented KernelOp_QueryQuit");
 					return;
 					case KernelOp_BuildShadowPalette:
-						warn(COMI_THIS, "Not Properly implemented KernelOp_BuildShadowPalette");
+						warn(COMI_THIS, "Not implemented KernelOp_BuildShadowPalette");
 					return;
 					case KernelOp_SetShadowPalette:
-						warn(COMI_THIS, "Not Properly implemented KernelOp_SetShadowPalette");
+						warn(COMI_THIS, "Not implemented KernelOp_SetShadowPalette");
 					return;
 					case KernelOp_BlastShadowObject:
-						warn(COMI_THIS, "Not Properly implemented KernelOp_BlastShadowObject");
+						warn(COMI_THIS, "Not implemented KernelOp_BlastShadowObject");
 					return;
 					case KernelOp_SuperBlastObject:
-						warn(COMI_THIS, "Not Properly implemented KernelOp_SuperBlastObject");
+						warn(COMI_THIS, "Not implemented KernelOp_SuperBlastObject");
 					return;
 				}
 
-				warn(COMI_THIS, "Not properly implemented KernelSetFunctions(%ld,%ld)", (uint32) args[0], length);
-				
-
-				/* UNHANDLED */
+				_dumpState();
+				_forceQuit();
+				error(COMI_THIS, "Not implemented KernelSetFunctions(%ld, %ld)", (uint32) args[0], length);
 			}
 			return;
 			case OP_bb:
