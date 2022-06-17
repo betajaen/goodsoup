@@ -84,17 +84,29 @@ namespace comi
 			case OP_ge:
 				GS_UNHANDLED_OP;
 			return;
-			case OP_add:
-				GS_UNHANDLED_OP;
+			case OP_add: {
+				int32 a = _popStack();
+				int32 b = _popStack();
+				_pushStack(b + a);
+			}
 			return;
-			case OP_sub:
-				GS_UNHANDLED_OP;
+			case OP_sub: {
+				int32 a = _popStack();
+				int32 b = _popStack();
+				_pushStack(b - a);
+			}
 			return;
-			case OP_mul:
-				GS_UNHANDLED_OP;
+			case OP_mul:{
+				int32 a = _popStack();
+				int32 b = _popStack();
+				_pushStack(b * a);
+			}
 			return;
-			case OP_div:
-				GS_UNHANDLED_OP;
+			case OP_div:{
+				int32 a = _popStack();
+				int32 b = _popStack();
+				_pushStack(b / a);
+			}
 			return;
 			case OP_land: {
 				int32 a = _popStack();
