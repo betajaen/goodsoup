@@ -331,12 +331,70 @@ namespace comi
 		ArrayOps_AssignScummVarList = 0x15,
 		ArrayOps_Assign2DimList = 0x16
 	};
+	
+	enum CursorCommandOp {
+		CursorCommandOp_CursorOn = 0xDC,
+		CursorCommandOp_CursorOff = 0xDD,
+		CursorCommandOp_SoftCursorOn = 0xDE,
+		CursorCommandOp_SoftCursorOff = 0xDF,
+		CursorCommandOp_UserPutOn = 0xE0,
+		CursorCommandOp_UserPutOff = 0xE1,
+		CursorCommandOp_SoftUserPutOn = 0xE2,
+		CursorCommandOp_SoftUserPutOff = 0xE3,
+		CursorCommandOp_CursorImage = 0xE4,
+		CursorCommandOp_HotSpot = 0xE5,
+		CursorCommandOp_Transparency = 0xE6,
+		CursorCommandOp_CharsetSet = 0xE7,
+		CursorCommandOp_CharsetColour = 0xE8,
+		CursorCommandOp_CursorPut = 0xE9
+	};
 
-	enum DimArrayOp
-	{
+	enum DimArrayOp {
 		DimArrayOp_NewInt = 0xA,
 		DimArrayOp_NewString = 0xB,
 		DimArrayOp_Delete = 0xC
+	};
+
+	enum KernelOp {
+		KernelOp_LockObject = 0xB,
+		KernelOp_UnlockObject = 0xC,
+		KernelOp_RemapCostume = 0xD,
+		KernelOp_RemapCostumeInert = 0xE,
+		KernelOp_SetBoxScaleSlot = 0x14,
+		KernelOp_SetScaleSlot = 0x15,
+		KernelOp_SetBannerColours = 0x16,
+		KernelOp_SetActorChoreLimbFrame = 0x17,
+		KernelOp_ClearTextQueue = 0x18,
+		KernelOp_KillAllScriptsExceptCurrent = 0x1E,
+		KernelOp_StopAllVideo = 0x1F,
+		KernelOp_WriteRegistryValue = 0x20,
+		KernelOp_QueryQuit = 0x22,
+		KernelOp_BuildShadowPalette = 0x6C,
+		KernelOp_SetShadowPalette = 0x6D,
+		KernelOp_BlastShadowObject = 0x76,
+		KernelOp_SuperBlastObject = 0x77
+	};
+
+
+	enum ResourceRoutineOp {
+		ResourceRoutineOp_Dummy = 0x3C,
+		ResourceRoutineOp_LoadCostume = 0x3D,
+		ResourceRoutineOp_LoadObject = 0x3E,
+		ResourceRoutineOp_LoadRoom = 0x3F,
+		ResourceRoutineOp_LoadScript = 0x40,
+		ResourceRoutineOp_LoadSound = 0x41,
+		ResourceRoutineOp_LockCostume = 0x42,
+		ResourceRoutineOp_LockRoom = 0x43,
+		ResourceRoutineOp_LockScript = 0x44,
+		ResourceRoutineOp_LockSound = 0x45,
+		ResourceRoutineOp_UnlockCostume = 0x46,
+		ResourceRoutineOp_UnlockRoom = 0x47,
+		ResourceRoutineOp_UnlockScript = 0x48,
+		ResourceRoutineOp_UnlockSound = 0x49,
+		ResourceRoutineOp_SetResourceCounterCostume = 0x4A,
+		ResourceRoutineOp_SetResourceCounterRoom = 0x4B,
+		ResourceRoutineOp_SetResourceCounterScript = 0x4C,
+		ResourceRoutineOp_SetResourceCounterSound = 0x4D
 	};
 
 	enum VerbOp {
@@ -359,43 +417,6 @@ namespace comi
 		VerbOp_SetLineSpacing = 0xA7
 	};
 
-	enum CursorCommandOp {
-		CursorCommandOp_CursorOn = 0xDC,
-		CursorCommandOp_CursorOff = 0xDD,
-		CursorCommandOp_SoftCursorOn = 0xDE,
-		CursorCommandOp_SoftCursorOff = 0xDF,
-		CursorCommandOp_UserPutOn = 0xE0,
-		CursorCommandOp_UserPutOff = 0xE1,
-		CursorCommandOp_SoftUserPutOn = 0xE2,
-		CursorCommandOp_SoftUserPutOff = 0xE3,
-		CursorCommandOp_CursorImage = 0xE4,
-		CursorCommandOp_HotSpot = 0xE5,
-		CursorCommandOp_Transparency = 0xE6,
-		CursorCommandOp_CharsetSet = 0xE7,
-		CursorCommandOp_CharsetColour = 0xE8,
-		CursorCommandOp_CursorPut = 0xE9
-	};
-
-	enum ResourceRoutineOp {
-		ResourceRoutineOp_Dummy = 0x3C,
-		ResourceRoutineOp_LoadCostume = 0x3D,
-		ResourceRoutineOp_LoadObject = 0x3E,
-		ResourceRoutineOp_LoadRoom = 0x3F,
-		ResourceRoutineOp_LoadScript = 0x40,
-		ResourceRoutineOp_LoadSound = 0x41,
-		ResourceRoutineOp_LockCostume = 0x42,
-		ResourceRoutineOp_LockRoom = 0x43,
-		ResourceRoutineOp_LockScript = 0x44,
-		ResourceRoutineOp_LockSound = 0x45,
-		ResourceRoutineOp_UnlockCostume = 0x46,
-		ResourceRoutineOp_UnlockRoom = 0x47,
-		ResourceRoutineOp_UnlockScript = 0x48,
-		ResourceRoutineOp_UnlockSound = 0x49,
-		ResourceRoutineOp_SetResourceCounterCostume = 0x4A,
-		ResourceRoutineOp_SetResourceCounterRoom = 0x4B,
-		ResourceRoutineOp_SetResourceCounterScript = 0x4C,
-		ResourceRoutineOp_SetResourceCounterSound = 0x4D
-	};
 }
 
 #endif

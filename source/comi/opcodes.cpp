@@ -742,8 +742,64 @@ namespace comi
 				int32 args[30];
 				uint8 length = _readStackList(args, 30);
 				
+				switch(args[0]) {
+
+					case KernelOp_LockObject:
+						warn(COMI_THIS, "Not Properly implemented KernelOp_LockObject");
+					return;
+					case KernelOp_UnlockObject:
+						warn(COMI_THIS, "Not Properly implemented KernelOp_UnlockObject");
+					return;
+					case KernelOp_RemapCostume:
+						warn(COMI_THIS, "Not Properly implemented KernelOp_RemapCostume");
+					return;
+					case KernelOp_RemapCostumeInert:
+						warn(COMI_THIS, "Not Properly implemented KernelOp_RemapCostumeInert");
+					return;
+					case KernelOp_SetBoxScaleSlot:
+						warn(COMI_THIS, "Not Properly implemented KernelOp_SetBoxScaleSlot");
+					return;
+					case KernelOp_SetScaleSlot:
+						warn(COMI_THIS, "Not Properly implemented KernelOp_SetScaleSlot");
+					return;
+					case KernelOp_SetBannerColours:
+						warn(COMI_THIS, "Not Properly implemented KernelOp_SetBannerColours");
+					return;
+					case KernelOp_SetActorChoreLimbFrame:
+						warn(COMI_THIS, "Not Properly implemented KernelOp_SetActorChoreLimbFrame");
+					return;
+					case KernelOp_ClearTextQueue:
+						warn(COMI_THIS, "Not Properly implemented KernelOp_ClearTextQueue");
+					return;
+					case KernelOp_KillAllScriptsExceptCurrent:
+						warn(COMI_THIS, "Not Properly implemented KernelOp_KillAllScriptsExceptCurrent");
+					return;
+					case KernelOp_StopAllVideo:
+						warn(COMI_THIS, "Not Properly implemented KernelOp_StopAllVideo");
+					return;
+					case KernelOp_WriteRegistryValue:
+						warn(COMI_THIS, "Not Properly implemented KernelOp_WriteRegistryValue");
+					return;
+					case KernelOp_QueryQuit:
+						warn(COMI_THIS, "Not Properly implemented KernelOp_QueryQuit");
+					return;
+					case KernelOp_BuildShadowPalette:
+						warn(COMI_THIS, "Not Properly implemented KernelOp_BuildShadowPalette");
+					return;
+					case KernelOp_SetShadowPalette:
+						warn(COMI_THIS, "Not Properly implemented KernelOp_SetShadowPalette");
+					return;
+					case KernelOp_BlastShadowObject:
+						warn(COMI_THIS, "Not Properly implemented KernelOp_BlastShadowObject");
+					return;
+					case KernelOp_SuperBlastObject:
+						warn(COMI_THIS, "Not Properly implemented KernelOp_SuperBlastObject");
+					return;
+				}
+
 				warn(COMI_THIS, "Not properly implemented KernelSetFunctions(%ld,%ld)", (uint32) args[0], length);
 				
+
 				/* UNHANDLED */
 			}
 			return;
