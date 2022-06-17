@@ -360,6 +360,7 @@ namespace comi
 		KernelOp_UnlockObject = 0xC,
 		KernelOp_RemapCostume = 0xD,
 		KernelOp_RemapCostumeInert = 0xE,
+		KernelOp_Unused_0xF = 0xF,
 		KernelOp_SetBoxScaleSlot = 0x14,
 		KernelOp_SetScaleSlot = 0x15,
 		KernelOp_SetBannerColours = 0x16,

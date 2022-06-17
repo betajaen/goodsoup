@@ -838,8 +838,79 @@ namespace comi
 			case OP_cameraOps:
 				GS_UNHANDLED_OP;
 			return;
-			case OP_verbOps:
-				GS_UNHANDLED_OP;
+			case OP_verbOps: {
+				byte subOp = _readByte();
+
+				switch (subOp) {
+					case VerbOp_Init:
+						_popStack();
+						warn(COMI_THIS, "Not implemented OP_verbOps VerbOp_Init");
+					return;
+					case VerbOp_New:
+						warn(COMI_THIS, "Not implemented OP_verbOps VerbOp_Init");
+					return;
+					case VerbOp_Delete:
+						warn(COMI_THIS, "Not implemented OP_verbOps VerbOp_Init");
+					return;
+					case VerbOp_SetName:
+						warn(COMI_THIS, "Not implemented OP_verbOps VerbOp_Init");
+					return;
+					case VerbOp_SetPosition:
+						_popStack();
+						_popStack();
+						warn(COMI_THIS, "Not implemented OP_verbOps VerbOp_Init");
+					return;
+					case VerbOp_Enable:
+						warn(COMI_THIS, "Not implemented OP_verbOps VerbOp_Init");
+					return;
+					case VerbOp_Disable:
+						warn(COMI_THIS, "Not implemented OP_verbOps VerbOp_Init");
+					return;
+					case VerbOp_SetColour:
+						_popStack();
+						warn(COMI_THIS, "Not implemented OP_verbOps VerbOp_Init");
+					return;
+					case VerbOp_SetHilightColour:
+						_popStack();
+						warn(COMI_THIS, "Not implemented OP_verbOps VerbOp_Init");
+					return;
+					case VerbOp_SetDimmedColour:
+						_popStack();
+						warn(COMI_THIS, "Not implemented OP_verbOps VerbOp_Init");
+					return;
+					case VerbOp_Dim:
+						warn(COMI_THIS, "Not implemented OP_verbOps VerbOp_Init");
+					return;
+					case VerbOp_SetKey:
+						_popStack();
+						warn(COMI_THIS, "Not implemented OP_verbOps VerbOp_Init");
+					return;
+					case VerbOp_SetImage:
+						_popStack();
+						_popStack();
+						warn(COMI_THIS, "Not implemented OP_verbOps VerbOp_Init");
+					return;
+					case VerbOp_SetNameString:
+						_popStack();
+						warn(COMI_THIS, "Not implemented OP_verbOps VerbOp_Init");
+					return;
+					case VerbOp_Centre:
+						warn(COMI_THIS, "Not implemented OP_verbOps VerbOp_Init");
+					return;
+					case VerbOp_SetCharSet:
+						_popStack();
+						warn(COMI_THIS, "Not implemented OP_verbOps VerbOp_Init");
+					return;
+					case VerbOp_SetLineSpacing:
+						_popStack();
+						warn(COMI_THIS, "Not implemented OP_verbOps VerbOp_Init");
+					return;
+				}
+
+				error(COMI_THIS, "Not implemented OP_verbOps(%ld)", (uint32) subOp);
+				_dumpState();
+				_forceQuit();
+			}
 			return;
 			case OP_startSound:
 				GS_UNHANDLED_OP;
@@ -903,6 +974,9 @@ namespace comi
 					return;
 					case KernelOp_RemapCostumeInert:
 						warn(COMI_THIS, "Not implemented KernelOp_RemapCostumeInert");
+					return;
+					case KernelOp_Unused_0xF:
+						/* Legacy */
 					return;
 					case KernelOp_SetBoxScaleSlot:
 						warn(COMI_THIS, "Not implemented KernelOp_SetBoxScaleSlot");
