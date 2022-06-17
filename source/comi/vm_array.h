@@ -31,9 +31,9 @@ using namespace common;
 namespace comi
 {
 	enum VmArrayKind {
-		VAK_None,
-		VAK_Integer,
-		VAK_String
+		VAK_None = 0,
+		VAK_String = 1,
+		VAK_Integer = 4
 	};
 
 	struct VmArray {
@@ -42,6 +42,22 @@ namespace comi
 		uint8  _idx;
 		uint8  _kind;
 		uint8  _data[4];
+
+		inline void write(int32 value, uint32 idx, uint32 base) {
+			int32 offset = base + idx * (uint32)_kind;
+
+			if (offset < 0 || offset > _dim1) {
+				error(COMI_THIS, "Out of bounds array write (%ld, %ld, %ld, %ld)", _num, value, idx, base);
+				return;
+			}
+
+			if (_kind == VAK_Integer) {
+				writeInt32(offset, value);
+			}
+			else {
+				writeByte(offset, (byte) value);
+			}
+		}
 
 		inline void writeByte(uint32 offset, byte data) {
 			_data[offset] = data;
