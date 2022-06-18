@@ -54,14 +54,20 @@ namespace comi
 			case OP_wordArrayIndexedRead:
 				GS_UNHANDLED_OP;
 			return;
-			case OP_dup:
-				GS_UNHANDLED_OP;
+			case OP_dup: {
+				int32 value = _popStack();
+				_pushStack(value);
+				_pushStack(value);
+			}
 			return;
-			case OP_pop:
-				GS_UNHANDLED_OP;
+			case OP_pop: {
+				_popStack();
+			}
 			return;
-			case OP_not:
-				GS_UNHANDLED_OP;
+			case OP_not: {
+				int32 left = _popStack();
+				_pushStack(left == 0 ? 1 : 0);
+			}
 			return;
 			case OP_eq: {
 				int32 right = _popStack();
