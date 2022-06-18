@@ -85,7 +85,7 @@ namespace comi
 
 namespace common
 {
-	void abort() {
+	void abort_quit_stop() {
 		using namespace comi;
 
 		if (VM) {

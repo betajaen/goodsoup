@@ -431,6 +431,8 @@ namespace common
         }
     };
 
+	void abort_quit_stop();
+
 }
 
 #define GS_STOP_NOW(MESSAGE) ::common::debug_stop(__FILE__, __LINE__, MESSAGE)

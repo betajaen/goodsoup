@@ -43,9 +43,4 @@ typedef int    int32;
 
 #define STRINGIFY_ARG(arg)  #arg
 
-namespace common
-{
-	void abort();
-}
-
 #endif
