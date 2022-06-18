@@ -82,3 +82,15 @@ namespace comi
 		vm->runScript(1, false, false);
 	}
 }
+
+namespace common
+{
+	void abort() {
+		using namespace comi;
+
+		if (VM) {
+			VM->abort();
+		}
+	}
+
+}

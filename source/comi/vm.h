@@ -295,6 +295,11 @@ namespace comi
 		void runScript(uint16 scriptNum, bool freezeResistant, bool recursive, int32* data = NULL, uint8 dataCount = 0);
 		void stopScript(uint16 scriptNum);
 
+		void abort() {
+			_dumpState();
+			_forceQuit();
+		}
+
 	};
 }
 
