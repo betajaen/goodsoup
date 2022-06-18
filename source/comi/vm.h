@@ -236,9 +236,8 @@ namespace comi
 
 		struct PcState
 		{
-			uint16 pc, pcAfter;
-			uint8  opcode;
-			uint8  context;
+			uint16 pc, pcAfter, scriptNum;
+			uint8  opcode, context, contextAfter;
 		};
 
 		Buffer<byte>					_nullScript;
@@ -248,13 +247,14 @@ namespace comi
 		ScriptStackItem					_contextStack[NUM_STACK_SCRIPTS];
 		uint16							_contextStackSize;
 		uint16							_currentContext;
-		uint32							_pc;
+		uint32							_pc, _pcAfter, _pcOpcode;
 		Buffer<byte>*					_script;
 		byte							_opcode;
 		Array<char>						_messageTemp;
 		VmArrayAllocator*				_arrays;
-		RingArray<PcState, uint8, 8>	_pcState;
-
+		RingLog<PcState>				_lastPcStates;
+		PcState							_pcState;
+		bool							_pushPcState;
 		VmStack<256>					_stack;
 
 

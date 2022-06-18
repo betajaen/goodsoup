@@ -35,7 +35,10 @@ namespace comi
 	} while(0);
 
 	void VirtualMachine::_step() {
-		_opcode = _readByte();
+		_pcOpcode = _pc;
+		_opcode = _readByte();	
+		_pcState.opcode = _opcode;
+
 		// debug(COMI_THIS, "%ld : %2lx", _pc-1, (uint32) _opcode);
 
 		switch (_opcode) {

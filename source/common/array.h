@@ -403,6 +403,27 @@ namespace common
 		}
 
 	};
+	
+	template<typename T>
+	struct RingLog {
+		T _items[256];
+		uint8 _write;
+
+		inline RingLog() 
+			: _write(0) {
+			clearMemoryNonAllocated(_items, sizeof(T) * 256);
+		}
+
+		void write(const T& value) {
+			_items[++_write] = value;
+		}
+
+		void read(uint8 index, T& out_value) {
+			uint8 offset = _write - index;
+			out_value = _items[offset];
+		}
+
+	};
 
 
 }

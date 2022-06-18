@@ -364,6 +364,8 @@ namespace comi
 			_context[i].reset();
 		}
 
+		_pushPcState = false;
+
 		writeVar(VAR_CURRENTDISK, 1);
 
 	}
@@ -503,6 +505,7 @@ namespace comi
 	}
 
 	void VirtualMachine::_stopObjectCode() {
+		
 		ScriptContext& context = _context[_currentContext];
 
 		if (context._cutsceneOverride == 255) {
@@ -523,6 +526,14 @@ namespace comi
 
 		context.markDead();
 		_currentContext = NO_CONTEXT;
+		
+		if (_pushPcState) {
+			_pushPcState = false;
+			_pcState.contextAfter = _currentContext;
+			_pcState.pcAfter = _pc;
+			_lastPcStates.write(_pcState);
+		}
+
 	}
 
 	VmArray* VirtualMachine::_newArray(uint32 arrayNum, uint8 kind, uint16 dim2, uint16 dim1) {
@@ -580,6 +591,13 @@ namespace comi
 		
 		debug(COMI_THIS, "Push (%ld)", (uint32)newContextNum);
 
+		if (_pushPcState) {
+			_pushPcState = false;
+			_pcState.contextAfter = newContextNum;
+			_pcState.pcAfter = _pc;
+			_lastPcStates.write(_pcState);
+		}
+
 		ScriptStackItem& last = _contextStack[_contextStackSize];
 		
 		if (_currentContext == NO_CONTEXT) {
@@ -624,9 +642,18 @@ namespace comi
 			{
 				debug(COMI_THIS, "Resume (%ld)", (uint32)last._contextNum);
 
+
 				_currentContext = last._contextNum;
 				_updateScriptData(lastContext);
 				_pc = lastContext._lastPC;
+				
+				PcState state;
+				state.context = last._contextNum;
+				state.opcode = 0xFF;
+				state.pc = _pc;
+				state.pcAfter = _pc;
+				_lastPcStates.write(state);
+
 				return;
 			}
 
@@ -637,13 +664,15 @@ namespace comi
 
 	void VirtualMachine::runCurrentScript() {
 		while (_currentContext != NO_CONTEXT) {
-			PcState state;
-			state.opcode = _opcode;
-			state.pc = _pc;
-			state.context = _currentContext;
+			_pushPcState = true;
+			_pcState.pc = _pc;
+			_pcState.context = _currentContext;
 			_step();
-			state.pcAfter = _pc;
-			_pcState.overwrite(state);
+			if (_pushPcState) {
+				_pcState.pcAfter = _pc;
+				_pcState.contextAfter = _currentContext;
+				_lastPcStates.write(_pcState);
+			}
 		}
 	}
 
@@ -658,6 +687,14 @@ namespace comi
 
 	void VirtualMachine::_break() {
 		if (_currentContext != NO_CONTEXT) {
+			
+			if (_pushPcState) {
+				_pushPcState = false;
+				_pcState.contextAfter = NO_CONTEXT;
+				_pcState.pcAfter = _pc;
+				_lastPcStates.write(_pcState);
+			}
+
 			ScriptContext& context = _context[_currentContext];
 			context._lastPC = _pc;
 			_currentContext = NO_CONTEXT;
@@ -751,59 +788,41 @@ namespace comi
 		
 		debug_write(DC_Debug, GS_FILE_NAME, __FILE__, __FUNCTION__, __LINE__, "VM State as follows:");
 		
-		int16 stackMin = _stack.getSize() - 16;
-		if (stackMin < 0)
-			stackMin = 0;
+		uint8 lastContext = _currentContext;
 
-		int16 stackMax = _stack.getSize();
-		
-		if (stackMax > 0) {
-			debug_write_str_int("Stack Trace", stackMax);
+		for (uint16 i = 0; i < 8; i++) {
+			PcState state;
+			_lastPcStates.read(7-i, state);
 
-			for (int16 i = stackMin; i < stackMax; i++) {
-			
-				debug_write_char('[');
-				debug_write_int(i);
-				debug_write_char(']');
-				debug_write_char('=');
-				debug_write_int(_stack.get_unchecked(i));
+			if (state.pc == state.pcAfter && state.opcode == 0xFF) {
+				debug_write_str("## Resume to ");
+				debug_write_byte(state.context);
 				debug_write_char('\n');
+				continue;
 			}
-		}
-
-		if (_currentContext != NO_CONTEXT) {
-		
-			ScriptContext& context = _context[_currentContext];
-			Script* script = NULL;
-
-			debug_write_str_int("Script", context._scriptNum);
-
-			if (context._scriptWhere == OW_Global) {
-				script = RESOURCES->getGlobalScript(context._scriptNum);
 				
-				debug_write_str(", Type : Global ");
-				debug_write_str_int("Disk", script->getResourceDisk());
+			if (i == 0 || state.context != lastContext) {
+				debug_write_byte((byte) (state.context));
 			}
-			
-			debug_write_str_int(", Length", _script->getSize());
-			debug_write_str_int(", Context", _currentContext);
-			debug_write_char('\n');
-
-			if (script != NULL) {
+			else {
+				debug_write_char('.');
+				debug_write_char('.');
 			}
+			debug_write_char(' ');
+				
+			lastContext = state.context;
+				
+			debug_write_char(' ');
+			debug_write_int(state.pc);
+			debug_write_char(' ');
+			debug_write_str(_getOpcodeName(state.opcode));
+			debug_write_char('@');
+			debug_write_byte(state.opcode);
+				
+			debug_write_char(' ');
+			debug_write_char('(');
 
-			for (uint8 i = 0; i < _pcState.capacity(); i++) {
-				PcState state;
-				if (_pcState.read(state) == false)
-					break;
-				
-				debug_write_int(state.pc);
-				debug_write_char(' ');
-				debug_write_str(_getOpcodeName(state.opcode));
-				debug_write_char('@');
-				debug_write_byte(state.opcode);
-				
-				debug_write_char('(');
+			if (state.context == _currentContext && _script != NULL) {
 
 				for (uint16 j = state.pc; j < state.pcAfter; j++) {
 					if (j != state.pc) {
@@ -811,42 +830,68 @@ namespace comi
 					}
 					debug_write_byte(_script->get_unchecked(j));
 				}
-				
-				debug_write_char(')');
 
+			}
+			else {
+				debug_write_char('?');
+			}
+				
+			debug_write_char(')');
+			debug_write_char('\n');
+
+			if (state.context != state.contextAfter && state.opcode != OP_stopObjectCode) {
+				debug_write_str("##  ");
+				debug_write_byte(state.context);
+				debug_write_str(" to ");
+				debug_write_byte(state.contextAfter);
 				debug_write_char('\n');
 			}
 
-			debug_write_int(_pc - 1);
-			debug_write_char(' ');
-			debug_write_str(_getOpcodeName(_opcode));
-			debug_write_char('@');
-			debug_write_byte(_opcode);
-
-			uint16 end = _pc + 15;
-			if (end > _script->getSize()) {
-				end = _script->getSize();
-			}
-			
-			debug_write_char('(');
-			
-
-
-			for (uint16 i = _pc; i < end; i++) {
-				if (i != _pc) {
-					debug_write_char(' ');
-				}
-				debug_write_byte(_script->get_unchecked(i));
-			}
-			
-			debug_write_str(" ...)\n");
-
 		}
-		else {
-			debug_write_str("** NO CONTEXT **");
-		}
+			
+		debug_write_str("??  ");
+		debug_write_int(_pcOpcode);
+		debug_write_char(' ');
+		debug_write_str(_getOpcodeName(_opcode));
+		debug_write_char('@');
+		debug_write_byte(_opcode);
 
+		uint16 end = _pcOpcode + 15;
+		if (end > _script->getSize()) {
+			end = _script->getSize();
+		}
+			
+		debug_write_char(' ');
+		debug_write_char('(');
+			
+
+
+		for (uint16 i = _pc; i < end; i++) {
+			if (i != _pc) {
+				debug_write_char(' ');
+			}
+			debug_write_byte(_script->get_unchecked(i));
+		}
+			
+		debug_write_str(" ...)\n");
+
+		int16 stackMin = _stack.getSize() - 16;
+		if (stackMin < 0)
+			stackMin = 0;
+
+		int16 stackMax = _stack.getSize();
 		
+		if (stackMax > 0) {
+			for (int16 i = stackMin; i < stackMax; i++) {
+				debug_write_str("    ");
+				debug_write_byte(i);
+				debug_write_char('=');
+				debug_write_int(_stack.get_unchecked(i));
+				debug_write_char('\n');
+			}
+		}
+
+	
 		debug_write_char('\n');
 
 	}
