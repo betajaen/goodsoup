@@ -1323,8 +1323,101 @@ namespace comi
 			case OP_d7:
 				GS_UNHANDLED_OP;
 			return;
-			case OP_kernelGetFunctions:
-				GS_UNHANDLED_OP;
+			case OP_kernelGetFunctions: {
+				uint16 len = _stack.readList(30);
+				byte opcode = _stack.getListItem(0);
+
+				switch (opcode) {
+					case KernelGetOp_GetRGBSlot: {
+						warn(COMI_THIS, "Not implemented OP_kernelGetFunctions KernelGetOp_GetRGBSlot");
+						_stack.push(0);
+					}
+					return;
+					case KernelGetOp_GetKeyState: {
+						warn(COMI_THIS, "Not implemented OP_kernelGetFunctions KernelGetOp_GetKeyState");
+						_stack.push(0);
+					}
+					return;
+					case KernelGetOp_CheckXYInBoxBounds: {
+						warn(COMI_THIS, "Not implemented OP_kernelGetFunctions KernelGetOp_GetBox");
+						_stack.push(0);
+					}
+					return;
+					case KernelGetOp_FindBlastObject: {
+						warn(COMI_THIS, "Not implemented OP_kernelGetFunctions KernelGetOp_FindBlastObject");
+						_stack.push(0);
+					}
+					return;
+					case KernelGetOp_TestActorHit: {
+						warn(COMI_THIS, "Not implemented OP_kernelGetFunctions KernelGetOp_TestActorHit");
+						_stack.push(0);
+					}
+					return;
+					case KernelGetOp_GetLipSyncWidth: {
+						warn(COMI_THIS, "Not implemented OP_kernelGetFunctions KernelGetOp_GetLipSyncWidth");
+						_stack.push(0);
+					}
+					return;
+					case KernelGetOp_GetLipSyncHeight: {
+						warn(COMI_THIS, "Not implemented OP_kernelGetFunctions KernelGetOp_GetLipSyncHeight");
+						_stack.push(0);
+					}
+					return;
+					case KernelGetOp_GetTalkAnimation: {
+						warn(COMI_THIS, "Not implemented OP_kernelGetFunctions KernelGetOp_GetTalkAnimation");
+						_stack.push(0);
+					}
+					return;
+					case KernelGetOp_GetGroupSfxVolume: {
+						warn(COMI_THIS, "Not implemented OP_kernelGetFunctions KernelGetOp_GetGroupSfxVolume");
+						_stack.push(0);
+					}
+					return;
+					case KernelGetOp_GetGroupVoiceVolume: {
+						warn(COMI_THIS, "Not implemented OP_kernelGetFunctions KernelGetOp_GetGroupVoiceVolume");
+						_stack.push(0);
+					}
+					return;
+					case KernelGetOp_GetGroupMusicVolume: {
+						warn(COMI_THIS, "Not implemented OP_kernelGetFunctions KernelGetOp_GetGroupMusicVolume");
+						_stack.push(0);
+					}
+					return;
+					case KernelGetOp_ReadRegistryValue: {
+						warn(COMI_THIS, "Not implemented OP_kernelGetFunctions KernelGetOp_ReadRegistryValue");
+						_stack.push(-1);
+					}
+					return;
+					case KernelGetOp_ImGetMusicPosition: {
+						warn(COMI_THIS, "Not implemented OP_kernelGetFunctions KernelGetOp_ImGetMusicPosition");
+						_stack.push(0);
+					}
+					return;
+					case KernelGetOp_MusicLipGetSyncWidth: {
+						warn(COMI_THIS, "Not implemented OP_kernelGetFunctions KernelGetOp_MusicLipGetSyncWidth");
+						_stack.push(0);
+					}
+					return;
+					case KernelGetOp_MusicLipGetSyncHeight: {
+						warn(COMI_THIS, "Not implemented OP_kernelGetFunctions KernelGetOp_MusicLipGetSyncHeight");
+						_stack.push(0);
+					}
+					return;
+					case KernelGetOp_GetWalkBoxAt: {
+						warn(COMI_THIS, "Not implemented OP_kernelGetFunctions KernelGetOp_GetWalkBoxAt");
+						_stack.push(-1);
+					}
+					return;
+					case KernelGetOp_IsPointInBox: {
+						warn(COMI_THIS, "Not implemented OP_kernelGetFunctions KernelGetOp_IsPointInBox");
+						_stack.push(0);
+					}
+					return;
+				}
+				_dumpState();
+				_forceQuit();
+				error(COMI_THIS, "Not implemented OP_kernelGetFunctions(%ld)", (uint32) opcode);
+			}
 			return;
 			case OP_isActorInBox:
 				GS_UNHANDLED_OP;

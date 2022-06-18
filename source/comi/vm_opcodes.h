@@ -376,6 +376,26 @@ namespace comi
 		KernelOp_SuperBlastObject = 0x77
 	};
 
+	enum KernelGetOp {
+		KernelGetOp_GetRGBSlot = 0xCE,
+		KernelGetOp_GetKeyState = 0xD3,
+		KernelGetOp_CheckXYInBoxBounds = 0xD7,
+		KernelGetOp_FindBlastObject = 0xD8,
+		KernelGetOp_TestActorHit = 0xD9,
+		KernelGetOp_GetLipSyncWidth = 0xDA,
+		KernelGetOp_GetLipSyncHeight = 0xDB,
+		KernelGetOp_GetTalkAnimation = 0xDC,
+		KernelGetOp_GetGroupSfxVolume = 0xDD,
+		KernelGetOp_GetGroupVoiceVolume = 0xDE,
+		KernelGetOp_GetGroupMusicVolume = 0xDF,
+		KernelGetOp_ReadRegistryValue = 0xE0,
+		KernelGetOp_ImGetMusicPosition = 0xE1,
+		KernelGetOp_MusicLipGetSyncWidth = 0xE2,
+		KernelGetOp_MusicLipGetSyncHeight = 0xE3,
+		KernelGetOp_GetWalkBoxAt = 0x73,
+		KernelGetOp_IsPointInBox = 0x74
+	};
+
 	enum RoomOp {
 		RoomOp_SetColour = 0x52,
 		RoomOp_FadePalette = 0x57,
