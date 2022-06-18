@@ -64,7 +64,8 @@ OBJ +=	source/comi/start.o\
 		source/comi/room.o\
 		source/comi/index.o\
 		source/comi/resource.o\
-		source/comi/disk.o
+		source/comi/disk.o\
+		source/comi/utils.o
 
 all: $(OBJ)
 	$(CC) -o $(PROGRAM) $(OBJ) $(CFLAGS)

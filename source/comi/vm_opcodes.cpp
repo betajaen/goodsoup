@@ -22,6 +22,7 @@
 #include "context.h"
 #include "debug.h"
 #include "vm_array.h"
+#include "utils.h"
 
 namespace comi
 {
@@ -793,8 +794,11 @@ namespace comi
 				_forceQuit();
 			}
 			return;
-			case OP_loadRoom:
-				GS_UNHANDLED_OP;
+			case OP_loadRoom: {
+				uint16 roomNum = _stack.pop();
+
+				warn(COMI_THIS, "Not implemented OP_loadRoom (%ld)", roomNum);
+			}
 			return;
 			case OP_loadRoomWithEgo:
 				GS_UNHANDLED_OP;
@@ -1361,14 +1365,26 @@ namespace comi
 				_stack.push(0);
 			}
 			return;
-			case OP_getRandomNumber:
-				GS_UNHANDLED_OP;
+			case OP_getRandomNumber: {
+				uint32 max = _stack.pop();
+				uint32 num = getRandom(max);
+				_stack.push(num);
+			}
 			return;
-			case OP_getRandomNumberRange:
-				GS_UNHANDLED_OP;
+			case OP_getRandomNumberRange: {
+				uint32 max = _stack.pop();
+				uint32 min = _stack.pop();
+				uint32 num = getRandomRange(min, max);
+				_stack.push(num);
+			}
 			return;
-			case OP_ifClassOfIs:
-				GS_UNHANDLED_OP;
+			case OP_ifClassOfIs: {
+				uint16 num = _stack.readList(16);
+				uint16 obj = _stack.pop();
+
+				_stack.push(0);
+				warn(COMI_THIS, "Not implemented OP_ifClassOfIs");
+			}
 			return;
 			case OP_getState:
 				GS_UNHANDLED_OP;
@@ -1493,14 +1509,26 @@ namespace comi
 			case OP_getVerbEntrypoint:
 				GS_UNHANDLED_OP;
 			return;
-			case OP_getActorFromXY:
-				GS_UNHANDLED_OP;
+			case OP_getActorFromXY: {
+				_stack.pop();
+				_stack.pop();
+				_stack.push(0);
+				warn(COMI_THIS, "Not implemented OP_getActorFromXY");
+			}
 			return;
-			case OP_findObject:
-				GS_UNHANDLED_OP;
+			case OP_findObject: {
+				_stack.pop();
+				_stack.pop();
+				_stack.push(0);
+				warn(COMI_THIS, "Not implemented OP_findObject");
+			}
 			return;
-			case OP_getVerbFromXY:
-				GS_UNHANDLED_OP;
+			case OP_getVerbFromXY: {
+				_stack.pop();
+				_stack.pop();
+				_stack.push(0);
+				warn(COMI_THIS, "Not implemented OP_getVerbFromXY");
+			}
 			return;
 			case OP_de:
 				GS_UNHANDLED_OP;
@@ -1514,8 +1542,17 @@ namespace comi
 			case OP_getAnimateVariable:
 				GS_UNHANDLED_OP;
 			return;
-			case OP_getActorRoom:
-				GS_UNHANDLED_OP;
+			case OP_getActorRoom: {
+				uint16 actorNum = _stack.pop();
+
+				if (actorNum == 0 || actorNum == 255) {
+					_stack.push(0);
+					return;
+				}
+				
+				warn(COMI_THIS, "Not implemented OP_getActorRoom");
+				_stack.push(0);
+			}
 			return;
 			case OP_getActorWalkBox:
 				GS_UNHANDLED_OP;

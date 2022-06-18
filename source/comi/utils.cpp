@@ -15,27 +15,25 @@
  *
  */
 
-#ifndef COMI_UTILS_H
-#define COMI_UTILS_H
+#define GS_FILE_NAME "utils"
 
-#include "common/types.h"
-#include "debug.h"
+#include "utils.h"
 
 namespace comi
 {
-	inline void checkRange(int max, int min, int no, const char* str) {
-		if (no < min || no > max) {
-			::common::error(COMI_THIS, "Value %d is out of bounds (%d,%d) (%s)", no, max, min, str);
-		}
+	static uint32 _rand = 0xC81198ab;
+
+	uint32 getRandom(uint32 max) {
+		_rand = 0xDEADBF03 * (_rand + 1);
+		_rand = (_rand >> 13) | (_rand << 19);
+		return _rand % (max + 1);
 	}
 
-	inline bool tagEqual(char tagName[5], char a, char b, char c, char d) {
-		return (tagName[0] == a && tagName[1] == b && tagName[2] == c && tagName[3] == d);
+	uint32 getRandomRange(uint32 min, uint32 max) {
+		return getRandom(max - min) + min;
 	}
 
-	uint32 getRandom(uint32 max);
-
-	uint32 getRandomRange(uint32 min, uint32 max);
 }
 
-#endif
+
+
