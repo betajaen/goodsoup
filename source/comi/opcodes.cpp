@@ -621,8 +621,13 @@ namespace comi
 			case OP_88:
 				GS_UNHANDLED_OP;
 			return;
-			case OP_setClass:
-				GS_UNHANDLED_OP;
+			case OP_setClass: {
+				int32 args[16];
+				int16 num = _readStackList(&args[0], 16);
+				int32 obj = _popStack();
+
+				warn(COMI_THIS, "Not implemented OP_setClass (%ld, %ld)", num, obj);
+			}
 			return;
 			case OP_setState:
 				GS_UNHANDLED_OP;
