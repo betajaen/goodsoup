@@ -524,9 +524,9 @@ namespace comi
 
 	}
 
-	VmArray* VirtualMachine::newArray(uint32 arrayNum, uint8 kind, uint16 dim2, uint16 dim1) {
+	VmArray* VirtualMachine::newArray(uint32 arrayNum, uint8 kind, uint16 y, uint16 x) {
 		
-		VmArray* array = ARRAYS->allocate(arrayNum, dim1, dim2, kind);
+		VmArray* array = ARRAYS->allocate(arrayNum, x, y, kind);
 
 		if (array == NULL) {
 			return array;

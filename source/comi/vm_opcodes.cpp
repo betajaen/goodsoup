@@ -518,8 +518,33 @@ namespace comi
 			case OP_wordArrayDec:
 				GS_UNHANDLED_OP;
 			return;
-			case OP_dim2dimArray:
-				GS_UNHANDLED_OP;
+			case OP_dim2dimArray: {
+				byte subOp = _readByte();
+				uint16 arrayNum = _readWord();
+
+				switch (subOp) {
+					case Dim2DimOp_Int: {
+						uint16 y = _stack.pop();
+						uint16 x = _stack.pop();
+						newArray(arrayNum, VAK_Integer, y, x);
+					}
+					return;
+					case Dim2DimOp_String: {
+						uint16 y = _stack.pop();
+						uint16 x = _stack.pop();
+						newArray(arrayNum, VAK_String, y, x);
+					}
+					return;
+					case Dim2DimOp_Delete: {
+						deleteArray(arrayNum);
+					}
+					return;
+				}
+
+				error(COMI_THIS, "Not implemented OP_dim2dimArray(%ld,%ld)", (uint32) subOp, (uint32) arrayNum);
+				_dumpState();
+				_forceQuit();
+			}
 			return;
 			case OP_wordArrayIndexedWrite:
 				GS_UNHANDLED_OP;
@@ -543,16 +568,38 @@ namespace comi
 					return;
 					case ArrayOps_AssignScummVarList: {
 						/* TODO */
-						error(COMI_THIS, "Not implemented OP_arrayOps ArrayOps_AssignString");
-						_dumpState();
-						_forceQuit();
+						uint16 offset = _stack.pop();
+						uint16 num = _stack.readList(128);
+						VmArray* array = ARRAYS->findFromNum(arrayNum);
+						
+						if (array) {
+							array->writeFromCArray(0, offset, _stack.getList(), num);
+						}
+						else {
+							error(COMI_THIS, "NULL VmArray (%ld) used with OP_arrayOps ArrayOps_AssignScummVarList", (uint32) arrayNum);
+							_dumpState();
+							_forceQuit();
+						}
+
 					}
 					return;
 					case ArrayOps_Assign2DimList: {
-						/* TODO */
-						error(COMI_THIS, "Not implemented OP_arrayOps ArrayOps_Assign2DimList");
-						_dumpState();
-						_forceQuit();
+						uint16 offset = _stack.pop();
+						uint16 len = _stack.readList(128);
+						VmArray* array = ARRAYS->findFromNum(arrayNum);
+
+						if (array) {
+							int32* list = _stack.getList();
+							uint16 index = _stack.pop();
+							for(uint16 i=0;i < len;i++) {
+								array->write(list[i], index, offset + i);
+							}
+						}
+						else {
+							error(COMI_THIS, "NULL VmArray (%ld) used with OP_arrayOps ArrayOps_AssignScummVarList", (uint32) arrayNum);
+							_dumpState();
+							_forceQuit();
+						}
 					}
 					return;
 				}

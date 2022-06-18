@@ -86,7 +86,7 @@ namespace comi
 		return NUM_ARRAY;
 	}
 
-	VmArray* VmArrayAllocator::allocate(uint16 arrayNum, uint16 dim1, uint16 dim2, uint8 kind) {
+	VmArray* VmArrayAllocator::allocate(uint16 arrayNum, uint16 xSize, uint16 ySize, uint8 kind) {
 
 		uint8 arrayIdx = _getFreeIndex();
 
@@ -106,16 +106,20 @@ namespace comi
 			allocSize = 1;
 		}
 
-		allocSize *= dim2 + 1;
-		allocSize *= dim1 + 1;
+		xSize++;
+		ySize++;
+
+		allocSize *= ySize;
+		allocSize *= xSize;
 
 		// sizeof ArrayHeader
 		allocSize += sizeof(VmArray);
 
 		array = (VmArray*) allocateMemory(1, allocSize, MEMF_CLEAR);
 		array->_kind = kind;
-		array->_dim1 = dim1 + 1;
-		array->_dim2 = dim2 + 1;
+		array->_xSize = xSize;
+		array->_ySize = ySize;
+		array->_size = ySize * xSize;
 		array->_num = arrayNum;
 		array->_idx = arrayIdx;
 

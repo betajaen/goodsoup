@@ -42,16 +42,17 @@ namespace comi
 
 	struct VmArray {
 		uint16 _num;
-		uint16 _dim1, _dim2;
+		uint16 _ySize, _xSize;
+		uint32 _size;
 		uint8  _idx;
 		uint8  _kind;
 		uint8  _data[4];
 
 		inline void write(int32 value, uint32 idx, uint32 base) {
-			int32 offset = base + idx * (uint32)_kind;
+			uint32 offset = base + idx * (uint32) _ySize;
 
-			if (offset < 0 || offset > _dim1) {
-				error(COMI_THIS, "Out of bounds array write (%ld, %ld, %ld, %ld)", _num, value, idx, base);
+			if (offset >= _size) {
+				error(COMI_THIS, "Out of bounds array write (%ld, %ld, %ld, %ld, %ld, %ld)", _num, value, idx, base, offset, _size);
 				return;
 			}
 
@@ -60,6 +61,13 @@ namespace comi
 			}
 			else {
 				writeByte(offset, (byte) value);
+			}
+		}
+
+		void writeFromCArray(uint32 idx, uint32 base, int32* list, uint16 num) {
+			/* TO OPTIMISE */
+			for (uint16 i = 0; i < num; i++) {
+				write(list[num], idx, base);
 			}
 		}
 
@@ -126,7 +134,7 @@ namespace comi
 
 		void reset();
 
-		VmArray* allocate(uint16 arrayNum, uint16 dim1, uint16 dim2, uint8 kind);
+		VmArray* allocate(uint16 arrayNum, uint16 xSize, uint16 ySize, uint8 kind);
 		void deallocateFromNum(uint16 arrayNum) {
 			deallocateFromArray(findFromNum(arrayNum));
 		}

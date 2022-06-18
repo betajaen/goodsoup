@@ -355,6 +355,12 @@ namespace comi
 		DimArrayOp_Delete = 0xC
 	};
 
+	enum Dim2DimOp {
+		Dim2DimOp_Int = 0xA,
+		Dim2DimOp_String = 0xB,
+		Dim2DimOp_Delete = 0xC
+	};
+
 	enum KernelOp {
 		KernelOp_LockObject = 0xB,
 		KernelOp_UnlockObject = 0xC,
