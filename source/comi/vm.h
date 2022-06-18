@@ -266,9 +266,6 @@ namespace comi
 		void _delay(uint32 seconds);
 		void _break();
 
-		VmArray* _newArray(uint32 num, uint8 kind, uint16 dim2, uint16 dim1);
-		void _deleteArray(uint32 num);
-
 		byte _readByte();
 		int32  _readWord();
 		uint32  _readUnsignedWord();
@@ -288,6 +285,9 @@ namespace comi
 		void   reset();
 		int32  readVar(uint32 var);
 		void   writeVar(uint32 var, int32 value);
+		VmArray* newArray(uint32 num, uint8 kind, uint16 dim2, uint16 dim1);
+		void deleteArray(uint32 num);
+
 
 		void runCurrentScript();
 		void runScript(uint16 scriptNum, bool freezeResistant, bool recursive, int32* data = NULL, uint8 dataCount = 0);

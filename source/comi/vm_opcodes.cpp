@@ -480,14 +480,14 @@ namespace comi
 				switch (subOp) {
 					case DimArrayOp_NewInt:
 						size = _stack.pop();
-						_newArray(arrayNum, AK_Int, 0, size);
+						newArray(arrayNum, AK_Int, 0, size);
 					return;
 					case DimArrayOp_NewString:
 						size = _stack.pop();
-						_newArray(arrayNum, AK_String, 0, size);
+						newArray(arrayNum, AK_String, 0, size);
 					return;
 					case DimArrayOp_Delete:
-						_deleteArray(arrayNum);
+						deleteArray(arrayNum);
 					return;
 				}
 				
@@ -533,7 +533,7 @@ namespace comi
 						uint16 offset = _stack.pop();
 						uint16 from, len;
 						_readStringLength(from, len);
-						array = _newArray(arrayNum, VAK_String, 0, len);
+						array = newArray(arrayNum, VAK_String, 0, len);
 						array->writeBytes(
 							_script->ptr(from),
 							offset,

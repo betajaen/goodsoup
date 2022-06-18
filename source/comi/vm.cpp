@@ -536,7 +536,7 @@ namespace comi
 
 	}
 
-	VmArray* VirtualMachine::_newArray(uint32 arrayNum, uint8 kind, uint16 dim2, uint16 dim1) {
+	VmArray* VirtualMachine::newArray(uint32 arrayNum, uint8 kind, uint16 dim2, uint16 dim1) {
 		
 		VmArray* array = _arrays->allocate(arrayNum, dim1, dim2, kind);
 
@@ -549,7 +549,7 @@ namespace comi
 		return array;
 	}
 
-	void VirtualMachine::_deleteArray(uint32 arrayNum) {
+	void VirtualMachine::deleteArray(uint32 arrayNum) {
 		
 		uint32 arrayIndex = readVar(arrayNum);
 
