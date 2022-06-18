@@ -47,6 +47,22 @@ namespace comi
 		uint8  _idx;
 		uint8  _kind;
 		uint8  _data[4];
+		
+		inline int32 read(uint32 idx, uint32 base) {
+			uint32 offset = base + idx * (uint32) _ySize;
+
+			if (offset >= _size) {
+				error(COMI_THIS, "Out of bounds array read (%ld, %ld, %ld, %ld, %ld)", _num, idx, base, offset, _size);
+				return 0;
+			}
+
+			if (_kind == VAK_Integer) {
+				return readInt32(offset);
+			}
+			else {
+				return readByte(offset);
+			}
+		}
 
 		inline void write(int32 value, uint32 idx, uint32 base) {
 			uint32 offset = base + idx * (uint32) _ySize;

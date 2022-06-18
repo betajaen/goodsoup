@@ -261,6 +261,8 @@ namespace comi
 		void _updateScriptData(ScriptContext& context);
 		void _placeContextOnStackAndRun(uint8 newContextNum);
 		void _step();
+		void _stopScript(uint16 scriptNum);
+		void _stopObjectScript(uint16 scriptNum);
 		void _stopObjectCode();
 		void _delay(uint32 seconds);
 		void _break();
@@ -290,8 +292,8 @@ namespace comi
 
 		void runCurrentScript();
 		void runScript(uint16 scriptNum, bool freezeResistant, bool recursive, int32* data = NULL, uint8 dataCount = 0);
-		void stopScript(uint16 scriptNum);
-
+		void runObjectScript(uint16 objectNum, uint16 entryPc, bool freezeResistant, bool recursive, int32* data = NULL, uint8 dataCount = 0);
+		
 		void abort() {
 			_dumpState();
 			_forceQuit();

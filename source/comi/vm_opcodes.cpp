@@ -40,7 +40,7 @@ namespace comi
 		_opcode = _readByte();	
 		_pcState.opcode = _opcode;
 
-		// debug(COMI_THIS, "%ld : %2lx", _pc-1, (uint32) _opcode);
+		debug(COMI_THIS, "%ld : %2lx", _pc-1, (uint32) _opcode);
 
 		switch (_opcode) {
 			case OP_00:
@@ -52,11 +52,38 @@ namespace comi
 			case OP_pushWordVar:
 				_stack.push(readVar(_readUnsignedWord()));
 			return;
-			case OP_wordArrayRead:
-				GS_UNHANDLED_OP;
+			case OP_wordArrayRead: {
+				uint32 base = _stack.pop();
+				uint16 arrayNum = _readWord();
+
+				VmArray* array = ARRAYS->findFromNum(arrayNum);
+				if (array) {
+					int32 value = array->read(0, base);
+					_stack.push(value);
+				}
+				else {
+					error(COMI_THIS, "NULL VmArray (%ld) used with OP_wordArrayRead", (uint32) arrayNum);
+					_dumpState();
+					_forceQuit();
+				}
+			}
 			return;
-			case OP_wordArrayIndexedRead:
-				GS_UNHANDLED_OP;
+			case OP_wordArrayIndexedRead: {
+				int32 base = _stack.pop();
+				int32 index = _stack.pop();
+				uint16 arrayNum = _readWord();
+
+				VmArray* array = ARRAYS->findFromNum(arrayNum);
+				if (array) {
+					int32 value = array->read(index, base);
+					_stack.push(value);
+				}
+				else {
+					error(COMI_THIS, "NULL VmArray (%ld) used with OP_wordArrayRead", (uint32) arrayNum);
+					_dumpState();
+					_forceQuit();
+				}
+			}
 			return;
 			case OP_dup: {
 				int32 value = _stack.pop();
@@ -547,8 +574,24 @@ namespace comi
 				_forceQuit();
 			}
 			return;
-			case OP_wordArrayIndexedWrite:
-				GS_UNHANDLED_OP;
+			case OP_wordArrayIndexedWrite: {
+
+				int32 value = _stack.pop();
+				int32 base = _stack.pop();
+				int32 index = _stack.pop();
+				uint16 arrayNum = _readWord();
+
+				VmArray* array = ARRAYS->findFromNum(arrayNum);
+				if (array) {
+					array->write(value, index, base);
+				}
+				else {
+					error(COMI_THIS, "NULL VmArray (%ld) used with OP_wordArrayIndexedWrite", (uint32) arrayNum);
+					_dumpState();
+					_forceQuit();
+				}
+
+			}
 			return;
 			case OP_arrayOps: {
 				byte subOp = _readByte();
@@ -626,14 +669,29 @@ namespace comi
 				runScript(script, (flags & 1) !=0, (flags & 2) !=0, _stack.getList(), count);
 			}
 			return;
-			case OP_startScriptQuick:
-				GS_UNHANDLED_OP;
+			case OP_startScriptQuick: {
+				uint32 script, flags;
+
+				uint8 count = _stack.readList(25);
+				script = _stack.pop();
+
+				runScript(script, false, true, _stack.getList(), count);
+			}
 			return;
-			case OP_stopObjectCode:
+			case OP_stopObjectCode: {
 				_stopObjectCode();
+			}
 			return;
-			case OP_stopScript:
-				GS_UNHANDLED_OP;
+			case OP_stopScript: {
+				uint32 scriptNum = _stack.pop();
+				debug(COMI_THIS, "** %ld", scriptNum);
+				if (scriptNum == 0) {
+					_stopObjectCode();
+				}
+				else {
+					_stopScript(scriptNum);
+				}
+			}
 			return;
 			case OP_jumpToScript:
 				GS_UNHANDLED_OP;
@@ -641,8 +699,14 @@ namespace comi
 			case OP_dummy:
 				GS_UNHANDLED_OP;
 			return;
-			case OP_startObject:
-				GS_UNHANDLED_OP;
+			case OP_startObject: {
+				uint16 num = _stack.readList(25);
+				uint32 entryPc = _stack.pop();
+				uint16 scriptNum = _stack.pop();
+				uint16 flags = _stack.pop();
+				
+				runObjectScript(scriptNum, entryPc, (flags & 1) !=0, (flags & 2) !=0, _stack.getList(), num);
+			}
 			return;
 			case OP_stopObjectScript:
 				GS_UNHANDLED_OP;
@@ -1173,8 +1237,10 @@ namespace comi
 			case OP_startMusic:
 				GS_UNHANDLED_OP;
 			return;
-			case OP_stopSound:
-				GS_UNHANDLED_OP;
+			case OP_stopSound: {
+				uint16 soundNum = _stack.pop();
+				warn(COMI_THIS, "Not implemented OP_stopSound %ld", soundNum);
+			}
 			return;
 			case OP_soundKludge: {
 

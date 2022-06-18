@@ -440,7 +440,7 @@ namespace comi
 		}
 
 		if (recursive == false) {
-			stopScript(scriptNum);
+			_stopScript(scriptNum);
 		}
 
 		if (scriptNum < NUM_SCRIPTS) {
@@ -475,13 +475,22 @@ namespace comi
 		_placeContextOnStackAndRun(contextNum);
 	}
 
-	void VirtualMachine::stopScript(uint16 scriptNum)
-	{
-		debug(COMI_THIS, "(%ld)", scriptNum);
+	
+	void VirtualMachine::runObjectScript(uint16 objectNum, uint16 entryPc, bool freezeResistant, bool recursive, int32* data, uint8 dataCount) {
+		if (objectNum == 0) {
+			error(COMI_THIS, "Could not run a NULL object script %ld", (uint32) objectNum);
+			abort_quit_stop();
+			return;
+		}
 
-		/* TODO */
+		if (recursive == false) {
+			_stopObjectScript(objectNum);
+		}
+
+		error(COMI_THIS, "Feature not implemented (%ld)", (uint32) objectNum);
+		abort_quit_stop();
 	}
-
+	
 	bool VirtualMachine::_findFreeContext(uint8& num) {
 		for (uint8 i = 0; i < MAX_SCRIPT_CONTEXTS; i++) {
 			if (_context[i].isDead()) {
@@ -522,6 +531,94 @@ namespace comi
 			_lastPcStates.write(_pcState);
 		}
 
+	}
+
+	void VirtualMachine::_stopScript(uint16 scriptNum) {
+		if (scriptNum == 0)
+			return;
+
+		for (uint8 i = 0; i < MAX_SCRIPT_CONTEXTS; i++) {
+			ScriptContext& context = _context[i];
+
+			if (context._scriptNum == scriptNum && 
+				context.isDead() == false &&
+				(
+					context._scriptWhere == OW_Global ||
+					context._scriptWhere == OW_Local
+				)
+			) {
+
+				if (context._cutsceneOverride != 0) {
+					error(COMI_THIS, "Stopped script %ld with an cutscene override", scriptNum);
+					abort_quit_stop();
+					return;
+				}
+
+				context.reset();
+
+				if (_currentContext == i) {
+					_currentContext = NO_CONTEXT;
+				}
+			}
+		}
+
+		for (uint8 i = 0; i < NUM_STACK_SCRIPTS; i++) {
+			ScriptStackItem& stackItem = _contextStack[i];
+			if (stackItem._scriptNum == scriptNum &&
+				(
+					stackItem._scriptWhere == OW_Global ||
+					stackItem._scriptWhere == OW_Local
+				)
+			) {
+				stackItem.reset();
+			}
+		}
+
+	}
+	
+	void VirtualMachine::_stopObjectScript(uint16 scriptNum) {
+				if (scriptNum == 0)
+			return;
+
+		for (uint8 i = 0; i < MAX_SCRIPT_CONTEXTS; i++) {
+			ScriptContext& context = _context[i];
+
+			if (context._scriptNum == scriptNum && 
+				context.isDead() == false &&
+				(
+					context._scriptWhere == OW_Room ||
+					context._scriptWhere == OW_Inventory ||
+					context._scriptWhere == OW_FLObject
+
+				)
+			) {
+
+				if (context._cutsceneOverride != 0) {
+					error(COMI_THIS, "Stopped script %ld with an cutscene override", scriptNum);
+					abort_quit_stop();
+					return;
+				}
+
+				context.reset();
+
+				if (_currentContext == i) {
+					_currentContext = NO_CONTEXT;
+				}
+			}
+		}
+
+		for (uint8 i = 0; i < NUM_STACK_SCRIPTS; i++) {
+			ScriptStackItem& stackItem = _contextStack[i];
+			if (stackItem._scriptNum == scriptNum &&
+				(
+					stackItem._scriptWhere == OW_Room ||
+					stackItem._scriptWhere == OW_Inventory ||
+					stackItem._scriptWhere == OW_FLObject
+				)
+			) {
+				stackItem.reset();
+			}
+		}
 	}
 
 	VmArray* VirtualMachine::newArray(uint32 arrayNum, uint8 kind, uint16 y, uint16 x) {
