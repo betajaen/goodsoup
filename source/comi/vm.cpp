@@ -22,7 +22,7 @@
 #include "index.h"
 #include "debug.h"
 #include "constants.h"
-#include "opcodes.h"
+#include "vm_opcodes.h"
 #include "context.h"
 
 #include "common/endian.h"

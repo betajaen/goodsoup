@@ -15,9 +15,9 @@
  *
  */
 
-#define GS_FILE_NAME "opcodes"
+#define GS_FILE_NAME "vm_opcodes"
 
-#include "opcodes.h"
+#include "vm_opcodes.h"
 #include "vm.h"
 #include "context.h"
 #include "debug.h"
