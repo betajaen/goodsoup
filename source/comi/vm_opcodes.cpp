@@ -1275,8 +1275,19 @@ namespace comi
 			case OP_cc:
 				GS_UNHANDLED_OP;
 			return;
-			case OP_isAnyOf:
-				GS_UNHANDLED_OP;
+			case OP_isAnyOf: {
+				int16 num = _stack.readList(100);
+				int32 val = _stack.pop();
+
+				while (--num >= 0) {
+					if (_stack.getListItem(num) == val) {
+						_stack.push(1);
+						return;
+					}
+				}
+				
+				_stack.push(0);
+			}
 			return;
 			case OP_getRandomNumber:
 				GS_UNHANDLED_OP;
