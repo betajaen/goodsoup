@@ -917,8 +917,122 @@ namespace comi
 				_forceQuit();
 			}
 			return;
-			case OP_actorOps:
-				GS_UNHANDLED_OP;
+			case OP_actorOps: {
+				byte subOp = _readByte();
+				switch(subOp) {
+					case ActorOp_SetCostume:
+						warn(COMI_THIS, "Not implemented OP_actorOps ActorOp_SetCostume");
+					return;
+					case ActorOp_SetWalkSpeed:
+						warn(COMI_THIS, "Not implemented OP_actorOps ActorOp_SetWalkSpeed");
+					return;
+					case ActorOp_SetAnimationDefault:
+						warn(COMI_THIS, "Not implemented OP_actorOps ActorOp_SetAnimationDefault");
+					return;
+					case ActorOp_InitAnimation:
+						warn(COMI_THIS, "Not implemented OP_actorOps ActorOp_InitAnimation");
+					return;
+					case ActorOp_SetAnimationTalk:
+						warn(COMI_THIS, "Not implemented OP_actorOps ActorOp_SetAnimationTalk");
+					return;
+					case ActorOp_SetAnimationWalk:
+						warn(COMI_THIS, "Not implemented OP_actorOps ActorOp_SetAnimationWalk");
+					return;
+					case ActorOp_SetAnimationStand:
+						warn(COMI_THIS, "Not implemented OP_actorOps ActorOp_SetAnimationStand");
+					return;
+					case ActorOp_SetAnimationSpeed:
+						warn(COMI_THIS, "Not implemented OP_actorOps ActorOp_SetAnimationSpeed");
+					return;
+					case ActorOp_Default:
+						warn(COMI_THIS, "Not implemented OP_actorOps ActorOp_Default");
+					return;
+					case ActorOp_SetElevation:
+						warn(COMI_THIS, "Not implemented OP_actorOps ActorOp_SetElevation");
+					return;
+					case ActorOp_SetPalette:
+						warn(COMI_THIS, "Not implemented OP_actorOps ActorOp_SetPalette");
+					return;
+					case ActorOp_SetTalkColour:
+						warn(COMI_THIS, "Not implemented OP_actorOps ActorOp_SetTalkColour");
+					return;
+					case ActorOp_SetActorName:
+						warn(COMI_THIS, "Not implemented OP_actorOps ActorOp_SetActorName");
+					return;
+					case ActorOp_SetActorWidth:
+						warn(COMI_THIS, "Not implemented OP_actorOps ActorOp_SetActorWidth");
+					return;
+					case ActorOp_SetActorScale:
+						warn(COMI_THIS, "Not implemented OP_actorOps ActorOp_SetActorScale");
+					return;
+					case ActorOp_SetNeverZClip:
+						warn(COMI_THIS, "Not implemented OP_actorOps ActorOp_SetNeverZClip");
+					return;
+					case ActorOP_SetAlwaysZClip:
+						warn(COMI_THIS, "Not implemented OP_actorOps ActorOP_SetAlwaysZClip");
+					return;
+					case ActorOp_SetIgnoreBoxes:
+						warn(COMI_THIS, "Not implemented OP_actorOps ActorOp_SetIgnoreBoxes");
+					return;
+					case ActorOp_SetFollowBoxes:
+						warn(COMI_THIS, "Not implemented OP_actorOps ActorOp_SetFollowBoxes");
+					return;
+					case ActorOp_SetSpecialDraw:
+						warn(COMI_THIS, "Not implemented OP_actorOps ActorOp_SetSpecialDraw");
+					return;
+					case ActorOp_SetTextOffset:
+						warn(COMI_THIS, "Not implemented OP_actorOps ActorOp_SetTextOffset");
+					return;
+					case ActorOp_Init:
+						warn(COMI_THIS, "Not implemented OP_actorOps ActorOp_Init");
+					return;
+					case ActorOp_SetActorVariable:
+						warn(COMI_THIS, "Not implemented OP_actorOps ActorOp_SetActorVariable");
+					return;
+					case ActorOp_SetIgnoreTurnsOn:
+						warn(COMI_THIS, "Not implemented OP_actorOps ActorOp_SetIgnoreTurnsOn");
+					return;
+					case ActorOp_SetIgnoreTurnsOff:
+						warn(COMI_THIS, "Not implemented OP_actorOps ActorOp_SetIgnoreTurnsOff");
+					return;
+					case ActorOp_ActorNew:
+						warn(COMI_THIS, "Not implemented OP_actorOps ActorOp_ActorNew");
+					return;
+					case ActorOp_SetActorZ:
+						warn(COMI_THIS, "Not implemented OP_actorOps ActorOp_SetActorZ");
+					return;
+					case ActorOp_ActorStop:
+						warn(COMI_THIS, "Not implemented OP_actorOps ActorOp_ActorStop");
+					return;
+					case ActorOp_SetAngle:
+						warn(COMI_THIS, "Not implemented OP_actorOps ActorOp_SetAngle");
+					return;
+					case ActorOp_TurnAngle:
+						warn(COMI_THIS, "Not implemented OP_actorOps ActorOp_TurnAngle");
+					return;
+					case ActorOp_SetWalkScript:
+						warn(COMI_THIS, "Not implemented OP_actorOps ActorOp_SetWalkScript");
+					return;
+					case ActorOp_SetTalkScript:
+						warn(COMI_THIS, "Not implemented OP_actorOps ActorOp_SetTalkScript");
+					return;
+					case ActorOp_WalkPause:
+						warn(COMI_THIS, "Not implemented OP_actorOps ActorOp_WalkPause");
+					return;
+					case ActorOp_WalkResume:
+						warn(COMI_THIS, "Not implemented OP_actorOps ActorOp_WalkResume");
+					return;
+					case ActorOp_SetTalkVolume:
+						warn(COMI_THIS, "Not implemented OP_actorOps ActorOp_SetTalkVolume");
+					return;
+					case ActorOp_SetTalkFrequency:
+						warn(COMI_THIS, "Not implemented OP_actorOps ActorOp_SetTalkFrequency");
+					return;
+					case ActorOp_SetActorPan:
+						warn(COMI_THIS, "Not implemented OP_actorOps ActorOp_SetActorPan");
+					return;
+				}
+			}
 			return;
 			case OP_cameraOps:
 				GS_UNHANDLED_OP;
