@@ -64,67 +64,94 @@ namespace comi
 				GS_UNHANDLED_OP;
 			return;
 			case OP_eq: {
-				int32 left = _popStack();
 				int32 right = _popStack();
+				int32 left = _popStack();
 				_pushStack(left == right ? 1 : 0);
 			}
 			return;
-			case OP_neq:
-				GS_UNHANDLED_OP;
+			case OP_neq: {
+				int32 right = _popStack();
+				int32 left = _popStack();
+				_pushStack(left != right ? 1 : 0);
+			}
 			return;
-			case OP_gt:
-				GS_UNHANDLED_OP;
+			case OP_gt: {
+				int32 right = _popStack();
+				int32 left = _popStack();
+				_pushStack(left > right ? 1 : 0);
+			}
 			return;
-			case OP_lt:
-				GS_UNHANDLED_OP;
+			case OP_lt: {
+				int32 right = _popStack();
+				int32 left = _popStack();
+				_pushStack(left < right ? 1 : 0);
+			}
 			return;
-			case OP_le:
-				GS_UNHANDLED_OP;
+			case OP_le: {
+				int32 right = _popStack();
+				int32 left = _popStack();
+				_pushStack(left <= right ? 1 : 0);
+			}
 			return;
-			case OP_ge:
-				GS_UNHANDLED_OP;
+			case OP_ge: {
+				int32 right = _popStack();
+				int32 left = _popStack();
+				_pushStack(left >= right ? 1 : 0);
+			}
 			return;
 			case OP_add: {
-				int32 a = _popStack();
-				int32 b = _popStack();
-				_pushStack(b + a);
+				int32 right = _popStack();
+				int32 left = _popStack();
+				_pushStack(left + right);
 			}
 			return;
 			case OP_sub: {
-				int32 a = _popStack();
-				int32 b = _popStack();
-				_pushStack(b - a);
+				int32 right = _popStack();
+				int32 left = _popStack();
+				_pushStack(left - right);
 			}
 			return;
-			case OP_mul:{
-				int32 a = _popStack();
-				int32 b = _popStack();
-				_pushStack(b * a);
+			case OP_mul: {
+				int32 right = _popStack();
+				int32 left = _popStack();
+				_pushStack(left * right);
 			}
 			return;
-			case OP_div:{
-				int32 a = _popStack();
-				int32 b = _popStack();
-				_pushStack(b / a);
+			case OP_div: {
+				int32 right = _popStack();
+				int32 left = _popStack();
+				_pushStack(left / right);
 			}
 			return;
 			case OP_land: {
-				int32 a = _popStack();
-				int32 b = _popStack();
-				_pushStack(a && b);
+				int32 right = _popStack();
+				int32 left = _popStack();
+				_pushStack(left && right ? 1 : 0);
 			}
 			return;
-			case OP_lor:
-				GS_UNHANDLED_OP;
+			case OP_lor: {
+				int32 right = _popStack();
+				int32 left = _popStack();
+				_pushStack(left || right ? 1 : 0);
+			}
 			return;
-			case OP_band:
-				GS_UNHANDLED_OP;
+			case OP_band: {
+				int32 right = _popStack();
+				int32 left = _popStack();
+				_pushStack(left & right);
+			}
 			return;
-			case OP_bor:
-				GS_UNHANDLED_OP;
+			case OP_bor: {
+				int32 right = _popStack();
+				int32 left = _popStack();
+				_pushStack(left | right);
+			}
 			return;
-			case OP_mod:
-				GS_UNHANDLED_OP;
+			case OP_mod: {
+				int32 right = _popStack();
+				int32 left = _popStack();
+				_pushStack(left % right);
+			}
 			return;
 			case OP_17:
 				GS_UNHANDLED_OP;
