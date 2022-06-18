@@ -107,6 +107,13 @@ namespace comi
 
 
 		inline int32& getListItem(uint16 index) {
+
+			if (index >= CapacityOfTempItems) {
+				error(COMI_THIS, "Out of bounds read (%ld)", (uint32) index, (uint32) CapacityOfTempItems);
+				abort_quit_stop();
+				return _tempItems[0];
+			}
+
 			return _tempItems[index];
 		}
 
