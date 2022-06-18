@@ -23,6 +23,7 @@
 
 #include "utils.h"
 #include "constants.h"
+#include "vm_array.h"
 
 using namespace common;
 
@@ -290,7 +291,8 @@ namespace comi
 
 			// AARY
 			if (tagEqual(tagName, 'A', 'A', 'R', 'Y')) {
-				uint16 count = 0, num = 0;
+				uint16 count = 0, arrayNum = 0;
+				uint16 a, b;
 				while (_file.isEof() == false) {
 
 					if (count > NUM_AARY) {
@@ -298,18 +300,24 @@ namespace comi
 						return false;
 					}
 
-					num = _file.readUInt32LE();
+					arrayNum = _file.readUInt32LE();
 
-					if (num == 0)
+					if (arrayNum == 0)
 						break;
 
-					ArraySpec& spec = _arraySpec[count];
-					spec.num = num;
+					a = _file.readUInt32LE();
+					b = _file.readUInt32LE();
 
-					spec.a = _file.readUInt32LE();
-					spec.b = _file.readUInt32LE();
+					if (b != 0)
+					{
+						ARRAYS->allocate(arrayNum, a, b, VAK_Integer);
+					}
+					else
+					{
+						ARRAYS->allocate(arrayNum, b, a, VAK_Integer);
+					}
 
-					verbose(COMI_THIS, "(AARY, %ld, %ld, %ld, %ld)", count, spec.num, spec.a, spec.b);
+					verbose(COMI_THIS, "(AARY, %ld, %ld, %ld, %ld)", count, arrayNum, a, b);
 					count++;
 					
 				}

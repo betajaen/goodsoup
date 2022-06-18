@@ -120,6 +120,7 @@ namespace comi
 		array->_idx = arrayIdx;
 
 		_nums[arrayIdx] = arrayNum;
+		_slots[arrayIdx] = array;
 
 		_lastUsed = array;
 		
@@ -169,6 +170,7 @@ namespace comi
 				return _lastUsed;
 			}
 		}
+
 		return NULL;
 	}
 	

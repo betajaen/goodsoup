@@ -105,11 +105,6 @@ namespace comi
 
 	private:
 
-		struct ArraySpec
-		{
-			uint16 num, a, b;
-		};
-
 		String					    _roomNames[NUM_ROOMS + 1];
 		ResourceIndexTable<RK_ROOM, NUM_ROOMS>		_roomsResources;
 		ResourceIndexTable<RK_SCRIPT, NUM_ROOMS>		_roomsScriptsResources;
@@ -118,7 +113,6 @@ namespace comi
 		ResourceIndexTable<RK_COSTUME, NUM_COSTUMES>	_costumesResources;
 		ResourceIndexTable<RK_CHARSET, NUM_CHARSETS>	_charsetResources;
 		ObjectLocationTable					_objectTable;
-		ArraySpec					_arraySpec[NUM_AARY];
 
 	};
 }

@@ -63,15 +63,16 @@ namespace comi
 		if (index == NULL) {
 			index = INDEX = newObject<Index>();
 		}
+		
+		if (ARRAYS == NULL) {
+			ARRAYS = newObject<VmArrayAllocator>();
+		}
 
 		bool canReadIndex = index->readFromFile(GS_GAME_PATH "COMI.LA0");
 
 		if (canReadIndex == false)
 			return false;
 
-		if (ARRAYS == NULL) {
-			ARRAYS = newObject<VmArrayAllocator>();
-		}
 
 		if (resources == NULL) {
 			resources = RESOURCES = newObject<Resources>();
