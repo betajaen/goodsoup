@@ -40,7 +40,7 @@ namespace comi
 		_opcode = _readByte();	
 		_pcState.opcode = _opcode;
 
-		debug(COMI_THIS, "%ld : %2lx", _pc-1, (uint32) _opcode);
+		// debug(COMI_THIS, "%ld : %2lx", _pc-1, (uint32) _opcode);
 
 		switch (_opcode) {
 			case OP_00:
