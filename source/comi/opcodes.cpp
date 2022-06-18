@@ -455,11 +455,19 @@ namespace comi
 				writeVar(varWhere, value);
 			}
 			return;
-			case OP_wordVarInc:
-				GS_UNHANDLED_OP;
+			case OP_wordVarInc: {
+				uint32 varNum = _readUnsignedWord();
+				int32 var = readVar(varNum);
+				var++;
+				writeVar(varNum, var);
+			}
 			return;
-			case OP_wordVarDec:
-				GS_UNHANDLED_OP;
+			case OP_wordVarDec: {
+				uint32 varNum = _readUnsignedWord();
+				int32 var = readVar(varNum);
+				var--;
+				writeVar(varNum, var);
+			}
 			return;
 			case OP_dimArray: {
 				byte subOp = _readByte();
@@ -744,8 +752,17 @@ namespace comi
 			case OP_walkActorTo:
 				GS_UNHANDLED_OP;
 			return;
-			case OP_putActorAtXY:
-				GS_UNHANDLED_OP;
+			case OP_putActorAtXY: {
+
+				int32 roomNum, actorNum, x, y;
+
+				roomNum = _popStack();
+				y = _popStack();
+				x = _popStack();
+				actorNum = _popStack();
+
+				warn(COMI_THIS, "Not implemented OP_putActorAtXY (%ld, %ld, %ld, %ld)", roomNum, x, y, actorNum);
+			}
 			return;
 			case OP_putActorAtObject:
 				GS_UNHANDLED_OP;
