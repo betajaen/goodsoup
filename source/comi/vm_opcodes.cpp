@@ -773,8 +773,12 @@ namespace comi
 			case OP_faceActor:
 				GS_UNHANDLED_OP;
 			return;
-			case OP_animateActor:
-				GS_UNHANDLED_OP;
+			case OP_animateActor: {
+				uint16 animationNum = _stack.pop();
+				uint16 actorNum = _stack.pop();
+				
+				warn(COMI_THIS, "Not implemented OP_animateActor (%ld, %ld)", (uint32) animationNum, (uint32) actorNum);
+			}
 			return;
 			case OP_doSentence:
 				GS_UNHANDLED_OP;
