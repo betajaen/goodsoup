@@ -43,10 +43,10 @@ namespace comi
 				GS_UNHANDLED_OP;
 			return;
 			case OP_pushWord:
-				_pushStack(_readUnsignedWord());
+				_stack.push(_readUnsignedWord());
 			return;
 			case OP_pushWordVar:
-				_pushStack(readVar(_readUnsignedWord()));
+				_stack.push(readVar(_readUnsignedWord()));
 			return;
 			case OP_wordArrayRead:
 				GS_UNHANDLED_OP;
@@ -55,108 +55,108 @@ namespace comi
 				GS_UNHANDLED_OP;
 			return;
 			case OP_dup: {
-				int32 value = _popStack();
-				_pushStack(value);
-				_pushStack(value);
+				int32 value = _stack.pop();
+				_stack.push(value);
+				_stack.push(value);
 			}
 			return;
 			case OP_pop: {
-				_popStack();
+				_stack.pop();
 			}
 			return;
 			case OP_not: {
-				int32 left = _popStack();
-				_pushStack(left == 0 ? 1 : 0);
+				int32 left = _stack.pop();
+				_stack.push(left == 0 ? 1 : 0);
 			}
 			return;
 			case OP_eq: {
-				int32 right = _popStack();
-				int32 left = _popStack();
-				_pushStack(left == right ? 1 : 0);
+				int32 right = _stack.pop();
+				int32 left = _stack.pop();
+				_stack.push(left == right ? 1 : 0);
 			}
 			return;
 			case OP_neq: {
-				int32 right = _popStack();
-				int32 left = _popStack();
-				_pushStack(left != right ? 1 : 0);
+				int32 right = _stack.pop();
+				int32 left = _stack.pop();
+				_stack.push(left != right ? 1 : 0);
 			}
 			return;
 			case OP_gt: {
-				int32 right = _popStack();
-				int32 left = _popStack();
-				_pushStack(left > right ? 1 : 0);
+				int32 right = _stack.pop();
+				int32 left = _stack.pop();
+				_stack.push(left > right ? 1 : 0);
 			}
 			return;
 			case OP_lt: {
-				int32 right = _popStack();
-				int32 left = _popStack();
-				_pushStack(left < right ? 1 : 0);
+				int32 right = _stack.pop();
+				int32 left = _stack.pop();
+				_stack.push(left < right ? 1 : 0);
 			}
 			return;
 			case OP_le: {
-				int32 right = _popStack();
-				int32 left = _popStack();
-				_pushStack(left <= right ? 1 : 0);
+				int32 right = _stack.pop();
+				int32 left = _stack.pop();
+				_stack.push(left <= right ? 1 : 0);
 			}
 			return;
 			case OP_ge: {
-				int32 right = _popStack();
-				int32 left = _popStack();
-				_pushStack(left >= right ? 1 : 0);
+				int32 right = _stack.pop();
+				int32 left = _stack.pop();
+				_stack.push(left >= right ? 1 : 0);
 			}
 			return;
 			case OP_add: {
-				int32 right = _popStack();
-				int32 left = _popStack();
-				_pushStack(left + right);
+				int32 right = _stack.pop();
+				int32 left = _stack.pop();
+				_stack.push(left + right);
 			}
 			return;
 			case OP_sub: {
-				int32 right = _popStack();
-				int32 left = _popStack();
-				_pushStack(left - right);
+				int32 right = _stack.pop();
+				int32 left = _stack.pop();
+				_stack.push(left - right);
 			}
 			return;
 			case OP_mul: {
-				int32 right = _popStack();
-				int32 left = _popStack();
-				_pushStack(left * right);
+				int32 right = _stack.pop();
+				int32 left = _stack.pop();
+				_stack.push(left * right);
 			}
 			return;
 			case OP_div: {
-				int32 right = _popStack();
-				int32 left = _popStack();
-				_pushStack(left / right);
+				int32 right = _stack.pop();
+				int32 left = _stack.pop();
+				_stack.push(left / right);
 			}
 			return;
 			case OP_land: {
-				int32 right = _popStack();
-				int32 left = _popStack();
-				_pushStack(left && right ? 1 : 0);
+				int32 right = _stack.pop();
+				int32 left = _stack.pop();
+				_stack.push(left && right ? 1 : 0);
 			}
 			return;
 			case OP_lor: {
-				int32 right = _popStack();
-				int32 left = _popStack();
-				_pushStack(left || right ? 1 : 0);
+				int32 right = _stack.pop();
+				int32 left = _stack.pop();
+				_stack.push(left || right ? 1 : 0);
 			}
 			return;
 			case OP_band: {
-				int32 right = _popStack();
-				int32 left = _popStack();
-				_pushStack(left & right);
+				int32 right = _stack.pop();
+				int32 left = _stack.pop();
+				_stack.push(left & right);
 			}
 			return;
 			case OP_bor: {
-				int32 right = _popStack();
-				int32 left = _popStack();
-				_pushStack(left | right);
+				int32 right = _stack.pop();
+				int32 left = _stack.pop();
+				_stack.push(left | right);
 			}
 			return;
 			case OP_mod: {
-				int32 right = _popStack();
-				int32 left = _popStack();
-				_pushStack(left % right);
+				int32 right = _stack.pop();
+				int32 left = _stack.pop();
+				_stack.push(left % right);
 			}
 			return;
 			case OP_17:
@@ -391,7 +391,7 @@ namespace comi
 				GS_UNHANDLED_OP;
 			return;
 			case OP_if: {
-				int32 cond = _popStack();
+				int32 cond = _stack.pop();
 				int32 relOffset = _readWord();
 				
 				if (cond != 0) {
@@ -400,7 +400,7 @@ namespace comi
 			}
 			return;
 			case OP_ifNot: {
-				int32 cond = _popStack();
+				int32 cond = _stack.pop();
 				int32 relOffset = _readWord();
 				
 				if (cond == 0) {
@@ -420,7 +420,7 @@ namespace comi
 			case OP_delayFrames: {
 				ScriptContext& context = _context[_currentContext];
 				if (context._delayFrameCount == 0) {
-					context._delayFrameCount = _popStack();
+					context._delayFrameCount = _stack.pop();
 				}
 				else {
 					context._delayFrameCount--;
@@ -435,23 +435,23 @@ namespace comi
 				GS_UNHANDLED_OP;
 			return;
 			case OP_delay: {
-				int32 time = _popStack();
+				int32 time = _stack.pop();
 				_delay(time);
 			}
 			return;
 			case OP_delaySeconds: {
-				int32 time = _popStack() * 60;
+				int32 time = _stack.pop() * 60;
 				_delay(time);
 			}
 			return;
 			case OP_delayMinutes: {
-				int32 time = _popStack() * 3600;
+				int32 time = _stack.pop() * 3600;
 				_delay(time);
 			}
 			return;
 			case OP_writeWordVar: {
 				uint32 varWhere = _readUnsignedWord();
-				int32 value = _popStack();
+				int32 value = _stack.pop();
 				writeVar(varWhere, value);
 			}
 			return;
@@ -476,11 +476,11 @@ namespace comi
 
 				switch (subOp) {
 					case DimArrayOp_NewInt:
-						size = _popStack();
+						size = _stack.pop();
 						_newArray(arrayNum, AK_Int, 0, size);
 					return;
 					case DimArrayOp_NewString:
-						size = _popStack();
+						size = _stack.pop();
 						_newArray(arrayNum, AK_String, 0, size);
 					return;
 					case DimArrayOp_Delete:
@@ -495,8 +495,8 @@ namespace comi
 			return;
 			case OP_wordArrayWrite: {
 				uint16 arrayNum = _readWord();
-				int32 value = _popStack();
-				int32 base = _popStack();
+				int32 value = _stack.pop();
+				int32 base = _stack.pop();
 
 				VmArray* array = _arrays->findFromNum(arrayNum);
 				if (array) {
@@ -527,7 +527,7 @@ namespace comi
 				VmArray* array;
 				switch (subOp) {
 					case ArrayOps_AssignString: {
-						uint16 offset = _popStack();
+						uint16 offset = _stack.pop();
 						uint16 from, len;
 						_readStringLength(from, len);
 						array = _newArray(arrayNum, VAK_String, 0, len);
@@ -566,14 +566,13 @@ namespace comi
 				GS_UNHANDLED_OP;
 			return;
 			case OP_startScript: {
-				int32 args[25];
 				uint32 script, flags;
 
-				uint8 count = _readStackList(args, 25);
-				script = _popStack();
-				flags = _popStack();
+				uint8 count = _stack.readList(25);
+				script = _stack.pop();
+				flags = _stack.pop();
 
-				runScript(script, (flags & 1) !=0, (flags & 2) !=0, args, count);
+				runScript(script, (flags & 1) !=0, (flags & 2) !=0, _stack.getList(), count);
 			}
 			return;
 			case OP_startScriptQuick:
@@ -622,9 +621,8 @@ namespace comi
 				GS_UNHANDLED_OP;
 			return;
 			case OP_setClass: {
-				int32 args[16];
-				int16 num = _readStackList(&args[0], 16);
-				int32 obj = _popStack();
+				int16 num = _stack.readList(16);
+				int32 obj = _stack.pop();
 
 				warn(COMI_THIS, "Not implemented OP_setClass (%ld, %ld)", num, obj);
 			}
@@ -648,7 +646,7 @@ namespace comi
 				_decodeParseString(0, 1);
 			return;
 			case OP_printEgo:
-				_pushStack(readVar(VAR_EGO));
+				_stack.push(readVar(VAR_EGO));
 				_decodeParseString(0, 1);
 			return;
 			case OP_talkActor:
@@ -714,28 +712,28 @@ namespace comi
 						warn(COMI_THIS, "Not implemented OP_cursorCommand CursorCommandOp_SoftUserPutOff");
 					return;
 					case CursorCommandOp_CursorImage:
-						_popStack();
+						_stack.pop();
 						warn(COMI_THIS, "Not implemented OP_cursorCommand CursorCommandOp_CursorImage");
 					return;
 					case CursorCommandOp_HotSpot:
-						_popStack();
-						_popStack();
+						_stack.pop();
+						_stack.pop();
 						warn(COMI_THIS, "Not implemented OP_cursorCommand CursorCommandOp_HotSpot");
 					return;
 					case CursorCommandOp_Transparency:
-						_popStack();
+						_stack.pop();
 						warn(COMI_THIS, "Not implemented OP_cursorCommand CursorCommandOp_Transparency");
 					return;
 					case CursorCommandOp_CharsetSet:
-						_popStack();
+						_stack.pop();
 						warn(COMI_THIS, "Not implemented OP_cursorCommand CursorCommandOp_CharsetSet");
 					return;
 					case CursorCommandOp_CharsetColour:
 						warn(COMI_THIS, "Not implemented OP_cursorCommand CursorCommandOp_CharsetColour");
 					return;
 					case CursorCommandOp_CursorPut:
-						_popStack();
-						_popStack();
+						_stack.pop();
+						_stack.pop();
 						warn(COMI_THIS, "Not implemented OP_cursorCommand CursorCommandOp_CursorPut");
 					return;
 				}
@@ -761,10 +759,10 @@ namespace comi
 
 				int32 roomNum, actorNum, x, y;
 
-				roomNum = _popStack();
-				y = _popStack();
-				x = _popStack();
-				actorNum = _popStack();
+				roomNum = _stack.pop();
+				y = _stack.pop();
+				x = _stack.pop();
+				actorNum = _stack.pop();
 
 				warn(COMI_THIS, "Not implemented OP_putActorAtXY (%ld, %ld, %ld, %ld)", roomNum, x, y, actorNum);
 			}
@@ -795,7 +793,7 @@ namespace comi
 			return;
 			case OP_resourceRoutines: {
 				byte  subOp = _readByte();
-				int32 resId = _popStack();
+				int32 resId = _stack.pop();
 
 				switch (subOp) {
 					case ResourceRoutineOp_Dummy:
@@ -867,33 +865,33 @@ namespace comi
 
 				switch (subOp) {
 					case RoomOp_SetColour:
-						_popStack();
-						_popStack();
-						_popStack();
-						_popStack();
+						_stack.pop();
+						_stack.pop();
+						_stack.pop();
+						_stack.pop();
 						warn(COMI_THIS, "Not implemented OP_roomOps RoomOp_SetColour");
 					return;
 					case RoomOp_FadePalette:
-						_popStack();
+						_stack.pop();
 						warn(COMI_THIS, "Not implemented OP_roomOps RoomOp_FadePalette");
 					return;
 					case RoomOp_DarkenPalette:
-						_popStack();
-						_popStack();
-						_popStack();
-						_popStack();
-						_popStack();
+						_stack.pop();
+						_stack.pop();
+						_stack.pop();
+						_stack.pop();
+						_stack.pop();
 						warn(COMI_THIS, "Not implemented OP_roomOps RoomOp_DarkenPalette");
 					return;
 					case RoomOp_PaletteManipulate:
-						_popStack();
-						_popStack();
-						_popStack();
-						_popStack();
+						_stack.pop();
+						_stack.pop();
+						_stack.pop();
+						_stack.pop();
 						warn(COMI_THIS, "Not implemented OP_roomOps RoomOp_PaletteManipulate");
 					return;
 					case RoomOp_SetPalette:
-						_popStack();
+						_stack.pop();
 						warn(COMI_THIS, "Not implemented OP_roomOps RoomOp_SetPalette");
 					return;
 					case RoomOp_SaveGame:
@@ -903,11 +901,11 @@ namespace comi
 						warn(COMI_THIS, "Not implemented OP_roomOps RoomOp_LoadGame");
 					return;
 					case RoomOp_DesaturatePalette:
-						_popStack();
-						_popStack();
-						_popStack();
-						_popStack();
-						_popStack();
+						_stack.pop();
+						_stack.pop();
+						_stack.pop();
+						_stack.pop();
+						_stack.pop();
 						warn(COMI_THIS, "Not implemented OP_roomOps RoomOp_DesaturatePalette");
 					return;
 				}
@@ -1042,7 +1040,7 @@ namespace comi
 
 				switch (subOp) {
 					case VerbOp_Init:
-						_popStack();
+						_stack.pop();
 						warn(COMI_THIS, "Not implemented OP_verbOps VerbOp_Init");
 					return;
 					case VerbOp_New:
@@ -1055,8 +1053,8 @@ namespace comi
 						warn(COMI_THIS, "Not implemented OP_verbOps VerbOp_Init");
 					return;
 					case VerbOp_SetPosition:
-						_popStack();
-						_popStack();
+						_stack.pop();
+						_stack.pop();
 						warn(COMI_THIS, "Not implemented OP_verbOps VerbOp_Init");
 					return;
 					case VerbOp_Enable:
@@ -1066,42 +1064,42 @@ namespace comi
 						warn(COMI_THIS, "Not implemented OP_verbOps VerbOp_Init");
 					return;
 					case VerbOp_SetColour:
-						_popStack();
+						_stack.pop();
 						warn(COMI_THIS, "Not implemented OP_verbOps VerbOp_Init");
 					return;
 					case VerbOp_SetHilightColour:
-						_popStack();
+						_stack.pop();
 						warn(COMI_THIS, "Not implemented OP_verbOps VerbOp_Init");
 					return;
 					case VerbOp_SetDimmedColour:
-						_popStack();
+						_stack.pop();
 						warn(COMI_THIS, "Not implemented OP_verbOps VerbOp_Init");
 					return;
 					case VerbOp_Dim:
 						warn(COMI_THIS, "Not implemented OP_verbOps VerbOp_Init");
 					return;
 					case VerbOp_SetKey:
-						_popStack();
+						_stack.pop();
 						warn(COMI_THIS, "Not implemented OP_verbOps VerbOp_Init");
 					return;
 					case VerbOp_SetImage:
-						_popStack();
-						_popStack();
+						_stack.pop();
+						_stack.pop();
 						warn(COMI_THIS, "Not implemented OP_verbOps VerbOp_Init");
 					return;
 					case VerbOp_SetNameString:
-						_popStack();
+						_stack.pop();
 						warn(COMI_THIS, "Not implemented OP_verbOps VerbOp_Init");
 					return;
 					case VerbOp_Centre:
 						warn(COMI_THIS, "Not implemented OP_verbOps VerbOp_Init");
 					return;
 					case VerbOp_SetCharSet:
-						_popStack();
+						_stack.pop();
 						warn(COMI_THIS, "Not implemented OP_verbOps VerbOp_Init");
 					return;
 					case VerbOp_SetLineSpacing:
-						_popStack();
+						_stack.pop();
 						warn(COMI_THIS, "Not implemented OP_verbOps VerbOp_Init");
 					return;
 				}
@@ -1157,10 +1155,10 @@ namespace comi
 			return;
 			case OP_kernelSetFunctions: {
 
-				int32 args[30];
-				uint8 length = _readStackList(args, 30);
-				
-				switch(args[0]) {
+				uint8 length = _stack.readList(30);
+				byte subOp = _stack.getListItem(0);
+
+				switch(subOp) {
 
 					case KernelOp_LockObject:
 						warn(COMI_THIS, "Not implemented KernelOp_LockObject");
@@ -1220,7 +1218,7 @@ namespace comi
 
 				_dumpState();
 				_forceQuit();
-				error(COMI_THIS, "Not implemented KernelSetFunctions(%ld, %ld)", (uint32) args[0], length);
+				error(COMI_THIS, "Not implemented KernelSetFunctions(%ld, %ld)", (uint32) subOp, length);
 			}
 			return;
 			case OP_bb:

@@ -297,7 +297,7 @@ namespace comi
 	VirtualMachine::VirtualMachine() :
 		_currentContext(NO_CONTEXT),
 		_script(NULL), 
-		_stackSize(0),
+		_contextStackSize(0),
 		_arrays(NULL)
 	{
 		_nullScript.setSize(4);
@@ -312,7 +312,7 @@ namespace comi
 		}
 
 		for (uint8 i = 0; i < NUM_STACK_SCRIPTS; i++) {
-			_stack[i].reset();
+			_contextStack[i].reset();
 		}
 
 	}
@@ -343,15 +343,7 @@ namespace comi
 
 		_arrays->reset();
 		
-		
-		if (_vmStack.hasMem() == false) {
-			_vmStack.setSize(150);
-			_vmStackSize = 0;
-		}
-		else {
-			_vmStack.zeroMem();
-			_vmStackSize = 0;
-		}
+		_stack.reset();
 
 		if (_intGlobals.hasMem() == false) {
 			_intGlobals.setSize(NUM_INT_GLOBALS);
@@ -588,7 +580,7 @@ namespace comi
 		
 		debug(COMI_THIS, "Push (%ld)", (uint32)newContextNum);
 
-		ScriptStackItem& last = _stack[_stackSize];
+		ScriptStackItem& last = _contextStack[_contextStackSize];
 		
 		if (_currentContext == NO_CONTEXT) {
 			last._scriptWhere = OW_NotFound;
@@ -603,7 +595,7 @@ namespace comi
 			current._lastPC = _pc;
 		}
 		
-		_stackSize++;
+		_contextStackSize++;
 
 		_currentContext = newContextNum;
 		
@@ -611,8 +603,8 @@ namespace comi
 		_pc = context._lastPC;
 		runCurrentScript();
 
-		if (_stackSize) {
-			_stackSize--;
+		if (_contextStackSize) {
+			_contextStackSize--;
 		}
 
 		if (CTX->quit) {
@@ -692,30 +684,6 @@ namespace comi
 		return value;
 	}
 	
-	uint8 VirtualMachine::_readStackList(int32* args, uint8 capacity) {
-		uint8 i, size;
-
-		for (i = 0; i < capacity; i++) {
-			args[i] = 0;
-		}
-
-		size = _popStack();
-
-		if (size > capacity) {
-			error(COMI_THIS, "Amount (%ld) of pop from stack is higher than capacity (%ld)", (uint32) size, (uint32) capacity);
-			return 0;
-		}
-
-		i = size;
-		while(i-- != 0) {
-			args[i] = _popStack();
-		}
-
-		verbose(COMI_THIS, "%ld of %ld", (uint32) size, (uint32) capacity);
-
-		return size;
-	}
-	
 	void VirtualMachine::_readStringLength(uint16& from, uint16& len) {
 		len = 0;
 		from = _pc;
@@ -745,22 +713,22 @@ namespace comi
 			case 0xC8: {	// Print BaseOP
 				// ...
 				if (n != 0) {
-					_popStack();
+					_stack.pop();
 				}
 			}
 			break;
 			case 0xC9:		// Print End
 			break;
 			case 0xCA:		// Print At
-				_popStack();
-				_popStack();
+				_stack.pop();
+				_stack.pop();
 			break;
 			case 0xCB:		// Print Colour
 			break;
 			case 0xCC:		// Print Center
 			break;
 			case 0xCD:		// Print Charset
-				_popStack();
+				_stack.pop();
 			break;
 			case 0xCE:		// Print Left
 			break;
@@ -779,32 +747,15 @@ namespace comi
 		}
 	}
 
-	void VirtualMachine::_pushStack(int32 value) {
-		_vmStack.set_unchecked(_stackSize, value);
-		_stackSize++;
-	}
-
-	int32 VirtualMachine::_popStack() {
-
-		if (_stackSize == 0) {
-			error(COMI_THIS, "VM Stack execption!");
-			_forceQuit();
-			return 0;
-		}
-
-		_stackSize--;
-		return _vmStack.get_unchecked(_stackSize);
-	}
-	
 	void VirtualMachine::_dumpState() {
 		
 		debug_write(DC_Debug, GS_FILE_NAME, __FILE__, __FUNCTION__, __LINE__, "VM State as follows:");
 		
-		int16 stackMin = _vmStackSize - 16;
+		int16 stackMin = _stack.getSize() - 16;
 		if (stackMin < 0)
 			stackMin = 0;
 
-		int16 stackMax = _vmStackSize;
+		int16 stackMax = _stack.getSize();
 		
 		if (stackMax > 0) {
 			debug_write_str_int("Stack Trace", stackMax);
@@ -815,7 +766,7 @@ namespace comi
 				debug_write_int(i);
 				debug_write_char(']');
 				debug_write_char('=');
-				debug_write_int(_vmStack.get_unchecked(i));
+				debug_write_int(_stack.get_unchecked(i));
 				debug_write_char('\n');
 			}
 		}

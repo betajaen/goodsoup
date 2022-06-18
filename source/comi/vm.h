@@ -21,6 +21,7 @@
 #include "common/types.h"
 #include "common/buffer.h"
 #include "common/array.h"
+#include "vm_stack.h"
 #include "vm_array.h"
 #include "constants.h"
 
@@ -244,17 +245,18 @@ namespace comi
 		Buffer<int32>					_intGlobals;
 		Buffer<byte>					_boolGlobals;
 		ScriptContext					_context[MAX_SCRIPT_CONTEXTS];
-		ScriptStackItem					_stack[NUM_STACK_SCRIPTS];
+		ScriptStackItem					_contextStack[NUM_STACK_SCRIPTS];
+		uint16							_contextStackSize;
 		uint16							_currentContext;
-		uint16							_stackSize;
 		uint32							_pc;
 		Buffer<byte>*					_script;
 		byte							_opcode;
-		Buffer<int32>					_vmStack;
-		int8							_vmStackSize;
 		Array<char>						_messageTemp;
 		VmArrayAllocator*				_arrays;
 		RingArray<PcState, uint8, 8>	_pcState;
+
+		VmStack<256>					_stack;
+
 
 		bool _findFreeContext(uint8& num);
 		void _updateScriptData(ScriptContext& context);
@@ -267,14 +269,10 @@ namespace comi
 		VmArray* _newArray(uint32 num, uint8 kind, uint16 dim2, uint16 dim1);
 		void _deleteArray(uint32 num);
 
-		void _pushStack(int32 value);
-		int32 _popStack();
-
 		byte _readByte();
 		int32  _readWord();
 		uint32  _readUnsignedWord();
 		void _readStringLength(uint16& from, uint16& length);
-		uint8 _readStackList(int32* args, uint8 capacity);
 		void _decodeParseString(uint8 m, uint8 n);
 
 		void _dumpState();
