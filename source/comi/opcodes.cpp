@@ -413,11 +413,23 @@ namespace comi
 				_pc += relOffset;
 			}
 			return;
-			case OP_breakHere:
-				GS_UNHANDLED_OP;
+			case OP_breakHere: {
+				_break();
+			}
 			return;
-			case OP_delayFrames:
-				GS_UNHANDLED_OP;
+			case OP_delayFrames: {
+				ScriptContext& context = _context[_currentContext];
+				if (context._delayFrameCount == 0) {
+					context._delayFrameCount = _popStack();
+				}
+				else {
+					context._delayFrameCount--;
+				}
+				if (context._delayFrameCount) {
+					_pc--;
+					_break();
+				}
+			}
 			return;
 			case OP_wait:
 				GS_UNHANDLED_OP;
