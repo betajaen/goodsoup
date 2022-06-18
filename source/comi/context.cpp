@@ -41,6 +41,10 @@ namespace comi
 			VM = NULL;
 		}
 
+		if (ARRAYS != NULL) {
+			deleteObject(ARRAYS);
+		}
+
 		if (index != NULL) {
 			deleteObject(index);
 			INDEX = NULL;
@@ -64,6 +68,10 @@ namespace comi
 
 		if (canReadIndex == false)
 			return false;
+
+		if (ARRAYS == NULL) {
+			ARRAYS = newObject<VmArrayAllocator>();
+		}
 
 		if (resources == NULL) {
 			resources = RESOURCES = newObject<Resources>();

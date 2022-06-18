@@ -297,8 +297,7 @@ namespace comi
 	VirtualMachine::VirtualMachine() :
 		_currentContext(NO_CONTEXT),
 		_script(NULL), 
-		_contextStackSize(0),
-		_arrays(NULL)
+		_contextStackSize(0)
 	{
 		_nullScript.setSize(4);
 		_nullScript.set(0, OP_systemOps);
@@ -318,11 +317,6 @@ namespace comi
 	}
 
 	VirtualMachine::~VirtualMachine() {
-	
-		if (_arrays) {
-			deleteObject(_arrays);
-		}
-
 	}
 
 	void VirtualMachine::reset() {
@@ -336,12 +330,6 @@ namespace comi
 		else {
 			_messageTemp.clear();
 		}
-		
-		if (_arrays == NULL) {
-			_arrays = newObject<VmArrayAllocator>();
-		}
-
-		_arrays->reset();
 		
 		_stack.reset();
 
@@ -538,7 +526,7 @@ namespace comi
 
 	VmArray* VirtualMachine::newArray(uint32 arrayNum, uint8 kind, uint16 dim2, uint16 dim1) {
 		
-		VmArray* array = _arrays->allocate(arrayNum, dim1, dim2, kind);
+		VmArray* array = ARRAYS->allocate(arrayNum, dim1, dim2, kind);
 
 		if (array == NULL) {
 			return array;
@@ -559,10 +547,10 @@ namespace comi
 			return;
 		}
 
-		VmArray* arrayHeader = _arrays->getFromIndex(arrayIndex);
+		VmArray* arrayHeader = ARRAYS->getFromIndex(arrayIndex);
 
 		if (arrayHeader != NULL) {
-			_arrays->deallocateFromArray(arrayHeader);
+			ARRAYS->deallocateFromArray(arrayHeader);
 			writeVar(arrayNum, 0);
 		}
 	}

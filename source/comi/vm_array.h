@@ -36,6 +36,10 @@ namespace comi
 		VAK_Integer = 4
 	};
 
+	class VmArrayAllocator;
+
+	extern VmArrayAllocator* ARRAYS;
+
 	struct VmArray {
 		uint16 _num;
 		uint16 _dim1, _dim2;

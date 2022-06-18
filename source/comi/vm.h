@@ -251,7 +251,6 @@ namespace comi
 		Buffer<byte>*					_script;
 		byte							_opcode;
 		Array<char>						_messageTemp;
-		VmArrayAllocator*				_arrays;
 		RingLog<PcState>				_lastPcStates;
 		PcState							_pcState;
 		bool							_pushPcState;

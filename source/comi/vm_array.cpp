@@ -26,6 +26,7 @@ using namespace common;
 namespace comi
 {
 	const uint16 NO_ARRAY = 0;
+	VmArrayAllocator* ARRAYS = NULL;
 
 	VmArrayAllocator::VmArrayAllocator() 
 		: _lastUsed(NULL)
@@ -33,6 +34,8 @@ namespace comi
 		for (uint8 i = 0; i < NUM_ARRAY; i++) {
 			_slots[i] = NULL;
 		}
+
+		reset();
 	}
 
 	VmArrayAllocator::~VmArrayAllocator() {

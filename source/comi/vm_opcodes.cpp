@@ -501,7 +501,7 @@ namespace comi
 				int32 value = _stack.pop();
 				int32 base = _stack.pop();
 
-				VmArray* array = _arrays->findFromNum(arrayNum);
+				VmArray* array = ARRAYS->findFromNum(arrayNum);
 				if (array) {
 					array->write(value, 0, base);
 				}
