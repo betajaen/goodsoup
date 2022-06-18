@@ -361,25 +361,30 @@ namespace comi
 		Dim2DimOp_Delete = 0xC
 	};
 
-	enum KernelOp {
-		KernelOp_LockObject = 0xB,
-		KernelOp_UnlockObject = 0xC,
-		KernelOp_RemapCostume = 0xD,
-		KernelOp_RemapCostumeInert = 0xE,
-		KernelOp_Unused_0xF = 0xF,
-		KernelOp_SetBoxScaleSlot = 0x14,
-		KernelOp_SetScaleSlot = 0x15,
-		KernelOp_SetBannerColours = 0x16,
-		KernelOp_SetActorChoreLimbFrame = 0x17,
-		KernelOp_ClearTextQueue = 0x18,
-		KernelOp_KillAllScriptsExceptCurrent = 0x1E,
-		KernelOp_StopAllVideo = 0x1F,
-		KernelOp_WriteRegistryValue = 0x20,
-		KernelOp_QueryQuit = 0x22,
-		KernelOp_BuildShadowPalette = 0x6C,
-		KernelOp_SetShadowPalette = 0x6D,
-		KernelOp_BlastShadowObject = 0x76,
-		KernelOp_SuperBlastObject = 0x77
+	enum KernelSetOp {
+		KernelSetOp_LockObject = 0xB,
+		KernelSetOp_UnlockObject = 0xC,
+		KernelSetOp_RemapCostume = 0xD,
+		KernelSetOp_RemapCostumeInert = 0xE,
+		KernelSetOp_Unused_0xF = 0xF,
+		KernelSetOp_SetBoxScaleSlot = 0x14,
+		KernelSetOp_SetScaleSlot = 0x15,
+		KernelSetOp_SetBannerColours = 0x16,
+		KernelSetOp_SetActorChoreLimbFrame = 0x17,
+		KernelSetOp_ClearTextQueue = 0x18,
+		KernelSetOp_Unused_0x1A,
+		KernelSetOp_Unused_0x1B,
+		KernelSetOp_Unused_0x1C,
+		KernelSetOp_Unused_0x1D,
+		KernelSetOp_SetKeyScript,
+		KernelSetOp_KillAllScriptsExceptCurrent = 0x1E,
+		KernelSetOp_StopAllVideo = 0x1F,
+		KernelSetOp_WriteRegistryValue = 0x20,
+		KernelSetOp_QueryQuit = 0x22,
+		KernelSetOp_BuildShadowPalette = 0x6C,
+		KernelSetOp_SetShadowPalette = 0x6D,
+		KernelSetOp_BlastShadowObject = 0x76,
+		KernelSetOp_SuperBlastObject = 0x77
 	};
 
 	enum KernelGetOp {

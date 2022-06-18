@@ -1221,59 +1221,70 @@ namespace comi
 
 				switch(subOp) {
 
-					case KernelOp_LockObject:
-						warn(COMI_THIS, "Not implemented KernelOp_LockObject");
+					case KernelSetOp_LockObject:
+						warn(COMI_THIS, "Not implemented KernelSetOp_LockObject");
 					return;
-					case KernelOp_UnlockObject:
-						warn(COMI_THIS, "Not implemented KernelOp_UnlockObject");
+					case KernelSetOp_UnlockObject:
+						warn(COMI_THIS, "Not implemented KernelSetOp_UnlockObject");
 					return;
-					case KernelOp_RemapCostume:
-						warn(COMI_THIS, "Not implemented KernelOp_RemapCostume");
+					case KernelSetOp_RemapCostume:
+						warn(COMI_THIS, "Not implemented KernelSetOp_RemapCostume");
 					return;
-					case KernelOp_RemapCostumeInert:
-						warn(COMI_THIS, "Not implemented KernelOp_RemapCostumeInert");
+					case KernelSetOp_RemapCostumeInert:
+						warn(COMI_THIS, "Not implemented KernelSetOp_RemapCostumeInert");
 					return;
-					case KernelOp_Unused_0xF:
+					case KernelSetOp_Unused_0xF:
 						/* Legacy */
 					return;
-					case KernelOp_SetBoxScaleSlot:
-						warn(COMI_THIS, "Not implemented KernelOp_SetBoxScaleSlot");
+					case KernelSetOp_SetBoxScaleSlot:
+						warn(COMI_THIS, "Not implemented KernelSetOp_SetBoxScaleSlot");
 					return;
-					case KernelOp_SetScaleSlot:
-						warn(COMI_THIS, "Not implemented KernelOp_SetScaleSlot");
+					case KernelSetOp_SetScaleSlot:
+						warn(COMI_THIS, "Not implemented KernelSetOp_SetScaleSlot");
 					return;
-					case KernelOp_SetBannerColours:
-						warn(COMI_THIS, "Not implemented KernelOp_SetBannerColours");
+					case KernelSetOp_SetBannerColours:
+						warn(COMI_THIS, "Not implemented KernelSetOp_SetBannerColours");
 					return;
-					case KernelOp_SetActorChoreLimbFrame:
-						warn(COMI_THIS, "Not implemented KernelOp_SetActorChoreLimbFrame");
+					case KernelSetOp_SetActorChoreLimbFrame:
+						warn(COMI_THIS, "Not implemented KernelSetOp_SetActorChoreLimbFrame");
 					return;
-					case KernelOp_ClearTextQueue:
-						warn(COMI_THIS, "Not implemented KernelOp_ClearTextQueue");
+					case KernelSetOp_ClearTextQueue:
+						warn(COMI_THIS, "Not implemented KernelSetOp_ClearTextQueue");
 					return;
-					case KernelOp_KillAllScriptsExceptCurrent:
-						warn(COMI_THIS, "Not implemented KernelOp_KillAllScriptsExceptCurrent");
+					case KernelSetOp_Unused_0x1A:
+					case KernelSetOp_Unused_0x1B:
+					case KernelSetOp_Unused_0x1C:
+					case KernelSetOp_Unused_0x1D: {
+						/* Unused Save Game Functionality */
+					}
 					return;
-					case KernelOp_StopAllVideo:
-						warn(COMI_THIS, "Not implemented KernelOp_StopAllVideo");
+					case KernelSetOp_SetKeyScript: {
+						warn(COMI_THIS, "Not implemented KernelSetOp_SetKeyScript");
+					}
 					return;
-					case KernelOp_WriteRegistryValue:
-						warn(COMI_THIS, "Not implemented KernelOp_WriteRegistryValue");
+					case KernelSetOp_KillAllScriptsExceptCurrent:
+						warn(COMI_THIS, "Not implemented KernelSetOp_KillAllScriptsExceptCurrent");
 					return;
-					case KernelOp_QueryQuit:
-						warn(COMI_THIS, "Not implemented KernelOp_QueryQuit");
+					case KernelSetOp_StopAllVideo:
+						warn(COMI_THIS, "Not implemented KernelSetOp_StopAllVideo");
 					return;
-					case KernelOp_BuildShadowPalette:
-						warn(COMI_THIS, "Not implemented KernelOp_BuildShadowPalette");
+					case KernelSetOp_WriteRegistryValue:
+						warn(COMI_THIS, "Not implemented KernelSetOp_WriteRegistryValue");
 					return;
-					case KernelOp_SetShadowPalette:
-						warn(COMI_THIS, "Not implemented KernelOp_SetShadowPalette");
+					case KernelSetOp_QueryQuit:
+						warn(COMI_THIS, "Not implemented KernelSetOp_QueryQuit");
 					return;
-					case KernelOp_BlastShadowObject:
-						warn(COMI_THIS, "Not implemented KernelOp_BlastShadowObject");
+					case KernelSetOp_BuildShadowPalette:
+						warn(COMI_THIS, "Not implemented KernelSetOp_BuildShadowPalette");
 					return;
-					case KernelOp_SuperBlastObject:
-						warn(COMI_THIS, "Not implemented KernelOp_SuperBlastObject");
+					case KernelSetOp_SetShadowPalette:
+						warn(COMI_THIS, "Not implemented KernelSetOp_SetShadowPalette");
+					return;
+					case KernelSetOp_BlastShadowObject:
+						warn(COMI_THIS, "Not implemented KernelSetOp_BlastShadowObject");
+					return;
+					case KernelSetOp_SuperBlastObject:
+						warn(COMI_THIS, "Not implemented KernelSetOp_SuperBlastObject");
 					return;
 				}
 
