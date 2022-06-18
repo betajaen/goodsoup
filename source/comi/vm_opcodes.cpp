@@ -1122,8 +1122,15 @@ namespace comi
 			case OP_stopSound:
 				GS_UNHANDLED_OP;
 			return;
-			case OP_soundKludge:
-				GS_UNHANDLED_OP;
+			case OP_soundKludge: {
+
+				uint16 num = _stack.readList(16);
+
+				warn(COMI_THIS, "Not implemented OP_soundKludge %ld", num);
+
+				/* TODO: WORKAROUND for bug #1398195 */
+				warn(COMI_THIS, "Not implemented WORKAROUND for bug #1398195");
+			}
 			return;
 			case OP_systemOps: {
 				byte param = _readByte();
