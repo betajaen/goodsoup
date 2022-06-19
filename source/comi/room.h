@@ -19,6 +19,7 @@
 #define COMI_ROOM_H
 
 #include "common/types.h"
+#include "common/array.h"
 #include "common/buffer.h"
 #include "resource_data.h"
 
@@ -28,11 +29,21 @@ namespace comi
 {
 	class DiskReader;
 
+	struct ColourCycle
+	{
+		uint16 delay;
+		uint16 counter;
+		uint16 flags;
+		uint8  start;
+		uint8 end;
+	};
+
 	class RoomData : public ResourceData
 	{
 		bool _readLFLF(DiskReader& reader);
 		bool _readRoom(DiskReader& reader, uint32 totalLength);
 		void _readRMHD(DiskReader& reader, uint32 tagLength);
+		void _readCYCL(DiskReader& reader, uint32 tagLength);
 
 	public:
 
@@ -43,6 +54,7 @@ namespace comi
 		Buffer<byte> entryScript;
 		Buffer<byte> exitScript;
 		Buffer<byte> localScript;
+		FixedArray<ColourCycle, 16> colourCycle;
 
 		bool readFromDisk(DiskReader& reader);
 		

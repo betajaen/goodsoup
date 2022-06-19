@@ -82,7 +82,7 @@ namespace comi
 				continue;
 			}
 			
-			warn(COMI_THIS, "Unhandled LFLF tag %s", tagName);
+			NO_FEATURE(COMI_THIS, "Unhandled LFLF tag %s", tagName);
 			reader.skip(tagLength - 8);
 		}
 
@@ -106,8 +106,13 @@ namespace comi
 				_readRMHD(reader, tagLength);
 				continue;
 			}
+			
+			if (tagEqual(tagName, 'C', 'Y', 'C', 'L')) {
+				_readCYCL(reader, tagLength);
+				continue;
+			}
 
-			warn(COMI_THIS, "Unhandled ROOM tag %s", tagName);
+			NO_FEATURE(COMI_THIS, "Unhandled ROOM tag %s", tagName);
 			reader.skip(tagLength - 8);
 		}
 
@@ -124,7 +129,25 @@ namespace comi
 
 		debug(COMI_THIS, "width=%ld height=%ld numObjects=%ld numZBuffers=%ld", (uint32) width, (uint32) height, (uint32) numObjects, (uint32) numZBuffers);
 	}
+	
+	void RoomData::_readCYCL(DiskReader& reader, uint32 tagLength) {
 
+		while (true) {
+			uint8 idx = reader.readByte();
+			if (idx == 0)
+				break;
+
+			ColourCycle cycle;
+			cycle.counter = 0;
+			cycle.delay = 16384 / reader.readUInt16BE();
+			cycle.flags = reader.readUInt16BE();
+			cycle.start = reader.readByte();
+			cycle.end = reader.readByte();
+
+			colourCycle[idx - 1] = cycle;
+		}
+
+	}
 
 
 	void startScene(uint16 roomNum) {
