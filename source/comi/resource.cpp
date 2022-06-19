@@ -110,9 +110,24 @@ namespace comi
 		return script;
 	}
 
-	RoomData* Resources::loadRoom(uint16 num)
+	RoomData* Resources::loadRoomData(uint16 num)
 	{
 		/* TODO */
+		uint8 room_diskNum;
+		uint32 room_resOffset;
+
+		
+		if (INDEX->getRoom(num, room_diskNum, room_resOffset) == false) {
+			return NULL;
+		}
+
+		Disk& disk = _getDisk(room_diskNum);
+		disk.getRoomOffset(num, room_resOffset);
+
+		debug(COMI_THIS, "Room %ld %ld %ld", num, disk, room_resOffset);
+
+		abort_quit_stop();
+
 		return NULL;
 	}
 
@@ -126,5 +141,16 @@ namespace comi
 
 		return script;
 	}
+	
+	RoomData* Resources::getRoomData(uint16 num) {
+		RoomData* room = _rooms.find(num);
+
+		if (room == NULL) {
+			room = loadRoomData(num);
+		}
+
+		return room;
+	}
+
 
 }

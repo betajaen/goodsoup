@@ -167,7 +167,7 @@ namespace comi
 		void close();
 
 		ScriptData* loadScriptData(uint16 num);
-		RoomData* loadRoom(uint16 num);
+		RoomData* loadRoomData(uint16 num);
 
 		ScriptData* getScriptData(uint16 num);
 		RoomData* getRoomData(uint16 num);
