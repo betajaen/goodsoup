@@ -15,38 +15,23 @@
  *
  */
 
-#ifndef COMI_CONTEXT_H
-#define COMI_CONTEXT_H
+#ifndef COMI_GLOBALS_H
+#define COMI_GLOBALS_H
 
 #include "common/types.h"
 
-using namespace common;
-
 namespace comi
 {
-	class Context;
-	class Index;
-	class Resources;
 	class VirtualMachine;
-	
-	extern Context* CTX;
+	class Index;
+	class VmArrayAllocator;
+	class Resources;
 
-	class Context
-	{
-	public:
-		Context();
-		~Context();
-
-		void initialize();
-
-		bool canRun();
-		void run();
-
-		bool quit;
-		VirtualMachine* vm;
-		Index* index;
-		Resources* resources;
-	};
+	extern VirtualMachine* VM;
+	extern Index* INDEX;
+	extern VmArrayAllocator* ARRAYS;
+	extern Resources* RESOURCES;
+	extern bool QUIT_NOW;
 }
 
 #endif

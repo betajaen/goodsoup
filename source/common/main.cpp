@@ -36,7 +36,7 @@ namespace test
 
 namespace comi
 {
-	int start();
+	int main();
 }
 
 namespace common
@@ -52,7 +52,7 @@ namespace common
 #if GS_TEST == 1
 		rc = test::run();
 #else
-		rc = comi::start();
+		rc = comi::main();
 #endif
 
 		common::checkMem();

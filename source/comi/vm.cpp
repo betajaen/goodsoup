@@ -18,12 +18,12 @@
 #define GS_FILE_NAME "vm"
 
 #include "vm.h"
+#include "globals.h"
 #include "script.h"
 #include "index.h"
 #include "debug.h"
 #include "constants.h"
 #include "vm_opcodes.h"
-#include "context.h"
 
 #include "common/endian.h"
 
@@ -710,7 +710,7 @@ namespace comi
 			_contextStackSize--;
 		}
 
-		if (CTX->quit) {
+		if (QUIT_NOW) {
 			_currentContext = NO_CONTEXT;
 			return;
 		}
@@ -982,7 +982,7 @@ namespace comi
 	}
 
 	void VirtualMachine::_forceQuit() {
-		CTX->quit = true;
+		QUIT_NOW = true;
 		_currentContext = NO_CONTEXT;
 	}
 	

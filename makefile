@@ -55,8 +55,7 @@ OBJ +=	source/common/main.o\
 		source/common/test_file.o
 
 # Game Sources
-OBJ +=	source/comi/start.o\
-		source/comi/context.o\
+OBJ +=	source/comi/main.o\
 		source/comi/vm.o\
 		source/comi/vm_array.o\
 		source/comi/vm_opcodes.o\

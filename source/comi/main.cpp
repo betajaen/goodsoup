@@ -15,12 +15,17 @@
  *
  */
 
-#define GS_FILE_NAME "start"
+#define GS_FILE_NAME "main"
 
+#include "common/types.h"
 #include "common/memory.h"
 
 #include "debug.h"
-#include "context.h"
+#include "globals.h"
+#include "vm.h"
+#include "vm_array.h"
+#include "index.h"
+#include "resource.h"
 
 using namespace common;
 
@@ -29,22 +34,50 @@ extern const char GOODSOUP_VERSION_STR[];
 namespace comi
 {
 
-	Context* CTX = NULL;
+	bool QUIT_NOW = false;
 
-	int start()
-	{
+	void cleanup() {
+		deleteObject(VM);
+		deleteObject(ARRAYS);
+		deleteObject(INDEX);
+		deleteObject(RESOURCES);
+	}
+
+	int main() {
 		info(COMI_THIS, "%s\n", &GOODSOUP_VERSION_STR[6]);
 
-		CTX = newObject<Context>();
-		CTX->initialize();
+		QUIT_NOW = false;
+		ARRAYS = newObject<VmArrayAllocator>();
+		INDEX = newObject<Index>();
 
-		if (CTX->canRun())
-		{
-			CTX->run();
+		if (INDEX->readFromFile(GS_GAME_PATH "COMI.LA0") == false) {
+			cleanup();
+			return 1;
 		}
 
-		deleteObject(CTX);
+		RESOURCES = newObject<Resources>();
+		RESOURCES->open();
+
+		VM = newObject<VirtualMachine>();
+		VM->reset();
+		VM->runScript(1, false, false);
+
+		cleanup();
 
 		return 0;
+	}
+
+}
+
+namespace common
+{
+	void abort_quit_stop() {
+		using namespace comi;
+
+		comi::QUIT_NOW = true;
+
+		if (VM) {
+			VM->abort();
+		}
 	}
 }

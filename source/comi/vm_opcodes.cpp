@@ -19,7 +19,7 @@
 
 #include "vm_opcodes.h"
 #include "vm.h"
-#include "context.h"
+#include "globals.h"
 #include "debug.h"
 #include "vm_array.h"
 #include "utils.h"
