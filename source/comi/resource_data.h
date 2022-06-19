@@ -22,6 +22,16 @@
 
 namespace comi
 {
+	
+	enum ResourceKind
+	{
+		RK_SCRIPT,
+		RK_ROOM,
+		RK_SOUND,
+		RK_COSTUME,
+		RK_CHARSET,
+		RK_COUNT
+	};
 
 	class ResourceData {
 	protected:

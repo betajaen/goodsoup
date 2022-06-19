@@ -62,14 +62,6 @@ namespace comi
 		OW_FLObject = 4
 	};
 
-	enum ResourceKind
-	{
-		RK_SCRIPT,
-		RK_ROOM,
-		RK_SOUND,
-		RK_COSTUME,
-		RK_CHARSET
-	};
 }
 
 #endif
