@@ -20,7 +20,7 @@
 #include "resource.h"
 #include "index.h"
 #include "disk.h"
-#include "resource_object.h"
+#include "resource_data.h"
 #include "room.h"
 #include "script.h"
 #include "disk.h"

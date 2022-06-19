@@ -19,7 +19,7 @@
 #define COMI_ROOM_H
 
 #include "common/types.h"
-#include "resource_object.h"
+#include "resource_data.h"
 
 namespace comi
 {

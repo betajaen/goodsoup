@@ -21,7 +21,7 @@
 #include "common/types.h"
 #include "common/buffer.h"
 
-#include "resource_object.h"
+#include "resource_data.h"
 
 using namespace common;
 
