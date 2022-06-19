@@ -43,12 +43,6 @@ namespace comi
 
 	extern Resources* RESOURCES;
 
-	struct Resource {
-		void*  _object;
-		uint8  _kind;
-		uint8  _users;
-	};
-
 	class Resources {
 	private:
 
