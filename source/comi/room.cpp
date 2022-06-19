@@ -115,13 +115,14 @@ namespace comi
 	}
 
 	void RoomData::_readRMHD(DiskReader& reader, uint32 tagLength) {
+		reader.readUInt32BE();	// Version
 		width = reader.readUInt32LE();
 		height = reader.readUInt32LE();
 		numObjects = reader.readUInt32LE();
+		reader.readUInt32BE();	// Unknown
+		numZBuffers = reader.readUInt32LE();
 
-		reader.skip(tagLength - 8 - (sizeof(uint32) * 3));
-
-		debug(COMI_THIS, "width=%ld height=%ld numObjects=%ld", (uint32) width, (uint32) height, (uint32) numObjects);
+		debug(COMI_THIS, "width=%ld height=%ld numObjects=%ld numZBuffers=%ld", (uint32) width, (uint32) height, (uint32) numObjects, (uint32) numZBuffers);
 	}
 
 

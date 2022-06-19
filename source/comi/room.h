@@ -39,7 +39,7 @@ namespace comi
 		RoomData(uint16 num, uint8 disk, uint8 flags);
 		~RoomData();
 
-		uint16 width, height, numObjects;
+		uint16 width, height, numObjects, numZBuffers;
 		Buffer<byte> entryScript;
 		Buffer<byte> exitScript;
 		Buffer<byte> localScript;
