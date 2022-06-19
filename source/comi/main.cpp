@@ -24,6 +24,7 @@
 #include "globals.h"
 #include "vm.h"
 #include "vm_array.h"
+#include "vm_vars.h"
 #include "index.h"
 #include "resource.h"
 
@@ -38,6 +39,9 @@ namespace comi
 
 	void cleanup() {
 		deleteObject(VM);
+		deleteObject(INTS);
+		deleteObject(BOOLS);
+		deleteObject(LOCALS);
 		deleteObject(ARRAYS);
 		deleteObject(INDEX);
 		deleteObject(RESOURCES);
@@ -49,6 +53,10 @@ namespace comi
 		QUIT_NOW = false;
 		ARRAYS = newObject<VmArrayAllocator>();
 		INDEX = newObject<Index>();
+		
+		INTS = newObject<VmIntVars>();
+		BOOLS = newObject<VmBoolVars>();
+		LOCALS = newObject<VmLocalVars>();
 
 		if (INDEX->readFromFile(GS_GAME_PATH "COMI.LA0") == false) {
 			cleanup();

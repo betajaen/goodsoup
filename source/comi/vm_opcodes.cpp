@@ -450,7 +450,7 @@ namespace comi
 			}
 			return;
 			case OP_delayFrames: {
-				ScriptContext& context = _context[_currentContext];
+				ScriptContext& context = _context[CURRENT_CONTEXT];
 				if (context._delayFrameCount == 0) {
 					context._delayFrameCount = _stack.pop();
 				}
@@ -762,7 +762,7 @@ namespace comi
 				_decodeParseString(0, 1);
 			return;
 			case OP_printEgo:
-				_stack.push(INTS.ego);
+				_stack.push(INTS->ego);
 				_decodeParseString(0, 1);
 			return;
 			case OP_talkActor:

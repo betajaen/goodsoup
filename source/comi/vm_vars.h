@@ -185,9 +185,9 @@ namespace comi
 
 	typedef char __COMI_ASSERT_VM_INT_VARS_SIZE_WRONG__[(!!(sizeof(VmIntVars) ==  (sizeof(int32) * NUM_INT_GLOBALS) )) * 2 - 1];
 
-	extern VmIntVars INTS;
+	extern VmIntVars* INTS;
 	
-	#pragma pack(push, 2)
+	#pragma pack(push, 4)
 	struct VmBoolVars {
 		
 		int32 get_unchecked(uint32 name) const {
@@ -207,7 +207,28 @@ namespace comi
 	};
 	#pragma pack(pop)
 	
-	extern VmBoolVars BOOLS;
+	extern VmBoolVars* BOOLS;
+
+	#pragma pack(push, 4)
+	struct VmLocalVars {
+		
+		void clear(uint8 context);
+
+		void copyInto(uint8 context, int32* values, uint8 numValues);
+
+		int32 get_unchecked(uint8 context, uint8 varName) const {
+			return _locals[context][varName];
+		}
+
+		void set_unchecked(uint8 context, uint8 varName, int32 value) {
+			_locals[context][varName] = value;
+		}
+
+		int32 _locals[MAX_SCRIPT_CONTEXTS][NUM_INT_LOCALS];
+	};
+	#pragma pack(pop)
+
+	extern VmLocalVars* LOCALS;
 
 	void resetVars();
 

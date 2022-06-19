@@ -19,18 +19,21 @@
 
 #include "vm_vars.h"
 #include "vm.h"
+#include "globals.h"
 
 #include "common/memory.h"
 
 namespace comi
 {
-	VmIntVars INTS;
-	VmBoolVars BOOLS;
+	VmIntVars* INTS = NULL;
+	VmBoolVars* BOOLS = NULL;
+	VmLocalVars* LOCALS = NULL;
 
 	
 	void resetVars() {
-		common::clearMemoryNonAllocated(&INTS, sizeof(INTS));
-		common::clearMemoryNonAllocated(&BOOLS, sizeof(BOOLS));
+		common::clearMemoryNonAllocated(INTS, sizeof(VmIntVars));
+		common::clearMemoryNonAllocated(BOOLS, sizeof(VmBoolVars));
+		common::clearMemoryNonAllocated(LOCALS, sizeof(VmLocalVars));
 	}
 
 	void setVar(uint32 varName, int32 value) {
@@ -39,9 +42,10 @@ namespace comi
 		if (!(varName & 0xF0000000)) {
 			if (varName >= NUM_INT_GLOBALS) {
 				error(COMI_THIS, "Int Global %d out of range!", varName);
+				abort_quit_stop();
 				return;
 			}
-			INTS.set(varName, value);
+			INTS->set(varName, value);
 			return;
 		}
 
@@ -50,9 +54,11 @@ namespace comi
 			varName &= 0x7FFFFFFF;
 			if (varName >= NUM_BOOL_GLOBALS) {
 				error(COMI_THIS, "Bool Global variable %d out of range!", varName);
+				abort_quit_stop();
+				return;
 			}
 
-			BOOLS.set_unchecked(varName, value);
+			BOOLS->set_unchecked(varName, value);
 			return;
 		}
 
@@ -61,8 +67,11 @@ namespace comi
 			varName &= 0xFFFFFFF;
 			if (varName >= NUM_INT_LOCALS) {
 				error(COMI_THIS, "Script variable %d out of range!", varName);
+				abort_quit_stop();
+				return;
 			}
-			VM->setLocalVar_unchecked(varName, value);
+
+			LOCALS->set_unchecked(CURRENT_CONTEXT, varName, value);
 			return;
 		}
 
@@ -75,9 +84,10 @@ namespace comi
 		if (!(varName & 0xF0000000)) {
 			if (varName >= NUM_INT_GLOBALS) {
 				error(COMI_THIS, "Int Global %d out of range!", varName);
+				abort_quit_stop();
 				return 0;
 			}
-			return INTS.get(varName);
+			return INTS->get(varName);
 		}
 
 		// Global Bools
@@ -85,8 +95,10 @@ namespace comi
 			varName &= 0x7FFFFFFF;
 			if (varName >= NUM_BOOL_GLOBALS) {
 				error(COMI_THIS, "Bool Global variable %d out of range!", varName);
+				abort_quit_stop();
+				return 0;
 			}
-			return BOOLS.get_unchecked(varName);
+			return BOOLS->get_unchecked(varName);
 		}
 
 		// Local Ints
@@ -94,10 +106,47 @@ namespace comi
 			varName &= 0xFFFFFFF;
 			if (varName >= NUM_INT_LOCALS) {
 				error(COMI_THIS, "Script variable %d out of range!", varName);
+				abort_quit_stop();
+				return 0;
 			}
-			return VM->getLocalVar_unchecked(varName);
+
+			return LOCALS->get_unchecked(CURRENT_CONTEXT, varName);
 		}
 
 		return 0;
+	}
+
+	void VmLocalVars::clear(uint8 context) {
+		if (context >= MAX_SCRIPT_CONTEXTS) {
+			error(COMI_THIS, "Context out of range %ld!", (uint32) context);
+			abort_quit_stop();
+			return;
+		}
+
+		for (uint8 i = 0; i < NUM_INT_LOCALS; i++) {
+			_locals[context][i] = 0;
+		}
+	}
+
+	void VmLocalVars::copyInto(uint8 context, int32* values, uint8 numValues) {
+		
+		if (context >= MAX_SCRIPT_CONTEXTS) {
+			error(COMI_THIS, "Context out of range %ld!", (uint32) context);
+			abort_quit_stop();
+			return;
+		}
+
+		
+		if (numValues >= NUM_INT_LOCALS) {
+			error(COMI_THIS, "numValues out of range %ld!", (uint32) context, (uint32) numValues);
+			abort_quit_stop();
+			return;
+		}
+
+		
+		for (uint8 i = 0; i < numValues; i++) {
+			_locals[context][i] = values[i];
+		}
+
 	}
 }

@@ -294,9 +294,9 @@ namespace comi
 	};
 
 	VirtualMachine* VM = NULL;
+	uint8 CURRENT_CONTEXT = NO_CONTEXT;
 	
 	VirtualMachine::VirtualMachine() :
-		_currentContext(NO_CONTEXT),
 		_script(NULL), 
 		_contextStackSize(0)
 	{
@@ -309,6 +309,7 @@ namespace comi
 		
 		for (uint8 i = 0; i < MAX_SCRIPT_CONTEXTS; i++) {
 			_context[i].reset();
+			LOCALS->clear(i);
 		}
 
 		for (uint8 i = 0; i < NUM_STACK_SCRIPTS; i++) {
@@ -351,22 +352,15 @@ namespace comi
 
 		for (i = 0; i < MAX_SCRIPT_CONTEXTS; i++) {
 			_context[i].reset();
+			LOCALS->clear(i);
 		}
 
 		_pushPcState = false;
 
-		INTS.currentdisk = 1;
+		INTS->currentdisk = 1;
 
 	}
 	
-	int32 VirtualMachine::getLocalVar_unchecked(uint8 varName) {
-		return _context[_currentContext]._locals[varName];
-	}
-	
-	void VirtualMachine::setLocalVar_unchecked(uint8 varName, int32 value) {
-		_context[_currentContext]._locals[varName] = value;
-	}
-
 	void VirtualMachine::runScript(uint16 scriptNum, bool freezeResistant, bool recursive, int32* data, uint8 dataCount)
 	{
 		debug(COMI_THIS, "runScript %ld", (uint32) scriptNum);
@@ -403,12 +397,10 @@ namespace comi
 		context._bRecursive = recursive;
 		context._scriptWhere = (scriptNum < NUM_SCRIPTS) ? OW_Global : OW_Local;
 
+		LOCALS->clear(contextNum);
+
 		_updateScriptData(context);
-		if (data != NULL && dataCount > 0 && dataCount <= NUM_INT_LOCALS) {
-			for (uint8 i = 0; i < dataCount; i++) {
-				context._locals[i] = data[i];
-			}
-		}
+		LOCALS->copyInto(contextNum, data, dataCount);
 		_placeContextOnStackAndRun(contextNum);
 	}
 
@@ -440,7 +432,7 @@ namespace comi
 
 	void VirtualMachine::_stopObjectCode() {
 		
-		ScriptContext& context = _context[_currentContext];
+		ScriptContext& context = _context[CURRENT_CONTEXT];
 
 		if (context._cutsceneOverride == 255) {
 			context._cutsceneOverride = 0;
@@ -459,11 +451,11 @@ namespace comi
 		}
 
 		context.markDead();
-		_currentContext = NO_CONTEXT;
+		CURRENT_CONTEXT = NO_CONTEXT;
 		
 		if (_pushPcState) {
 			_pushPcState = false;
-			_pcState.contextAfter = _currentContext;
+			_pcState.contextAfter = CURRENT_CONTEXT;
 			_pcState.pcAfter = _pc;
 			_lastPcStates.write(_pcState);
 		}
@@ -493,8 +485,8 @@ namespace comi
 
 				context.reset();
 
-				if (_currentContext == i) {
-					_currentContext = NO_CONTEXT;
+				if (CURRENT_CONTEXT == i) {
+					CURRENT_CONTEXT = NO_CONTEXT;
 				}
 			}
 		}
@@ -538,8 +530,8 @@ namespace comi
 
 				context.reset();
 
-				if (_currentContext == i) {
-					_currentContext = NO_CONTEXT;
+				if (CURRENT_CONTEXT == i) {
+					CURRENT_CONTEXT = NO_CONTEXT;
 				}
 			}
 		}
@@ -566,14 +558,14 @@ namespace comi
 			return array;
 		}
 
-		INTS.set(arrayNum, array->_idx);
+		INTS->set(arrayNum, array->_idx);
 
 		return array;
 	}
 
 	void VirtualMachine::deleteArray(uint32 arrayNum) {
 		
-		uint32 arrayIndex = INTS.get(arrayNum);
+		uint32 arrayIndex = INTS->get(arrayNum);
 
 		if (arrayIndex >= NUM_ARRAY) {
 			error(COMI_THIS, "Tried to delete an array out of bounds!");
@@ -585,7 +577,7 @@ namespace comi
 
 		if (arrayHeader != NULL) {
 			ARRAYS->deallocateFromArray(arrayHeader);
-			INTS.set(arrayNum, 0);
+			INTS->set(arrayNum, 0);
 		}
 	}
 	
@@ -622,14 +614,14 @@ namespace comi
 
 		ScriptStackItem& last = _contextStack[_contextStackSize];
 		
-		if (_currentContext == NO_CONTEXT) {
+		if (CURRENT_CONTEXT == NO_CONTEXT) {
 			last._scriptWhere = OW_NotFound;
 			last._scriptNum = 0;
 			last._contextNum = NO_CONTEXT;
 		}
 		else {
-			ScriptContext& current = _context[_currentContext];
-			last._contextNum = _currentContext;
+			ScriptContext& current = _context[CURRENT_CONTEXT];
+			last._contextNum = CURRENT_CONTEXT;
 			last._scriptNum = current._scriptNum;
 			last._scriptWhere = current._scriptWhere;
 			current._lastPC = _pc;
@@ -637,9 +629,9 @@ namespace comi
 		
 		_contextStackSize++;
 
-		_currentContext = newContextNum;
+		CURRENT_CONTEXT = newContextNum;
 		
-		ScriptContext& context = _context[_currentContext];
+		ScriptContext& context = _context[CURRENT_CONTEXT];
 		_pc = context._lastPC;
 		runCurrentScript();
 
@@ -648,7 +640,7 @@ namespace comi
 		}
 
 		if (QUIT_NOW) {
-			_currentContext = NO_CONTEXT;
+			CURRENT_CONTEXT = NO_CONTEXT;
 			return;
 		}
 
@@ -665,7 +657,7 @@ namespace comi
 				debug(COMI_THIS, "Resume (%ld)", (uint32)last._contextNum);
 
 
-				_currentContext = last._contextNum;
+				CURRENT_CONTEXT = last._contextNum;
 				_updateScriptData(lastContext);
 				_pc = lastContext._lastPC;
 				
@@ -681,26 +673,26 @@ namespace comi
 
 		}
 
-		_currentContext = NO_CONTEXT;
+		CURRENT_CONTEXT = NO_CONTEXT;
 	}
 
 	void VirtualMachine::runCurrentScript() {
-		while (_currentContext != NO_CONTEXT) {
+		while (CURRENT_CONTEXT != NO_CONTEXT) {
 			_pushPcState = true;
 			_pcState.pc = _pc;
-			_pcState.context = _currentContext;
+			_pcState.context = CURRENT_CONTEXT;
 			_step();
 			if (_pushPcState) {
 				_pcState.pcAfter = _pc;
-				_pcState.contextAfter = _currentContext;
+				_pcState.contextAfter = CURRENT_CONTEXT;
 				_lastPcStates.write(_pcState);
 			}
 		}
 	}
 
 	void VirtualMachine::_delay(uint32 time) {
-		if (_currentContext != NO_CONTEXT) {
-			ScriptContext& context = _context[_currentContext];
+		if (CURRENT_CONTEXT != NO_CONTEXT) {
+			ScriptContext& context = _context[CURRENT_CONTEXT];
 			context._delay = time;
 			context._state = SCS_Paused;
 			_break();
@@ -708,7 +700,7 @@ namespace comi
 	}
 
 	void VirtualMachine::_break() {
-		if (_currentContext != NO_CONTEXT) {
+		if (CURRENT_CONTEXT != NO_CONTEXT) {
 			
 			if (_pushPcState) {
 				_pushPcState = false;
@@ -717,9 +709,9 @@ namespace comi
 				_lastPcStates.write(_pcState);
 			}
 
-			ScriptContext& context = _context[_currentContext];
+			ScriptContext& context = _context[CURRENT_CONTEXT];
 			context._lastPC = _pc;
-			_currentContext = NO_CONTEXT;
+			CURRENT_CONTEXT = NO_CONTEXT;
 		}
 	}
 
@@ -810,7 +802,7 @@ namespace comi
 		
 		debug_write(DC_Debug, GS_FILE_NAME, __FILE__, __FUNCTION__, __LINE__, "VM State as follows:");
 		
-		uint8 lastContext = _currentContext;
+		uint8 lastContext = CURRENT_CONTEXT;
 
 		for (uint16 i = 0; i < 8; i++) {
 			PcState state;
@@ -844,7 +836,7 @@ namespace comi
 			debug_write_char(' ');
 			debug_write_char('(');
 
-			if (state.context == _currentContext && _script != NULL) {
+			if (state.context == CURRENT_CONTEXT && _script != NULL) {
 
 				for (uint16 j = state.pc; j < state.pcAfter; j++) {
 					if (j != state.pc) {
@@ -920,7 +912,7 @@ namespace comi
 
 	void VirtualMachine::_forceQuit() {
 		QUIT_NOW = true;
-		_currentContext = NO_CONTEXT;
+		CURRENT_CONTEXT = NO_CONTEXT;
 	}
 	
 	const char* VirtualMachine::_getOpcodeName(uint8 opcode) const {
@@ -942,10 +934,6 @@ namespace comi
 		_cutsceneOverride = false;
 		_delay = 0;
 		_delayFrameCount = 0;
-
-		for (i = 0; i < NUM_INT_LOCALS; i++) {
-			_locals[i] = 0;
-		}
 	}
 
 	void ScriptStackItem::reset() {

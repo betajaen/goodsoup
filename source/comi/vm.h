@@ -197,7 +197,6 @@ namespace comi
 		uint8  _bRecursive;
 		uint8  _bIsExecuted;
 		uint8  _cutsceneOverride;
-		int32  _locals[NUM_INT_LOCALS];
 	};
 
 	struct ScriptStackItem {
@@ -246,7 +245,6 @@ namespace comi
 		ScriptContext					_context[MAX_SCRIPT_CONTEXTS];
 		ScriptStackItem					_contextStack[NUM_STACK_SCRIPTS];
 		uint16							_contextStackSize;
-		uint16							_currentContext;
 		uint32							_pc, _pcAfter, _pcOpcode;
 		Buffer<byte>*					_script;
 		byte							_opcode;
@@ -286,9 +284,6 @@ namespace comi
 		void   reset();
 		VmArray* newArray(uint32 num, uint8 kind, uint16 y, uint16 x);
 		void deleteArray(uint32 num);
-
-		int32 getLocalVar_unchecked(uint8 varName);
-		void setLocalVar_unchecked(uint8 varName, int32 value);
 
 		void runCurrentScript();
 		void runScript(uint16 scriptNum, bool freezeResistant, bool recursive, int32* data = NULL, uint8 dataCount = 0);
