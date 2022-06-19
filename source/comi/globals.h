@@ -26,11 +26,16 @@ namespace comi
 	class Index;
 	class VmArrayAllocator;
 	class Resources;
+	struct VmIntVars;
+	struct VmBoolVars;
 
 	extern VirtualMachine* VM;
 	extern Index* INDEX;
 	extern VmArrayAllocator* ARRAYS;
 	extern Resources* RESOURCES;
+	extern VmIntVars INTS;
+	extern VmBoolVars BOOLS;
+
 	extern bool QUIT_NOW;
 }
 

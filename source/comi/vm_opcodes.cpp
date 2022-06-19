@@ -22,6 +22,7 @@
 #include "globals.h"
 #include "debug.h"
 #include "vm_array.h"
+#include "vm_vars.h"
 #include "utils.h"
 
 namespace comi
@@ -40,7 +41,7 @@ namespace comi
 		_opcode = _readByte();	
 		_pcState.opcode = _opcode;
 
-		// debug(COMI_THIS, "%ld : %2lx", _pc-1, (uint32) _opcode);
+		// debug(COMI_THIS, "%ld : %2lx %s", _pc-1, (uint32) _opcode, _getOpcodeName(_opcode));
 
 		switch (_opcode) {
 			case OP_00:
@@ -50,7 +51,7 @@ namespace comi
 				_stack.push(_readUnsignedWord());
 			return;
 			case OP_pushWordVar:
-				_stack.push(readVar(_readUnsignedWord()));
+				_stack.push(getVar(_readUnsignedWord()));
 			return;
 			case OP_wordArrayRead: {
 				uint32 base = _stack.pop();
@@ -483,21 +484,21 @@ namespace comi
 			case OP_writeWordVar: {
 				uint32 varWhere = _readUnsignedWord();
 				int32 value = _stack.pop();
-				writeVar(varWhere, value);
+				setVar(varWhere, value);
 			}
 			return;
 			case OP_wordVarInc: {
 				uint32 varNum = _readUnsignedWord();
-				int32 var = readVar(varNum);
+				int32 var = getVar(varNum);
 				var++;
-				writeVar(varNum, var);
+				setVar(varNum, var);
 			}
 			return;
 			case OP_wordVarDec: {
 				uint32 varNum = _readUnsignedWord();
-				int32 var = readVar(varNum);
+				int32 var = getVar(varNum);
 				var--;
-				writeVar(varNum, var);
+				setVar(varNum, var);
 			}
 			return;
 			case OP_dimArray: {
@@ -761,7 +762,7 @@ namespace comi
 				_decodeParseString(0, 1);
 			return;
 			case OP_printEgo:
-				_stack.push(readVar(VAR_EGO));
+				_stack.push(INTS.ego);
 				_decodeParseString(0, 1);
 			return;
 			case OP_talkActor:

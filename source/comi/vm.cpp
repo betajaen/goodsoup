@@ -24,6 +24,7 @@
 #include "debug.h"
 #include "constants.h"
 #include "vm_opcodes.h"
+#include "vm_vars.h"
 
 #include "common/endian.h"
 
@@ -354,80 +355,16 @@ namespace comi
 
 		_pushPcState = false;
 
-		writeVar(VAR_CURRENTDISK, 1);
+		INTS.currentdisk = 1;
 
 	}
-
-	int32 VirtualMachine::readVar(uint32 var) {
-
-		// Global Ints
-		if (!(var & 0xF0000000)) {
-			if (var >= NUM_INT_GLOBALS) {
-				error(COMI_THIS, "Int Global %d out of range!", var);
-			}
-			verbose(COMI_THIS, "(GLOBAL, INT, %d)", var);
-			return _intGlobals.get_unchecked(var);
-		}
-
-		// Global Bits
-		if (var & 0x80000000) {
-			var &= 0x7FFFFFFF;
-			if (var >= NUM_BOOL_GLOBALS) {
-				error(COMI_THIS, "Bool Global variable %d out of range!", var);
-			}
-			verbose(COMI_THIS, "(GLOBAL, BOOL, %d)", var);
-			return _boolGlobals.get_unchecked(var);
-		}
-
-		// Local Ints
-		if (var & 0x40000000) {
-			var &= 0xFFFFFFF;
-			if (var >= NUM_INT_LOCALS) {
-				error(COMI_THIS, "Script variable %d out of range!", var);
-			}
-			verbose(COMI_THIS, "(SCRIPT, INT, %d, %d)", _currentContext, var);
-			return _context[_currentContext]._locals[var];
-		}
-
-		error(COMI_THIS, "(?, ?, %d) Unsupported variable index! ", var);
-		return -1;
+	
+	int32 VirtualMachine::getLocalVar_unchecked(uint8 varName) {
+		return _context[_currentContext]._locals[varName];
 	}
-
-	void VirtualMachine::writeVar(uint32 var, int32 value) {
-		
-		// Global Ints
-		if (!(var & 0xF0000000)) {
-			if (var >= NUM_INT_GLOBALS) {
-				error(COMI_THIS, "Int Global %d out of range!", var);
-			}
-			verbose(COMI_THIS, "(GLOBAL, INT, %d, %d)", var, value);
-			_intGlobals.set_unchecked(var, value);
-			return;
-		}
-
-		// Global Booleans
-		if (var & 0x80000000) {
-			var &= 0x7FFFFFFF;
-			if (var >= NUM_BOOL_GLOBALS) {
-				error(COMI_THIS, "Bool Global variable %d out of range!", var);
-			}
-			verbose(COMI_THIS, "(GLOBAL, BOOL, %d, %d)", var, value);
-			_boolGlobals.set_unchecked(var, var);
-			return;
-		}
-
-		// Local Ints
-		if (var & 0x40000000) {
-			var &= 0xFFFFFFF;
-			if (var >= NUM_INT_LOCALS) {
-				error(COMI_THIS, "Script variable %d out of range!", var);
-			}
-			verbose(COMI_THIS, "(SCRIPT, INT, %d, %d, %d)", _currentContext, var, value);
-			_context[_currentContext]._locals[var] = value;
-			return;
-		}
-
-		error(COMI_THIS, "(?, ?, %d, %d) Unsupported variable index!", var, value);
+	
+	void VirtualMachine::setLocalVar_unchecked(uint8 varName, int32 value) {
+		_context[_currentContext]._locals[varName] = value;
 	}
 
 	void VirtualMachine::runScript(uint16 scriptNum, bool freezeResistant, bool recursive, int32* data, uint8 dataCount)
@@ -629,14 +566,14 @@ namespace comi
 			return array;
 		}
 
-		writeVar(arrayNum, array->_idx);
+		INTS.set(arrayNum, array->_idx);
 
 		return array;
 	}
 
 	void VirtualMachine::deleteArray(uint32 arrayNum) {
 		
-		uint32 arrayIndex = readVar(arrayNum);
+		uint32 arrayIndex = INTS.get(arrayNum);
 
 		if (arrayIndex >= NUM_ARRAY) {
 			error(COMI_THIS, "Tried to delete an array out of bounds!");
@@ -648,7 +585,7 @@ namespace comi
 
 		if (arrayHeader != NULL) {
 			ARRAYS->deallocateFromArray(arrayHeader);
-			writeVar(arrayNum, 0);
+			INTS.set(arrayNum, 0);
 		}
 	}
 	

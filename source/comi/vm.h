@@ -284,11 +284,11 @@ namespace comi
 		~VirtualMachine();
 
 		void   reset();
-		int32  readVar(uint32 var);
-		void   writeVar(uint32 var, int32 value);
 		VmArray* newArray(uint32 num, uint8 kind, uint16 y, uint16 x);
 		void deleteArray(uint32 num);
 
+		int32 getLocalVar_unchecked(uint8 varName);
+		void setLocalVar_unchecked(uint8 varName, int32 value);
 
 		void runCurrentScript();
 		void runScript(uint16 scriptNum, bool freezeResistant, bool recursive, int32* data = NULL, uint8 dataCount = 0);
