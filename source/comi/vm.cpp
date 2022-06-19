@@ -925,6 +925,46 @@ namespace comi
 #endif
 	}
 
+	void VirtualMachine::enterRoom() {
+		NO_FEATURE(COMI_THIS, "Not implemented");
+	}
+
+	void VirtualMachine::exitRoom() {
+		if (CURRENT_CONTEXT != NO_CONTEXT) {
+			ScriptContext& context = _context[CURRENT_CONTEXT];
+			const uint8 where = context._scriptWhere;
+
+			if (where == OW_Room || where == OW_FLObject || where == OW_Local) {
+				CURRENT_CONTEXT = NO_CONTEXT;
+			}
+		}
+
+		_runExitScript();
+		_unloadAllRoomScripts();
+	}
+	
+	void VirtualMachine::_runExitScript() {
+		NO_FEATURE(COMI_THIS, "Not implemented");
+	}
+
+	void VirtualMachine::_runEnterScript() {
+		NO_FEATURE(COMI_THIS, "Not implemented");
+	}
+
+	void VirtualMachine::_unloadAllRoomScripts() {
+		for (uint8 i = 0; i < MAX_SCRIPT_CONTEXTS; i++) {
+			ScriptContext& context = _context[i];
+			const uint8 where = context._scriptWhere;
+
+			if (where == OW_Room || where == OW_FLObject || where == OW_Local) {
+				context._cutsceneOverride = 0;
+				context._state = SCS_Dead;
+			}
+		}
+
+		/* TODO: Delete New Names */
+	}
+
 	void ScriptContext::reset() {
 		uint8 i = 0;
 

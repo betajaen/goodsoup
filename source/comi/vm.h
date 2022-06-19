@@ -274,6 +274,10 @@ namespace comi
 		void _dumpState();
 		void _forceQuit();
 
+		void _runExitScript();
+		void _runEnterScript();
+		void _unloadAllRoomScripts();
+
 		const char* _getOpcodeName(uint8 opcode) const;
 
 	public:
@@ -293,6 +297,9 @@ namespace comi
 			_dumpState();
 			_forceQuit();
 		}
+
+		void enterRoom();
+		void exitRoom();
 
 	};
 }
