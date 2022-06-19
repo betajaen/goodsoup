@@ -29,7 +29,7 @@ namespace comi
 {
 	class DiskReader;
 
-	class ScriptData : public ResourceObject
+	class ScriptData : public ResourceData
 	{
 	private:
 		Buffer<byte> _data;

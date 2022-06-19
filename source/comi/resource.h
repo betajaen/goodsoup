@@ -34,7 +34,7 @@ using namespace common;
 namespace comi
 {
 	class Resources;
-	class ResourceObject;
+	class ResourceData;
 	class Disk;
 	class DiskParser;
 
@@ -54,11 +54,11 @@ namespace comi
 
 		Disk _disk[NUM_DISKS];
 
-		Array<ResourceObject*> _resources;
+		Array<ResourceData*> _datas;
 
 		Disk& _getDisk(uint8 num);
 
-		ResourceObject* _findResource(uint16 num, uint8 kind);
+		ResourceData* _findResource(uint16 num, uint8 kind);
 
 	public:
 

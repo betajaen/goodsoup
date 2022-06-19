@@ -49,8 +49,8 @@ namespace comi
 			_disk[i].close();
 		}
 
-		for (i = 0; i < _resources.size(); i++) {
-			ResourceObject* resource = _resources[i];
+		for (i = 0; i < _datas.size(); i++) {
+			ResourceData* resource = _datas[i];
 
 			switch (resource->getResourceKind()) {
 				case RK_ROOM: {
@@ -64,7 +64,7 @@ namespace comi
 			}
 		}
 
-		_resources.release();
+		_datas.release();
 
 	}
 
@@ -82,11 +82,11 @@ namespace comi
 		return true;
 	}
 
-	ResourceObject* Resources::_findResource(uint16 num, uint8 kind) {
+	ResourceData* Resources::_findResource(uint16 num, uint8 kind) {
 		/* OPTIMIZE */
-		const uint16 size = _resources.size();
+		const uint16 size = _datas.size();
 		for (uint16 i = 0; i < size; i++) {
-			ResourceObject* object = _resources.get_unchecked(i);
+			ResourceData* object = _datas.get_unchecked(i);
 			if (object->equals(num, kind)) {
 				return object;
 			}
@@ -133,7 +133,7 @@ namespace comi
 			return NULL;
 		}
 
-		_resources.push(script);
+		_datas.push(script);
 
 		return script;
 	}

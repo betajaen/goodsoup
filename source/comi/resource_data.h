@@ -23,7 +23,7 @@
 namespace comi
 {
 
-	class ResourceObject {
+	class ResourceData {
 	protected:
 		uint16  _num;
 		uint8   _users;

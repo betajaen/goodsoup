@@ -25,7 +25,7 @@ namespace comi
 {
 	class ResourceParser;
 
-	class RoomData : public ResourceObject
+	class RoomData : public ResourceData
 	{
 	public:
 
