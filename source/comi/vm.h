@@ -30,7 +30,7 @@ using namespace common;
 namespace comi
 {
 	class VirtualMachine;
-	class Script;
+	class ScriptData;
 
 	extern VirtualMachine* VM;
 

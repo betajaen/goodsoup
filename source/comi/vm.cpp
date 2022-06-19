@@ -587,7 +587,7 @@ namespace comi
 		uint16 _scriptNum = context._scriptNum;
 
 		if (context._scriptNum < NUM_GLOBAL_SCRIPTS && context._scriptWhere == OW_Global) {
-			Script* script = RESOURCES->getGlobalScript(context._scriptNum);
+			ScriptData* script = RESOURCES->getGlobalScript(context._scriptNum);
 			if (script) {
 				_script = script->getDataPtr();
 				return;

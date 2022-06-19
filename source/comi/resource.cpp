@@ -58,7 +58,7 @@ namespace comi
 					continue;
 				}
 				case RK_SCRIPT: {
-					deleteObject_unchecked<Script>((Script*)resource);
+					deleteObject_unchecked<ScriptData>((ScriptData*)resource);
 					continue;
 				}
 			}
@@ -104,7 +104,7 @@ namespace comi
 		return _disk[num - 1];
 	}
 
-	Script* Resources::loadGlobalScript(uint16 num)
+	ScriptData* Resources::loadGlobalScript(uint16 num)
 	{
 		uint8 script_roomNum;
 		uint32 script_offset;
@@ -124,7 +124,7 @@ namespace comi
 		Disk& disk = _getDisk(room_diskNum);
 		disk.getRoomOffset(script_roomNum, room_offset);
 
-		Script* script = newObject<Script>(num, room_diskNum, 0);
+		ScriptData* script = newObject<ScriptData>(num, room_diskNum, 0);
 		debug(COMI_THIS, "%ld", room_offset + script_offset);
 		DiskReader reader = disk.readSection(room_offset + script_offset);
 
@@ -145,8 +145,8 @@ namespace comi
 	}
 
 
-	Script* Resources::getGlobalScript(uint16 num) {
-		Script* script = (Script*)_findResource(num, RK_SCRIPT);
+	ScriptData* Resources::getGlobalScript(uint16 num) {
+		ScriptData* script = (ScriptData*)_findResource(num, RK_SCRIPT);
 
 		if (script == NULL) {
 			script = loadGlobalScript(num);

@@ -28,7 +28,7 @@ using namespace common;
 
 namespace comi
 {
-	Script::Script(uint16 num, uint8 disk, uint8 flags) {
+	ScriptData::ScriptData(uint16 num, uint8 disk, uint8 flags) {
 		_num = num;
 		_users = 1;
 		_kind = RK_SCRIPT;
@@ -36,11 +36,11 @@ namespace comi
 		_disk = disk;
 	}
 
-	Script::~Script() {
+	ScriptData::~ScriptData() {
 		_data.release();
 	}
 	
-	bool Script::readFromDisk(DiskReader& reader) {
+	bool ScriptData::readFromDisk(DiskReader& reader) {
 		if (reader.readAndExpectTag('S', 'C', 'R', 'P') == false)
 			return false;
 

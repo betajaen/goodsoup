@@ -29,14 +29,14 @@ namespace comi
 {
 	class DiskReader;
 
-	class Script : public ResourceObject
+	class ScriptData : public ResourceObject
 	{
 	private:
 		Buffer<byte> _data;
 	public:
 
-		Script(uint16 num, uint8 disk, uint8 flags);
-		~Script();
+		ScriptData(uint16 num, uint8 disk, uint8 flags);
+		~ScriptData();
 
 		bool readFromDisk(DiskReader& reader);
 
