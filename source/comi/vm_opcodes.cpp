@@ -24,6 +24,7 @@
 #include "vm_array.h"
 #include "vm_vars.h"
 #include "utils.h"
+#include "functions.h"
 
 namespace comi
 {
@@ -870,8 +871,7 @@ namespace comi
 			return;
 			case OP_loadRoom: {
 				uint16 roomNum = _stack.pop();
-
-				NO_FEATURE(COMI_THIS, "Not implemented OP_loadRoom (%ld)", roomNum);
+				startScene(roomNum);
 			}
 			return;
 			case OP_loadRoomWithEgo:

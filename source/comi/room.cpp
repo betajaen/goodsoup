@@ -20,14 +20,19 @@
 #include "room.h"
 #include "resource.h"
 
+#include "vm.h"
 #include "debug.h"
 #include "constants.h"
+#include "globals.h"
+#include "vm_vars.h"
+#include "disk.h"
+#include "utils.h"
 
 using namespace common;
 
 namespace comi
 {
-	RoomData::RoomData(uint16 num, uint8 kind, uint8 disk, uint8 flags) {
+	RoomData::RoomData(uint16 num, uint8 disk, uint8 flags) {
 		_num = num;
 		_users = 1;
 		_kind = RK_ROOM;
@@ -35,12 +40,90 @@ namespace comi
 		_disk = disk;
 	}
 
+
 	RoomData::~RoomData() {
 
 	}
 
-	void RoomData::readFromParser(ResourceParser& parser) {
-		/* TODO */
+	bool RoomData::readFromDisk(DiskReader& reader) {
+
+		char tagName[5] = { 0 };
+		uint32 tagLength = 0;
+
+		reader.readTagAndLength(tagName, tagLength);
+
+		if (tagEqual(tagName, 'L', 'F', 'L', 'F') == false) {
+			
+			error(COMI_THIS, "Could not read RoomData as its not a Room!", getNum());
+			return false;
+		}
+
+		if (tagLength == 0) {
+			error(COMI_THIS, "Script length %ld is 0 bytes!", _num);
+			return false;
+		}
+
+		uint32 end = reader.pos() + tagLength - 8;
+
+		while (reader.pos() < end) {
+			reader.readTagAndLength(tagName, tagLength);
+			
+			debug(COMI_THIS, "%s %ld", tagName, tagLength);
+
+			if (tagEqual(tagName, 'R', 'O', 'O', 'M')) {
+				if (_readRoom(reader, tagLength) == false) {
+					return false;
+				}
+
+				continue;
+			}
+
+
+			reader.skip(tagLength - 8);
+		}
+
+		return true;
+	}
+	
+	bool RoomData::_readRoom(DiskReader& reader, uint32 totalLength) {
+		
+		char tagName[5] = { 0 };
+		uint32 tagLength = 0;
+
+		uint32 end = reader.pos() + totalLength - 8;
+		
+		while (reader.pos() < end) {
+			
+			reader.readTagAndLength(tagName, tagLength);
+			
+			debug(COMI_THIS, "+ %s %ld", tagName, tagLength);
+
+			reader.skip(tagLength - 8);
+		}
+
+		return true;
+	}
+
+
+	void startScene(uint16 roomNum) {
+
+		RoomData* roomData;
+
+		/* TODO: Stop Dialogue */
+
+		VM->exitRoom();
+
+		/* TODO: Hide All Actors */
+		/* TODO: Stop Palette Cycling */
+		/* TODO: Shadow Palette Handling */
+		/* TODO: Graphics cleaning flags */
+
+		INTS->room = roomNum;
+
+		if (roomNum != 0) {
+			roomData = RESOURCES->loadRoomData(roomNum);
+		}
+
 	}
 
 }

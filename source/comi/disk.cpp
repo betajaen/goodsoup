@@ -200,5 +200,9 @@ namespace comi
 
 		return tagEqual(tagName, a, b, c, d);
 	}
-
+	
+	void DiskReader::readTagAndLength(char tag[5], uint32& length) {
+		_file.readTag(tag);
+		length = _file.readUInt32BE();
+	}
 }

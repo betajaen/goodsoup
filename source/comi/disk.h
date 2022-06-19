@@ -60,8 +60,17 @@ namespace comi
 			return _file.readUInt32LE();
 		}
 
-		bool readAndExpectTag(char a, char b, char c, char d);
+		inline uint32 pos() {
+			return _file.pos();
+		}
 
+		inline void skip(uint32 length) {
+			_file.skip(length);
+		}
+
+		void readTagAndLength(char tag[5], uint32& length);
+
+		bool readAndExpectTag(char a, char b, char c, char d);
 	};
 
 	class Disk {

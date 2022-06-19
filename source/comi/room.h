@@ -19,20 +19,28 @@
 #define COMI_ROOM_H
 
 #include "common/types.h"
+#include "common/buffer.h"
 #include "resource_data.h"
+
+using namespace common;
 
 namespace comi
 {
-	class ResourceParser;
+	class DiskReader;
 
 	class RoomData : public ResourceData
 	{
+		bool _readRoom(DiskReader& reader, uint32 totalLength);
 	public:
 
-		RoomData(uint16 num, uint8 kind, uint8 disk, uint8 flags);
+		RoomData(uint16 num, uint8 disk, uint8 flags);
 		~RoomData();
 
-		void readFromParser(ResourceParser& parser);
+		Buffer<byte> entryScript;
+		Buffer<byte> exitScript;
+		Buffer<byte> localScript;
+
+		bool readFromDisk(DiskReader& reader);
 		
 	};
 

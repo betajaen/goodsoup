@@ -104,6 +104,7 @@ namespace comi
 
 		if (script->readFromDisk(reader) == false) {
 			_scripts.destroy(script);
+		abort_quit_stop();
 			return NULL;
 		}
 
@@ -124,11 +125,17 @@ namespace comi
 		Disk& disk = _getDisk(room_diskNum);
 		disk.getRoomOffset(num, room_resOffset);
 
-		debug(COMI_THIS, "Room %ld %ld %ld", num, disk, room_resOffset);
+		RoomData* room = _rooms.create(num, room_diskNum);
+		debug(COMI_THIS, "%ld", room_resOffset);
+		DiskReader reader = disk.readSection(room_resOffset);
 
-		abort_quit_stop();
+		if (room->readFromDisk(reader) == false) {
+			_rooms.destroy(room);
+			abort_quit_stop();
+			return NULL;
+		}
 
-		return NULL;
+		return room;
 	}
 
 
