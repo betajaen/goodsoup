@@ -27,7 +27,7 @@ using namespace common;
 
 namespace comi
 {
-	Room::Room(uint16 num, uint8 kind, uint8 disk, uint8 flags) {
+	RoomData::RoomData(uint16 num, uint8 kind, uint8 disk, uint8 flags) {
 		_num = num;
 		_users = 1;
 		_kind = RK_ROOM;
@@ -35,11 +35,11 @@ namespace comi
 		_disk = disk;
 	}
 
-	Room::~Room() {
+	RoomData::~RoomData() {
 
 	}
 
-	void Room::readFromParser(ResourceParser& parser) {
+	void RoomData::readFromParser(ResourceParser& parser) {
 		/* TODO */
 	}
 

@@ -25,12 +25,12 @@ namespace comi
 {
 	class ResourceParser;
 
-	class Room : public ResourceObject
+	class RoomData : public ResourceObject
 	{
 	public:
 
-		Room(uint16 num, uint8 kind, uint8 disk, uint8 flags);
-		~Room();
+		RoomData(uint16 num, uint8 kind, uint8 disk, uint8 flags);
+		~RoomData();
 
 		void readFromParser(ResourceParser& parser);
 		

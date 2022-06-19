@@ -38,7 +38,7 @@ namespace comi
 	class Disk;
 	class DiskParser;
 
-	class Room;
+	class RoomData;
 	class Script;
 
 	extern Resources* RESOURCES;
@@ -69,7 +69,7 @@ namespace comi
 		void close();
 
 		Script* loadGlobalScript(uint16 num);
-		Room* loadRoom(uint16 num);
+		RoomData* loadRoom(uint16 num);
 
 		Script* getGlobalScript(uint16 num);
 

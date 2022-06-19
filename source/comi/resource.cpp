@@ -54,7 +54,7 @@ namespace comi
 
 			switch (resource->getResourceKind()) {
 				case RK_ROOM: {
-					deleteObject_unchecked<Room>((Room*)resource);
+					deleteObject_unchecked<RoomData>((RoomData*)resource);
 					continue;
 				}
 				case RK_SCRIPT: {
@@ -138,7 +138,7 @@ namespace comi
 		return script;
 	}
 
-	Room* Resources::loadRoom(uint16 num)
+	RoomData* Resources::loadRoom(uint16 num)
 	{
 		/* TODO */
 		return NULL;
