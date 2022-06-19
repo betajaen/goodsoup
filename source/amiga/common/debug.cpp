@@ -65,6 +65,7 @@ namespace common
 	}
 
 	void debug_write(DebugCategory category, const char* module, const char* file, const char* function, uint32 line, const char* message) {
+#if defined(GS_DEBUG)
 		switch (category) {
 			default:
 			case DC_Test: gs_print("T "); break;
@@ -85,10 +86,14 @@ namespace common
 		if (category == DC_Error) {
 			gs_print("\n");
 		}
+#else
+		gs_print(message);
+		gs_print("\n");
+#endif
 	}
 
 	void debug_writef(DebugCategory category, const char* module, const char* file, const char* function, uint32 line, const char* format, ...) {
-
+#if defined(GS_DEBUG)
 		switch (category) {
 			default:
 			case DC_Test: gs_print("T "); break;
@@ -117,7 +122,12 @@ namespace common
 		if (category == DC_Error) {
 			gs_print("\n");
 		}
-
+#else
+		const char* format_arg = (const char*)(&format + 1);
+		RawDoFmt((CONST_STRPTR) format, (APTR)format_arg, (PUTCHARPROC)&PutChar, &BufChar[0]);
+		gs_print(BufChar);
+		gs_print("\n");
+#endif
 	}
 
 	void debug_stop(const char* file, uint32 line, const char* message) {

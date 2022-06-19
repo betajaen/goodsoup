@@ -49,7 +49,8 @@ void SDLCALL writeLog(void* userdata, int category, SDL_LogPriority priority, co
 namespace common
 {
 
-	void debug_write(DebugCategory category, const char* module, const char* file, const char* function, uint32 line, const char* message) {	
+	void debug_write(DebugCategory category, const char* module, const char* file, const char* function, uint32 line, const char* message) {
+#if GS_DEBUG
 		switch (category) {
 			default:
 			case DC_Test: fputs("T ", stdout); break;
@@ -70,10 +71,15 @@ namespace common
 		if (category == DC_Error) {
 			fputc('\n', stdout);
 		}
+#else
+		
+		fputs(message, stdout);
+		fputc('\n', stdout);
+#endif
 	}
 
 	void debug_writef(DebugCategory category, const char* module, const char* file, const char* function, uint32 line, const char* format, ...) {
-
+#if GS_DEBUG
 		va_list ap;
 		switch (category) {
 			default:
@@ -97,7 +103,13 @@ namespace common
 		if (category == DC_Error) {
 			fputc('\n', stdout);
 		}
+#else
+		va_list ap;
+		va_start(ap, format);
+		vfprintf(stdout, format, ap);
+		va_end(ap);
 
+#endif
 	}
 
 	void debug_stop(const char* file, uint32 line, const char* message) {

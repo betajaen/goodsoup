@@ -43,6 +43,57 @@ namespace common
     void debug_stop(const char* file, uint32 line, const char* message);
 
 
+	inline void noop() {}
+
+	template<typename T1>
+	inline void noop(const T1&) {}
+
+	template<typename T1, typename T2>
+	inline void noop(const T1&, const T2&) {}
+	
+	template<typename T1, typename T2, typename T3>
+	inline void noop(const T1&, const T2&, const T3&) {}
+	
+	template<typename T1, typename T2, typename T3, typename T4>
+	inline void noop(const T1&, const T2&, const T3&, const T4&) {}
+	
+	template<typename T1, typename T2, typename T3, typename T4, typename T5>
+	inline void noop(const T1&, const T2&, const T3&, const T4&, const T5&) {}
+	
+	template<typename T1, typename T2, typename T3, typename T4, typename T5, typename T6>
+	inline void noop(const T1&, const T2&, const T3&, const T4&, const T5&, const T6&) {}
+	
+	template<typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7>
+	inline void noop(const T1&, const T2&, const T3&, const T4&, const T5&, const T6&, const T7&) {}
+	
+	template<typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7, typename T8>
+	inline void noop(const T1&, const T2&, const T3&, const T4&, const T5&, const T6&, const T7&, const T8&) {}
+	
+	template<typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7, typename T8, typename T9>
+	inline void noop(const T1&, const T2&, const T3&, const T4&, const T5&, const T6&, const T7&, const T8&, const T9&) {}
+	
+	template<typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7, typename T8, typename T9, typename T10>
+	inline void noop(const T1&, const T2&, const T3&, const T4&, const T5&, const T6&, const T7&, const T8&, const T9&, const T10&) {}
+	
+	template<typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7, typename T8, typename T9, typename T10, typename T11>
+	inline void noop(const T1&, const T2&, const T3&, const T4&, const T5&, const T6&, const T7&, const T8&, const T9&, const T10&, const T11&) {}
+	
+	template<typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7, typename T8, typename T9, typename T10, typename T11, typename T12>
+	inline void noop(const T1&, const T2&, const T3&, const T4&, const T5&, const T6&, const T7&, const T8&, const T9&, const T10&, const T11&, const T12&) {}
+	
+	template<typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7, typename T8, typename T9, typename T10, typename T11, typename T12, typename T13>
+	inline void noop(const T1&, const T2&, const T3&, const T4&, const T5&, const T6&, const T7&, const T8&, const T9&, const T10&, const T11&, const T12&, const T13&) {}
+	
+	template<typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7, typename T8, typename T9, typename T10, typename T11, typename T12, typename T13, typename T14>
+	inline void noop(const T1&, const T2&, const T3&, const T4&, const T5&, const T6&, const T7&, const T8&, const T9&, const T10&, const T11&, const T12&, const T13&, const T14&) {}
+	
+	template<typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7, typename T8, typename T9, typename T10, typename T11, typename T12, typename T13, typename T14, typename T15>
+	inline void noop(const T1&, const T2&, const T3&, const T4&, const T5&, const T6&, const T7&, const T8&, const T9&, const T10&, const T11&, const T12&, const T13&, const T14&, const T15&) {}
+	
+	template<typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7, typename T8, typename T9, typename T10, typename T11, typename T12, typename T13, typename T14, typename T15, typename T16>
+	inline void noop(const T1&, const T2&, const T3&, const T4&, const T5&, const T6&, const T7&, const T8&, const T9&, const T10&, const T11&, const T12&, const T13&, const T14&, const T15&, const T16&) {}
+
+
     inline void verbose(const char* module, const char* file, const char* function, uint32 line, const char* message) {
 #if GS_DEBUG_LEVEL <= 1
         debug_write(DC_Verbose, module, file, function, line, message);
@@ -440,7 +491,7 @@ namespace common
 #if defined(GS_DEBUG)
 #define NO_FEATURE warn
 #else
-#define NO_FEATURE verbose
+#define NO_FEATURE noop
 #endif
 
 #endif
