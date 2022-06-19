@@ -1,0 +1,45 @@
+For 0.2
+=======
+
+Common:
+
+[x] Amiga Startup
+[x] SDL Startup
+[x] Array/Buffer/Ring Collections
+[x] String Class
+[x] Naive hashmap implementation
+
+COMI:
+
+[x] Virtual Machine Class
+[x] Vars
+[x] Arrays
+[x] Runs through the first bootscript
+[x] Runs through to the first room (Difficulty Selection)
+[ ] Load Room
+[ ] Room Scripts
+[ ] Game continues in an infinite loop waiting for selection
+
+For 0.3
+=======
+
+[ ] Amiga RTG Screen
+[ ] Amiga On screen debugger
+[ ] Amiga RMB menu to quit
+[ ] SDL Window
+[ ] SDL On screen debugger
+[ ] SDL Click X to quit
+
+COMI:
+
+[ ] Can choose difficulty selection
+[ ] Movie plays but with placeholder text
+[ ] Loads Wally/Guybrush/Cannon Room
+[ ] Load Actor
+
+For 0.4
+=======
+
+... Graphics ...
+
+
