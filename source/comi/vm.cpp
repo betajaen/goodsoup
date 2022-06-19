@@ -378,7 +378,7 @@ namespace comi
 
 		if (scriptNum < NUM_SCRIPTS) {
 			debug(COMI_THIS, "%ld load script", (uint32) scriptNum);
-			RESOURCES->loadGlobalScript(scriptNum);
+			RESOURCES->loadScriptData(scriptNum);
 		}
 		else {
 			debug(COMI_THIS, "%ld other script", (uint32)scriptNum);
@@ -587,7 +587,7 @@ namespace comi
 		uint16 _scriptNum = context._scriptNum;
 
 		if (context._scriptNum < NUM_GLOBAL_SCRIPTS && context._scriptWhere == OW_Global) {
-			ScriptData* script = RESOURCES->getGlobalScript(context._scriptNum);
+			ScriptData* script = RESOURCES->getScriptData(context._scriptNum);
 			if (script) {
 				_script = script->getDataPtr();
 				return;

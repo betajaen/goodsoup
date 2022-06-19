@@ -43,29 +43,14 @@ namespace comi
 	}
 
 	void Resources::close() {
-		uint16 i;
+		uint16 i, j;
 
 		for (i = 0; i < NUM_DISKS; i++) {
 			_disk[i].close();
 		}
 
-		for (i = 0; i < _datas.size(); i++) {
-			ResourceData* resource = _datas[i];
-
-			switch (resource->getResourceKind()) {
-				case RK_ROOM: {
-					deleteObject_unchecked<RoomData>((RoomData*)resource);
-					continue;
-				}
-				case RK_SCRIPT: {
-					deleteObject_unchecked<ScriptData>((ScriptData*)resource);
-					continue;
-				}
-			}
-		}
-
-		_datas.release();
-
+		_scripts.reset();
+		_rooms.reset();
 	}
 
 	bool Resources::open() {
@@ -82,17 +67,6 @@ namespace comi
 		return true;
 	}
 
-	ResourceData* Resources::_findResource(uint16 num, uint8 kind) {
-		/* OPTIMIZE */
-		const uint16 size = _datas.size();
-		for (uint16 i = 0; i < size; i++) {
-			ResourceData* object = _datas.get_unchecked(i);
-			if (object->equals(num, kind)) {
-				return object;
-			}
-		}
-		return NULL;
-	}
 
 	Disk& Resources::_getDisk(uint8 num) {
 
@@ -104,7 +78,7 @@ namespace comi
 		return _disk[num - 1];
 	}
 
-	ScriptData* Resources::loadGlobalScript(uint16 num)
+	ScriptData* Resources::loadScriptData(uint16 num)
 	{
 		uint8 script_roomNum;
 		uint32 script_offset;
@@ -124,16 +98,14 @@ namespace comi
 		Disk& disk = _getDisk(room_diskNum);
 		disk.getRoomOffset(script_roomNum, room_offset);
 
-		ScriptData* script = newObject<ScriptData>(num, room_diskNum, 0);
+		ScriptData* script = _scripts.create(num, room_diskNum);
 		debug(COMI_THIS, "%ld", room_offset + script_offset);
 		DiskReader reader = disk.readSection(room_offset + script_offset);
 
 		if (script->readFromDisk(reader) == false) {
-			deleteObject_unchecked(script);
+			_scripts.destroy(script);
 			return NULL;
 		}
-
-		_datas.push(script);
 
 		return script;
 	}
@@ -145,11 +117,11 @@ namespace comi
 	}
 
 
-	ScriptData* Resources::getGlobalScript(uint16 num) {
-		ScriptData* script = (ScriptData*)_findResource(num, RK_SCRIPT);
+	ScriptData* Resources::getScriptData(uint16 num) {
+		ScriptData* script = _scripts.find(num);
 
 		if (script == NULL) {
-			script = loadGlobalScript(num);
+			script = loadScriptData(num);
 		}
 
 		return script;
