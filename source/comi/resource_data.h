@@ -15,8 +15,8 @@
  *
  */
 
-#ifndef COMI_RESOURCE_OBJECT_H
-#define COMI_RESOURCE_OBJECT_H
+#ifndef COMI_RESOURCE_DATA_H
+#define COMI_RESOURCE_DATA_H
 
 #include "common/types.h"
 
