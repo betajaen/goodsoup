@@ -29,12 +29,21 @@ namespace comi
 {
 	static const uint8 NO_CONTEXT = 0xFF;
 
-#define GS_UNHANDLED_OP\
-	do {\
-		_dumpState();\
-		_forceQuit();\
-		error(COMI_THIS, "Unhandled Opcode! %lx 'OP_%s'", _opcode, _getOpcodeName(_opcode));\
-	} while(0);
+#if defined(GS_DEBUG)
+	#define GS_UNHANDLED_OP\
+		do {\
+			_dumpState();\
+			_forceQuit();\
+			error(COMI_THIS, "Unhandled Opcode! %lx 'OP_%s'", _opcode, _getOpcodeName(_opcode));\
+		} while(0);
+#else
+	#define GS_UNHANDLED_OP\
+		do {\
+			_dumpState();\
+			_forceQuit();\
+			error(COMI_THIS, "Unhandled Opcode");\
+		} while(0);
+#endif
 
 	void VirtualMachine::_step() {
 		_pcOpcode = _pc;
@@ -63,7 +72,7 @@ namespace comi
 					_stack.push(value);
 				}
 				else {
-					error(COMI_THIS, "NULL VmArray (%ld) used with OP_wordArrayRead", (uint32) arrayNum);
+					NO_FEATURE(COMI_THIS, "NULL VmArray (%ld) used with OP_wordArrayRead", (uint32) arrayNum);
 					_dumpState();
 					_forceQuit();
 				}
@@ -80,7 +89,7 @@ namespace comi
 					_stack.push(value);
 				}
 				else {
-					error(COMI_THIS, "NULL VmArray (%ld) used with OP_wordArrayRead", (uint32) arrayNum);
+					NO_FEATURE(COMI_THIS, "NULL VmArray (%ld) used with OP_wordArrayRead", (uint32) arrayNum);
 					_dumpState();
 					_forceQuit();
 				}
@@ -520,7 +529,7 @@ namespace comi
 					return;
 				}
 				
-				error(COMI_THIS, "Not implemented OP_dimArray(%ld,%ld)", (uint32) subOp, (uint32) arrayNum);
+				NO_FEATURE(COMI_THIS, "Not implemented OP_dimArray(%ld,%ld)", (uint32) subOp, (uint32) arrayNum);
 				_dumpState();
 				_forceQuit();
 			}
@@ -535,7 +544,7 @@ namespace comi
 					array->write(value, 0, base);
 				}
 				else {
-					error(COMI_THIS, "NULL VmArray (%ld) used with OP_wordArrayWrite", (uint32) arrayNum);
+					NO_FEATURE(COMI_THIS, "NULL VmArray (%ld) used with OP_wordArrayWrite", (uint32) arrayNum);
 					_dumpState();
 					_forceQuit();
 				}
@@ -570,7 +579,7 @@ namespace comi
 					return;
 				}
 
-				error(COMI_THIS, "Not implemented OP_dim2dimArray(%ld,%ld)", (uint32) subOp, (uint32) arrayNum);
+				NO_FEATURE(COMI_THIS, "Not implemented OP_dim2dimArray(%ld,%ld)", (uint32) subOp, (uint32) arrayNum);
 				_dumpState();
 				_forceQuit();
 			}
@@ -587,7 +596,7 @@ namespace comi
 					array->write(value, index, base);
 				}
 				else {
-					error(COMI_THIS, "NULL VmArray (%ld) used with OP_wordArrayIndexedWrite", (uint32) arrayNum);
+					NO_FEATURE(COMI_THIS, "NULL VmArray (%ld) used with OP_wordArrayIndexedWrite", (uint32) arrayNum);
 					_dumpState();
 					_forceQuit();
 				}
@@ -649,7 +658,7 @@ namespace comi
 					return;
 				}
 
-				error(COMI_THIS, "Not implemented OP_arrayOps (%ld, %ld)", (uint32) subOp, (uint32) arrayNum);
+				NO_FEATURE(COMI_THIS, "Not implemented OP_arrayOps (%ld, %ld)", (uint32) subOp, (uint32) arrayNum);
 				_dumpState();
 				_forceQuit();
 			}
@@ -740,7 +749,7 @@ namespace comi
 				int16 num = _stack.readList(16);
 				int32 obj = _stack.pop();
 
-				warn(COMI_THIS, "Not implemented OP_setClass (%ld, %ld)", num, obj);
+				NO_FEATURE(COMI_THIS, "Not implemented OP_setClass (%ld, %ld)", num, obj);
 			}
 			return;
 			case OP_setState:
@@ -804,57 +813,57 @@ namespace comi
 
 				switch (param) {
 					case CursorCommandOp_CursorOn:
-						warn(COMI_THIS, "Not implemented OP_cursorCommand CursorCommandOp_CursorOn");
+						NO_FEATURE(COMI_THIS, "Not implemented OP_cursorCommand CursorCommandOp_CursorOn");
 					return;
 					case CursorCommandOp_CursorOff:
-						warn(COMI_THIS, "Not implemented OP_cursorCommand CursorCommandOp_CursorOff");
+						NO_FEATURE(COMI_THIS, "Not implemented OP_cursorCommand CursorCommandOp_CursorOff");
 					return;
 					case CursorCommandOp_SoftCursorOn:
-						warn(COMI_THIS, "Not implemented OP_cursorCommand CursorCommandOp_SoftCursorOn");
+						NO_FEATURE(COMI_THIS, "Not implemented OP_cursorCommand CursorCommandOp_SoftCursorOn");
 					return;
 					case CursorCommandOp_SoftCursorOff:
-						warn(COMI_THIS, "Not implemented OP_cursorCommand CursorCommandOp_SoftCursorOff");
+						NO_FEATURE(COMI_THIS, "Not implemented OP_cursorCommand CursorCommandOp_SoftCursorOff");
 					return;
 					case CursorCommandOp_UserPutOn:
-						warn(COMI_THIS, "Not implemented OP_cursorCommand CursorCommandOp_UserPutOn");
+						NO_FEATURE(COMI_THIS, "Not implemented OP_cursorCommand CursorCommandOp_UserPutOn");
 					return;
 					case CursorCommandOp_UserPutOff:
-						warn(COMI_THIS, "Not implemented OP_cursorCommand CursorCommandOp_UserPutOff");
+						NO_FEATURE(COMI_THIS, "Not implemented OP_cursorCommand CursorCommandOp_UserPutOff");
 					return;
 					case CursorCommandOp_SoftUserPutOn:
-						warn(COMI_THIS, "Not implemented OP_cursorCommand CursorCommandOp_SoftUserPutOn");
+						NO_FEATURE(COMI_THIS, "Not implemented OP_cursorCommand CursorCommandOp_SoftUserPutOn");
 					return;
 					case CursorCommandOp_SoftUserPutOff:
-						warn(COMI_THIS, "Not implemented OP_cursorCommand CursorCommandOp_SoftUserPutOff");
+						NO_FEATURE(COMI_THIS, "Not implemented OP_cursorCommand CursorCommandOp_SoftUserPutOff");
 					return;
 					case CursorCommandOp_CursorImage:
 						_stack.pop();
-						warn(COMI_THIS, "Not implemented OP_cursorCommand CursorCommandOp_CursorImage");
+						NO_FEATURE(COMI_THIS, "Not implemented OP_cursorCommand CursorCommandOp_CursorImage");
 					return;
 					case CursorCommandOp_HotSpot:
 						_stack.pop();
 						_stack.pop();
-						warn(COMI_THIS, "Not implemented OP_cursorCommand CursorCommandOp_HotSpot");
+						NO_FEATURE(COMI_THIS, "Not implemented OP_cursorCommand CursorCommandOp_HotSpot");
 					return;
 					case CursorCommandOp_Transparency:
 						_stack.pop();
-						warn(COMI_THIS, "Not implemented OP_cursorCommand CursorCommandOp_Transparency");
+						NO_FEATURE(COMI_THIS, "Not implemented OP_cursorCommand CursorCommandOp_Transparency");
 					return;
 					case CursorCommandOp_CharsetSet:
 						_stack.pop();
-						warn(COMI_THIS, "Not implemented OP_cursorCommand CursorCommandOp_CharsetSet");
+						NO_FEATURE(COMI_THIS, "Not implemented OP_cursorCommand CursorCommandOp_CharsetSet");
 					return;
 					case CursorCommandOp_CharsetColour:
-						warn(COMI_THIS, "Not implemented OP_cursorCommand CursorCommandOp_CharsetColour");
+						NO_FEATURE(COMI_THIS, "Not implemented OP_cursorCommand CursorCommandOp_CharsetColour");
 					return;
 					case CursorCommandOp_CursorPut:
 						_stack.pop();
 						_stack.pop();
-						warn(COMI_THIS, "Not implemented OP_cursorCommand CursorCommandOp_CursorPut");
+						NO_FEATURE(COMI_THIS, "Not implemented OP_cursorCommand CursorCommandOp_CursorPut");
 					return;
 				}
 
-				error(COMI_THIS, "Not implemented OP_cursorCommand(%ld)", (uint32) param);
+				NO_FEATURE(COMI_THIS, "Not implemented OP_cursorCommand(%ld)", (uint32) param);
 				_dumpState();
 				_forceQuit();
 			}
@@ -862,7 +871,7 @@ namespace comi
 			case OP_loadRoom: {
 				uint16 roomNum = _stack.pop();
 
-				warn(COMI_THIS, "Not implemented OP_loadRoom (%ld)", roomNum);
+				NO_FEATURE(COMI_THIS, "Not implemented OP_loadRoom (%ld)", roomNum);
 			}
 			return;
 			case OP_loadRoomWithEgo:
@@ -883,7 +892,7 @@ namespace comi
 				x = _stack.pop();
 				actorNum = _stack.pop();
 
-				warn(COMI_THIS, "Not implemented OP_putActorAtXY (%ld, %ld, %ld, %ld)", roomNum, x, y, actorNum);
+				NO_FEATURE(COMI_THIS, "Not implemented OP_putActorAtXY (%ld, %ld, %ld, %ld)", roomNum, x, y, actorNum);
 			}
 			return;
 			case OP_putActorAtObject:
@@ -896,7 +905,7 @@ namespace comi
 				uint16 animationNum = _stack.pop();
 				uint16 actorNum = _stack.pop();
 				
-				warn(COMI_THIS, "Not implemented OP_animateActor (%ld, %ld)", (uint32) animationNum, (uint32) actorNum);
+				NO_FEATURE(COMI_THIS, "Not implemented OP_animateActor (%ld, %ld)", (uint32) animationNum, (uint32) actorNum);
 			}
 			return;
 			case OP_doSentence:
@@ -920,63 +929,63 @@ namespace comi
 
 				switch (subOp) {
 					case ResourceRoutineOp_Dummy:
-						warn(COMI_THIS, "Not implemented OP_resourceRoutines ResourceRoutineOp_Dummy");
+						NO_FEATURE(COMI_THIS, "Not implemented OP_resourceRoutines ResourceRoutineOp_Dummy");
 					return;
 					case ResourceRoutineOp_LoadCostume:
-						warn(COMI_THIS, "Not implemented OP_resourceRoutines ResourceRoutineOp_LoadCostume");
+						NO_FEATURE(COMI_THIS, "Not implemented OP_resourceRoutines ResourceRoutineOp_LoadCostume");
 					return;
 					case ResourceRoutineOp_LoadObject:
-						warn(COMI_THIS, "Not implemented OP_resourceRoutines ResourceRoutineOp_LoadObject");
+						NO_FEATURE(COMI_THIS, "Not implemented OP_resourceRoutines ResourceRoutineOp_LoadObject");
 					return;
 					case ResourceRoutineOp_LoadRoom:
-						warn(COMI_THIS, "Not implemented OP_resourceRoutines ResourceRoutineOp_LoadRoom");
+						NO_FEATURE(COMI_THIS, "Not implemented OP_resourceRoutines ResourceRoutineOp_LoadRoom");
 					return;
 					case ResourceRoutineOp_LoadScript:
-						warn(COMI_THIS, "Not implemented OP_resourceRoutines ResourceRoutineOp_LoadScript");
+						NO_FEATURE(COMI_THIS, "Not implemented OP_resourceRoutines ResourceRoutineOp_LoadScript");
 					return;
 					case ResourceRoutineOp_LoadSound:
-						warn(COMI_THIS, "Not implemented OP_resourceRoutines ResourceRoutineOp_LoadSound");
+						NO_FEATURE(COMI_THIS, "Not implemented OP_resourceRoutines ResourceRoutineOp_LoadSound");
 					return;
 					case ResourceRoutineOp_LockCostume:
-						warn(COMI_THIS, "Not implemented OP_resourceRoutines ResourceRoutineOp_LockCostume");
+						NO_FEATURE(COMI_THIS, "Not implemented OP_resourceRoutines ResourceRoutineOp_LockCostume");
 					return;
 					case ResourceRoutineOp_LockRoom:
-						warn(COMI_THIS, "Not implemented OP_resourceRoutines ResourceRoutineOp_LockRoom");
+						NO_FEATURE(COMI_THIS, "Not implemented OP_resourceRoutines ResourceRoutineOp_LockRoom");
 					return;
 					case ResourceRoutineOp_LockScript:
-						warn(COMI_THIS, "Not implemented OP_resourceRoutines ResourceRoutineOp_LockScript");
+						NO_FEATURE(COMI_THIS, "Not implemented OP_resourceRoutines ResourceRoutineOp_LockScript");
 					return;
 					case ResourceRoutineOp_LockSound:
-						warn(COMI_THIS, "Not implemented OP_resourceRoutines ResourceRoutineOp_LockSound");
+						NO_FEATURE(COMI_THIS, "Not implemented OP_resourceRoutines ResourceRoutineOp_LockSound");
 					return;
 					case ResourceRoutineOp_UnlockCostume:
-						warn(COMI_THIS, "Not implemented OP_resourceRoutines ResourceRoutineOp_UnlockCostume");
+						NO_FEATURE(COMI_THIS, "Not implemented OP_resourceRoutines ResourceRoutineOp_UnlockCostume");
 					return;
 					case ResourceRoutineOp_UnlockRoom:
-						warn(COMI_THIS, "Not implemented OP_resourceRoutines ResourceRoutineOp_UnlockRoom");
+						NO_FEATURE(COMI_THIS, "Not implemented OP_resourceRoutines ResourceRoutineOp_UnlockRoom");
 					return;
 					case ResourceRoutineOp_UnlockScript:
-						warn(COMI_THIS, "Not implemented OP_resourceRoutines ResourceRoutineOp_UnlockScript");
+						NO_FEATURE(COMI_THIS, "Not implemented OP_resourceRoutines ResourceRoutineOp_UnlockScript");
 					return;
 					case ResourceRoutineOp_UnlockSound:
-						warn(COMI_THIS, "Not implemented OP_resourceRoutines ResourceRoutineOp_UnlockSound");
+						NO_FEATURE(COMI_THIS, "Not implemented OP_resourceRoutines ResourceRoutineOp_UnlockSound");
 					return;
 					case ResourceRoutineOp_SetResourceCounterCostume:
-						warn(COMI_THIS, "Not implemented OP_resourceRoutines ResourceRoutineOp_SetResourceCounterCostume");
+						NO_FEATURE(COMI_THIS, "Not implemented OP_resourceRoutines ResourceRoutineOp_SetResourceCounterCostume");
 					return;
 					case ResourceRoutineOp_SetResourceCounterRoom:
-						warn(COMI_THIS, "Not implemented OP_resourceRoutines ResourceRoutineOp_SetResourceCounterRoom");
+						NO_FEATURE(COMI_THIS, "Not implemented OP_resourceRoutines ResourceRoutineOp_SetResourceCounterRoom");
 					return;
 					case ResourceRoutineOp_SetResourceCounterScript:
-						warn(COMI_THIS, "Not implemented OP_resourceRoutines ResourceRoutineOp_SetResourceCounterScript");
+						NO_FEATURE(COMI_THIS, "Not implemented OP_resourceRoutines ResourceRoutineOp_SetResourceCounterScript");
 					return;
 					case ResourceRoutineOp_SetResourceCounterSound:
-						warn(COMI_THIS, "Not implemented OP_resourceRoutines ResourceRoutineOp_SetResourceCounterSound");
+						NO_FEATURE(COMI_THIS, "Not implemented OP_resourceRoutines ResourceRoutineOp_SetResourceCounterSound");
 					return;
 				}
 
 
-				error(COMI_THIS, "Not implemented OP_resourceRoutines(%ld,%ld)", (uint32) subOp, (uint32) resId);
+				NO_FEATURE(COMI_THIS, "Not implemented OP_resourceRoutines(%ld,%ld)", (uint32) subOp, (uint32) resId);
 				_dumpState();
 				_forceQuit();
 
@@ -992,11 +1001,11 @@ namespace comi
 						_stack.pop();
 						_stack.pop();
 						_stack.pop();
-						warn(COMI_THIS, "Not implemented OP_roomOps RoomOp_SetColour");
+						NO_FEATURE(COMI_THIS, "Not implemented OP_roomOps RoomOp_SetColour");
 					return;
 					case RoomOp_FadePalette:
 						_stack.pop();
-						warn(COMI_THIS, "Not implemented OP_roomOps RoomOp_FadePalette");
+						NO_FEATURE(COMI_THIS, "Not implemented OP_roomOps RoomOp_FadePalette");
 					return;
 					case RoomOp_DarkenPalette:
 						_stack.pop();
@@ -1004,24 +1013,24 @@ namespace comi
 						_stack.pop();
 						_stack.pop();
 						_stack.pop();
-						warn(COMI_THIS, "Not implemented OP_roomOps RoomOp_DarkenPalette");
+						NO_FEATURE(COMI_THIS, "Not implemented OP_roomOps RoomOp_DarkenPalette");
 					return;
 					case RoomOp_PaletteManipulate:
 						_stack.pop();
 						_stack.pop();
 						_stack.pop();
 						_stack.pop();
-						warn(COMI_THIS, "Not implemented OP_roomOps RoomOp_PaletteManipulate");
+						NO_FEATURE(COMI_THIS, "Not implemented OP_roomOps RoomOp_PaletteManipulate");
 					return;
 					case RoomOp_SetPalette:
 						_stack.pop();
-						warn(COMI_THIS, "Not implemented OP_roomOps RoomOp_SetPalette");
+						NO_FEATURE(COMI_THIS, "Not implemented OP_roomOps RoomOp_SetPalette");
 					return;
 					case RoomOp_SaveGame:
-						warn(COMI_THIS, "Not implemented OP_roomOps RoomOp_SaveGame");
+						NO_FEATURE(COMI_THIS, "Not implemented OP_roomOps RoomOp_SaveGame");
 					return;
 					case RoomOp_LoadGame:
-						warn(COMI_THIS, "Not implemented OP_roomOps RoomOp_LoadGame");
+						NO_FEATURE(COMI_THIS, "Not implemented OP_roomOps RoomOp_LoadGame");
 					return;
 					case RoomOp_DesaturatePalette:
 						_stack.pop();
@@ -1029,7 +1038,7 @@ namespace comi
 						_stack.pop();
 						_stack.pop();
 						_stack.pop();
-						warn(COMI_THIS, "Not implemented OP_roomOps RoomOp_DesaturatePalette");
+						NO_FEATURE(COMI_THIS, "Not implemented OP_roomOps RoomOp_DesaturatePalette");
 					return;
 				}
 
@@ -1042,115 +1051,115 @@ namespace comi
 				byte subOp = _readByte();
 				switch(subOp) {
 					case ActorOp_SetCostume:
-						warn(COMI_THIS, "Not implemented OP_actorOps ActorOp_SetCostume");
+						NO_FEATURE(COMI_THIS, "Not implemented OP_actorOps ActorOp_SetCostume");
 					return;
 					case ActorOp_SetWalkSpeed:
-						warn(COMI_THIS, "Not implemented OP_actorOps ActorOp_SetWalkSpeed");
+						NO_FEATURE(COMI_THIS, "Not implemented OP_actorOps ActorOp_SetWalkSpeed");
 					return;
 					case ActorOp_SetAnimationDefault:
-						warn(COMI_THIS, "Not implemented OP_actorOps ActorOp_SetAnimationDefault");
+						NO_FEATURE(COMI_THIS, "Not implemented OP_actorOps ActorOp_SetAnimationDefault");
 					return;
 					case ActorOp_InitAnimation:
-						warn(COMI_THIS, "Not implemented OP_actorOps ActorOp_InitAnimation");
+						NO_FEATURE(COMI_THIS, "Not implemented OP_actorOps ActorOp_InitAnimation");
 					return;
 					case ActorOp_SetAnimationTalk:
-						warn(COMI_THIS, "Not implemented OP_actorOps ActorOp_SetAnimationTalk");
+						NO_FEATURE(COMI_THIS, "Not implemented OP_actorOps ActorOp_SetAnimationTalk");
 					return;
 					case ActorOp_SetAnimationWalk:
-						warn(COMI_THIS, "Not implemented OP_actorOps ActorOp_SetAnimationWalk");
+						NO_FEATURE(COMI_THIS, "Not implemented OP_actorOps ActorOp_SetAnimationWalk");
 					return;
 					case ActorOp_SetAnimationStand:
-						warn(COMI_THIS, "Not implemented OP_actorOps ActorOp_SetAnimationStand");
+						NO_FEATURE(COMI_THIS, "Not implemented OP_actorOps ActorOp_SetAnimationStand");
 					return;
 					case ActorOp_SetAnimationSpeed:
-						warn(COMI_THIS, "Not implemented OP_actorOps ActorOp_SetAnimationSpeed");
+						NO_FEATURE(COMI_THIS, "Not implemented OP_actorOps ActorOp_SetAnimationSpeed");
 					return;
 					case ActorOp_Default:
-						warn(COMI_THIS, "Not implemented OP_actorOps ActorOp_Default");
+						NO_FEATURE(COMI_THIS, "Not implemented OP_actorOps ActorOp_Default");
 					return;
 					case ActorOp_SetElevation:
-						warn(COMI_THIS, "Not implemented OP_actorOps ActorOp_SetElevation");
+						NO_FEATURE(COMI_THIS, "Not implemented OP_actorOps ActorOp_SetElevation");
 					return;
 					case ActorOp_SetPalette:
-						warn(COMI_THIS, "Not implemented OP_actorOps ActorOp_SetPalette");
+						NO_FEATURE(COMI_THIS, "Not implemented OP_actorOps ActorOp_SetPalette");
 					return;
 					case ActorOp_SetTalkColour:
-						warn(COMI_THIS, "Not implemented OP_actorOps ActorOp_SetTalkColour");
+						NO_FEATURE(COMI_THIS, "Not implemented OP_actorOps ActorOp_SetTalkColour");
 					return;
 					case ActorOp_SetActorName:
-						warn(COMI_THIS, "Not implemented OP_actorOps ActorOp_SetActorName");
+						NO_FEATURE(COMI_THIS, "Not implemented OP_actorOps ActorOp_SetActorName");
 					return;
 					case ActorOp_SetActorWidth:
-						warn(COMI_THIS, "Not implemented OP_actorOps ActorOp_SetActorWidth");
+						NO_FEATURE(COMI_THIS, "Not implemented OP_actorOps ActorOp_SetActorWidth");
 					return;
 					case ActorOp_SetActorScale:
-						warn(COMI_THIS, "Not implemented OP_actorOps ActorOp_SetActorScale");
+						NO_FEATURE(COMI_THIS, "Not implemented OP_actorOps ActorOp_SetActorScale");
 					return;
 					case ActorOp_SetNeverZClip:
-						warn(COMI_THIS, "Not implemented OP_actorOps ActorOp_SetNeverZClip");
+						NO_FEATURE(COMI_THIS, "Not implemented OP_actorOps ActorOp_SetNeverZClip");
 					return;
 					case ActorOP_SetAlwaysZClip:
-						warn(COMI_THIS, "Not implemented OP_actorOps ActorOP_SetAlwaysZClip");
+						NO_FEATURE(COMI_THIS, "Not implemented OP_actorOps ActorOP_SetAlwaysZClip");
 					return;
 					case ActorOp_SetIgnoreBoxes:
-						warn(COMI_THIS, "Not implemented OP_actorOps ActorOp_SetIgnoreBoxes");
+						NO_FEATURE(COMI_THIS, "Not implemented OP_actorOps ActorOp_SetIgnoreBoxes");
 					return;
 					case ActorOp_SetFollowBoxes:
-						warn(COMI_THIS, "Not implemented OP_actorOps ActorOp_SetFollowBoxes");
+						NO_FEATURE(COMI_THIS, "Not implemented OP_actorOps ActorOp_SetFollowBoxes");
 					return;
 					case ActorOp_SetSpecialDraw:
-						warn(COMI_THIS, "Not implemented OP_actorOps ActorOp_SetSpecialDraw");
+						NO_FEATURE(COMI_THIS, "Not implemented OP_actorOps ActorOp_SetSpecialDraw");
 					return;
 					case ActorOp_SetTextOffset:
-						warn(COMI_THIS, "Not implemented OP_actorOps ActorOp_SetTextOffset");
+						NO_FEATURE(COMI_THIS, "Not implemented OP_actorOps ActorOp_SetTextOffset");
 					return;
 					case ActorOp_Init:
-						warn(COMI_THIS, "Not implemented OP_actorOps ActorOp_Init");
+						NO_FEATURE(COMI_THIS, "Not implemented OP_actorOps ActorOp_Init");
 					return;
 					case ActorOp_SetActorVariable:
-						warn(COMI_THIS, "Not implemented OP_actorOps ActorOp_SetActorVariable");
+						NO_FEATURE(COMI_THIS, "Not implemented OP_actorOps ActorOp_SetActorVariable");
 					return;
 					case ActorOp_SetIgnoreTurnsOn:
-						warn(COMI_THIS, "Not implemented OP_actorOps ActorOp_SetIgnoreTurnsOn");
+						NO_FEATURE(COMI_THIS, "Not implemented OP_actorOps ActorOp_SetIgnoreTurnsOn");
 					return;
 					case ActorOp_SetIgnoreTurnsOff:
-						warn(COMI_THIS, "Not implemented OP_actorOps ActorOp_SetIgnoreTurnsOff");
+						NO_FEATURE(COMI_THIS, "Not implemented OP_actorOps ActorOp_SetIgnoreTurnsOff");
 					return;
 					case ActorOp_ActorNew:
-						warn(COMI_THIS, "Not implemented OP_actorOps ActorOp_ActorNew");
+						NO_FEATURE(COMI_THIS, "Not implemented OP_actorOps ActorOp_ActorNew");
 					return;
 					case ActorOp_SetActorZ:
-						warn(COMI_THIS, "Not implemented OP_actorOps ActorOp_SetActorZ");
+						NO_FEATURE(COMI_THIS, "Not implemented OP_actorOps ActorOp_SetActorZ");
 					return;
 					case ActorOp_ActorStop:
-						warn(COMI_THIS, "Not implemented OP_actorOps ActorOp_ActorStop");
+						NO_FEATURE(COMI_THIS, "Not implemented OP_actorOps ActorOp_ActorStop");
 					return;
 					case ActorOp_SetAngle:
-						warn(COMI_THIS, "Not implemented OP_actorOps ActorOp_SetAngle");
+						NO_FEATURE(COMI_THIS, "Not implemented OP_actorOps ActorOp_SetAngle");
 					return;
 					case ActorOp_TurnAngle:
-						warn(COMI_THIS, "Not implemented OP_actorOps ActorOp_TurnAngle");
+						NO_FEATURE(COMI_THIS, "Not implemented OP_actorOps ActorOp_TurnAngle");
 					return;
 					case ActorOp_SetWalkScript:
-						warn(COMI_THIS, "Not implemented OP_actorOps ActorOp_SetWalkScript");
+						NO_FEATURE(COMI_THIS, "Not implemented OP_actorOps ActorOp_SetWalkScript");
 					return;
 					case ActorOp_SetTalkScript:
-						warn(COMI_THIS, "Not implemented OP_actorOps ActorOp_SetTalkScript");
+						NO_FEATURE(COMI_THIS, "Not implemented OP_actorOps ActorOp_SetTalkScript");
 					return;
 					case ActorOp_WalkPause:
-						warn(COMI_THIS, "Not implemented OP_actorOps ActorOp_WalkPause");
+						NO_FEATURE(COMI_THIS, "Not implemented OP_actorOps ActorOp_WalkPause");
 					return;
 					case ActorOp_WalkResume:
-						warn(COMI_THIS, "Not implemented OP_actorOps ActorOp_WalkResume");
+						NO_FEATURE(COMI_THIS, "Not implemented OP_actorOps ActorOp_WalkResume");
 					return;
 					case ActorOp_SetTalkVolume:
-						warn(COMI_THIS, "Not implemented OP_actorOps ActorOp_SetTalkVolume");
+						NO_FEATURE(COMI_THIS, "Not implemented OP_actorOps ActorOp_SetTalkVolume");
 					return;
 					case ActorOp_SetTalkFrequency:
-						warn(COMI_THIS, "Not implemented OP_actorOps ActorOp_SetTalkFrequency");
+						NO_FEATURE(COMI_THIS, "Not implemented OP_actorOps ActorOp_SetTalkFrequency");
 					return;
 					case ActorOp_SetActorPan:
-						warn(COMI_THIS, "Not implemented OP_actorOps ActorOp_SetActorPan");
+						NO_FEATURE(COMI_THIS, "Not implemented OP_actorOps ActorOp_SetActorPan");
 					return;
 				}
 			}
@@ -1164,70 +1173,70 @@ namespace comi
 				switch (subOp) {
 					case VerbOp_Init:
 						_stack.pop();
-						warn(COMI_THIS, "Not implemented OP_verbOps VerbOp_Init");
+						NO_FEATURE(COMI_THIS, "Not implemented OP_verbOps VerbOp_Init");
 					return;
 					case VerbOp_New:
-						warn(COMI_THIS, "Not implemented OP_verbOps VerbOp_Init");
+						NO_FEATURE(COMI_THIS, "Not implemented OP_verbOps VerbOp_New");
 					return;
 					case VerbOp_Delete:
-						warn(COMI_THIS, "Not implemented OP_verbOps VerbOp_Init");
+						NO_FEATURE(COMI_THIS, "Not implemented OP_verbOps VerbOp_Delete");
 					return;
 					case VerbOp_SetName:
-						warn(COMI_THIS, "Not implemented OP_verbOps VerbOp_Init");
+						NO_FEATURE(COMI_THIS, "Not implemented OP_verbOps VerbOp_SetName");
 					return;
 					case VerbOp_SetPosition:
 						_stack.pop();
 						_stack.pop();
-						warn(COMI_THIS, "Not implemented OP_verbOps VerbOp_Init");
+						NO_FEATURE(COMI_THIS, "Not implemented OP_verbOps VerbOp_SetPosition");
 					return;
 					case VerbOp_Enable:
-						warn(COMI_THIS, "Not implemented OP_verbOps VerbOp_Init");
+						NO_FEATURE(COMI_THIS, "Not implemented OP_verbOps VerbOp_Enable");
 					return;
 					case VerbOp_Disable:
-						warn(COMI_THIS, "Not implemented OP_verbOps VerbOp_Init");
+						NO_FEATURE(COMI_THIS, "Not implemented OP_verbOps VerbOp_Disable");
 					return;
 					case VerbOp_SetColour:
 						_stack.pop();
-						warn(COMI_THIS, "Not implemented OP_verbOps VerbOp_Init");
+						NO_FEATURE(COMI_THIS, "Not implemented OP_verbOps VerbOp_SetColour");
 					return;
 					case VerbOp_SetHilightColour:
 						_stack.pop();
-						warn(COMI_THIS, "Not implemented OP_verbOps VerbOp_Init");
+						NO_FEATURE(COMI_THIS, "Not implemented OP_verbOps VerbOp_SetHilightColour");
 					return;
 					case VerbOp_SetDimmedColour:
 						_stack.pop();
-						warn(COMI_THIS, "Not implemented OP_verbOps VerbOp_Init");
+						NO_FEATURE(COMI_THIS, "Not implemented OP_verbOps VerbOp_SetDimmedColour");
 					return;
 					case VerbOp_Dim:
-						warn(COMI_THIS, "Not implemented OP_verbOps VerbOp_Init");
+						NO_FEATURE(COMI_THIS, "Not implemented OP_verbOps VerbOp_Dim");
 					return;
 					case VerbOp_SetKey:
 						_stack.pop();
-						warn(COMI_THIS, "Not implemented OP_verbOps VerbOp_Init");
+						NO_FEATURE(COMI_THIS, "Not implemented OP_verbOps VerbOp_SetKey");
 					return;
 					case VerbOp_SetImage:
 						_stack.pop();
 						_stack.pop();
-						warn(COMI_THIS, "Not implemented OP_verbOps VerbOp_Init");
+						NO_FEATURE(COMI_THIS, "Not implemented OP_verbOps VerbOp_SetImage");
 					return;
 					case VerbOp_SetNameString:
 						_stack.pop();
-						warn(COMI_THIS, "Not implemented OP_verbOps VerbOp_Init");
+						NO_FEATURE(COMI_THIS, "Not implemented OP_verbOps VerbOp_SetNameString");
 					return;
 					case VerbOp_Centre:
-						warn(COMI_THIS, "Not implemented OP_verbOps VerbOp_Init");
+						NO_FEATURE(COMI_THIS, "Not implemented OP_verbOps VerbOp_Centre");
 					return;
 					case VerbOp_SetCharSet:
 						_stack.pop();
-						warn(COMI_THIS, "Not implemented OP_verbOps VerbOp_Init");
+						NO_FEATURE(COMI_THIS, "Not implemented OP_verbOps VerbOp_SetCharSet");
 					return;
 					case VerbOp_SetLineSpacing:
 						_stack.pop();
-						warn(COMI_THIS, "Not implemented OP_verbOps VerbOp_Init");
+						NO_FEATURE(COMI_THIS, "Not implemented OP_verbOps VerbOp_SetLineSpacing");
 					return;
 				}
 
-				error(COMI_THIS, "Not implemented OP_verbOps(%ld)", (uint32) subOp);
+				NO_FEATURE(COMI_THIS, "Not implemented OP_verbOps(%ld)", (uint32) subOp);
 				_dumpState();
 				_forceQuit();
 			}
@@ -1240,17 +1249,17 @@ namespace comi
 			return;
 			case OP_stopSound: {
 				uint16 soundNum = _stack.pop();
-				warn(COMI_THIS, "Not implemented OP_stopSound %ld", soundNum);
+				NO_FEATURE(COMI_THIS, "Not implemented OP_stopSound %ld", soundNum);
 			}
 			return;
 			case OP_soundKludge: {
 
 				uint16 num = _stack.readList(16);
 
-				warn(COMI_THIS, "Not implemented OP_soundKludge %ld", num);
+				NO_FEATURE(COMI_THIS, "Not implemented OP_soundKludge %ld", num);
 
 				/* TODO: WORKAROUND for bug #1398195 */
-				warn(COMI_THIS, "Not implemented WORKAROUND for bug #1398195");
+				NO_FEATURE(COMI_THIS, "Not implemented WORKAROUND for bug #1398195");
 			}
 			return;
 			case OP_systemOps: {
@@ -1262,7 +1271,7 @@ namespace comi
 					return;
 				}
 
-				warn(COMI_THIS, "Not implemented SysCall! %ld", (uint32)param);
+				NO_FEATURE(COMI_THIS, "Not implemented SysCall! %ld", (uint32)param);
 				
 				/* UNHANDLED */
 			}
@@ -1293,34 +1302,34 @@ namespace comi
 				switch(subOp) {
 
 					case KernelSetOp_LockObject:
-						warn(COMI_THIS, "Not implemented KernelSetOp_LockObject");
+						NO_FEATURE(COMI_THIS, "Not implemented KernelSetOp_LockObject");
 					return;
 					case KernelSetOp_UnlockObject:
-						warn(COMI_THIS, "Not implemented KernelSetOp_UnlockObject");
+						NO_FEATURE(COMI_THIS, "Not implemented KernelSetOp_UnlockObject");
 					return;
 					case KernelSetOp_RemapCostume:
-						warn(COMI_THIS, "Not implemented KernelSetOp_RemapCostume");
+						NO_FEATURE(COMI_THIS, "Not implemented KernelSetOp_RemapCostume");
 					return;
 					case KernelSetOp_RemapCostumeInert:
-						warn(COMI_THIS, "Not implemented KernelSetOp_RemapCostumeInert");
+						NO_FEATURE(COMI_THIS, "Not implemented KernelSetOp_RemapCostumeInert");
 					return;
 					case KernelSetOp_Unused_0xF:
 						/* Legacy */
 					return;
 					case KernelSetOp_SetBoxScaleSlot:
-						warn(COMI_THIS, "Not implemented KernelSetOp_SetBoxScaleSlot");
+						NO_FEATURE(COMI_THIS, "Not implemented KernelSetOp_SetBoxScaleSlot");
 					return;
 					case KernelSetOp_SetScaleSlot:
-						warn(COMI_THIS, "Not implemented KernelSetOp_SetScaleSlot");
+						NO_FEATURE(COMI_THIS, "Not implemented KernelSetOp_SetScaleSlot");
 					return;
 					case KernelSetOp_SetBannerColours:
-						warn(COMI_THIS, "Not implemented KernelSetOp_SetBannerColours");
+						NO_FEATURE(COMI_THIS, "Not implemented KernelSetOp_SetBannerColours");
 					return;
 					case KernelSetOp_SetActorChoreLimbFrame:
-						warn(COMI_THIS, "Not implemented KernelSetOp_SetActorChoreLimbFrame");
+						NO_FEATURE(COMI_THIS, "Not implemented KernelSetOp_SetActorChoreLimbFrame");
 					return;
 					case KernelSetOp_ClearTextQueue:
-						warn(COMI_THIS, "Not implemented KernelSetOp_ClearTextQueue");
+						NO_FEATURE(COMI_THIS, "Not implemented KernelSetOp_ClearTextQueue");
 					return;
 					case KernelSetOp_Unused_0x1A:
 					case KernelSetOp_Unused_0x1B:
@@ -1330,38 +1339,38 @@ namespace comi
 					}
 					return;
 					case KernelSetOp_SetKeyScript: {
-						warn(COMI_THIS, "Not implemented KernelSetOp_SetKeyScript");
+						NO_FEATURE(COMI_THIS, "Not implemented KernelSetOp_SetKeyScript");
 					}
 					return;
 					case KernelSetOp_KillAllScriptsExceptCurrent:
-						warn(COMI_THIS, "Not implemented KernelSetOp_KillAllScriptsExceptCurrent");
+						NO_FEATURE(COMI_THIS, "Not implemented KernelSetOp_KillAllScriptsExceptCurrent");
 					return;
 					case KernelSetOp_StopAllVideo:
-						warn(COMI_THIS, "Not implemented KernelSetOp_StopAllVideo");
+						NO_FEATURE(COMI_THIS, "Not implemented KernelSetOp_StopAllVideo");
 					return;
 					case KernelSetOp_WriteRegistryValue:
-						warn(COMI_THIS, "Not implemented KernelSetOp_WriteRegistryValue");
+						NO_FEATURE(COMI_THIS, "Not implemented KernelSetOp_WriteRegistryValue");
 					return;
 					case KernelSetOp_QueryQuit:
-						warn(COMI_THIS, "Not implemented KernelSetOp_QueryQuit");
+						NO_FEATURE(COMI_THIS, "Not implemented KernelSetOp_QueryQuit");
 					return;
 					case KernelSetOp_BuildShadowPalette:
-						warn(COMI_THIS, "Not implemented KernelSetOp_BuildShadowPalette");
+						NO_FEATURE(COMI_THIS, "Not implemented KernelSetOp_BuildShadowPalette");
 					return;
 					case KernelSetOp_SetShadowPalette:
-						warn(COMI_THIS, "Not implemented KernelSetOp_SetShadowPalette");
+						NO_FEATURE(COMI_THIS, "Not implemented KernelSetOp_SetShadowPalette");
 					return;
 					case KernelSetOp_BlastShadowObject:
-						warn(COMI_THIS, "Not implemented KernelSetOp_BlastShadowObject");
+						NO_FEATURE(COMI_THIS, "Not implemented KernelSetOp_BlastShadowObject");
 					return;
 					case KernelSetOp_SuperBlastObject:
-						warn(COMI_THIS, "Not implemented KernelSetOp_SuperBlastObject");
+						NO_FEATURE(COMI_THIS, "Not implemented KernelSetOp_SuperBlastObject");
 					return;
 				}
 
 				_dumpState();
 				_forceQuit();
-				error(COMI_THIS, "Not implemented KernelSetFunctions(%ld, %ld)", (uint32) subOp, length);
+				NO_FEATURE(COMI_THIS, "Not implemented KernelSetFunctions(%ld, %ld)", (uint32) subOp, length);
 			}
 			return;
 			case OP_bb:
@@ -1450,7 +1459,7 @@ namespace comi
 				uint16 obj = _stack.pop();
 
 				_stack.push(0);
-				warn(COMI_THIS, "Not implemented OP_ifClassOfIs");
+				NO_FEATURE(COMI_THIS, "Not implemented OP_ifClassOfIs");
 			}
 			return;
 			case OP_getState:
@@ -1480,94 +1489,94 @@ namespace comi
 
 				switch (opcode) {
 					case KernelGetOp_GetRGBSlot: {
-						warn(COMI_THIS, "Not implemented OP_kernelGetFunctions KernelGetOp_GetRGBSlot");
+						NO_FEATURE(COMI_THIS, "Not implemented OP_kernelGetFunctions KernelGetOp_GetRGBSlot");
 						_stack.push(0);
 					}
 					return;
 					case KernelGetOp_GetKeyState: {
-						warn(COMI_THIS, "Not implemented OP_kernelGetFunctions KernelGetOp_GetKeyState");
+						NO_FEATURE(COMI_THIS, "Not implemented OP_kernelGetFunctions KernelGetOp_GetKeyState");
 						_stack.push(0);
 					}
 					return;
 					case KernelGetOp_CheckXYInBoxBounds: {
-						warn(COMI_THIS, "Not implemented OP_kernelGetFunctions KernelGetOp_GetBox");
+						NO_FEATURE(COMI_THIS, "Not implemented OP_kernelGetFunctions KernelGetOp_GetBox");
 						_stack.push(0);
 					}
 					return;
 					case KernelGetOp_FindBlastObject: {
-						warn(COMI_THIS, "Not implemented OP_kernelGetFunctions KernelGetOp_FindBlastObject");
+						NO_FEATURE(COMI_THIS, "Not implemented OP_kernelGetFunctions KernelGetOp_FindBlastObject");
 						_stack.push(0);
 					}
 					return;
 					case KernelGetOp_TestActorHit: {
-						warn(COMI_THIS, "Not implemented OP_kernelGetFunctions KernelGetOp_TestActorHit");
+						NO_FEATURE(COMI_THIS, "Not implemented OP_kernelGetFunctions KernelGetOp_TestActorHit");
 						_stack.push(0);
 					}
 					return;
 					case KernelGetOp_GetLipSyncWidth: {
-						warn(COMI_THIS, "Not implemented OP_kernelGetFunctions KernelGetOp_GetLipSyncWidth");
+						NO_FEATURE(COMI_THIS, "Not implemented OP_kernelGetFunctions KernelGetOp_GetLipSyncWidth");
 						_stack.push(0);
 					}
 					return;
 					case KernelGetOp_GetLipSyncHeight: {
-						warn(COMI_THIS, "Not implemented OP_kernelGetFunctions KernelGetOp_GetLipSyncHeight");
+						NO_FEATURE(COMI_THIS, "Not implemented OP_kernelGetFunctions KernelGetOp_GetLipSyncHeight");
 						_stack.push(0);
 					}
 					return;
 					case KernelGetOp_GetTalkAnimation: {
-						warn(COMI_THIS, "Not implemented OP_kernelGetFunctions KernelGetOp_GetTalkAnimation");
+						NO_FEATURE(COMI_THIS, "Not implemented OP_kernelGetFunctions KernelGetOp_GetTalkAnimation");
 						_stack.push(0);
 					}
 					return;
 					case KernelGetOp_GetGroupSfxVolume: {
-						warn(COMI_THIS, "Not implemented OP_kernelGetFunctions KernelGetOp_GetGroupSfxVolume");
+						NO_FEATURE(COMI_THIS, "Not implemented OP_kernelGetFunctions KernelGetOp_GetGroupSfxVolume");
 						_stack.push(0);
 					}
 					return;
 					case KernelGetOp_GetGroupVoiceVolume: {
-						warn(COMI_THIS, "Not implemented OP_kernelGetFunctions KernelGetOp_GetGroupVoiceVolume");
+						NO_FEATURE(COMI_THIS, "Not implemented OP_kernelGetFunctions KernelGetOp_GetGroupVoiceVolume");
 						_stack.push(0);
 					}
 					return;
 					case KernelGetOp_GetGroupMusicVolume: {
-						warn(COMI_THIS, "Not implemented OP_kernelGetFunctions KernelGetOp_GetGroupMusicVolume");
+						NO_FEATURE(COMI_THIS, "Not implemented OP_kernelGetFunctions KernelGetOp_GetGroupMusicVolume");
 						_stack.push(0);
 					}
 					return;
 					case KernelGetOp_ReadRegistryValue: {
-						warn(COMI_THIS, "Not implemented OP_kernelGetFunctions KernelGetOp_ReadRegistryValue");
+						NO_FEATURE(COMI_THIS, "Not implemented OP_kernelGetFunctions KernelGetOp_ReadRegistryValue");
 						_stack.push(-1);
 					}
 					return;
 					case KernelGetOp_ImGetMusicPosition: {
-						warn(COMI_THIS, "Not implemented OP_kernelGetFunctions KernelGetOp_ImGetMusicPosition");
+						NO_FEATURE(COMI_THIS, "Not implemented OP_kernelGetFunctions KernelGetOp_ImGetMusicPosition");
 						_stack.push(0);
 					}
 					return;
 					case KernelGetOp_MusicLipGetSyncWidth: {
-						warn(COMI_THIS, "Not implemented OP_kernelGetFunctions KernelGetOp_MusicLipGetSyncWidth");
+						NO_FEATURE(COMI_THIS, "Not implemented OP_kernelGetFunctions KernelGetOp_MusicLipGetSyncWidth");
 						_stack.push(0);
 					}
 					return;
 					case KernelGetOp_MusicLipGetSyncHeight: {
-						warn(COMI_THIS, "Not implemented OP_kernelGetFunctions KernelGetOp_MusicLipGetSyncHeight");
+						NO_FEATURE(COMI_THIS, "Not implemented OP_kernelGetFunctions KernelGetOp_MusicLipGetSyncHeight");
 						_stack.push(0);
 					}
 					return;
 					case KernelGetOp_GetWalkBoxAt: {
-						warn(COMI_THIS, "Not implemented OP_kernelGetFunctions KernelGetOp_GetWalkBoxAt");
+						NO_FEATURE(COMI_THIS, "Not implemented OP_kernelGetFunctions KernelGetOp_GetWalkBoxAt");
 						_stack.push(-1);
 					}
 					return;
 					case KernelGetOp_IsPointInBox: {
-						warn(COMI_THIS, "Not implemented OP_kernelGetFunctions KernelGetOp_IsPointInBox");
+						NO_FEATURE(COMI_THIS, "Not implemented OP_kernelGetFunctions KernelGetOp_IsPointInBox");
 						_stack.push(0);
 					}
 					return;
 				}
 				_dumpState();
 				_forceQuit();
-				error(COMI_THIS, "Not implemented OP_kernelGetFunctions(%ld)", (uint32) opcode);
+				NO_FEATURE(COMI_THIS, "Not implemented OP_kernelGetFunctions(%ld)", (uint32) opcode);
 			}
 			return;
 			case OP_isActorInBox:
@@ -1580,21 +1589,21 @@ namespace comi
 				_stack.pop();
 				_stack.pop();
 				_stack.push(0);
-				warn(COMI_THIS, "Not implemented OP_getActorFromXY");
+				NO_FEATURE(COMI_THIS, "Not implemented OP_getActorFromXY");
 			}
 			return;
 			case OP_findObject: {
 				_stack.pop();
 				_stack.pop();
 				_stack.push(0);
-				warn(COMI_THIS, "Not implemented OP_findObject");
+				NO_FEATURE(COMI_THIS, "Not implemented OP_findObject");
 			}
 			return;
 			case OP_getVerbFromXY: {
 				_stack.pop();
 				_stack.pop();
 				_stack.push(0);
-				warn(COMI_THIS, "Not implemented OP_getVerbFromXY");
+				NO_FEATURE(COMI_THIS, "Not implemented OP_getVerbFromXY");
 			}
 			return;
 			case OP_de:
@@ -1617,7 +1626,7 @@ namespace comi
 					return;
 				}
 				
-				warn(COMI_THIS, "Not implemented OP_getActorRoom");
+				NO_FEATURE(COMI_THIS, "Not implemented OP_getActorRoom");
 				_stack.push(0);
 			}
 			return;

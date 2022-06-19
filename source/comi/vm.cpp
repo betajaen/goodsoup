@@ -34,6 +34,7 @@ namespace comi
 {
 	static const uint8 NO_CONTEXT = 0xFF;
 
+#if defined(GS_DEBUG)
 	static const char* OPCODE_NAME[256] = {
 		"00",
 		"pushWord",
@@ -292,6 +293,7 @@ namespace comi
 		"fe",
 		"ff",
 	};
+#endif
 
 	VirtualMachine* VM = NULL;
 	uint8 CURRENT_CONTEXT = NO_CONTEXT;
@@ -758,7 +760,7 @@ namespace comi
 	void VirtualMachine::_decodeParseString(uint8 m, uint8 n) {
 		byte b = _readByte();
 
-		warn(COMI_THIS, "Not properly implemented");
+		NO_FEATURE(COMI_THIS, "Not properly implemented");
 
 		switch (b) {
 			case 0xC8: {	// Print BaseOP
@@ -916,7 +918,11 @@ namespace comi
 	}
 	
 	const char* VirtualMachine::_getOpcodeName(uint8 opcode) const {
+#if defined(GS_DEBUG)
 		return OPCODE_NAME[opcode];
+#else
+		return "?";
+#endif
 	}
 
 	void ScriptContext::reset() {

@@ -437,4 +437,10 @@ namespace common
 
 #define GS_STOP_NOW(MESSAGE) ::common::debug_stop(__FILE__, __LINE__, MESSAGE)
 
+#if defined(GS_DEBUG)
+#define NO_FEATURE warn
+#else
+#define NO_FEATURE verbose
+#endif
+
 #endif
