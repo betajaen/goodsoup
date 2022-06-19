@@ -44,8 +44,12 @@ namespace comi
 	RoomData::~RoomData() {
 
 	}
-
+	
 	bool RoomData::readFromDisk(DiskReader& reader) {
+		return _readLFLF(reader);
+	}
+
+	bool RoomData::_readLFLF(DiskReader& reader) {
 
 		char tagName[5] = { 0 };
 		uint32 tagLength = 0;
@@ -77,8 +81,8 @@ namespace comi
 
 				continue;
 			}
-
-
+			
+			warn(COMI_THIS, "Unhandled LFLF tag %s", tagName);
 			reader.skip(tagLength - 8);
 		}
 
@@ -95,14 +99,31 @@ namespace comi
 		while (reader.pos() < end) {
 			
 			reader.readTagAndLength(tagName, tagLength);
-			
+
 			debug(COMI_THIS, "+ %s %ld", tagName, tagLength);
 
+			if (tagEqual(tagName, 'R', 'M', 'H', 'D')) {
+				_readRMHD(reader, tagLength);
+				continue;
+			}
+
+			warn(COMI_THIS, "Unhandled ROOM tag %s", tagName);
 			reader.skip(tagLength - 8);
 		}
 
 		return true;
 	}
+
+	void RoomData::_readRMHD(DiskReader& reader, uint32 tagLength) {
+		width = reader.readUInt32LE();
+		height = reader.readUInt32LE();
+		numObjects = reader.readUInt32LE();
+
+		reader.skip(tagLength - 8 - (sizeof(uint32) * 3));
+
+		debug(COMI_THIS, "width=%ld height=%ld numObjects=%ld", (uint32) width, (uint32) height, (uint32) numObjects);
+	}
+
 
 
 	void startScene(uint16 roomNum) {

@@ -30,12 +30,16 @@ namespace comi
 
 	class RoomData : public ResourceData
 	{
+		bool _readLFLF(DiskReader& reader);
 		bool _readRoom(DiskReader& reader, uint32 totalLength);
+		void _readRMHD(DiskReader& reader, uint32 tagLength);
+
 	public:
 
 		RoomData(uint16 num, uint8 disk, uint8 flags);
 		~RoomData();
 
+		uint16 width, height, numObjects;
 		Buffer<byte> entryScript;
 		Buffer<byte> exitScript;
 		Buffer<byte> localScript;
