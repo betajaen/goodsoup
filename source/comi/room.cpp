@@ -112,6 +112,14 @@ namespace comi
 				continue;
 			}
 
+			if (tagEqual(tagName, 'P', 'A', 'L', 'S')) {
+				if (_readPALS(reader, tagLength) == false) {
+					return false;
+				}
+				continue;
+			}
+
+
 			NO_FEATURE(COMI_THIS, "Unhandled ROOM tag %s", tagName);
 			reader.skip(tagLength - 8);
 		}
@@ -147,6 +155,52 @@ namespace comi
 			colourCycle[idx - 1] = cycle;
 		}
 
+	}
+
+	bool RoomData::_readPALS(DiskReader& reader, uint32 tagLength) {
+		if (reader.readAndExpectTag('W', 'R', 'A', 'P') == false) {
+			error(COMI_THIS, "Expected WRAP tag within PALS", _num);
+			return false;
+		}
+		reader.readUInt32BE(); // Skip length.
+		if (reader.readAndExpectTag('O', 'F', 'F', 'S') == false) {
+			error(COMI_THIS, "Expected OFFS tag within WRAP", _num);
+			return false;
+		}
+		uint32 offsLength = reader.readUInt32BE();
+		numPalOffs = (uint16) ( (offsLength - 8) / sizeof(uint32) );
+
+		if (numPalOffs > MAX_ROOM_PALETTES) {
+			error(COMI_THIS, "Expected numPalsOff %ld exceeded MAX_ROOM_PALETTES %ld", (uint32) numPalOffs, (uint32) MAX_ROOM_PALETTES);
+			return false;
+		}
+
+		for (uint16 i = 0; i < numPalOffs; i++) {
+			palOffs[i] = reader.readUInt32BE();
+		}
+		
+		for (uint16 i = 0; i < numPalOffs; i++) {
+			if (reader.readAndExpectTag('A', 'P', 'A', 'L') == false) {
+				error(COMI_THIS, "Expected APAL tag", _num);
+				return false;
+			}
+
+			uint32 palLength = reader.readUInt32BE();
+
+			if (palLength != (8 + (256 * 3))) {
+				error(COMI_THIS, "Incorrect palette length. %ld Colours given.", ((palLength - 8) / 3));
+				return false;
+			}
+
+			RoomPalette& palette = palettes[i];
+			_readAPAL(reader, palette);
+		}
+
+		return true;
+	}
+
+	void RoomData::_readAPAL(DiskReader& reader, RoomPalette& palette) {
+		reader.readBytes(&palette.palette[0], 256 * 3);
 	}
 
 

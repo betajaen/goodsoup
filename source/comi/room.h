@@ -27,6 +27,8 @@ using namespace common;
 
 namespace comi
 {
+#define MAX_ROOM_PALETTES 8
+
 	class DiskReader;
 
 	struct ColourCycle
@@ -38,12 +40,18 @@ namespace comi
 		uint8 end;
 	};
 
+	struct RoomPalette {
+		uint8 palette[3 * 256];
+	};
+
 	class RoomData : public ResourceData
 	{
 		bool _readLFLF(DiskReader& reader);
 		bool _readRoom(DiskReader& reader, uint32 totalLength);
 		void _readRMHD(DiskReader& reader, uint32 tagLength);
 		void _readCYCL(DiskReader& reader, uint32 tagLength);
+		bool _readPALS(DiskReader& reader, uint32 tagLength);
+		void _readAPAL(DiskReader& reader, RoomPalette& pal);
 
 	public:
 
@@ -55,6 +63,9 @@ namespace comi
 		Buffer<byte> exitScript;
 		Buffer<byte> localScript;
 		FixedArray<ColourCycle, 16> colourCycle;
+		uint16 numPalOffs;
+		FixedArray<uint32, MAX_ROOM_PALETTES> palOffs;
+		FixedArray<RoomPalette, MAX_ROOM_PALETTES> palettes;
 
 		bool readFromDisk(DiskReader& reader);
 		
