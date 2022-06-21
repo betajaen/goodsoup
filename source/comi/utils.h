@@ -33,6 +33,13 @@ namespace comi
 		return (tagName[0] == a && tagName[1] == b && tagName[2] == c && tagName[3] == d);
 	}
 
+	inline bool tagEqual(const char* expect, char* test) {
+		return (expect[0] == test[0] && 
+				expect[1] == test[1] && 
+				expect[2] == test[2] && 
+				expect[3] == test[3]);
+	}
+
 	uint32 getRandom(uint32 max);
 
 	uint32 getRandomRange(uint32 min, uint32 max);
