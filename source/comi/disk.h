@@ -36,6 +36,11 @@ namespace comi
 		DiskReader(ReadFile& file);
 		~DiskReader();
 
+		inline void readBytes(Buffer<byte>& buffer, uint16 length) {
+			buffer.setSize(length, 0);
+			_file.readBytes(buffer.ptr(0), length);
+		}
+
 		inline void readBytes(void* data, uint32 length) {
 			_file.readBytes(data, length);
 		}
