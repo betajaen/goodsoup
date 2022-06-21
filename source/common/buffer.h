@@ -21,50 +21,10 @@
 #include "common/types.h"
 #include "common/memory.h"
 #include "common/debug.h"
+#include "common/span.h"
 
 namespace common
 {
-	
-	template<typename T, typename Index = uint16>
-	struct ReadSpan {
-	private:
-		const T* _data;
-		Index _size;
-	public:
-
-		ReadSpan(const T* data, Index size) 
-			: _data(data), _size(size)
-		{
-		}
-
-		bool hasMem() const {
-			return (_size && _data);
-		}
-		
-		Index getSize() const {
-			return _size;
-		}
-
-		const T* ptr(Index idx) const {
-
-			if (idx >= _size)
-				error(GS_THIS, "ReadSpan(Out of bounds, const ptr, %d)", idx);
-
-			return &_data[idx];
-		}
-
-		const T& get(Index idx) const {
-			if (idx >= _size)
-				error(GS_THIS, "ReadSpan(Out of bounds, const, %d)", idx);
-
-			return _data[idx];
-		}
-
-		const T& get_unchecked(Index idx) const {
-			return _data[idx];
-		}
-
-	};
 
 	template<typename T, typename Index = uint16>
 	struct Buffer
@@ -84,12 +44,12 @@ namespace common
 		}
 		
 		template<typename SpanIndex>
-		ReadSpan<T, SpanIndex> getReadSpan() {
+		ReadSpan<T, SpanIndex> getReadSpan() const {
 			return ReadSpan<T, SpanIndex>(&_data[0], _size);
 		}
 
 		template<typename SpanIndex>
-		ReadSpan<T, SpanIndex> getReadSpan(Index from, SpanIndex size) {
+		ReadSpan<T, SpanIndex> getReadSpan(Index from, SpanIndex size) const {
 
 			if (size == 0) {
 				size = _size;
