@@ -32,6 +32,22 @@ namespace common
 			T _array[N];
 		public:
 
+			void clearAndCallCtors() {
+				clearZero();
+				for(Index i=0;i < N;i++) {
+					T* item = &_array[i];
+					new (item)(T);
+				}
+			}
+
+			void callDtorsAndClear() {
+				for (Index i = 0; i < N; i++) {
+					T* item = &_array[i];
+					item->~T();
+				}
+				clearZero();
+			}
+
 			T size() const {
 				return N;
 			}
@@ -41,7 +57,7 @@ namespace common
 			}
 
 			void clearZero() {
-				clearMemoryNonAllocated(_array[0], byteSize);
+				clearMemoryNonAllocated(&_array[0], byteSize());
 			}
 
 			void clearDefaultValue() {
