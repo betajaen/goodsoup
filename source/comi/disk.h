@@ -71,6 +71,7 @@ namespace comi
 		void readTagAndLength(char tag[5], uint32& length);
 
 		bool readAndExpectTag(char a, char b, char c, char d);
+		bool readAndExpectTag(const char* test);
 	};
 
 	class Disk {

@@ -201,6 +201,13 @@ namespace comi
 		return tagEqual(tagName, a, b, c, d);
 	}
 	
+	bool DiskReader::readAndExpectTag(const char* test) {
+		char tagName[5] = { 0 };
+		_file.readTag(tagName);
+
+		return tagEqual(test, tagName);
+	}
+
 	void DiskReader::readTagAndLength(char tag[5], uint32& length) {
 		_file.readTag(tag);
 		length = _file.readUInt32BE();
