@@ -24,6 +24,47 @@
 
 namespace common
 {
+	
+	template<typename T, typename Index = uint16>
+	struct ReadSpan {
+	private:
+		const T* _data;
+		Index _size;
+	public:
+
+		ReadSpan(const T* data, Index size) 
+			: _data(data), _size(size)
+		{
+		}
+
+		bool hasMem() const {
+			return (_size && _data);
+		}
+		
+		Index getSize() const {
+			return _size;
+		}
+
+		const T* ptr(Index idx) const {
+
+			if (idx >= _size)
+				error(GS_THIS, "ReadSpan(Out of bounds, const ptr, %d)", idx);
+
+			return &_data[idx];
+		}
+
+		const T& get(Index idx) const {
+			if (idx >= _size)
+				error(GS_THIS, "ReadSpan(Out of bounds, const, %d)", idx);
+
+			return _data[idx];
+		}
+
+		const T& get_unchecked(Index idx) const {
+			return _data[idx];
+		}
+
+	};
 
 	template<typename T, typename Index = uint16>
 	struct Buffer
@@ -40,6 +81,33 @@ namespace common
 
 		~Buffer() {
 			release();
+		}
+		
+		template<typename SpanIndex>
+		ReadSpan<T, SpanIndex> getReadSpan() {
+			return ReadSpan<T, SpanIndex>(&_data[0], _size);
+		}
+
+		template<typename SpanIndex>
+		ReadSpan<T, SpanIndex> getReadSpan(Index from, SpanIndex size) {
+
+			if (size == 0) {
+				size = _size;
+			}
+
+			Index srcEnd = from + size;
+
+			if (from > _size) {
+				error(GS_THIS, "Offset from %ld does not fit into _size %ld", from, _size);
+				return ReadSpan<T, SpanIndex>(NULL, 0);
+			}
+
+			if (srcEnd > _size) {
+				error(GS_THIS, "Offset size %ld does not fit into _size %ld", srcEnd, _size);
+				return ReadSpan<T, SpanIndex>(NULL, 0);
+			}
+
+			return ReadSpan<T, SpanIndex>(&_data[from],  size);
 		}
 
 		void setSize(Index size, int flags = MEMF_CLEAR) {
@@ -64,7 +132,7 @@ namespace common
 			}
 		}
 
-		bool hasMem() {
+		bool hasMem() const {
 			return (_size && _data);
 		}
 
@@ -139,6 +207,7 @@ namespace common
 			return _data[idx];
 		}
 	};
+
 
 
 }
