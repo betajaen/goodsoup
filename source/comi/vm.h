@@ -239,14 +239,14 @@ namespace comi
 			uint8  opcode, context, contextAfter;
 		};
 
-		Buffer<byte>					_nullScript;
+		ReadSpan<byte, uint16>			_nullScript;
 		Buffer<int32>					_intGlobals;
 		Buffer<byte>					_boolGlobals;
 		ScriptContext					_context[MAX_SCRIPT_CONTEXTS];
 		ScriptStackItem					_contextStack[NUM_STACK_SCRIPTS];
 		uint16							_contextStackSize;
 		uint32							_pc, _pcAfter, _pcOpcode;
-		Buffer<byte>*					_script;
+		ReadSpan<byte, uint16>			_script;
 		byte							_opcode;
 		Array<char>						_messageTemp;
 		RingLog<PcState>				_lastPcStates;

@@ -615,7 +615,7 @@ namespace comi
 						_readStringLength(from, len);
 						array = newArray(arrayNum, VAK_String, len, 0);
 						array->writeBytes(
-							_script->ptr(from),
+							_script.ptr(from),
 							offset,
 							len
 						);

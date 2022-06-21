@@ -297,17 +297,16 @@ namespace comi
 
 	VirtualMachine* VM = NULL;
 	uint8 CURRENT_CONTEXT = NO_CONTEXT;
+
+	static const byte kNullScript[4] = {
+		OP_systemOps, SystemOps_Quit, 0xFF, 0xFF
+	};
 	
 	VirtualMachine::VirtualMachine() :
-		_script(NULL), 
+		_script(), 
 		_contextStackSize(0)
 	{
-		_nullScript.setSize(4);
-		_nullScript.set(0, OP_systemOps);
-		_nullScript.set(1, SystemOps_Quit);
-		_nullScript.set(2, 0xFF);
-		_nullScript.set(3, 0xFF);
-
+		_nullScript = ReadSpan<byte, uint16>(&kNullScript[0], 4);
 		
 		for (uint8 i = 0; i < MAX_SCRIPT_CONTEXTS; i++) {
 			_context[i].reset();
@@ -326,7 +325,7 @@ namespace comi
 	void VirtualMachine::reset() {
 		int32 i;
 
-		_script = NULL;
+		_script = ReadSpan<byte, uint16>();
 
 		if (_messageTemp.capacity() == 0) {
 			_messageTemp.reserve(384);
@@ -594,12 +593,12 @@ namespace comi
 			}
 			else {
 				warn(COMI_THIS, "Unhandled ID Where for Script Data! Num=%ld, Where=%ld", (uint32)_scriptNum, (uint32)context._scriptWhere);
-				_script = &_nullScript;
+				_script = _nullScript;
 			}
 		}
 
 		warn(COMI_THIS, "Unhandled ID Where for Script Data! Num=%ld, Where=%ld", (uint32) _scriptNum, (uint32) context._scriptWhere);
-		_script = &_nullScript;
+		_script = _nullScript;
 		
 	}
 
@@ -718,12 +717,12 @@ namespace comi
 	}
 
 	byte VirtualMachine::_readByte() {
-		byte value = _script->get_unchecked(_pc++);
+		byte value = _script.get_unchecked(_pc++);
 		return value;
 	}
 	
 	int32 VirtualMachine::_readWord() {
-		int32 value = *( (int32*) _script->ptr(_pc));
+		int32 value = *( (int32*) _script.ptr(_pc));
 		value = FROM_LE_32(value);
 		_pc += 4;
 		return value;
@@ -731,7 +730,7 @@ namespace comi
 
 	uint32 VirtualMachine::_readUnsignedWord() {
 
-		uint32 value = *((uint32*) _script->ptr(_pc));
+		uint32 value = *((uint32*) _script.ptr(_pc));
 		value = FROM_LE_32(value);
 		_pc += 4;
 		return value;
@@ -838,13 +837,13 @@ namespace comi
 			debug_write_char(' ');
 			debug_write_char('(');
 
-			if (state.context == CURRENT_CONTEXT && _script != NULL) {
+			if (state.context == CURRENT_CONTEXT && _script.isNull() == false) {
 
 				for (uint16 j = state.pc; j < state.pcAfter; j++) {
 					if (j != state.pc) {
 						debug_write_char(' ');
 					}
-					debug_write_byte(_script->get_unchecked(j));
+					debug_write_byte(_script.get_unchecked(j));
 				}
 
 			}
@@ -873,8 +872,8 @@ namespace comi
 		debug_write_byte(_opcode);
 
 		uint16 end = _pcOpcode + 15;
-		if (end > _script->getSize()) {
-			end = _script->getSize();
+		if (end > _script.getSize()) {
+			end = _script.getSize();
 		}
 			
 		debug_write_char(' ');
@@ -886,7 +885,7 @@ namespace comi
 			if (i != _pc) {
 				debug_write_char(' ');
 			}
-			debug_write_byte(_script->get_unchecked(i));
+			debug_write_byte(_script.get_unchecked(i));
 		}
 			
 		debug_write_str(" ...)\n");

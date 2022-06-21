@@ -32,7 +32,7 @@ namespace comi
 	class ScriptData : public ResourceData
 	{
 	private:
-		Buffer<byte> _data;
+		Buffer<byte, uint16> _data;
 	public:
 
 		ScriptData(uint16 num, uint8 disk, uint8 flags);
@@ -40,8 +40,8 @@ namespace comi
 
 		bool readFromDisk(DiskReader& reader);
 
-		Buffer<byte>* getDataPtr() {
-			return &_data;
+		ReadSpan<byte, uint16> getDataPtr() {
+			return _data.getReadSpan<uint16>();
 		}
 
 	};
