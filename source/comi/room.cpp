@@ -38,169 +38,146 @@ namespace comi
 		_kind = RK_ROOM;
 		_flags = 0;
 		_disk = disk;
+		
+		scriptData = NULL;
+		width = 0;
+		height = 0;
+		numObjects = 0;
+		numZBuffers = 0;
 	}
 
 
 	RoomData::~RoomData() {
+		close();
+	}
 
+	void RoomData::close(bool properties, bool scripts, bool graphics) {
+		if (scripts) {
+			deleteObject(scriptData);
+		}
+
+		if (properties) {
+			width = 0;
+			height = 0;
+			numObjects = 0;
+			numZBuffers = 0;
+		}
+
+		if (graphics) {
+			deleteObject(graphicsData);
+		}
 	}
 	
-	bool RoomData::readFromDisk(DiskReader& reader) {
-		return _readLFLF(reader);
-	}
+	bool RoomData::_readLFLF(DiskReader& reader, TagPair& lflf) {
+		lflf = reader.readTagPair();
 
-	bool RoomData::_readLFLF(DiskReader& reader) {
-
-		char tagName[5] = { 0 };
-		uint32 tagLength = 0;
-
-		reader.readTagAndLength(tagName, tagLength);
-
-		if (tagEqual(tagName, 'L', 'F', 'L', 'F') == false) {
-			
+		if (lflf.isTag(GS_MAKE_ID('L','F','L','F')) == false) {
 			error(COMI_THIS, "Could not read RoomData as its not a Room!", getNum());
 			return false;
 		}
 
-		if (tagLength == 0) {
-			error(COMI_THIS, "Script length %ld is 0 bytes!", _num);
+		if (lflf.length == 0) {
+			error(COMI_THIS, "Room length %ld is 0 bytes!", _num);
 			return false;
 		}
 
-		uint32 end = reader.pos() + tagLength - 8;
-
-		while (reader.pos() < end) {
-			reader.readTagAndLength(tagName, tagLength);
-			
-			debug(COMI_THIS, "%s %ld", tagName, tagLength);
-
-			if (tagEqual(tagName, 'R', 'O', 'O', 'M')) {
-				if (_readRoom(reader, tagLength) == false) {
-					return false;
-				}
-
-				continue;
-			}
-			
-			NO_FEATURE(COMI_THIS, "Unhandled LFLF tag %s", tagName);
-			reader.skip(tagLength - 8);
-		}
-
 		return true;
 	}
 	
-	bool RoomData::_readRoom(DiskReader& reader, uint32 totalLength) {
+	bool RoomData::_readRoomData(DiskReader& reader, const TagPair& lflf, bool readProperties, bool readScripts, bool readGraphics) {
 		
-		char tagName[5] = { 0 };
-		uint32 tagLength = 0;
+		if (readGraphics) {
+			readProperties = true;
+		}
 
-		uint32 end = reader.pos() + totalLength - 8;
+
+		if (readProperties) {
+			if (_readProperties(reader, lflf) == false)
+				return false;
+		}
 		
-		while (reader.pos() < end) {
-			
-			reader.readTagAndLength(tagName, tagLength);
-
-			debug(COMI_THIS, "+ %s %ld", tagName, tagLength);
-
-			if (tagEqual(tagName, 'R', 'M', 'H', 'D')) {
-				_readRMHD(reader, tagLength);
-				continue;
+		if (readScripts) {
+			if (scriptData == NULL) {
+				scriptData = newObject<RoomScriptData>();
 			}
-			
-			if (tagEqual(tagName, 'C', 'Y', 'C', 'L')) {
-				_readCYCL(reader, tagLength);
-				continue;
+			else {
+				scriptData->close();
 			}
 
-			if (tagEqual(tagName, 'P', 'A', 'L', 'S')) {
-				if (_readPALS(reader, tagLength) == false) {
-					return false;
-				}
-				continue;
+			if (scriptData->readFromDisk(reader, lflf, getNum()) == false)
+				return false;
+		}
+
+		if (readGraphics) {
+			if (graphicsData == NULL) {
+				graphicsData = newObject<RoomGraphicsData>();
 			}
+			else {
+				graphicsData->close();
+			}
+			graphicsData->open(width, height);
 
-
-			NO_FEATURE(COMI_THIS, "Unhandled ROOM tag %s", tagName);
-			reader.skip(tagLength - 8);
+			if (graphicsData->readFromDisk(reader, lflf, getNum()) == false)
+				return false;
 		}
 
 		return true;
 	}
 
-	void RoomData::_readRMHD(DiskReader& reader, uint32 tagLength) {
-		reader.readUInt32BE();	// Version
-		width = reader.readUInt32LE();
-		height = reader.readUInt32LE();
-		numObjects = reader.readUInt32LE();
-		reader.readUInt32BE();	// Unknown
-		numZBuffers = reader.readUInt32LE();
+	bool RoomData::readFromDisk(DiskReader& reader, bool readProperties, bool readScripts, bool readGraphics) {
 
-		debug(COMI_THIS, "width=%ld height=%ld numObjects=%ld numZBuffers=%ld", (uint32) width, (uint32) height, (uint32) numObjects, (uint32) numZBuffers);
+		TagPair lflf;
+		if (_readLFLF(reader, lflf) == false)
+			return false;
+
+		close(true, true);
+
+		return _readRoomData(reader, lflf, readProperties, readScripts, readGraphics);
 	}
-	
-	void RoomData::_readCYCL(DiskReader& reader, uint32 tagLength) {
 
-		while (true) {
-			uint8 idx = reader.readByte();
-			if (idx == 0)
+	bool RoomData::mergeFromDisk(DiskReader& reader, bool readProperties, bool readScripts, bool readGraphics) {
+
+		TagPair lflf;
+		if (_readLFLF(reader, lflf) == false)
+			return false;
+
+		return _readRoomData(reader, lflf, readProperties, readScripts, readGraphics);
+	}
+
+	bool RoomData::_readProperties(DiskReader& reader, const TagPair& lflf) {
+		reader.seek(lflf);
+
+		while (reader.pos() < lflf.end()) {
+			TagPair roomPair = reader.readTagPair();
+
+			if (roomPair.isTag(GS_MAKE_ID('R', 'O', 'O', 'M'))) {
+
+				while (reader.pos() < roomPair.end()) {
+					TagPair rmhdPair = reader.readTagPair();
+
+					if (rmhdPair.isTag(GS_MAKE_ID('R', 'M', 'H', 'D'))) {
+						reader.skip(sizeof(uint32));	// version
+						width = reader.readUInt32LE();
+						height = reader.readUInt32LE();
+						numObjects = reader.readUInt32LE();
+						reader.skip(sizeof(uint32));	// unknown
+						numZBuffers = reader.readUInt32LE();
+
+						debug(COMI_THIS, "(%ld, %ld, %ld, %ld)", (uint32) width, (uint32) height, (uint32) numObjects, (uint32) numZBuffers);
+
+						return true;
+					}
+
+					reader.skip(rmhdPair);
+				}
+
 				break;
-
-			ColourCycle cycle;
-			cycle.counter = 0;
-			cycle.delay = 16384 / reader.readUInt16BE();
-			cycle.flags = reader.readUInt16BE();
-			cycle.start = reader.readByte();
-			cycle.end = reader.readByte();
-
-			colourCycle[idx - 1] = cycle;
-		}
-
-	}
-
-	bool RoomData::_readPALS(DiskReader& reader, uint32 tagLength) {
-		if (reader.readAndExpectTag('W', 'R', 'A', 'P') == false) {
-			error(COMI_THIS, "Expected WRAP tag within PALS", _num);
-			return false;
-		}
-		reader.readUInt32BE(); // Skip length.
-		if (reader.readAndExpectTag('O', 'F', 'F', 'S') == false) {
-			error(COMI_THIS, "Expected OFFS tag within WRAP", _num);
-			return false;
-		}
-		uint32 offsLength = reader.readUInt32BE();
-		numPalOffs = (uint16) ( (offsLength - 8) / sizeof(uint32) );
-
-		if (numPalOffs > MAX_ROOM_PALETTES) {
-			error(COMI_THIS, "Expected numPalsOff %ld exceeded MAX_ROOM_PALETTES %ld", (uint32) numPalOffs, (uint32) MAX_ROOM_PALETTES);
-			return false;
-		}
-
-		for (uint16 i = 0; i < numPalOffs; i++) {
-			palOffs[i] = reader.readUInt32BE();
-		}
-		
-		for (uint16 i = 0; i < numPalOffs; i++) {
-			if (reader.readAndExpectTag('A', 'P', 'A', 'L') == false) {
-				error(COMI_THIS, "Expected APAL tag", _num);
-				return false;
 			}
 
-			uint32 palLength = reader.readUInt32BE();
-
-			if (palLength != (8 + (256 * 3))) {
-				error(COMI_THIS, "Incorrect palette length. %ld Colours given.", ((palLength - 8) / 3));
-				return false;
-			}
-
-			RoomPalette& palette = palettes[i];
-			_readAPAL(reader, palette);
+			reader.skip(roomPair);
 		}
 
-		return true;
-	}
-
-	void RoomData::_readAPAL(DiskReader& reader, RoomPalette& palette) {
-		reader.readBytes(&palette.palette[0], 256 * 3);
+		return false;
 	}
 
 
@@ -224,5 +201,6 @@ namespace comi
 		}
 
 	}
+
 
 }

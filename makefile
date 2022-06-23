@@ -62,6 +62,8 @@ OBJ +=	source/comi/main.o\
 		source/comi/vm_vars.o\
 		source/comi/script.o\
 		source/comi/room.o\
+		source/comi/room_scripts.o\
+		source/comi/room_graphics.o\
 		source/comi/index.o\
 		source/comi/resource.o\
 		source/comi/disk.o\
