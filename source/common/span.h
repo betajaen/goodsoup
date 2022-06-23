@@ -91,12 +91,12 @@ namespace common
 			: _data(NULL), _size(0) {
 		}
 
-		ReadWriteSpan(const T* data, Index size) 
+		ReadWriteSpan(T* data, Index size) 
 			: _data(data), _size(size)
 		{
 		}
 
-		ReadWriteSpan(const ReadSpan<byte, Index>& other) 
+		ReadWriteSpan(const ReadWriteSpan<byte, Index>& other) 
 			: _data(other._data), _size(other._size)
 		{
 		}
