@@ -47,6 +47,8 @@ namespace common
 		return ((a >> 8) & 0x00FF) + ((a << 8) & 0xFF00);
 	}
 
+
+
 #if defined(GS_LITTLE)
 
 #define READ_UINT16(a) READ_LE_UINT16(a)
@@ -252,6 +254,14 @@ namespace common
 
 }
 
+#if defined(GS_LITTLE)
+#define GS_MAKE_ID(a,b,c,d)	\
+	((uint32) (d)<<24 | (uint32) (c)<<16 | (uint32) (b)<<8 | (uint32) (a))
+#else
+#define GS_MAKE_ID(a,b,c,d)	\
+	((uint32) (a)<<24 | (uint32) (b)<<16 | (uint32) (c)<<8 | (uint32) (d))
+#endif
 
 #endif
 
+ 
