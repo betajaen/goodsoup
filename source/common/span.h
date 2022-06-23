@@ -79,7 +79,81 @@ namespace common
 		}
 
 	};
+	
+	template<typename T, typename Index = uint16>
+	struct ReadWriteSpan {
+	private:
+		T* _data;
+		Index _size;
+	public:
 
+		ReadWriteSpan() 
+			: _data(NULL), _size(0) {
+		}
+
+		ReadWriteSpan(const T* data, Index size) 
+			: _data(data), _size(size)
+		{
+		}
+
+		ReadWriteSpan(const ReadSpan<byte, Index>& other) 
+			: _data(other._data), _size(other._size)
+		{
+		}
+
+		ReadWriteSpan& operator=(const ReadWriteSpan<byte, Index>& other) {
+			_data = other._data;
+			_size = other._size;
+			return *this;
+		}
+
+		bool isNull() const {
+			return (_size && _data) == false;
+		}
+		
+		Index getSize() const {
+			return _size;
+		}
+		
+		T* ptr(Index idx) {
+
+			if (idx >= _size)
+				error(GS_THIS, "ReadWriteSpan(Out of bounds, const ptr, %d)", idx);
+
+			return &_data[idx];
+		}
+
+		T& get(Index idx) {
+			if (idx >= _size)
+				error(GS_THIS, "ReadWriteSpan(Out of bounds, const, %d)", idx);
+
+			return _data[idx];
+		}
+
+		T& get_unchecked(Index idx) {
+			return _data[idx];
+		}
+
+		const T* ptr(Index idx) const {
+
+			if (idx >= _size)
+				error(GS_THIS, "ReadWriteSpan(Out of bounds, const ptr, %d)", idx);
+
+			return &_data[idx];
+		}
+
+		const T& get(Index idx) const {
+			if (idx >= _size)
+				error(GS_THIS, "ReadSpan(Out of bounds, const, %d)", idx);
+
+			return _data[idx];
+		}
+
+		const T& get_unchecked(Index idx) const {
+			return _data[idx];
+		}
+
+	};
 }
 
 #endif
