@@ -69,6 +69,33 @@ namespace common
 
 			return ReadSpan<T, SpanIndex>(&_data[from],  size);
 		}
+		
+		template<typename SpanIndex>
+		ReadWriteSpan<T, SpanIndex> getReadWriteSpan() const {
+			return ReadWriteSpan<T, SpanIndex>(&_data[0], _size);
+		}
+
+		template<typename SpanIndex>
+		ReadWriteSpan<T, SpanIndex> getReadWriteSpan(Index from, SpanIndex size) const {
+
+			if (size == 0) {
+				size = _size;
+			}
+
+			Index srcEnd = from + size;
+
+			if (from > _size) {
+				error(GS_THIS, "Offset from %ld does not fit into _size %ld", from, _size);
+				return ReadWriteSpan<T, SpanIndex>(NULL, 0);
+			}
+
+			if (srcEnd > _size) {
+				error(GS_THIS, "Offset size %ld does not fit into _size %ld", srcEnd, _size);
+				return ReadWriteSpan<T, SpanIndex>(NULL, 0);
+			}
+
+			return ReadWriteSpan<T, SpanIndex>(&_data[from],  size);
+		}
 
 		void setSize(Index size, int flags = MEMF_CLEAR) {
 			if (_size && _data) {
