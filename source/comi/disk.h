@@ -69,6 +69,11 @@ namespace comi
 		DiskReader(ReadFile& file);
 		~DiskReader();
 
+		template<typename Index>
+		inline void readBytes(ReadWriteSpan<byte, Index>& span) {
+			_file.readBytes(span.ptr(0), span.getSize());
+		}
+
 		inline void readBytes(Buffer<byte>& buffer, uint16 length) {
 			buffer.setSize(length, 0);
 			_file.readBytes(buffer.ptr(0), length);
