@@ -22,11 +22,44 @@
 #include "common/buffer.h"
 #include "common/string.h"
 #include "common/file.h"
+#include "common/endian.h"
 
 using namespace common;
 
 namespace comi
 {
+	struct TagPair {
+		uint32 tag;
+		uint32 length;
+		uint32 dataPos;
+
+		const char* tagStr() const {
+			static char str[5] = {0};
+			*((uint32*) &str[0]) = tag;
+			return &str[0];
+		}
+
+		bool isTag(uint32 name) const {
+			return tag == name;
+		}
+		
+		bool isTag(uint32 name1, uint32 name2) const {
+			return tag == name1 || tag == name2;
+		}
+		
+		bool isTag(uint32 name1, uint32 name2, uint32 name3) const {
+			return tag == name1 || tag == name2 || tag == name3;
+		}
+		
+		bool isTag(uint32 name1, uint32 name2, uint32 name3, uint32 name4) const {
+			return tag == name1 || tag == name2 || tag == name3 || tag == name4;
+		}
+
+		uint32 end() const {
+			return dataPos + length;
+		}
+
+	};
 
 	class DiskReader {
 	private:
@@ -65,6 +98,10 @@ namespace comi
 			return _file.readUInt32LE();
 		}
 
+		inline void seek(uint32 pos) {
+			_file.seek(pos);
+		}
+
 		inline uint32 pos() {
 			return _file.pos();
 		}
@@ -73,10 +110,30 @@ namespace comi
 			_file.skip(length);
 		}
 
+		inline TagPair readTagPair() {
+			TagPair pair;
+			byte* tag = (byte*) &pair.tag;
+			_file.readBytes(tag, 4);
+			pair.length = _file.readUInt32BE() - 8;
+			pair.dataPos = _file.pos();
+			return pair;
+		}
+
+		inline void seek(const TagPair& tagPair) {
+			_file.seek(tagPair.dataPos);
+		}
+
+		inline void skip(const TagPair& tagPair) {
+			_file.skip(tagPair.length);
+		}
+
 		void readTagAndLength(char tag[5], uint32& length);
 
 		bool readAndExpectTag(char a, char b, char c, char d);
 		bool readAndExpectTag(const char* test);
+
+		uint32 sumBytesWithin(uint32 rangeBytes, uint32 numTags, const char** tags, uint32& out_count);
+
 	};
 
 	class Disk {

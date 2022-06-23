@@ -212,4 +212,36 @@ namespace comi
 		_file.readTag(tag);
 		length = _file.readUInt32BE();
 	}
+	
+	uint32 DiskReader::sumBytesWithin(uint32 rangeBytes, uint32 numTags, const char** tags, uint32& out_count) {
+		uint32 origin = _file.pos();
+		uint32 end = rangeBytes;
+		uint32 numBytes = 0;
+		out_count = 0;
+
+		char tagName[5] = { 0 };
+		uint32 tagLength = 0;
+
+		while (_file.pos() < end) {
+			_file.readTag(tagName);
+			tagLength = _file.readUInt32BE();
+
+			for (uint32 i = 0; i < numTags; i++) {
+				const char* testTag = tags[i];
+
+				if (tagEqual(testTag, tagName)) {
+					numBytes += tagLength - 8;
+					out_count++;
+					break;
+				}
+			}
+
+			_file.skip(tagLength - 8);
+		}
+
+		_file.seek(origin);
+
+		return numBytes;
+
+	}
 }
