@@ -28,6 +28,8 @@
 
 namespace comi
 {
+	void startRoom(uint16 roomNum, bool runExitScript, bool runEnterScript);
+
 	static const uint8 NO_CONTEXT = 0xFF;
 
 #if defined(GS_DEBUG)
@@ -871,7 +873,7 @@ namespace comi
 			return;
 			case OP_loadRoom: {
 				uint16 roomNum = _stack.pop();
-				startScene(roomNum);
+				startRoom(roomNum, true, true);
 			}
 			return;
 			case OP_loadRoomWithEgo:

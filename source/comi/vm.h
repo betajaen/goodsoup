@@ -292,14 +292,13 @@ namespace comi
 		void runCurrentScript();
 		void runScript(uint16 scriptNum, bool freezeResistant, bool recursive, int32* data = NULL, uint8 dataCount = 0);
 		void runObjectScript(uint16 objectNum, uint16 entryPc, bool freezeResistant, bool recursive, int32* data = NULL, uint8 dataCount = 0);
-		
+		void runRoomScript(uint16 scriptNum);
+
 		void abort() {
 			_dumpState();
 			_forceQuit();
 		}
 
-		void enterRoom();
-		void exitRoom();
 
 	};
 }

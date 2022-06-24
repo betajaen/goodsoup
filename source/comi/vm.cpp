@@ -25,6 +25,7 @@
 #include "constants.h"
 #include "vm_opcodes.h"
 #include "vm_vars.h"
+#include "room.h"
 
 #include "common/endian.h"
 
@@ -387,6 +388,7 @@ namespace comi
 
 		if (_findFreeContext(contextNum) == false) {
 			error(COMI_THIS, "Could not find free ScriptContext for %ld", (uint32)scriptNum);
+			abort_quit_stop();
 			return;
 		}
 
@@ -421,6 +423,34 @@ namespace comi
 		abort_quit_stop();
 	}
 	
+	void VirtualMachine::runRoomScript(uint16 scriptNum) {
+		if (scriptNum == 0) {
+			error(COMI_THIS, "Could not run a NULL room script %ld", (uint32) scriptNum);
+			abort_quit_stop();
+			return;
+		}
+
+		uint8 contextNum;
+
+		if (_findFreeContext(contextNum) == false) {
+			error(COMI_THIS, "Could not find free ScriptContext for %ld", (uint32)scriptNum);
+			abort_quit_stop();
+			return;
+		}
+
+		
+		ScriptContext& context = _context[contextNum];
+		context.reset();
+		context._scriptNum = scriptNum;
+		context._state = SCS_Running;
+		context._bFreezeResistant = false;
+		context._bRecursive = false;
+		context._scriptWhere = OW_Room;
+		
+		_updateScriptData(context);
+		_placeContextOnStackAndRun(contextNum);
+	}
+
 	bool VirtualMachine::_findFreeContext(uint8& num) {
 		for (uint8 i = 0; i < MAX_SCRIPT_CONTEXTS; i++) {
 			if (_context[i].isDead()) {
@@ -430,6 +460,7 @@ namespace comi
 		}
 		return false;
 	}
+	
 
 	void VirtualMachine::_stopObjectCode() {
 		
@@ -595,6 +626,25 @@ namespace comi
 				warn(COMI_THIS, "Unhandled ID Where for Script Data! Num=%ld, Where=%ld", (uint32)_scriptNum, (uint32)context._scriptWhere);
 				_script = _nullScript;
 			}
+		}
+		else if (context._scriptNum == FSI_ROOM_ENTRANCE || context._scriptNum == FSI_ROOM_EXIT) {
+			RoomData* room = getRoom();
+
+			if (room == NULL) {
+				error(COMI_THIS, "Attempted to run a room script on a NULL room!");
+				abort_quit_stop();
+				return;
+			}
+
+			RoomScriptKind roomScriptKind = FSI_ROOM_ENTRANCE ? RSK_Entrance : RSK_Exit;
+
+			if (room->getFirstScript(roomScriptKind, _script) == false) {
+				error(COMI_THIS, "Attempted to run a room script which does not exist!");
+				abort_quit_stop();
+				return;
+			}
+
+			return;
 		}
 
 		warn(COMI_THIS, "Unhandled ID Where for Script Data! Num=%ld, Where=%ld", (uint32) _scriptNum, (uint32) context._scriptWhere);
@@ -923,25 +973,26 @@ namespace comi
 		return "?";
 #endif
 	}
-
-	void VirtualMachine::enterRoom() {
-		NO_FEATURE(COMI_THIS, "Not implemented");
-	}
-
-	void VirtualMachine::exitRoom() {
-		if (CURRENT_CONTEXT != NO_CONTEXT) {
-			ScriptContext& context = _context[CURRENT_CONTEXT];
-			const uint8 where = context._scriptWhere;
-
-			if (where == OW_Room || where == OW_FLObject || where == OW_Local) {
-				CURRENT_CONTEXT = NO_CONTEXT;
-			}
-		}
-
-		_runExitScript();
-		_unloadAllRoomScripts();
-	}
 	
+	// void VirtualMachine::enterRoom() {
+	// 	NO_FEATURE(COMI_THIS, "Not implemented");
+	// }
+	// 
+	// void VirtualMachine::exitRoom() {
+	// 	if (CURRENT_CONTEXT != NO_CONTEXT) {
+	// 		ScriptContext& context = _context[CURRENT_CONTEXT];
+	// 		const uint8 where = context._scriptWhere;
+	// 
+	// 		if (where == OW_Room || where == OW_FLObject || where == OW_Local) {
+	// 			CURRENT_CONTEXT = NO_CONTEXT;
+	// 		}
+	// 	}
+	// 
+	// 	_runExitScript();
+	// 	_unloadAllRoomScripts();
+	// }
+
+
 	void VirtualMachine::_runExitScript() {
 		NO_FEATURE(COMI_THIS, "Not implemented");
 	}

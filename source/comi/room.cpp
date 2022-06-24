@@ -32,6 +32,8 @@ using namespace common;
 
 namespace comi
 {
+	static RoomData* sCurrentRoom = NULL;
+
 	RoomData::RoomData(uint16 num, uint8 disk, uint8 flags) {
 		_num = num;
 		_users = 1;
@@ -181,13 +183,34 @@ namespace comi
 	}
 
 
-	void startScene(uint16 roomNum) {
+	void startRoom(uint16 roomNum, bool runExitScript, bool runEnterScript) {
+
+		if (INTS->exitScript > 0) {
+			VM->runScript(INTS->exitScript, false, false);
+		}
+
+		if (sCurrentRoom != NULL && runExitScript) {
+
+			ReadSpan<byte, uint16> script;
+
+			if (sCurrentRoom->getFirstScript(RSK_Exit, script)) {
+				VM->runRoomScript(FSI_ROOM_EXIT);
+			}
+
+			if (INTS->exitScript2 > 0) {
+				VM->runScript(INTS->entryScript2, false, false);
+			}
+
+			/* TODO: GC Room */
+
+			sCurrentRoom = NULL;
+		}
+
+
 
 		RoomData* roomData;
 
 		/* TODO: Stop Dialogue */
-
-		VM->exitRoom();
 
 		/* TODO: Hide All Actors */
 		/* TODO: Stop Palette Cycling */
@@ -200,6 +223,39 @@ namespace comi
 			roomData = RESOURCES->loadRoomData(roomNum);
 		}
 
+		sCurrentRoom = roomData;
+
+		/* TODO: Apply first palette */
+		/* TODO: Apply Room Vars */
+		/* TODO: Apply Camera Min/Max */
+		/* TODO: Apply Actor to Room, if there is one*/
+		/* TODO: Show Actors */
+		/* TODO: Run Entry Script*/
+
+		if (sCurrentRoom != NULL && runEnterScript) {
+			
+			if (INTS->entryScript > 0) {
+				VM->runScript(INTS->entryScript, false, false);
+			}
+
+			ReadSpan<byte, uint16> script;
+
+			if (sCurrentRoom->getFirstScript(RSK_Entrance, script)) {
+				VM->runRoomScript(FSI_ROOM_ENTRANCE);
+			}
+
+			if (INTS->entryScript2 > 0) {
+				VM->runScript(INTS->entryScript2, false, false);
+			}
+
+		}
+
+		/* TODO: Set Camera to follow actor - if there is one*/
+
+	}
+
+	RoomData* getRoom() {
+		return sCurrentRoom;
 	}
 
 

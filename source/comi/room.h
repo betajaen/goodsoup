@@ -76,28 +76,30 @@ namespace comi
 		Buffer<RoomScriptInfo, uint8> scriptInfo;
 		Buffer<byte, uint32> scriptData;
 		
-		ReadSpan<byte, uint16> getFirstScript(RoomScriptKind kind) const {
+		bool getFirstScript(RoomScriptKind kind, ReadSpan<byte, uint16>& out_Script) const {
 			if (scriptData.getSize() > 0) {
 				for (uint8 i = 0; i < numScripts; i++) {
 					const RoomScriptInfo& info = scriptInfo.get_unchecked(i);
 					if (info.kind == kind) {
-						return scriptData.getReadSpan(info.scriptOffset, info.length);
+						out_Script = scriptData.getReadSpan(info.scriptOffset, info.length);
+						return true;
 					}
 				}
 			}
-			return ReadSpan<byte, uint16>();
+			return false;
 		}
 
-		ReadSpan<byte, uint16> getScript(RoomScriptKind kind, uint32 fileOffset) {
+		bool getScript(RoomScriptKind kind, uint32 fileOffset, ReadSpan<byte, uint16>& out_Script) {
 			if (numScripts > 0) {
 				for (uint8 i = 0; i < numScripts; i++) {
 					const RoomScriptInfo& info = scriptInfo.get_unchecked(i);
 					if (info.kind == kind && info.fileOffset == fileOffset) {
-						return scriptData.getReadSpan(info.scriptOffset, info.length);
+						out_Script = scriptData.getReadSpan(info.scriptOffset, info.length);
+						return true;
 					}
 				}
 			}
-			return ReadSpan<byte, uint16>();
+			return false;
 		}
 
 		bool readFromDisk(DiskReader& reader, const TagPair& lflf, uint16 debug_roomNum);
@@ -156,6 +158,20 @@ namespace comi
 			return graphicsData != NULL;
 		}
 
+		bool getFirstScript(RoomScriptKind kind, ReadSpan<byte, uint16>& out_Script) const {
+			if (scriptData != NULL) {
+				return scriptData->getFirstScript(kind, out_Script);
+			}
+			return false;
+		}
+
+		bool getScript(RoomScriptKind kind, uint32 fileOffset, ReadSpan<byte, uint16>& out_Script) {
+			if (scriptData != NULL) {
+				return scriptData->getScript(kind, fileOffset, out_Script);
+			}
+			return false;
+		}
+
 		void close(bool properties = true, bool scripts = true, bool graphics = true);
 
 		RoomScriptData* scriptData;
@@ -167,6 +183,10 @@ namespace comi
 		bool mergeFromDisk(DiskReader& reader, bool readPproperties = true, bool readScripts = true, bool readGraphics = true);
 
 	};
+
+	void startRoom(uint16 roomNum, bool runExitScript = true, bool runEnterScript = true);
+	RoomData* getRoom();
+
 
 }
 
