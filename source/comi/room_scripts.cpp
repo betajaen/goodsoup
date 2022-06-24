@@ -80,8 +80,6 @@ namespace comi
 			reader.skip(pair);
 		}
 
-		debug(COMI_THIS, "(%ld, %ld, %ld)", (uint32) debug_roomNum, (uint32) numScripts, (uint32) scriptTotalLength);
-
 		if (numScripts > MAX_ROOM_SCRIPTS) {
 			error(COMI_THIS, "Maximum Number (%ld) of supported scripts (%ld) for this Room (%ld) has been exceeded!", (uint32) MAX_ROOM_SCRIPTS, (uint32) numScripts, (uint32) debug_roomNum);
 			return false;
@@ -126,6 +124,8 @@ namespace comi
 						ReadWriteSpan<byte, uint16> span = scriptData.getReadWriteSpan<uint16>(scriptOffset, roomPair.length);
 						reader.readBytes(span);
 
+						debug(COMI_THIS, "%s %ld %ld %ld", roomPair.tagStr(), (uint32) scriptIdx, (uint32) scriptOffset, (uint32) roomPair.length);
+
 						scriptIdx++;
 						scriptOffset += roomPair.length;
 
@@ -149,6 +149,8 @@ namespace comi
 
 				ReadWriteSpan<byte, uint16> span = scriptData.getReadWriteSpan<uint16>(scriptOffset, pair.length);
 				reader.readBytes(span);
+				
+				debug(COMI_THIS, "%s %ld %ld", pair.tagStr(), (uint32) scriptIdx, (uint32) scriptOffset, (uint32) pair.length);
 
 				scriptIdx++;
 				scriptOffset += pair.length;

@@ -163,7 +163,7 @@ namespace comi
 						reader.skip(sizeof(uint32));	// unknown
 						numZBuffers = reader.readUInt32LE();
 
-						debug(COMI_THIS, "(%ld, %ld, %ld, %ld)", (uint32) width, (uint32) height, (uint32) numObjects, (uint32) numZBuffers);
+						debug(COMI_THIS, "RMHD %ld, %ld, %ld, %ld", (uint32) width, (uint32) height, (uint32) numObjects, (uint32) numZBuffers);
 
 						return true;
 					}
