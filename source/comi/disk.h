@@ -124,6 +124,11 @@ namespace comi
 			return pair;
 		}
 
+		inline bool readAndCompareTag(uint32 test, TagPair& tag) {
+			tag = readTagPair();
+			return tag.tag == test;
+		}
+
 		inline void seek(const TagPair& tagPair) {
 			_file.seek(tagPair.dataPos);
 		}

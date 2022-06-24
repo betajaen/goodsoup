@@ -51,22 +51,28 @@ namespace comi
 		while (reader.pos() < lflf.end()) {
 
 			TagPair roomPair = reader.readTagPair();
-			
+
 			if (roomPair.isTag(GS_MAKE_ID('R', 'O', 'O', 'M'))) {
 
 				while (reader.pos() < roomPair.end()) {
 
 					TagPair tag = reader.readTagPair();
 					
-					if (roomPair.isTag(GS_MAKE_ID('P', 'A', 'L', 'S'))) {
+					if (tag.isTag(GS_MAKE_ID('P', 'A', 'L', 'S'))) {
 
-
-						TagPair offsTag = reader.readTagPair();
+						TagPair wrapTag;
 						
+						if (reader.readAndCompareTag(GS_MAKE_ID('W', 'R', 'A', 'P'), wrapTag) == false) {
+							error(COMI_THIS, "Expected WRAP tag after PALS tag! Got %s", wrapTag.tagStr());
+							abort_quit_stop();
+							return false;
+						}
 
+						TagPair offsTag;
+						
 						// OFFS - Offsets.
-						if (offsTag.isTag(GS_MAKE_ID('O', 'F', 'F', 'S')) == false) {
-							error(COMI_THIS, "Expected OFFS tag after PALS tag!");
+						if (reader.readAndCompareTag(GS_MAKE_ID('O', 'F', 'F', 'S'), offsTag) == false) {
+							error(COMI_THIS, "Expected OFFS tag after PALS tag! Got %s", offsTag.tagStr());
 							return false;
 						}
 
@@ -79,22 +85,23 @@ namespace comi
 
 						for (uint8 i = 0; i < _numPalettes; i++) {
 							_paletteOffsets[i] = reader.readUInt32BE();
-						debug(COMI_THIS, "OFFS(%ld, %ld)", (uint32) i, (uint32) _numPalettes);
+							debug(COMI_THIS, "OFFS(%ld, %ld)", (uint32) 1+ i, (uint32) _numPalettes);
 						}
 						
 
 						// APAL - Palette(s) data
-						TagPair apalTag = reader.readTagPair();
-
-						uint32 expectedLen = ((uint32) _numPalettes) * 256 * 3;
+						TagPair apalTag;
 						
-						if (apalTag.isTag(GS_MAKE_ID('A', 'P', 'A', 'L')) == false) {
-							error(COMI_THIS, "Expected APAL tag after OFFS tag!");
+						if (reader.readAndCompareTag(GS_MAKE_ID('A', 'P', 'A', 'L'), apalTag) == false) {
+							error(COMI_THIS, "Expected APAL tag after OFFS tag! Got %s", offsTag.tagStr());
 							return false;
 						}
 
+						uint32 expectedLen = ((uint32) _numPalettes) * 256 * 3;
+
 						if (apalTag.length != expectedLen) {
 							error(COMI_THIS, "Expected APAL (%ld) tag length unexpected (%ld)!", expectedLen, apalTag.length);
+							abort_quit_stop();
 							return false;
 						}
 
@@ -105,7 +112,8 @@ namespace comi
 							RoomPaletteData& paletteData = _palettes.get_unchecked(i);
 
 							reader.readBytes(&paletteData.palette[0], 256 * 3);
-						debug(COMI_THIS, "APAL(%ld, %ld)", (uint32) i, (uint32) _numPalettes);
+							
+							debug(COMI_THIS, "APAL(%ld, %ld)", (uint32) 1 + i, (uint32) _numPalettes);
 						}
 						
 
@@ -113,7 +121,7 @@ namespace comi
 					}
 
 					
-					if (roomPair.isTag(GS_MAKE_ID('C', 'Y', 'C', 'L'))) {
+					if (tag.isTag(GS_MAKE_ID('C', 'Y', 'C', 'L'))) {
 
 						while (true) {
 
