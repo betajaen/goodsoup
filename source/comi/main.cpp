@@ -71,6 +71,11 @@ namespace comi
 		VM->reset();
 		VM->runScript(1, false, false);
 
+		while (QUIT_NOW == false) {
+			debug(COMI_THIS, "** FRAME");
+			VM->runAllScripts();
+		}
+
 		cleanup();
 
 		return 0;

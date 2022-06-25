@@ -31,6 +31,8 @@
 
 using namespace common;
 
+#define DEBUG_CONTEXT_STACK 0
+
 namespace comi
 {
 	static const uint8 NO_CONTEXT = 0xFF;
@@ -382,6 +384,30 @@ namespace comi
 
 	}
 	
+	void VirtualMachine::runAllScripts() {
+		
+		for (uint8 i = 0; i < MAX_SCRIPT_CONTEXTS; i++) {
+			ScriptContext& context = _context[i];
+			context._bIsExecuted = false;
+		}
+
+		CURRENT_CONTEXT = NO_CONTEXT;
+
+		
+		for (uint8 i = 0; i < MAX_SCRIPT_CONTEXTS; i++) {
+			ScriptContext& context = _context[i];
+			if (context._state == SCS_Running && context._bIsExecuted == false) {
+				CURRENT_CONTEXT = i;
+				_updateScriptData(context);
+				_pc = context._lastPC;
+				runCurrentScript();
+
+				if (QUIT_NOW)
+					return;
+			}
+		}
+	}
+
 	void VirtualMachine::runScript(uint16 scriptNum, bool freezeResistant, bool recursive, int32* data, uint8 dataCount)
 	{
 		if (scriptNum == 0) {
@@ -409,8 +435,9 @@ namespace comi
 		context._bRecursive = recursive;
 		context._scriptWhere = (scriptNum < NUM_SCRIPTS) ? OW_Global : OW_Local;
 		
+#if DEBUG_CONTEXT_STACK == 1
 		debug(COMI_THIS, "Attached Script %ld:%ld (%s) ", (uint32) contextNum, (uint32) scriptNum, ObjectWhereToString(context._scriptWhere));
-
+#endif
 		LOCALS->clear(contextNum);
 
 		if (_updateScriptData(context)) {
@@ -459,7 +486,9 @@ namespace comi
 		context._bRecursive = false;
 		context._scriptWhere = OW_Room;
 		
+#if DEBUG_CONTEXT_STACK == 1
 		debug(COMI_THIS, "Attached Script %ld (Room) to Context %ld", (uint32) scriptNum, (uint32) contextNum);
+#endif
 
 		if (_updateScriptData(context)) {
 			_pushAndRunScript(contextNum);
@@ -678,7 +707,6 @@ namespace comi
 			ScriptData* script = RESOURCES->getScriptData(context._scriptNum);
 			if (script) {
 				_script = script->getDataPtr();
-				debug(COMI_THIS, "UpdateScriptData %ld:%ld(%s) is 1 of %ld bytes", (uint32) CURRENT_CONTEXT, (uint32) num, ObjectWhereToString(where), _script.getSize());
 				return true;
 			}
 		}
@@ -688,7 +716,6 @@ namespace comi
 			if (room) {
 				RoomScriptKind roomScriptKind = FSI_ROOM_ENTRANCE ? RSK_Entrance : RSK_Exit;
 				if (room->getFirstScript(roomScriptKind, _script)) {
-					debug(COMI_THIS, "UpdateScriptData %ld:%ld(%s) is 2 of %ld bytes", (uint32) CURRENT_CONTEXT, (uint32) num, ObjectWhereToString(where), _script.getSize());
 					return true;
 				}
 			}
@@ -698,7 +725,6 @@ namespace comi
 
 			if (room) {
 				if (room->getLocalNumberedScript(num, _script)) {
-					debug(COMI_THIS, "UpdateScriptData %ld:%ld(%s) is 3 of %ld bytes", (uint32) CURRENT_CONTEXT, (uint32) num, ObjectWhereToString(where), _script.getSize());
 					return true;
 				}
 			}
@@ -733,9 +759,10 @@ namespace comi
 			last._scriptNum = current._scriptNum;
 			last._scriptWhere = current._scriptWhere;
 			current._lastPC = _pc;
-			
+		
+#if DEBUG_CONTEXT_STACK == 1	
 			debug(COMI_THIS, "Pushing Context %ld:%ld(%s) onto stack", (uint32)CURRENT_CONTEXT, (uint32) current._scriptNum, ObjectWhereToString(current._scriptWhere));
-
+#endif
 		}
 		
 		_contextStackSize++;
@@ -744,7 +771,11 @@ namespace comi
 		
 		ScriptContext& context = _context[CURRENT_CONTEXT];
 		_pc = context._lastPC;
+
+#if DEBUG_CONTEXT_STACK == 1
 		debug(COMI_THIS, "Running Context %ld:%ld(%s)", (uint32) CURRENT_CONTEXT, context._scriptNum, ObjectWhereToString(context._scriptWhere));
+#endif
+
 		runCurrentScript();
 
 		if (_contextStackSize) {
@@ -767,8 +798,9 @@ namespace comi
 				lastContext.isDead() == false
 				)
 			{
+#if DEBUG_CONTEXT_STACK == 1
 				debug(COMI_THIS, "Popping Context %ld:%ld(%s)", (uint32)last._contextNum, lastContext._scriptNum, ObjectWhereToString(lastContext._scriptWhere));
-
+#endif
 				CURRENT_CONTEXT = last._contextNum;
 				if (_updateScriptData(lastContext) == false) {
 					abort_quit_stop();
@@ -1039,33 +1071,6 @@ namespace comi
 #endif
 	}
 	
-	// void VirtualMachine::enterRoom() {
-	// 	NO_FEATURE(COMI_THIS, "Not implemented");
-	// }
-	// 
-	// void VirtualMachine::exitRoom() {
-	// 	if (CURRENT_CONTEXT != NO_CONTEXT) {
-	// 		ScriptContext& context = _context[CURRENT_CONTEXT];
-	// 		const uint8 where = context._scriptWhere;
-	// 
-	// 		if (where == OW_Room || where == OW_FLObject || where == OW_Local) {
-	// 			CURRENT_CONTEXT = NO_CONTEXT;
-	// 		}
-	// 	}
-	// 
-	// 	_runExitScript();
-	// 	_unloadAllRoomScripts();
-	// }
-
-
-	void VirtualMachine::_runExitScript() {
-		NO_FEATURE(COMI_THIS, "Not implemented");
-	}
-
-	void VirtualMachine::_runEnterScript() {
-		NO_FEATURE(COMI_THIS, "Not implemented");
-	}
-
 	void VirtualMachine::_unloadAllRoomScripts() {
 		for (uint8 i = 0; i < MAX_SCRIPT_CONTEXTS; i++) {
 			ScriptContext& context = _context[i];

@@ -20,7 +20,7 @@
 #include "common/types.h"
 #include "common/debug.h"
 
-extern const char GOODSOUP_VERSION_STR[] = "$VER: goodsoup 0.1 (" __AMIGADATE__ ")";
+extern const char GOODSOUP_VERSION_STR[] = "$VER: goodsoup 0.3 (" __AMIGADATE__ ")";
 
 namespace common
 {
