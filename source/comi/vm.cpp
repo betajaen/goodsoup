@@ -409,7 +409,7 @@ namespace comi
 		context._bRecursive = recursive;
 		context._scriptWhere = (scriptNum < NUM_SCRIPTS) ? OW_Global : OW_Local;
 		
-		debug(COMI_THIS, "Attached Script %ld (Script) to Context %ld", (uint32) scriptNum, (uint32) contextNum);
+		debug(COMI_THIS, "Attached Script %ld:%ld (%s) ", (uint32) contextNum, (uint32) scriptNum, ObjectWhereToString(context._scriptWhere));
 
 		LOCALS->clear(contextNum);
 
@@ -697,7 +697,7 @@ namespace comi
 			RoomData* room = getRoom();
 
 			if (room) {
-				if (room->getLocalNumberedScript((num - NUM_GLOBAL_SCRIPTS), _script)) {
+				if (room->getLocalNumberedScript(num, _script)) {
 					debug(COMI_THIS, "UpdateScriptData %ld:%ld(%s) is 3 of %ld bytes", (uint32) CURRENT_CONTEXT, (uint32) num, ObjectWhereToString(where), _script.getSize());
 					return true;
 				}

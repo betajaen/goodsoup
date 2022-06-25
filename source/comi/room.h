@@ -25,6 +25,7 @@
 #include "common/span.h"
 #include "disk.h"
 #include "constants.h"
+#include "debug.h"
 
 using namespace common;
 
@@ -64,7 +65,7 @@ namespace comi
 			uint32 fileOffset;
 			uint32 scriptOffset;
 			uint16 length;
-			uint8  num;
+			uint16 num;
 			uint8  kind;
 		};
 
@@ -79,7 +80,7 @@ namespace comi
 		
 		bool getFirstScript(RoomScriptKind kind, ReadSpan<byte, uint16>& out_Script) const ;
 		bool getScript(RoomScriptKind kind, uint32 fileOffset, ReadSpan<byte, uint16>& out_Script) const;
-		bool getLocalNumberedScript(uint8 num, ReadSpan<byte, uint16>& out_Script) const;
+		bool getLocalNumberedScript(uint16 num, ReadSpan<byte, uint16>& out_Script) const;
 
 		bool readFromDisk(DiskReader& reader, const TagPair& lflf, uint16 debug_roomNum);
 
@@ -151,10 +152,11 @@ namespace comi
 			return false;
 		}
 
-		bool getLocalNumberedScript(uint8 num, ReadSpan<byte, uint16>& out_Script) {
+		bool getLocalNumberedScript(uint16 num, ReadSpan<byte, uint16>& out_Script) {
 			if (scriptData != NULL) {
 				return scriptData->getLocalNumberedScript(num, out_Script);
 			}
+			warn(COMI_THIS, "RoomScriptData was not loaded for %ld", this->getNum());
 			return false;
 		}
 

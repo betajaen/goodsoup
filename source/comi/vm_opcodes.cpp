@@ -26,7 +26,7 @@
 #include "utils.h"
 #include "functions.h"
 
-#define DEBUG_OPCODES 1
+#define DEBUG_OPCODES 0
 
 namespace comi
 {

@@ -90,7 +90,6 @@ namespace comi
 		scriptData.setSize(scriptTotalLength, 0);
 		uint8 scriptIdx = 0;
 		uint32 scriptOffset = 0;
-		uint8 localIdx = 0;
 
 		reader.seek(lflf);
 
@@ -113,25 +112,26 @@ namespace comi
 						
 						if (roomPair.isTag(GS_MAKE_ID('E', 'N', 'C', 'D'))) {
 							info.kind = RSK_Entrance;
-							info.num = 0xFF;
+							info.num = 0xFFFF;
 						}
 						else if (roomPair.isTag(GS_MAKE_ID('E', 'X', 'C', 'D'))) {
 							info.kind = RSK_Exit;
-							info.num = 0xFF;
+							info.num = 0xFFFF;
 						}
 						else {
+
+							info.length -= sizeof(uint32);
 							info.kind = RSK_LocalScript;
-							info.num = localIdx;
-							localIdx++;
+							info.num = reader.readUInt32LE();
 						}
 
-						ReadWriteSpan<byte, uint16> span = scriptData.getReadWriteSpan<uint16>(scriptOffset, roomPair.length);
+						ReadWriteSpan<byte, uint16> span = scriptData.getReadWriteSpan<uint16>(scriptOffset, info.length);
 						reader.readBytes(span);
 
-						debug(COMI_THIS, "%s %ld %ld %ld %ld", roomPair.tagStr(), (uint32) scriptIdx, (uint32) (localIdx - 1), (uint32) scriptOffset, (uint32) roomPair.length);
+						debug(COMI_THIS, "%s %ld %ld %ld %ld", roomPair.tagStr(), (uint32) scriptIdx, (uint32) (info.num), (uint32) scriptOffset, (uint32) roomPair.length);
 
 						scriptIdx++;
-						scriptOffset += roomPair.length;
+						scriptOffset += info.length;
 
 						continue;
 					}
@@ -148,7 +148,7 @@ namespace comi
 				info.fileOffset = reader.pos();
 				info.length = pair.length;
 				info.scriptOffset = scriptOffset;
-				info.num = 0xFF;
+				info.num = 0xFFFF;
 				info.kind = RSK_Script;
 
 				ReadWriteSpan<byte, uint16> span = scriptData.getReadWriteSpan<uint16>(scriptOffset, pair.length);
@@ -193,7 +193,7 @@ namespace comi
 		return false;
 	}
 
-	bool RoomScriptData::getLocalNumberedScript(uint8 num, ReadSpan<byte, uint16>& out_Script) const {
+	bool RoomScriptData::getLocalNumberedScript(uint16 num, ReadSpan<byte, uint16>& out_Script) const {
 		for (uint8 i = 0; i < numScripts; i++) {
 			const RoomScriptInfo& info = scriptInfo.get_unchecked(i);
 			if (info.kind == RSK_LocalScript && info.num == num) {
@@ -201,6 +201,9 @@ namespace comi
 				return true;
 			}
 		}
+
+		error(COMI_THIS, "Could not find room script number %ld in Room!", (uint32) num);
+		abort_quit_stop();
 
 		return false;
 	}
