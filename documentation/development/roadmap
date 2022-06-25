@@ -23,7 +23,7 @@ COMI:
 For 0.4
 =======
 
-[ ] Merge COMI/Common namespaces to gs
+[x] Merge COMI/Common namespaces to gs
 [ ] Amiga RTG Screen
 [ ] Amiga On screen debugger
 [ ] Amiga RMB menu to quit

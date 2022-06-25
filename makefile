@@ -9,12 +9,12 @@ IGNORE_NO_FEATURE = 0
 CFLAGS = -Isource -D__AMIGADATE__="\"$(DATESTR)\""
 
 ifeq ($(PLATFORM), amiga)
-	OBJ		=	source/amiga/common/entry.o \
-				source/amiga/common/start.o \
-				source/amiga/common/debug.o \
-				source/amiga/common/memory.o\
-				source/amiga/common/file.o\
-				source/amiga/common/string.o
+	OBJ		=	source/amiga/entry.o \
+				source/amiga/start.o \
+				source/amiga/debug.o \
+				source/amiga/memory.o\
+				source/amiga/file.o\
+				source/amiga/string_format.o
 
 	CC		= m68k-amigaos-gcc
 	DELETE	= rm
@@ -27,15 +27,15 @@ endif
 endif
 
 ifeq ($(PLATFORM), sdl)
-	OBJ		=	source/sdl/common/main.o\
-				source/sdl/common/memory.o\
-				source/sdl/common/debug.o\
-				source/sdl/common/file.o\
-				source/sdl/common/string.o
+	OBJ		=	source/sdl/main.o\
+				source/sdl/memory.o\
+				source/sdl/debug.o\
+				source/sdl/file.o\
+				source/sdl/string_format.o
 
 	CC		= gcc
 	DELETE	= rm
-	CFLAGS	+= -m32 -std=c++98 -Wpedantic -Isource/sdl -DGS_LITTLE -DGS_DEBUG_LEVEL=$(DEBUG_LEVEL) -lSDL2 -lstdc++
+	CFLAGS	+= -m32 -std=c++98 -Wpedantic -Isource/sdl -DGS_SDL -DGS_LITTLE -DGS_DEBUG_LEVEL=$(DEBUG_LEVEL) -lSDL2 -lstdc++
 ifeq ($(RELEASE), 1)
 	CFLAGS	+= -O3 -DGS_RELEASE -DGS_DEBUG_LEVEL=4 -DGS_PROTECT_MEMORY=0 -s
 else
@@ -50,29 +50,29 @@ ifeq ($(IGNORE_NO_FEATURE), 1)
 CFLAGS += -DGS_IGNORE_NO_FEATURE
 endif
 
-OBJ +=	source/common/main.o\
-		source/common/hash.o\
-		source/common/hashmap.o\
-		source/common/array.o\
-		source/common/keyarray.o\
-		source/common/string.o\
-		source/common/test.o\
-		source/common/test_file.o
+OBJ +=	source/main.o\
+		source/hash.o\
+		source/hashmap.o\
+		source/array.o\
+		source/keyarray.o\
+		source/string.o\
+		source/test.o\
+		source/test_file.o
 
 # Game Sources
-OBJ +=	source/comi/main.o\
-		source/comi/vm.o\
-		source/comi/vm_array.o\
-		source/comi/vm_opcodes.o\
-		source/comi/vm_vars.o\
-		source/comi/script.o\
-		source/comi/room.o\
-		source/comi/room_scripts.o\
-		source/comi/room_graphics.o\
-		source/comi/index.o\
-		source/comi/resource.o\
-		source/comi/disk.o\
-		source/comi/utils.o
+OBJ +=	source/main_game.o\
+		source/vm.o\
+		source/vm_array.o\
+		source/vm_opcodes.o\
+		source/vm_vars.o\
+		source/script.o\
+		source/room.o\
+		source/room_scripts.o\
+		source/room_graphics.o\
+		source/index.o\
+		source/resource.o\
+		source/disk.o\
+		source/utils.o
 
 all: $(OBJ)
 	$(CC) -o $(PROGRAM) $(OBJ) $(CFLAGS)
