@@ -62,7 +62,11 @@ namespace comi
 						numScripts++;
 						scriptTotalLength += roomPair.length;
 					}
-			
+					else if (roomPair.isTag(GS_MAKE_ID('L','S','C','R'))) {
+						numScripts++;
+						scriptTotalLength += roomPair.length - sizeof(uint32);
+					}
+
 					reader.skip(roomPair);
 				}
 
