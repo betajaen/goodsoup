@@ -26,7 +26,7 @@
 #include "utils.h"
 #include "functions.h"
 
-#define DEBUG_OPCODES 1
+#define DEBUG_OPCODES 0
 
 namespace comi
 {
@@ -66,11 +66,7 @@ namespace comi
 				GS_UNHANDLED_OP;
 			return;
 			case OP_pushWord: {
-				uint32 val = _readUnsignedWord()
-#if DEBUG_OPCODES == 1
-				debug(COMI_THIS, "Push %ld", val);
-#endif
-				_stack.push(val);
+				_stack.push(_readUnsignedWord());
 			}
 			return;
 			case OP_pushWordVar:
@@ -1661,14 +1657,23 @@ namespace comi
 				_stack.push(0);
 			}
 			return;
-			case OP_getActorWalkBox:
-				GS_UNHANDLED_OP;
+			case OP_getActorWalkBox: {
+				_stack.pop();
+				NO_FEATURE(COMI_THIS, "Not implemented OP_getActorWalkBox");
+				_stack.push(0);
+			}
 			return;
-			case OP_getActorMoving:
-				GS_UNHANDLED_OP;
+			case OP_getActorMoving: {
+				_stack.pop();
+				NO_FEATURE(COMI_THIS, "Not implemented OP_getActorMoving");
+				_stack.push(0);
+			}
 			return;
-			case OP_getActorCostume:
-				GS_UNHANDLED_OP;
+			case OP_getActorCostume: {
+				_stack.pop();
+				NO_FEATURE(COMI_THIS, "Not implemented OP_getActorCostume");
+				_stack.push(0);
+			}
 			return;
 			case OP_getActorScaleX:
 				GS_UNHANDLED_OP;
@@ -1682,8 +1687,11 @@ namespace comi
 			case OP_getActorWidth:
 				GS_UNHANDLED_OP;
 			return;
-			case OP_getObjectNewDir:
-				GS_UNHANDLED_OP;
+			case OP_getObjectNewDir: {
+				_stack.pop();
+				NO_FEATURE(COMI_THIS, "Not implemented OP_getObjectNewDir");
+				_stack.push(0);
+			}
 			return;
 			case OP_getObjectX:
 				GS_UNHANDLED_OP;
@@ -1691,8 +1699,11 @@ namespace comi
 			case OP_getObjectY:
 				GS_UNHANDLED_OP;
 			return;
-			case OP_getActorChore:
-				GS_UNHANDLED_OP;
+			case OP_getActorChore:{
+				_stack.pop();
+				NO_FEATURE(COMI_THIS, "Not implemented OP_getActorChore");
+				_stack.push(0);
+			}
 			return;
 			case OP_distObjectObject:
 				GS_UNHANDLED_OP;
