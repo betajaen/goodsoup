@@ -1276,6 +1276,11 @@ namespace comi
 					info(COMI_THIS, "Quit has been called!");
 					return;
 				}
+				else if (param == SystemOps_AbortQuitStop) {
+					abort_quit_stop();
+					error(COMI_THIS, "AbortQuitStop has been called through a Script!");
+					return;
+				}
 
 				NO_FEATURE(COMI_THIS, "Not implemented SysCall! %ld", (uint32)param);
 				

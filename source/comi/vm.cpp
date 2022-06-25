@@ -319,7 +319,7 @@ namespace comi
 	uint8 CURRENT_CONTEXT = NO_CONTEXT;
 
 	static const byte kNullScript[4] = {
-		OP_systemOps, SystemOps_Quit, 0xFF, 0xFF
+		OP_systemOps, SystemOps_AbortQuitStop, 0xFF, 0xFF
 	};
 	
 	VirtualMachine::VirtualMachine() :
@@ -413,9 +413,10 @@ namespace comi
 
 		LOCALS->clear(contextNum);
 
-		_updateScriptData(context);
-		LOCALS->copyInto(contextNum, data, dataCount);
-		_pushAndRunScript(contextNum);
+		if (_updateScriptData(context)) {
+			LOCALS->copyInto(contextNum, data, dataCount);
+			_pushAndRunScript(contextNum);
+		}
 	}
 
 	
@@ -460,8 +461,9 @@ namespace comi
 		
 		debug(COMI_THIS, "Attached Script %ld (Room) to Context %ld", (uint32) scriptNum, (uint32) contextNum);
 
-		_updateScriptData(context);
-		_pushAndRunScript(contextNum);
+		if (_updateScriptData(context)) {
+			_pushAndRunScript(contextNum);
+		}
 	}
 
 	bool VirtualMachine::_findFreeContext(uint8& num) {
@@ -664,43 +666,32 @@ namespace comi
 		}
 	}
 	
-	void VirtualMachine::_updateScriptData(ScriptContext& context) {
+	bool VirtualMachine::_updateScriptData(ScriptContext& context) {
 		uint16 _scriptNum = context._scriptNum;
 
 		if (context._scriptNum < NUM_GLOBAL_SCRIPTS && context._scriptWhere == OW_Global) {
 			ScriptData* script = RESOURCES->getScriptData(context._scriptNum);
 			if (script) {
 				_script = script->getDataPtr();
-				return;
-			}
-			else {
-				warn(COMI_THIS, "Unhandled ID Where for Script Data! Num=%ld, Where=%ld", (uint32)_scriptNum, (uint32)context._scriptWhere);
-				_script = _nullScript;
+				return true;
 			}
 		}
 		else if (context._scriptNum == FSI_ROOM_ENTRANCE || context._scriptNum == FSI_ROOM_EXIT) {
 			RoomData* room = getRoom();
 
-			if (room == NULL) {
-				error(COMI_THIS, "Attempted to run a room script on a NULL room!");
-				abort_quit_stop();
-				return;
+			if (room) {
+				RoomScriptKind roomScriptKind = FSI_ROOM_ENTRANCE ? RSK_Entrance : RSK_Exit;
+				if (room->getFirstScript(roomScriptKind, _script)) {
+					return true;
+				}
 			}
-
-			RoomScriptKind roomScriptKind = FSI_ROOM_ENTRANCE ? RSK_Entrance : RSK_Exit;
-
-			if (room->getFirstScript(roomScriptKind, _script) == false) {
-				error(COMI_THIS, "Attempted to run a room script which does not exist!");
-				abort_quit_stop();
-				return;
-			}
-
-			return;
 		}
 
-		warn(COMI_THIS, "Unhandled ID Where for Script Data! Num=%ld, Where=%s", (uint32) _scriptNum, ObjectWhereToString(context._scriptWhere));
+		error(COMI_THIS, "Unhandled ID Where for Script Data! Num=%ld, Where=%s", (uint32) _scriptNum, ObjectWhereToString(context._scriptWhere));
 		_script = _nullScript;
-		
+		abort_quit_stop();
+
+		return false;
 	}
 
 	void VirtualMachine::_pushAndRunScript(uint8 newContextNum) {
@@ -762,7 +753,11 @@ namespace comi
 				debug(COMI_THIS, "Popping Context %ld:%ld(%s)", (uint32)last._contextNum, lastContext._scriptNum, ObjectWhereToString(lastContext._scriptWhere));
 
 				CURRENT_CONTEXT = last._contextNum;
-				_updateScriptData(lastContext);
+				if (_updateScriptData(lastContext) == false) {
+					abort_quit_stop();
+					return;
+				}
+
 				_pc = lastContext._lastPC;
 				
 				PcState state;
