@@ -90,6 +90,7 @@ namespace comi
 		scriptData.setSize(scriptTotalLength, 0);
 		uint8 scriptIdx = 0;
 		uint32 scriptOffset = 0;
+		uint8 localIdx = 0;
 
 		reader.seek(lflf);
 
@@ -109,22 +110,25 @@ namespace comi
 						info.fileOffset = reader.pos();
 						info.length = roomPair.length;
 						info.scriptOffset = scriptOffset;
-						info.num = scriptIdx;
 						
 						if (roomPair.isTag(GS_MAKE_ID('E', 'N', 'C', 'D'))) {
 							info.kind = RSK_Entrance;
+							info.num = 0xFF;
 						}
 						else if (roomPair.isTag(GS_MAKE_ID('E', 'X', 'C', 'D'))) {
 							info.kind = RSK_Exit;
+							info.num = 0xFF;
 						}
 						else {
 							info.kind = RSK_LocalScript;
+							info.num = localIdx;
+							localIdx++;
 						}
 
 						ReadWriteSpan<byte, uint16> span = scriptData.getReadWriteSpan<uint16>(scriptOffset, roomPair.length);
 						reader.readBytes(span);
 
-						debug(COMI_THIS, "%s %ld %ld %ld", roomPair.tagStr(), (uint32) scriptIdx, (uint32) scriptOffset, (uint32) roomPair.length);
+						debug(COMI_THIS, "%s %ld %ld %ld %ld", roomPair.tagStr(), (uint32) scriptIdx, (uint32) (localIdx - 1), (uint32) scriptOffset, (uint32) roomPair.length);
 
 						scriptIdx++;
 						scriptOffset += roomPair.length;
@@ -144,7 +148,7 @@ namespace comi
 				info.fileOffset = reader.pos();
 				info.length = pair.length;
 				info.scriptOffset = scriptOffset;
-				info.num = scriptIdx;
+				info.num = 0xFF;
 				info.kind = RSK_Script;
 
 				ReadWriteSpan<byte, uint16> span = scriptData.getReadWriteSpan<uint16>(scriptOffset, pair.length);
@@ -162,5 +166,42 @@ namespace comi
 
 		return true;
 	}
+	
+	bool RoomScriptData::getFirstScript(RoomScriptKind kind, ReadSpan<byte, uint16>& out_Script) const {
+		if (scriptData.getSize() > 0) {
+			for (uint8 i = 0; i < numScripts; i++) {
+				const RoomScriptInfo& info = scriptInfo.get_unchecked(i);
+				if (info.kind == kind) {
+					out_Script = scriptData.getReadSpan(info.scriptOffset, info.length);
+					return true;
+				}
+			}
+		}
+		return false;
+	}
 
+	bool RoomScriptData::getScript(RoomScriptKind kind, uint32 fileOffset, ReadSpan<byte, uint16>& out_Script) const {
+		if (numScripts > 0) {
+			for (uint8 i = 0; i < numScripts; i++) {
+				const RoomScriptInfo& info = scriptInfo.get_unchecked(i);
+				if (info.kind == kind && info.fileOffset == fileOffset) {
+					out_Script = scriptData.getReadSpan(info.scriptOffset, info.length);
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	bool RoomScriptData::getLocalNumberedScript(uint8 num, ReadSpan<byte, uint16>& out_Script) const {
+		for (uint8 i = 0; i < numScripts; i++) {
+			const RoomScriptInfo& info = scriptInfo.get_unchecked(i);
+			if (info.kind == RSK_LocalScript && info.num == num) {
+				out_Script = scriptData.getReadSpan(info.scriptOffset, info.length);
+				return true;
+			}
+		}
+
+		return false;
+	}
 }

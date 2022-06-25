@@ -24,6 +24,7 @@
 #include "resource_data.h"
 #include "common/span.h"
 #include "disk.h"
+#include "constants.h"
 
 using namespace common;
 
@@ -76,31 +77,9 @@ namespace comi
 		Buffer<RoomScriptInfo, uint8> scriptInfo;
 		Buffer<byte, uint32> scriptData;
 		
-		bool getFirstScript(RoomScriptKind kind, ReadSpan<byte, uint16>& out_Script) const {
-			if (scriptData.getSize() > 0) {
-				for (uint8 i = 0; i < numScripts; i++) {
-					const RoomScriptInfo& info = scriptInfo.get_unchecked(i);
-					if (info.kind == kind) {
-						out_Script = scriptData.getReadSpan(info.scriptOffset, info.length);
-						return true;
-					}
-				}
-			}
-			return false;
-		}
-
-		bool getScript(RoomScriptKind kind, uint32 fileOffset, ReadSpan<byte, uint16>& out_Script) {
-			if (numScripts > 0) {
-				for (uint8 i = 0; i < numScripts; i++) {
-					const RoomScriptInfo& info = scriptInfo.get_unchecked(i);
-					if (info.kind == kind && info.fileOffset == fileOffset) {
-						out_Script = scriptData.getReadSpan(info.scriptOffset, info.length);
-						return true;
-					}
-				}
-			}
-			return false;
-		}
+		bool getFirstScript(RoomScriptKind kind, ReadSpan<byte, uint16>& out_Script) const ;
+		bool getScript(RoomScriptKind kind, uint32 fileOffset, ReadSpan<byte, uint16>& out_Script) const;
+		bool getLocalNumberedScript(uint8 num, ReadSpan<byte, uint16>& out_Script) const;
 
 		bool readFromDisk(DiskReader& reader, const TagPair& lflf, uint16 debug_roomNum);
 
@@ -168,6 +147,13 @@ namespace comi
 		bool getScript(RoomScriptKind kind, uint32 fileOffset, ReadSpan<byte, uint16>& out_Script) {
 			if (scriptData != NULL) {
 				return scriptData->getScript(kind, fileOffset, out_Script);
+			}
+			return false;
+		}
+
+		bool getLocalNumberedScript(uint8 num, ReadSpan<byte, uint16>& out_Script) {
+			if (scriptData != NULL) {
+				return scriptData->getLocalNumberedScript(num, out_Script);
 			}
 			return false;
 		}
