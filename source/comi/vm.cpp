@@ -296,7 +296,7 @@ namespace comi
 	};
 #endif
 
-	static const char* ObjectWhereToString(uint8 where) {
+	const char* ObjectWhereToString(uint8 where) {
 		switch (where) {
 			default:
 				return "Unknown";
@@ -497,7 +497,9 @@ namespace comi
 			}
 		}
 
-		context.markDead();
+		context._scriptNum = 0;
+		context._state = SCS_Dead;
+
 		CURRENT_CONTEXT = NO_CONTEXT;
 		
 		if (_pushPcState) {
@@ -667,27 +669,42 @@ namespace comi
 	}
 	
 	bool VirtualMachine::_updateScriptData(ScriptContext& context) {
-		uint16 _scriptNum = context._scriptNum;
+		
+		const uint16 num = context._scriptNum;
+		const uint8 where = context._scriptWhere;
 
-		if (context._scriptNum < NUM_GLOBAL_SCRIPTS && context._scriptWhere == OW_Global) {
+
+		if (num < NUM_GLOBAL_SCRIPTS && where == OW_Global) {
 			ScriptData* script = RESOURCES->getScriptData(context._scriptNum);
 			if (script) {
 				_script = script->getDataPtr();
+				debug(COMI_THIS, "UpdateScriptData %ld:%ld(%s) is 1 of %ld bytes", (uint32) CURRENT_CONTEXT, (uint32) num, ObjectWhereToString(where), _script.getSize());
 				return true;
 			}
 		}
-		else if (context._scriptNum == FSI_ROOM_ENTRANCE || context._scriptNum == FSI_ROOM_EXIT) {
+		else if (num == FSI_ROOM_ENTRANCE || num == FSI_ROOM_EXIT) {
 			RoomData* room = getRoom();
 
 			if (room) {
 				RoomScriptKind roomScriptKind = FSI_ROOM_ENTRANCE ? RSK_Entrance : RSK_Exit;
 				if (room->getFirstScript(roomScriptKind, _script)) {
+					debug(COMI_THIS, "UpdateScriptData %ld:%ld(%s) is 2 of %ld bytes", (uint32) CURRENT_CONTEXT, (uint32) num, ObjectWhereToString(where), _script.getSize());
+					return true;
+				}
+			}
+		}
+		else if (num >= NUM_GLOBAL_SCRIPTS) {
+			RoomData* room = getRoom();
+
+			if (room) {
+				if (room->getLocalNumberedScript((num - NUM_GLOBAL_SCRIPTS), _script)) {
+					debug(COMI_THIS, "UpdateScriptData %ld:%ld(%s) is 3 of %ld bytes", (uint32) CURRENT_CONTEXT, (uint32) num, ObjectWhereToString(where), _script.getSize());
 					return true;
 				}
 			}
 		}
 
-		error(COMI_THIS, "Unhandled ID Where for Script Data! Num=%ld, Where=%s", (uint32) _scriptNum, ObjectWhereToString(context._scriptWhere));
+		error(COMI_THIS, "Unhandled Script Data! Num=%ld, Where=%s", (uint32) num, ObjectWhereToString(where));
 		_script = _nullScript;
 		abort_quit_stop();
 

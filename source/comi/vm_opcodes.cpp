@@ -26,8 +26,11 @@
 #include "utils.h"
 #include "functions.h"
 
+#define DEBUG_OPCODES 1
+
 namespace comi
 {
+	const char* ObjectWhereToString(uint8 where);
 	void startRoom(uint16 roomNum, bool runExitScript, bool runEnterScript);
 
 	static const uint8 NO_CONTEXT = 0xFF;
@@ -52,8 +55,11 @@ namespace comi
 		_pcOpcode = _pc;
 		_opcode = _readByte();	
 		_pcState.opcode = _opcode;
-
-		// debug(COMI_THIS, "%ld : %2lx %s", _pc-1, (uint32) _opcode, _getOpcodeName(_opcode));
+		
+#if DEBUG_OPCODES == 1
+		ScriptContext& ctx = _context[CURRENT_CONTEXT];
+		debug(COMI_THIS, "CTX=%ld:%ld(%s) PC=%ld OP=%2lx %s", CURRENT_CONTEXT + 1, ctx._scriptNum, ObjectWhereToString(_context->_scriptWhere), _pc - 1, (uint32)_opcode, _getOpcodeName(_opcode));
+#endif
 
 		switch (_opcode) {
 			case OP_00:

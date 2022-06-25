@@ -62,6 +62,8 @@ namespace comi
 		OW_Local = 5,
 		OW_FLObject = 6
 	};
+	
+	const char* ObjectWhereToString(uint8 where);
 
 	enum FixedScriptIds
 	{
