@@ -1,4 +1,4 @@
-For 0.2
+For 0.3
 =======
 
 Common:
@@ -20,26 +20,36 @@ COMI:
 [x] Room Scripts
 [x] Game continues in an infinite loop waiting for selection
 
-For 0.3
+For 0.4
 =======
 
+[ ] Merge COMI/Common namespaces to gs
 [ ] Amiga RTG Screen
 [ ] Amiga On screen debugger
 [ ] Amiga RMB menu to quit
+[ ] Amiga event loop
+[ ] Amiga key controls
+[ ] Amiga mouse cursor with a simple cross
 [ ] SDL Window
 [ ] SDL On screen debugger
 [ ] SDL Click X to quit
+[ ] SDL event loop
+[ ] SDL key controls
+[ ] SDL mouse cursor controls using OS pointer image
+[ ] Continuous or Stepped Frame advancement via hotkeys
 
 COMI:
 
-[ ] Can choose difficulty selection
+[ ] Can choose difficulty selection (either through hotkeys, or hardcoded)
 [ ] Movie plays but with placeholder text
 [ ] Loads Wally/Guybrush/Cannon Room
-[ ] Load Actor
+[ ] Load Actors
+[ ] Actor related placeholder opcodes implemented
 
-For 0.4
+For 0.5
 =======
 
 ... Graphics ...
 
+... Resource Garbage Collection ...
 
