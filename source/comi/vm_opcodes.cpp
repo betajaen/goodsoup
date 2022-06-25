@@ -856,6 +856,7 @@ namespace comi
 					return;
 					case CursorCommandOp_CursorImage:
 						_stack.pop();
+						_stack.pop();
 						NO_FEATURE(COMI_THIS, "Not implemented OP_cursorCommand CursorCommandOp_CursorImage");
 					return;
 					case CursorCommandOp_HotSpot:
