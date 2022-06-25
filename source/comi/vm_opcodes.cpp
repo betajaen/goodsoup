@@ -26,7 +26,7 @@
 #include "utils.h"
 #include "functions.h"
 
-#define DEBUG_OPCODES 0
+#define DEBUG_OPCODES 1
 
 namespace comi
 {
@@ -65,8 +65,13 @@ namespace comi
 			case OP_00:
 				GS_UNHANDLED_OP;
 			return;
-			case OP_pushWord:
-				_stack.push(_readUnsignedWord());
+			case OP_pushWord: {
+				uint32 val = _readUnsignedWord()
+#if DEBUG_OPCODES == 1
+				debug(COMI_THIS, "Push %ld", val);
+#endif
+				_stack.push(val);
+			}
 			return;
 			case OP_pushWordVar:
 				_stack.push(getVar(_readUnsignedWord()));
@@ -772,8 +777,10 @@ namespace comi
 			case OP_panCameraTo:
 				GS_UNHANDLED_OP;
 			return;
-			case OP_actorFollowCamera:
-				GS_UNHANDLED_OP;
+			case OP_actorFollowCamera: {
+				_stack.pop();
+				NO_FEATURE(COMI_THIS, "Not implemented OP_actorFollowCamera");
+			}
 			return;
 			case OP_setCameraAt:
 				GS_UNHANDLED_OP;
