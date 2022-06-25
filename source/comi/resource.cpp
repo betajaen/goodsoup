@@ -99,7 +99,6 @@ namespace comi
 		disk.getRoomOffset(script_roomNum, room_offset);
 
 		ScriptData* script = _scripts.create(num, room_diskNum);
-		debug(COMI_THIS, "%ld", room_offset + script_offset);
 		DiskReader reader = disk.readSection(room_offset + script_offset);
 
 		if (script->readFromDisk(reader) == false) {
@@ -126,7 +125,6 @@ namespace comi
 		disk.getRoomOffset(num, room_resOffset);
 
 		RoomData* room = _rooms.create(num, room_diskNum);
-		debug(COMI_THIS, "%ld", room_resOffset);
 		DiskReader reader = disk.readSection(room_resOffset);
 
 		if (room->readFromDisk(reader) == false) {

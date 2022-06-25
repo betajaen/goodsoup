@@ -296,6 +296,25 @@ namespace comi
 	};
 #endif
 
+	static const char* ObjectWhereToString(uint8 where) {
+		switch (where) {
+			default:
+				return "Unknown";
+			case OW_NotFound:
+				return "NotFound";
+			case OW_Inventory:
+				return "Inventory";
+			case OW_Room:
+				return "Room";
+			case OW_Global:
+				return "Global";
+			case OW_Local:
+				return "Local";
+			case OW_FLObject:
+				return "FLObject";
+		}
+	}
+
 	VirtualMachine* VM = NULL;
 	uint8 CURRENT_CONTEXT = NO_CONTEXT;
 
@@ -365,8 +384,6 @@ namespace comi
 	
 	void VirtualMachine::runScript(uint16 scriptNum, bool freezeResistant, bool recursive, int32* data, uint8 dataCount)
 	{
-		debug(COMI_THIS, "runScript %ld", (uint32) scriptNum);
-
 		if (scriptNum == 0) {
 			warn(COMI_THIS, "VM tried to run NULL script 0");
 			return;
@@ -374,14 +391,6 @@ namespace comi
 
 		if (recursive == false) {
 			_stopScript(scriptNum);
-		}
-
-		if (scriptNum < NUM_SCRIPTS) {
-			debug(COMI_THIS, "%ld load script", (uint32) scriptNum);
-			RESOURCES->loadScriptData(scriptNum);
-		}
-		else {
-			debug(COMI_THIS, "%ld other script", (uint32)scriptNum);
 		}
 
 		uint8 contextNum = 0;
@@ -399,12 +408,14 @@ namespace comi
 		context._bFreezeResistant = freezeResistant;
 		context._bRecursive = recursive;
 		context._scriptWhere = (scriptNum < NUM_SCRIPTS) ? OW_Global : OW_Local;
+		
+		debug(COMI_THIS, "Attached Script %ld (Script) to Context %ld", (uint32) scriptNum, (uint32) contextNum);
 
 		LOCALS->clear(contextNum);
 
 		_updateScriptData(context);
 		LOCALS->copyInto(contextNum, data, dataCount);
-		_placeContextOnStackAndRun(contextNum);
+		_pushAndRunScript(contextNum);
 	}
 
 	
@@ -447,8 +458,10 @@ namespace comi
 		context._bRecursive = false;
 		context._scriptWhere = OW_Room;
 		
+		debug(COMI_THIS, "Attached Script %ld (Room) to Context %ld", (uint32) scriptNum, (uint32) contextNum);
+
 		_updateScriptData(context);
-		_placeContextOnStackAndRun(contextNum);
+		_pushAndRunScript(contextNum);
 	}
 
 	bool VirtualMachine::_findFreeContext(uint8& num) {
@@ -510,7 +523,7 @@ namespace comi
 			) {
 
 				if (context._cutsceneOverride != 0) {
-					error(COMI_THIS, "Stopped script %ld with an cutscene override", scriptNum);
+					error(COMI_THIS, "Stopped Context %ld:%ld(%s) with an cutscene override", i, scriptNum, ObjectWhereToString(context._scriptWhere));
 					abort_quit_stop();
 					return;
 				}
@@ -555,7 +568,7 @@ namespace comi
 			) {
 
 				if (context._cutsceneOverride != 0) {
-					error(COMI_THIS, "Stopped script %ld with an cutscene override", scriptNum);
+					error(COMI_THIS, "Stopped Context %ld:%ld(%s) with an cutscene override", i, scriptNum, ObjectWhereToString(context._scriptWhere));
 					abort_quit_stop();
 					return;
 				}
@@ -647,15 +660,13 @@ namespace comi
 			return;
 		}
 
-		warn(COMI_THIS, "Unhandled ID Where for Script Data! Num=%ld, Where=%ld", (uint32) _scriptNum, (uint32) context._scriptWhere);
+		warn(COMI_THIS, "Unhandled ID Where for Script Data! Num=%ld, Where=%s", (uint32) _scriptNum, ObjectWhereToString(context._scriptWhere));
 		_script = _nullScript;
 		
 	}
 
-	void VirtualMachine::_placeContextOnStackAndRun(uint8 newContextNum) {
+	void VirtualMachine::_pushAndRunScript(uint8 newContextNum) {
 		
-		debug(COMI_THIS, "Push (%ld)", (uint32)newContextNum);
-
 		if (_pushPcState) {
 			_pushPcState = false;
 			_pcState.contextAfter = newContextNum;
@@ -676,6 +687,9 @@ namespace comi
 			last._scriptNum = current._scriptNum;
 			last._scriptWhere = current._scriptWhere;
 			current._lastPC = _pc;
+			
+			debug(COMI_THIS, "Pushing Context %ld:%ld(%s) onto stack", (uint32)CURRENT_CONTEXT, (uint32) current._scriptNum, ObjectWhereToString(current._scriptWhere));
+
 		}
 		
 		_contextStackSize++;
@@ -684,6 +698,7 @@ namespace comi
 		
 		ScriptContext& context = _context[CURRENT_CONTEXT];
 		_pc = context._lastPC;
+		debug(COMI_THIS, "Running Context %ld:%ld(%s)", (uint32) CURRENT_CONTEXT, context._scriptNum, ObjectWhereToString(context._scriptWhere));
 		runCurrentScript();
 
 		if (_contextStackSize) {
@@ -692,6 +707,7 @@ namespace comi
 
 		if (QUIT_NOW) {
 			CURRENT_CONTEXT = NO_CONTEXT;
+			_contextStackSize = 0;
 			return;
 		}
 
@@ -705,8 +721,7 @@ namespace comi
 				lastContext.isDead() == false
 				)
 			{
-				debug(COMI_THIS, "Resume (%ld)", (uint32)last._contextNum);
-
+				debug(COMI_THIS, "Popping Context %ld:%ld(%s)", (uint32)last._contextNum, lastContext._scriptNum, ObjectWhereToString(lastContext._scriptWhere));
 
 				CURRENT_CONTEXT = last._contextNum;
 				_updateScriptData(lastContext);

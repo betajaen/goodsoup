@@ -257,7 +257,7 @@ namespace comi
 
 		bool _findFreeContext(uint8& num);
 		void _updateScriptData(ScriptContext& context);
-		void _placeContextOnStackAndRun(uint8 newContextNum);
+		void _pushAndRunScript(uint8 newContextNum);
 		void _step();
 		void _stopScript(uint16 scriptNum);
 		void _stopObjectScript(uint16 scriptNum);

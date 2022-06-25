@@ -51,17 +51,15 @@ namespace comi
 			return false;
 		}
 
-		if (length > 16384) {
-			warn(COMI_THIS, "Very large script detected for %ld of %ld bytes!", _num, length);
+		if (length >= 16384) {
+			error(COMI_THIS, "Very large script detected for %ld of %ld bytes!", _num, length);
+			return false;
 		}
 
 		length -= 8;
 
 		_data.setSize(length, 0);
 		reader.readBytes((void*) _data.ptr(0), length);
-
-		debug(COMI_THIS, "Read Script %ld of %ld bytes", _num, length);
-
 
 		return true;
 	}

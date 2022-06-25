@@ -54,12 +54,13 @@ namespace comi
 
 	enum ObjectWhere
 	{
-		OW_NotFound = -1,
-		OW_Inventory = 0,
-		OW_Room = 1,
-		OW_Global = 2,
-		OW_Local = 3,
-		OW_FLObject = 4
+		OW_Unknown = 0,
+		OW_NotFound = 1,
+		OW_Inventory = 2,
+		OW_Room = 3,
+		OW_Global = 4,
+		OW_Local = 5,
+		OW_FLObject = 6
 	};
 
 	enum FixedScriptIds

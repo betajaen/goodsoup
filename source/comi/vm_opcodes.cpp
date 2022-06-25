@@ -697,7 +697,6 @@ namespace comi
 			return;
 			case OP_stopScript: {
 				uint32 scriptNum = _stack.pop();
-				debug(COMI_THIS, "** %ld", scriptNum);
 				if (scriptNum == 0) {
 					_stopObjectCode();
 				}
