@@ -185,6 +185,7 @@ namespace comi
 
 	void startRoom(uint16 roomNum, bool runExitScript, bool runEnterScript) {
 
+
 		if (INTS->exitScript > 0) {
 			VM->runScript(INTS->exitScript, false, false);
 			if (QUIT_NOW)
@@ -214,7 +215,7 @@ namespace comi
 
 
 
-		RoomData* roomData;
+		RoomData* roomData = NULL;
 
 		/* TODO: Stop Dialogue */
 
