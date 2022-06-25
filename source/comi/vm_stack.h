@@ -23,6 +23,8 @@
 
 using namespace common;
 
+#define DEBUG_STACK 0
+
 namespace comi
 {
 
@@ -64,6 +66,10 @@ namespace comi
 				return;
 			}
 
+#if DEBUG_STACK == 1
+			debug(COMI_THIS, "STACK PUSH %ld %ld", _size, item);
+#endif
+
 			_items[_size] = item;
 			_size++;
 		}
@@ -74,7 +80,9 @@ namespace comi
 				abort_quit_stop();
 				return 0;
 			}
-
+#if DEBUG_STACK == 1
+			debug(COMI_THIS, "STACK POP %ld %ld", _size - 1, _items[_size]);
+#endif
 			_size--;
 			return _items[_size];
 		}
