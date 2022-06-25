@@ -187,6 +187,8 @@ namespace comi
 
 		if (INTS->exitScript > 0) {
 			VM->runScript(INTS->exitScript, false, false);
+			if (QUIT_NOW)
+				return;
 		}
 
 		if (sCurrentRoom != NULL && runExitScript) {
@@ -195,10 +197,14 @@ namespace comi
 
 			if (sCurrentRoom->getFirstScript(RSK_Exit, script)) {
 				VM->runRoomScript(FSI_ROOM_EXIT);
+				if (QUIT_NOW)
+					return;
 			}
 
 			if (INTS->exitScript2 > 0) {
 				VM->runScript(INTS->entryScript2, false, false);
+				if (QUIT_NOW)
+					return;
 			}
 
 			/* TODO: GC Room */
@@ -236,16 +242,22 @@ namespace comi
 			
 			if (INTS->entryScript > 0) {
 				VM->runScript(INTS->entryScript, false, false);
+				if (QUIT_NOW)
+					return;
 			}
 
 			ReadSpan<byte, uint16> script;
 
 			if (sCurrentRoom->getFirstScript(RSK_Entrance, script)) {
 				VM->runRoomScript(FSI_ROOM_ENTRANCE);
+				if (QUIT_NOW)
+					return;
 			}
 
 			if (INTS->entryScript2 > 0) {
 				VM->runScript(INTS->entryScript2, false, false);
+				if (QUIT_NOW)
+					return;
 			}
 
 		}
