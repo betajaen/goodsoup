@@ -4,6 +4,7 @@ TEST = 0
 DEBUG_LEVEL = 2
 DATESTR  = $(shell date +"%-d.%-m.%Y")
 GAME_PATH = "COMI:"
+IGNORE_NO_FEATURE = 0
 
 CFLAGS = -Isource -D__AMIGADATE__="\"$(DATESTR)\""
 
@@ -44,6 +45,10 @@ endif
 
 CFLAGS += -DGS_GAME_PATH="\"$(GAME_PATH)\""
 CFLAGS += -DGS_TEST=$(TEST)
+
+ifeq ($(IGNORE_NO_FEATURE), 1)
+CFLAGS += -DGS_IGNORE_NO_FEATURE
+endif
 
 OBJ +=	source/common/main.o\
 		source/common/hash.o\

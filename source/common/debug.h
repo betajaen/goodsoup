@@ -491,10 +491,14 @@ namespace common
 
 #define GS_STOP_NOW(MESSAGE) ::common::debug_stop(__FILE__, __LINE__, MESSAGE)
 
-#if defined(GS_DEBUG)
-#define NO_FEATURE warn
+#if defined(GS_IGNORE_NO_FEATURE)
+	#define NO_FEATURE noop
 #else
-#define NO_FEATURE noop
+#if defined(GS_DEBUG)
+		#define NO_FEATURE warn
+	#else
+		#define NO_FEATURE noop
+	#endif
 #endif
 
 #endif
