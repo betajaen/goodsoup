@@ -738,8 +738,11 @@ namespace comi
 			case OP_endOverride:
 				GS_UNHANDLED_OP;
 			return;
-			case OP_stopSentence:
-				GS_UNHANDLED_OP;
+			case OP_stopSentence: {
+				SENTENCE_NUM = 0;
+				_stopScript(INTS->sentenceScript);
+				/* TODO: Clear Input Flags */
+			}
 			return;
 			case OP_87:
 				GS_UNHANDLED_OP;
@@ -1165,8 +1168,10 @@ namespace comi
 				}
 			}
 			return;
-			case OP_cameraOps:
-				GS_UNHANDLED_OP;
+			case OP_cameraOps: {
+				/* byte subOp = */ _readByte();
+				/* subOp is purposely unused */
+			}
 			return;
 			case OP_verbOps: {
 				byte subOp = _readByte();
@@ -1469,8 +1474,11 @@ namespace comi
 			case OP_getOwner:
 				GS_UNHANDLED_OP;
 			return;
-			case OP_isScriptRunning:
-				GS_UNHANDLED_OP;
+			case OP_isScriptRunning: {
+				int32 scriptNum = _stack.pop();
+				bool isRunning = isScriptRunning(scriptNum);
+				_stack.push(isRunning ? 1 : 0);
+			}
 			return;
 			case OP_d4:
 				GS_UNHANDLED_OP;
@@ -1613,8 +1621,11 @@ namespace comi
 			case OP_findInventory:
 				GS_UNHANDLED_OP;
 			return;
-			case OP_getInventoryCount:
-				GS_UNHANDLED_OP;
+			case OP_getInventoryCount: {
+				_stack.pop();
+				NO_FEATURE(COMI_THIS, "Not implemented OP_getInventoryCount");
+				_stack.push(0);
+			}
 			return;
 			case OP_getAnimateVariable:
 				GS_UNHANDLED_OP;

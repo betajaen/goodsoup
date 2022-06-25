@@ -36,6 +36,7 @@ namespace comi
 {
 
 	bool QUIT_NOW = false;
+	int32 SENTENCE_NUM = 0;
 
 	void cleanup() {
 		deleteObject(VM);

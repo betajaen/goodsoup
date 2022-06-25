@@ -594,6 +594,44 @@ namespace comi
 			}
 		}
 	}
+	
+	bool VirtualMachine::isScriptRunning(uint16 scriptNum) {
+		
+		for (uint8 i = 0; i < MAX_SCRIPT_CONTEXTS; i++) {
+			ScriptContext& context = _context[i];
+
+			if (context._scriptNum == scriptNum && 
+				context.isDead() == false &&
+				(
+					context._scriptWhere == OW_Global ||
+					context._scriptWhere == OW_Local
+
+				)
+			) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	bool VirtualMachine::isRoomScriptRunning(uint16 scriptNum) {
+		
+		for (uint8 i = 0; i < MAX_SCRIPT_CONTEXTS; i++) {
+			ScriptContext& context = _context[i];
+
+			if (context._scriptNum == scriptNum && 
+				context.isDead() == false &&
+				(
+					context._scriptWhere == OW_Room
+				)
+			) {
+				return true;
+			}
+		}
+
+		return false;
+	}
 
 	VmArray* VirtualMachine::newArray(uint32 arrayNum, uint8 kind, uint16 y, uint16 x) {
 		

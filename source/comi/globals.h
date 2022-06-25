@@ -40,6 +40,7 @@ namespace comi
 	extern uint8 CURRENT_CONTEXT;
 
 	extern bool QUIT_NOW;
+	extern int32 SENTENCE_NUM;
 }
 
 #endif
