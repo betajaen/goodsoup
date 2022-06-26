@@ -15,6 +15,8 @@
  *
  */
 
+#include <SDL2/SDL.h>
+
 namespace gs
 {
 	int main(int param);
@@ -24,8 +26,9 @@ namespace gs
 int main(int argc, char** argv)
 {
 	using namespace gs;
-
+	SDL_Init(SDL_INIT_EVENTS | SDL_INIT_VIDEO);
 	int rc = main(0);
 	checkMem();
+	SDL_Quit();
 	return rc;
 }
