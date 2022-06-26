@@ -17,10 +17,15 @@
 
 namespace gs
 {
-	int common_main(int param);
+	int main(int param);
+	void checkMem();
 }
 
 int amiga_main()
 {
-	return gs::common_main(0);
+	using namespace gs;
+
+	int rc = main(0);
+	checkMem();
+	return rc;
 }

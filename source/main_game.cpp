@@ -28,7 +28,14 @@
 #include "index.h"
 #include "resource.h"
 
-extern const char GOODSOUP_VERSION_STR[];
+extern const char GOODSOUP_VERSION_STR[] = "$VER: goodsoup 0.3 (" __AMIGADATE__ ")";
+
+#if GS_TEST == 1
+namespace test
+{
+	int run();
+}
+#endif
 
 namespace gs
 {
@@ -46,7 +53,16 @@ namespace gs
 		deleteObject(RESOURCES);
 	}
 
-	int main() {
+	int main(int param) {
+		
+		debug_write_str(GOODSOUP_VERSION_STR);
+		debug_write_char('\n');
+
+#if GS_TEST == 1
+		return test::run();
+#else
+
+
 		info(GS_THIS, "%s\n", &GOODSOUP_VERSION_STR[6]);
 
 		QUIT_NOW = false;
@@ -77,6 +93,7 @@ namespace gs
 		cleanup();
 
 		return 0;
+#endif
 	}
 
 }

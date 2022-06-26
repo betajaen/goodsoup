@@ -50,8 +50,7 @@ ifeq ($(IGNORE_NO_FEATURE), 1)
 CFLAGS += -DGS_IGNORE_NO_FEATURE
 endif
 
-OBJ +=	source/main.o\
-		source/hash.o\
+OBJ +=	source/hash.o\
 		source/hashmap.o\
 		source/array.o\
 		source/keyarray.o\
