@@ -44,8 +44,9 @@ namespace gs
 		uint32 _size;
 		uint8  _idx;
 		uint8  _kind;
-		uint8  _data[4];
-		
+		uint8  _reserved;
+		uint8  _data[1];
+
 		inline int32 read(uint32 idx, uint32 base) {
 			uint32 offset = base + idx * (uint32) _ySize;
 
