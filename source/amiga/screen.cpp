@@ -43,6 +43,12 @@
 #include <intuition/intuition.h>
 #include <intuition/intuitionbase.h>
 
+#define GS_AMIGA_TEXT(NAME, STR)\
+	struct IntuiText NAME = { 0, 1, JAM2, 4, 2, NULL, (UBYTE*) STR, NULL }
+#define GS_AMIGA_MENU_ITEM(NAME, TEXT, PREV)\
+	struct MenuItem NAME = { PREV, 0, 0, 48, 12, ITEMTEXT|ITEMENABLED|HIGHCOMP, 0, (APTR) TEXT, (APTR) TEXT, NULL, NULL, 0 }
+#define GS_AMIGA_MENU(NAME, TEXT, FIRST_CHILD)\
+	struct Menu NAME = { NULL, 0, 0, 48, 12, MENUENABLED, (BYTE*) TEXT, FIRST_CHILD, 0, 0, 0, 0 }
 
 namespace gs
 {
@@ -50,6 +56,10 @@ namespace gs
 	struct Window* sWindow;
 	struct ScreenBuffer* sScreenBuffer;
 	struct RastPort sRastPort;
+	
+	GS_AMIGA_TEXT(TEXT_Quit, "Quit");
+	GS_AMIGA_MENU_ITEM(MENUITEM_Quit, &TEXT_Quit, NULL);
+	GS_AMIGA_MENU(MENU_Game, GS_GAME_NAME, &MENUITEM_Quit);
 
 	bool openScreen() {
 
@@ -111,15 +121,17 @@ namespace gs
 			WA_SimpleRefresh, TRUE,
 			WA_CloseGadget, FALSE,
 			WA_DepthGadget, FALSE,
-			WA_IDCMP, IDCMP_CLOSEWINDOW | IDCMP_VANILLAKEY |IDCMP_IDCMPUPDATE | IDCMP_INTUITICKS,
+			WA_IDCMP, IDCMP_CLOSEWINDOW | IDCMP_VANILLAKEY |IDCMP_IDCMPUPDATE | IDCMP_INTUITICKS | IDCMP_MENUPICK,
 			TAG_END
 		);
 		
-		if (sScreenBuffer == NULL)
+		if (sWindow == NULL)
 		{
 			error(GS_THIS, "Could open Window for %ldx%ldx%ld!", GS_SCREEN_WIDTH, GS_SCREEN_HEIGHT, GS_SCREEN_DEPTH);
 			return false;
 		}
+		
+		SetMenuStrip (sWindow, &MENU_Game);
 
 		return true;
 	}
@@ -134,6 +146,7 @@ namespace gs
 
 		if (sWindow)
 		{
+			ClearMenuStrip(sWindow);
 			CloseWindow(sWindow);
 			sWindow = NULL;
 		}
@@ -182,6 +195,16 @@ namespace gs
 						}
 					}
 					break;
+					case IDCMP_MENUPICK: {
+						uint16 menuNum = MENUNUM((msg->Code));
+						uint16 itemNum = ITEMNUM((msg->Code));
+
+						if (menuNum == 0 && itemNum == 0) {
+							QUIT_NOW = true;
+						}
+
+					}
+					break;
 					case IDCMP_INTUITICKS: {
 					
 						/*
@@ -203,4 +226,5 @@ namespace gs
 		}
 
 	}
+
 }
