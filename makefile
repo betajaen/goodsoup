@@ -35,7 +35,7 @@ ifeq ($(PLATFORM), sdl)
 
 	CC		= gcc
 	DELETE	= rm
-	CFLAGS	+= -m32 -std=c++98 -Wpedantic -Isource/sdl -DGS_SDL -DGS_LITTLE -DGS_DEBUG_LEVEL=$(DEBUG_LEVEL) -lSDL2 -lstdc++
+	CFLAGS	+= -m32 -std=c++98 -Wpedantic -Isource/sdl -DGS_SDL -DGS_LITTLE -lSDL2 -lstdc++
 ifeq ($(RELEASE), 1)
 	CFLAGS	+= -O3 -DGS_RELEASE -DGS_DEBUG_LEVEL=4 -DGS_PROTECT_MEMORY=0 -s
 else
