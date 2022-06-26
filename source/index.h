@@ -23,7 +23,7 @@
 #include "file.h"
 
 #include "resource.h"
-#include "constants.h"
+#include "profile.h"
 #include "string.h"
 
 namespace gs

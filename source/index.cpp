@@ -22,7 +22,7 @@
 #include "debug.h"
 
 #include "utils.h"
-#include "constants.h"
+#include "profile.h"
 #include "vm_array.h"
 
 namespace gs

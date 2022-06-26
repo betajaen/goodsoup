@@ -15,15 +15,20 @@
  *
  */
 
-#ifndef GS_CONSTANTS_H
-#define GS_CONSTANTS_H
+#ifndef GS_PROFILE_H
+#define GS_PROFILE_H
 
-#include "types.h"
-#include "buffer.h"
+#define GS_GAME_NAME "COMI"
+#define GS_GAME_VERSION 8
+#define GS_SCREEN_WIDTH 640
+#define GS_SCREEN_HEIGHT 480
+#define GS_SCREEN_DEPTH 8
+#define GS_INDEX_FILENAME "COMI.LA0"
+#define GS_DISK_FILENAME_PATTERN "COMI.LA%ld"
 
 namespace gs
 {
-	enum  ComiConstants
+	enum GameConstants
 	{
 		MAX_SCRIPT_CONTEXTS = 80,
 		NUM_STACK_SCRIPTS = 15,
@@ -49,19 +54,6 @@ namespace gs
 		NUM_DISKS = 2
 
 	};
-
-	enum ObjectWhere
-	{
-		OW_Unknown = 0,
-		OW_NotFound = 1,
-		OW_Inventory = 2,
-		OW_Room = 3,
-		OW_Global = 4,
-		OW_Local = 5,
-		OW_FLObject = 6
-	};
-	
-	const char* ObjectWhereToString(uint8 where);
 
 	enum FixedScriptIds
 	{

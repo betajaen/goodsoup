@@ -23,7 +23,7 @@
 #include "buffer.h"
 #include "endian.h"
 
-#include "constants.h"
+#include "profile.h"
 #include "debug.h"
 
 namespace gs

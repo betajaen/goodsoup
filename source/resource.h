@@ -26,7 +26,7 @@
 #include "array.h"
 
 #include "disk.h"
-#include "constants.h"
+#include "profile.h"
 #include "debug.h"
 #include "resource_data.h"
 

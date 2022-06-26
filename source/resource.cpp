@@ -26,7 +26,7 @@
 #include "disk.h"
 
 #include "debug.h"
-#include "constants.h"
+#include "profile.h"
 
 namespace gs
 {

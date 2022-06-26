@@ -24,7 +24,7 @@
 #include "resource_data.h"
 #include "span.h"
 #include "disk.h"
-#include "constants.h"
+#include "profile.h"
 #include "debug.h"
 
 namespace gs

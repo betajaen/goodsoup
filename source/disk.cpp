@@ -25,7 +25,7 @@
 
 #include "utils.h"
 #include "debug.h"
-#include "constants.h"
+#include "profile.h"
 
 namespace gs
 {
@@ -65,7 +65,7 @@ namespace gs
 		_num = num;
 		verbose(GS_THIS, "Building path for Disk %ld", num);
 		String path;
-		String::format(path, "%sCOMI.LA%ld", GS_GAME_PATH, num);
+		String::format(path, "%s" GS_DISK_FILENAME_PATTERN, GS_GAME_PATH, num);
 		verbose(GS_THIS, "Opening Disk %ld at %s", num, path.string());
 		_file.open(path.string());
 

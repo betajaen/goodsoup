@@ -22,7 +22,7 @@
 
 #include "vm.h"
 #include "debug.h"
-#include "constants.h"
+#include "profile.h"
 #include "globals.h"
 #include "vm_vars.h"
 #include "disk.h"

@@ -25,6 +25,7 @@
 #include "vm_vars.h"
 #include "utils.h"
 #include "functions.h"
+#include "vm_array.h"
 
 #define DEBUG_OPCODES 0
 
@@ -528,11 +529,11 @@ namespace gs
 				switch (subOp) {
 					case DimArrayOp_NewInt:
 						size = _stack.pop();
-						newArray(arrayNum, AK_Int, size, 0);
+						newArray(arrayNum, VAK_Integer, size, 0);
 					return;
 					case DimArrayOp_NewString:
 						size = _stack.pop();
-						newArray(arrayNum, AK_String, size, 0);
+						newArray(arrayNum, VAK_String, size, 0);
 					return;
 					case DimArrayOp_Delete:
 						deleteArray(arrayNum);

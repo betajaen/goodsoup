@@ -19,7 +19,7 @@
 #define GS_VM_VARS_H
 
 #include "types.h"
-#include "constants.h"
+#include "profile.h"
 #include "debug.h"
 
 namespace gs

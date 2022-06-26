@@ -22,7 +22,7 @@
 #include "script.h"
 #include "index.h"
 #include "debug.h"
-#include "constants.h"
+#include "profile.h"
 #include "vm_opcodes.h"
 #include "vm_vars.h"
 #include "room.h"

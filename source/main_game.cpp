@@ -27,6 +27,7 @@
 #include "vm_vars.h"
 #include "index.h"
 #include "resource.h"
+#include "profile.h"
 
 extern const char GOODSOUP_VERSION_STR[] = "$VER: goodsoup 0.3 (" __AMIGADATE__ ")";
 
@@ -73,7 +74,7 @@ namespace gs
 		BOOLS = newObject<VmBoolVars>();
 		LOCALS = newObject<VmLocalVars>();
 
-		if (INDEX->readFromFile(GS_GAME_PATH "COMI.LA0") == false) {
+		if (INDEX->readFromFile(GS_GAME_PATH GS_INDEX_FILENAME) == false) {
 			cleanup();
 			return 1;
 		}
