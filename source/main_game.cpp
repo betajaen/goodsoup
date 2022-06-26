@@ -43,6 +43,7 @@ namespace gs
 {
 
 	bool QUIT_NOW = false;
+	bool PAUSED = false;
 	int32 SENTENCE_NUM = 0;
 
 	void cleanup() {
@@ -104,7 +105,8 @@ namespace gs
 	}
 
 	void runFrame() {
-		debug(GS_THIS, "** FRAME");
+		//debug(GS_THIS, "** FRAME");
+		drawBox(3, 10, 30, 100, 30);
 		VM->runAllScripts();
 	}
 

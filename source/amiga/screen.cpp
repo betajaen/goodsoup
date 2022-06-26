@@ -45,8 +45,8 @@
 
 #define GS_AMIGA_TEXT(NAME, STR)\
 	struct IntuiText NAME = { 0, 1, JAM2, 4, 2, NULL, (UBYTE*) STR, NULL }
-#define GS_AMIGA_MENU_ITEM(NAME, TEXT, PREV)\
-	struct MenuItem NAME = { PREV, 0, 0, 48, 12, ITEMTEXT|ITEMENABLED|HIGHCOMP, 0, (APTR) TEXT, (APTR) TEXT, NULL, NULL, 0 }
+#define GS_AMIGA_MENU_ITEM(NAME, TEXT, PREV, Y)\
+	struct MenuItem NAME = { PREV, 0, Y, 48, 12, ITEMTEXT|ITEMENABLED|HIGHCOMP, 0, (APTR) TEXT, (APTR) TEXT, NULL, NULL, 0 }
 #define GS_AMIGA_MENU(NAME, TEXT, FIRST_CHILD)\
 	struct Menu NAME = { NULL, 0, 0, 48, 12, MENUENABLED, (BYTE*) TEXT, FIRST_CHILD, 0, 0, 0, 0 }
 
@@ -57,8 +57,19 @@ namespace gs
 	struct ScreenBuffer* sScreenBuffer;
 	struct RastPort sRastPort;
 	
+	struct TextAttr sDefaultFont =
+	{
+		(STRPTR) "topaz.font", 		/* Name */
+		8, 				/* YSize */
+		FS_NORMAL,			/* Style */
+		FPF_ROMFONT | FPF_DESIGNED,	/* Flags */
+	};
+
+	GS_AMIGA_TEXT(TEXT_Pause, "Pause");
 	GS_AMIGA_TEXT(TEXT_Quit, "Quit");
-	GS_AMIGA_MENU_ITEM(MENUITEM_Quit, &TEXT_Quit, NULL);
+	GS_AMIGA_MENU_ITEM(MENUITEM_Pause, &TEXT_Pause, NULL, 0);
+	GS_AMIGA_MENU_ITEM(MENUITEM_Quit, &TEXT_Quit, &MENUITEM_Pause, 12);
+
 	GS_AMIGA_MENU(MENU_Game, GS_GAME_NAME, &MENUITEM_Quit);
 
 	bool openScreen() {
@@ -83,8 +94,9 @@ namespace gs
 			SA_Height, GS_SCREEN_HEIGHT,
 			SA_Depth, GS_SCREEN_DEPTH,
 			SA_Title, (ULONG) GS_GAME_NAME,
+			SA_ShowTitle, FALSE,
 			SA_Type, CUSTOMSCREEN,
-			SA_SysFont, 1,
+			SA_Font, (ULONG) &sDefaultFont,
 			TAG_DONE
 		);
 
@@ -131,8 +143,6 @@ namespace gs
 			return false;
 		}
 		
-		SetMenuStrip (sWindow, &MENU_Game);
-
 		return true;
 	}
 
@@ -146,7 +156,6 @@ namespace gs
 
 		if (sWindow)
 		{
-			ClearMenuStrip(sWindow);
 			CloseWindow(sWindow);
 			sWindow = NULL;
 		}
@@ -193,16 +202,24 @@ namespace gs
 						if (msg->Code == 27) {
 							QUIT_NOW = true;
 						}
+						else if (msg->Code == 32) {
+							togglePause();
+						}
 					}
 					break;
 					case IDCMP_MENUPICK: {
+						
 						uint16 menuNum = MENUNUM((msg->Code));
 						uint16 itemNum = ITEMNUM((msg->Code));
 
-						if (menuNum == 0 && itemNum == 0) {
-							QUIT_NOW = true;
+						if (menuNum == 0) {
+							if (itemNum == 1) {
+								togglePause();
+							}
+							else if (itemNum == 0) {
+								QUIT_NOW = true;
+							}
 						}
-
 					}
 					break;
 					case IDCMP_INTUITICKS: {
@@ -215,7 +232,9 @@ namespace gs
 							Eventually this will be replaced by a proper OS friendly timer callback.
 
 						*/
-						runFrame();
+						if (PAUSED == false) {
+							runFrame();
+						}
 
 					}
 					break;
@@ -226,5 +245,46 @@ namespace gs
 		}
 
 	}
+	
+	void clearScreen(uint8 colour) {
+		SetRast(&sRastPort, colour);
+	}
+
+	void drawSystemText(uint8 colour, uint16 x, uint16 y, const char* text) {
+		struct IntuiText  intText;
+		intText.FrontPen = 1;
+		intText.BackPen = 0;
+		intText.DrawMode = JAM2;
+		intText.LeftEdge = 0;
+		intText.TopEdge = 0;
+		intText.ITextFont = &sDefaultFont;
+		intText.IText = (UBYTE*) text;
+		intText.NextText = NULL;
+
+		
+		PrintIText(&sRastPort, &intText, x, y);
+	}
+
+	void drawBox(uint8 colour, uint16 x, uint16 y, uint16 w, uint16 h) {
+		SetBPen(&sRastPort, colour);
+		ClearRect(&sRastPort, x, y, x + w, y + h);
+	}
+	
+	void togglePause() {
+
+		if (PAUSED == true) {
+			ClearMenuStrip(sWindow);
+			clearScreen(1);
+			drawSystemText(1, 10, 10, "Playing");
+		}
+		else {
+			SetMenuStrip (sWindow, &MENU_Game);
+			clearScreen(0);
+			drawSystemText(1, 10, 10, "Paused");
+		}
+
+		PAUSED = !PAUSED;
+	}
+
 
 }
