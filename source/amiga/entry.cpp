@@ -30,6 +30,7 @@ int __initlibraries = 0;
 struct DosLibrary* DOSBase = NULL;
 struct IntuitionBase* IntuitionBase = NULL;
 struct GfxBase* GfxBase = NULL;
+struct Library* CyberGfxBase = NULL;
 extern struct WBStartup* _WBenchMsg;
 
 extern int amiga_main();
@@ -79,6 +80,13 @@ int main(void) {
 		CloseLibrary((struct Library*)DOSBase);
 		return RETURN_FAIL;
 	}
+	
+	if ((CyberGfxBase  = (struct Library*)OpenLibrary("cybergraphics.library", 41)) == NULL) {
+		CloseLibrary((struct Library*)GfxBase);
+		CloseLibrary((struct Library*)IntuitionBase);
+		CloseLibrary((struct Library*)DOSBase);
+		return RETURN_FAIL;
+	}
 
 	amiga_main();
 
@@ -95,7 +103,8 @@ int main(void) {
 	else {
 		PutStr("Thanks for playing!\n");
 	}
-
+	
+	CloseLibrary((struct Library*)CyberGfxBase);
 	CloseLibrary((struct Library*)GfxBase);
 	CloseLibrary((struct Library*)IntuitionBase);
 	CloseLibrary((struct Library*)DOSBase);
