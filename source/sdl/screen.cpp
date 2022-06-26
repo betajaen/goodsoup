@@ -108,10 +108,18 @@ namespace gs
 						QUIT_NOW = true;
 					}
 					break;
+					case SDL_KEYUP: {
+						if (event.key.keysym.sym == SDLK_SPACE) {
+							togglePause();
+						}
+					}
+					break;
 				}
 			}
 
-			runFrame();
+			if (PAUSED == false) {
+				runFrame();
+			}
 			
 			if (sPaletteDirty) {
 				sPaletteDirty  = false;
@@ -152,6 +160,18 @@ namespace gs
 
 		SDL_FillRect(sSurface, &rect, colour);
 		sSurfaceDirty = true;
+	}
+
+	void togglePause() {
+
+		if (PAUSED == true) {
+			SDL_SetWindowTitle(sWindow, GS_GAME_NAME);
+		}
+		else {
+			SDL_SetWindowTitle(sWindow, "Paused");
+		}
+
+		PAUSED = !PAUSED;
 	}
 
 }

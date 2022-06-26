@@ -40,6 +40,7 @@ namespace gs
 	extern uint8 CURRENT_CONTEXT;
 
 	extern bool QUIT_NOW;
+	extern bool PAUSED;
 	extern int32 SENTENCE_NUM;
 }
 
