@@ -25,6 +25,9 @@ namespace gs
 	bool openScreen();
 	bool closeScreen();
 	void screenLoop();
+	void setScreenPalette(uint8* palette, uint8 from = 0, uint8 to = 255);
+	void clearScreen(uint8 colour);
+	void drawBox(uint8 colour, uint16 x, uint16 y, uint16 w, uint16 h);
 }
 
 #endif

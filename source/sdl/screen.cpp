@@ -29,10 +29,10 @@
 namespace gs
 {
 	SDL_Window* sWindow = NULL;
-	SDL_Renderer* sRenderer = NULL;
+	SDL_Surface* sWindowSurface = NULL;
 	SDL_Surface* sSurface = NULL;
-	SDL_Texture* sTexture = NULL;
-
+	bool sSurfaceDirty = false;
+	bool sPaletteDirty = false;
 	SDL_Color sPalette[256];
 
 	bool closeScreen();
@@ -49,9 +49,11 @@ namespace gs
 			colour.r = 0;
 			colour.g = 255;
 			colour.b = 0;
+			colour.a = 255;
 		}
 
 		sPalette[0].g = 0;
+		sPaletteDirty = true;
 
 		sWindow = SDL_CreateWindow(GS_GAME_NAME, 
 			SDL_WINDOWPOS_CENTERED,
@@ -66,12 +68,9 @@ namespace gs
 			return false;
 		}
 
-		sRenderer = SDL_CreateRenderer(sWindow, -1, SDL_RENDERER_SOFTWARE);
 
-		if (sRenderer == NULL) {
-			error(GS_THIS, "Could not open SDL Renderer");
-			return false;
-		}
+		sWindowSurface = SDL_GetWindowSurface(sWindow);
+
 
 		sSurface = SDL_CreateRGBSurface(0, GS_SCREEN_WIDTH, GS_SCREEN_HEIGHT, 8, 0,0,0,0);
 
@@ -79,10 +78,6 @@ namespace gs
 			error(GS_THIS, "Could not open SDL Surface");
 			return false;
 		}
-
-		SDL_SetPaletteColors(sSurface->format->palette, sPalette, 0, 255);
-
-		sTexture = SDL_CreateTextureFromSurface(sRenderer, sSurface);
 
 		return true;
 	}
@@ -92,16 +87,6 @@ namespace gs
 		if (sSurface) {
 			SDL_FreeSurface(sSurface);
 			sSurface = NULL;
-		}
-
-		if (sTexture) {
-			SDL_DestroyTexture(sTexture);
-			sTexture = NULL;
-		}
-
-		if (sRenderer != NULL) {
-			SDL_DestroyRenderer(sRenderer);
-			sRenderer = NULL;
 		}
 
 		if (sWindow != NULL) {
@@ -128,12 +113,45 @@ namespace gs
 
 			runFrame();
 			
-			SDL_RenderClear(sRenderer);
-			SDL_UpdateTexture(sTexture, NULL, sSurface->pixels, sSurface->pitch);
-			SDL_RenderCopy(sRenderer, sTexture, NULL, NULL);
-			SDL_RenderPresent(sRenderer);
+			if (sPaletteDirty) {
+				sPaletteDirty  = false;
+				SDL_LockSurface(sSurface);
+				SDL_SetPaletteColors(sSurface->format->palette, sPalette, 0, 255);
+				SDL_UnlockSurface(sSurface);
+			}
+
+			if (sSurfaceDirty) {
+				sSurfaceDirty = false;
+				SDL_BlitSurface(sSurface, NULL, sWindowSurface, NULL);
+			}
+
+			SDL_UpdateWindowSurface(sWindow);
 		}
 	}
+	
+	void setScreenPalette(uint8* palette, uint8 from, uint8 to) {
+		for (uint8 i = from; i <= to; i++) {
+			SDL_Color& colour = sPalette[i];
+			colour.r = *palette;
+			colour.g = *palette;
+			colour.a = *palette;
+		}
+		sPaletteDirty = true;
+	}
 
+	void clearScreen(uint8 colour) {
+		SDL_FillRect(sSurface, NULL, colour);
+	}
+
+	void drawBox(uint8 colour, uint16 x, uint16 y, uint16 w, uint16 h) {
+		SDL_Rect rect;
+		rect.x = x;
+		rect.y = y;
+		rect.w = w;
+		rect.h = h;
+
+		SDL_FillRect(sSurface, &rect, colour);
+		sSurfaceDirty = true;
+	}
 
 }
