@@ -28,6 +28,7 @@
 #include "index.h"
 #include "resource.h"
 #include "profile.h"
+#include "screen.h"
 
 extern const char GOODSOUP_VERSION_STR[] = "$VER: goodsoup 0.3 (" __AMIGADATE__ ")";
 
@@ -67,6 +68,13 @@ namespace gs
 		info(GS_THIS, "%s\n", &GOODSOUP_VERSION_STR[6]);
 
 		QUIT_NOW = false;
+
+		if (openScreen() == false) {
+			error(GS_THIS, "Could not open screen!");
+			cleanup();
+			return 1;
+		}
+
 		ARRAYS = newObject<VmArrayAllocator>();
 		INDEX = newObject<Index>();
 		
@@ -92,6 +100,7 @@ namespace gs
 		}
 
 		cleanup();
+		closeScreen();
 
 		return 0;
 #endif

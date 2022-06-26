@@ -14,7 +14,8 @@ ifeq ($(PLATFORM), amiga)
 				source/amiga/debug.o \
 				source/amiga/memory.o\
 				source/amiga/file.o\
-				source/amiga/string_format.o
+				source/amiga/string_format.o\
+				source/amiga/screen.o
 
 	CC		= m68k-amigaos-gcc
 	DELETE	= rm
@@ -31,7 +32,8 @@ ifeq ($(PLATFORM), sdl)
 				source/sdl/memory.o\
 				source/sdl/debug.o\
 				source/sdl/file.o\
-				source/sdl/string_format.o
+				source/sdl/string_format.o\
+				source/sdl/screen.o
 
 	CC		= gcc
 	DELETE	= rm
