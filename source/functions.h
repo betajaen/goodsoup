@@ -27,6 +27,9 @@ namespace gs
 	void setVar(uint32 varName, int32 value);
 
 	int32 getVar(uint32 varName);
+
+	void runFrame();
+
 }
 
 #endif

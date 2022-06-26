@@ -24,6 +24,7 @@ namespace gs
 {
 	bool openScreen();
 	bool closeScreen();
+	void screenLoop();
 }
 
 #endif

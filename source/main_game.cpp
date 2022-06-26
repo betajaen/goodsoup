@@ -94,16 +94,18 @@ namespace gs
 		VM->reset();
 		VM->runScript(1, false, false);
 
-		while (QUIT_NOW == false) {
-			debug(GS_THIS, "** FRAME");
-			VM->runAllScripts();
-		}
+		screenLoop();
 
 		cleanup();
 		closeScreen();
 
 		return 0;
 #endif
+	}
+
+	void runFrame() {
+		debug(GS_THIS, "** FRAME");
+		VM->runAllScripts();
 	}
 
 }

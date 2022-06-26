@@ -19,17 +19,121 @@
 
 #include "types_sdl.h"
 #include "../debug.h"
+#include "../profile.h"
+#include "../screen.h"
+#include "../globals.h"
+#include "../functions.h"
+
 #include <SDL2/SDL.h>
 
 namespace gs
 {
+	SDL_Window* sWindow = NULL;
+	SDL_Renderer* sRenderer = NULL;
+	SDL_Surface* sSurface = NULL;
+	SDL_Texture* sTexture = NULL;
+
+	SDL_Color sPalette[256];
+
+	bool closeScreen();
+
 	bool openScreen() {
-		NO_FEATURE(GS_THIS, "openScreen not implemented!");
+
+		if (sWindow) {
+			closeScreen();
+		}
+
+
+		for (uint16 i = 0; i < 256; i++) {
+			SDL_Color& colour = sPalette[i];
+			colour.r = 0;
+			colour.g = 255;
+			colour.b = 0;
+		}
+
+		sPalette[0].g = 0;
+
+		sWindow = SDL_CreateWindow(GS_GAME_NAME, 
+			SDL_WINDOWPOS_CENTERED,
+			SDL_WINDOWPOS_CENTERED,
+			GS_SCREEN_WIDTH,
+			GS_SCREEN_HEIGHT,
+			SDL_WINDOW_SHOWN
+		);
+
+		if (sWindow == NULL) {
+			error(GS_THIS, "Could not open SDL Window");
+			return false;
+		}
+
+		sRenderer = SDL_CreateRenderer(sWindow, -1, SDL_RENDERER_SOFTWARE);
+
+		if (sRenderer == NULL) {
+			error(GS_THIS, "Could not open SDL Renderer");
+			return false;
+		}
+
+		sSurface = SDL_CreateRGBSurface(0, GS_SCREEN_WIDTH, GS_SCREEN_HEIGHT, 8, 0,0,0,0);
+
+		if (sSurface == NULL) {
+			error(GS_THIS, "Could not open SDL Surface");
+			return false;
+		}
+
+		SDL_SetPaletteColors(sSurface->format->palette, sPalette, 0, 255);
+
+		sTexture = SDL_CreateTextureFromSurface(sRenderer, sSurface);
+
 		return true;
 	}
 
 	bool closeScreen() {
-		NO_FEATURE(GS_THIS, "closeScreen not implemented!");
+
+		if (sSurface) {
+			SDL_FreeSurface(sSurface);
+			sSurface = NULL;
+		}
+
+		if (sTexture) {
+			SDL_DestroyTexture(sTexture);
+			sTexture = NULL;
+		}
+
+		if (sRenderer != NULL) {
+			SDL_DestroyRenderer(sRenderer);
+			sRenderer = NULL;
+		}
+
+		if (sWindow != NULL) {
+			SDL_DestroyWindow(sWindow);
+			sWindow = NULL;
+		}
+
 		return true;
 	}
+	
+	void screenLoop() {
+		SDL_Event event;
+
+		while (QUIT_NOW == false) {
+			
+			while (SDL_PollEvent(&event)) {
+				switch(event.type) {
+					case SDL_QUIT: {
+						QUIT_NOW = true;
+					}
+					break;
+				}
+			}
+
+			runFrame();
+			
+			SDL_RenderClear(sRenderer);
+			SDL_UpdateTexture(sTexture, NULL, sSurface->pixels, sSurface->pitch);
+			SDL_RenderCopy(sRenderer, sTexture, NULL, NULL);
+			SDL_RenderPresent(sRenderer);
+		}
+	}
+
+
 }
