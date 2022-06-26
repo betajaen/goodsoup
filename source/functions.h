@@ -28,6 +28,8 @@ namespace gs
 
 	int32 getVar(uint32 varName);
 
+	void togglePause();
+
 	void runFrame();
 
 }
