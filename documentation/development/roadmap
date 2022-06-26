@@ -26,7 +26,7 @@ For 0.4
 [x] Merge COMI/Common namespaces to gs
 [x] Amiga RTG Screen
 [ ] Amiga On screen debugger
-[ ] Amiga RMB menu to quit
+[x] Amiga RMB menu to quit
 [x] Amiga event loop
 [x] Amiga rough calling of runFrame
 [ ] Amiga accurate timer to call runFrame
@@ -41,7 +41,7 @@ For 0.4
 [ ] SDL key controls
 [ ] SDL mouse cursor controls using OS pointer image
 [ ] Continuous or Stepped Frame advancement via hotkeys
-[ ] Pause/Resume of gameplay
+[x] Pause/Resume of gameplay
 
 COMI:
 
