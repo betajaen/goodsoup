@@ -40,7 +40,7 @@ For 0.4
 [x] SDL event loop
 [ ] SDL key controls
 [ ] SDL mouse cursor controls using OS pointer image
-[ ] Continuous or Stepped Frame advancement via hotkeys
+[x] Continuous or Stepped Frame advancement via hotkeys
 [x] Pause/Resume of gameplay
 
 COMI:

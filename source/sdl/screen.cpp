@@ -102,6 +102,8 @@ namespace gs
 
 		while (QUIT_NOW == false) {
 			
+			bool step = false;
+
 			while (SDL_PollEvent(&event)) {
 				switch(event.type) {
 					case SDL_QUIT: {
@@ -112,6 +114,9 @@ namespace gs
 						if (event.key.keysym.sym == SDLK_SPACE) {
 							togglePause();
 						}
+						else if (PAUSED && event.key.keysym.sym == SDLK_s) {
+							step = true;
+						}
 					}
 					break;
 				}
@@ -119,6 +124,13 @@ namespace gs
 
 			if (PAUSED == false) {
 				runFrame();
+			}
+			else {
+				if (step) {
+					debug(GS_THIS, "Step");
+					runFrame();
+					step = false;
+				}
 			}
 			
 			if (sPaletteDirty) {

@@ -71,6 +71,8 @@ namespace gs
 	GS_AMIGA_MENU_ITEM(MENUITEM_Quit, &TEXT_Quit, &MENUITEM_Pause, 12);
 
 	GS_AMIGA_MENU(MENU_Game, GS_GAME_NAME, &MENUITEM_Quit);
+	
+	void drawSystemText(uint8 colour, uint16 x, uint16 y, const char* text);
 
 	bool openScreen() {
 
@@ -181,6 +183,7 @@ namespace gs
 			}
 
 			struct IntuiMessage* msg;
+			bool step = false;
 
 			while (true)
 			{
@@ -204,6 +207,12 @@ namespace gs
 						}
 						else if (msg->Code == 32) {
 							togglePause();
+							step = false;
+						}
+						else if (PAUSED && (msg->Code == 115 || msg->Code == 83)) {
+							debug(GS_THIS, "Frame Step");
+							runFrame();
+							drawSystemText(1, 32, GS_SCREEN_HEIGHT - 32, "Step");
 						}
 					}
 					break;
@@ -215,6 +224,7 @@ namespace gs
 						if (menuNum == 0) {
 							if (itemNum == 1) {
 								togglePause();
+								step = false;
 							}
 							else if (itemNum == 0) {
 								QUIT_NOW = true;
@@ -267,7 +277,7 @@ namespace gs
 
 	void drawBox(uint8 colour, uint16 x, uint16 y, uint16 w, uint16 h) {
 		SetBPen(&sRastPort, colour);
-		ClearRect(&sRastPort, x, y, x + w, y + h);
+		EraseRect(&sRastPort, x, y, x + w, y + h);
 	}
 	
 	void togglePause() {
