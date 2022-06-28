@@ -198,7 +198,8 @@ namespace gs
 				QUIT_NOW = true;
 				break;
 			}
-			else if (signal & windowBit) {
+			
+			if (signal & windowBit) {
 
 				struct IntuiMessage* msg;
 				bool step = false;
@@ -254,7 +255,11 @@ namespace gs
 					ReplyMsg((struct Message*)msg);
 				}
 			}
-			else if (signal & timerBit) {
+			
+			if (signal & timerBit) {
+
+				
+
 				if (sSystemTimer.isReady()) {
 					if (PAUSED == false) {
 						runFrame();
