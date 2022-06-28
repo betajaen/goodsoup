@@ -25,6 +25,7 @@
 #define GS_SCREEN_DEPTH 8
 #define GS_INDEX_FILENAME "COMI.LA0"
 #define GS_DISK_FILENAME_PATTERN "COMI.LA%ld"
+#define GS_FRAME_DELAY_MSEC 33333
 
 namespace gs
 {

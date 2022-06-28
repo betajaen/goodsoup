@@ -29,7 +29,7 @@ For 0.4
 [x] Amiga RMB menu to quit
 [x] Amiga event loop
 [x] Amiga rough calling of runFrame
-[ ] Amiga accurate timer to call runFrame
+[x] Amiga accurate timer to call runFrame
 [ ] Amiga key controls
 [ ] Amiga mouse cursor with a simple cross
 [x] SDL Window
