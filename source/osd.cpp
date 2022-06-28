@@ -23,6 +23,7 @@
 #include "string.h"
 #include "screen.h"
 #include "globals.h"
+#include "index.h"
 
 namespace gs
 {
@@ -33,6 +34,19 @@ namespace gs
 		}
 
 		drawSystemTextF(1, 10, 20, "Frame: %ld", FRAME_NUM);
+
+		RoomData* room = getRoom();
+
+		if (room == NULL) {
+			drawSystemText(1, 10, 30, "Room: <NONE>");
+		}
+		else {
+
+			String roomName = INDEX->getRoomName(room->getNum());
+
+			drawSystemTextF(1, 10, 30, "Room: %ld %s", (uint32) room->getNum(), roomName.string());
+		}
+
 	}
 
 }
