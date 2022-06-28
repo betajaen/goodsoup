@@ -101,6 +101,15 @@ namespace gs
 			return true;
 		}
 
+		String getRoomName(uint8 idx) const {
+			if (idx >= NUM_ROOMS) {
+				return String();
+			}
+			else {
+				return _roomNames[idx];
+			}
+		}
+
 	private:
 
 		String					    _roomNames[NUM_ROOMS + 1];
