@@ -54,11 +54,15 @@
 
 namespace gs
 {
+	typedef VOID(*PUTCHARPROC)();
+
 	struct Screen* sScreen;
 	struct Window* sWindow;
 	struct ScreenBuffer* sScreenBuffer;
 	struct RastPort sRastPort;
 	SystemTimer sSystemTimer;
+
+	static const uint32 PutChar = 0x16c04e75;
 
 	struct TextAttr sDefaultFont =
 	{
@@ -290,6 +294,14 @@ namespace gs
 
 		
 		PrintIText(&sRastPort, &intText, x, y);
+	}
+
+	void drawSystemTextF(uint8 colour, uint16 x, uint16 y, const char* fmt, ...) {
+		static char sTemp[256] = {};
+		const char* arg = (const char*)(&fmt + 1);
+		RawDoFmt((CONST_STRPTR)fmt, (APTR)arg, (PUTCHARPROC)&PutChar, &sTemp[0]);
+
+		drawSystemText(colour, x, y, &sTemp[0]);
 	}
 
 	void drawBox(uint8 colour, uint16 x, uint16 y, uint16 w, uint16 h) {
