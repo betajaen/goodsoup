@@ -47,6 +47,7 @@ namespace gs
 	bool PAUSED = false;
 	int32 SENTENCE_NUM = 0;
 	bool SHOW_OSD = true;
+	uint32 FRAME_NUM = 0;
 
 	void cleanup() {
 		deleteObject(VM);
@@ -107,12 +108,9 @@ namespace gs
 	}
 
 	uint8 col = 0;
-	uint32 frameCounter = 0;
 
 	void runFrame() {
-		frameCounter++;
-
-		debug(GS_THIS, "** FRAME %ld", frameCounter);
+		FRAME_NUM++;
 
 		clearScreen(col++);
 		drawBox(col++, 10, 30, 100, 30);

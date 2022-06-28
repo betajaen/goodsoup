@@ -31,6 +31,8 @@ namespace gs
 		if (PAUSED) {
 			drawSystemText(1, 10, 10, "Paused");
 		}
+
+		drawSystemTextF(1, 10, 20, "Frame: %ld", FRAME_NUM);
 	}
 
 }

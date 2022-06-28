@@ -43,6 +43,7 @@ namespace gs
 	extern bool PAUSED;
 	extern int32 SENTENCE_NUM;
 	extern bool SHOW_OSD;
+	extern uint32 FRAME_NUM;
 }
 
 #endif
