@@ -68,9 +68,9 @@ namespace gs
 		FPF_ROMFONT | FPF_DESIGNED,	/* Flags */
 	};
 
-	GS_AMIGA_TEXT(TEXT_Pause, "Pause");
+	GS_AMIGA_TEXT(TEXT_Resume, "Resume");
 	GS_AMIGA_TEXT(TEXT_Quit, "Quit");
-	GS_AMIGA_MENU_ITEM(MENUITEM_Pause, &TEXT_Pause, NULL, 0);
+	GS_AMIGA_MENU_ITEM(MENUITEM_Pause, &TEXT_Resume, NULL, 0);
 	GS_AMIGA_MENU_ITEM(MENUITEM_Quit, &TEXT_Quit, &MENUITEM_Pause, 12);
 
 	GS_AMIGA_MENU(MENU_Game, GS_GAME_NAME, &MENUITEM_Quit);
