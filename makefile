@@ -74,7 +74,8 @@ OBJ +=	source/main_game.o\
 		source/index.o\
 		source/resource.o\
 		source/disk.o\
-		source/utils.o
+		source/utils.o\
+		source/osd.o
 
 all: $(OBJ)
 	$(CC) -o $(PROGRAM) $(OBJ) $(CFLAGS)

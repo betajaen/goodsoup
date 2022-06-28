@@ -42,6 +42,7 @@ namespace gs
 	extern bool QUIT_NOW;
 	extern bool PAUSED;
 	extern int32 SENTENCE_NUM;
+	extern bool SHOW_OSD;
 }
 
 #endif

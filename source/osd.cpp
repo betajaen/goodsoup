@@ -15,25 +15,22 @@
  *
  */
 
-#ifndef GS_FUNCTIONS_H
-#define GS_FUNCTIONS_H
+#define GS_FILE_NAME "osd"
 
-#include "types.h"
+#include "resource.h"
+#include "room.h"
+#include "vm.h"
+#include "string.h"
+#include "screen.h"
+#include "globals.h"
 
 namespace gs
 {
-	void startScene(uint16 roomNum);
-	
-	void setVar(uint32 varName, int32 value);
 
-	int32 getVar(uint32 varName);
-
-	void togglePause();
-
-	void runOSD();
-
-	void runFrame();
+	void runOSD() {
+		if (PAUSED) {
+			drawSystemText(1, 10, 10, "Paused");
+		}
+	}
 
 }
-
-#endif

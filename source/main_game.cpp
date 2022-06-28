@@ -29,6 +29,7 @@
 #include "resource.h"
 #include "profile.h"
 #include "screen.h"
+#include "functions.h"
 
 extern const char GOODSOUP_VERSION_STR[] = "$VER: goodsoup 0.3 (" __AMIGADATE__ ")";
 
@@ -45,6 +46,7 @@ namespace gs
 	bool QUIT_NOW = false;
 	bool PAUSED = false;
 	int32 SENTENCE_NUM = 0;
+	bool SHOW_OSD = true;
 
 	void cleanup() {
 		deleteObject(VM);
@@ -115,6 +117,10 @@ namespace gs
 		clearScreen(col++);
 		drawBox(col++, 10, 30, 100, 30);
 		VM->runAllScripts();
+
+		if (SHOW_OSD) {
+			runOSD();
+		}
 	}
 
 }

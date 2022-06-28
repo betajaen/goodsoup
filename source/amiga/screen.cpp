@@ -231,7 +231,6 @@ namespace gs
 							else if (PAUSED && (msg->Code == 115 || msg->Code == 83)) {
 								debug(GS_THIS, "Frame Step");
 								runFrame();
-								drawSystemText(1, 32, GS_SCREEN_HEIGHT - 32, "Step");
 							}
 						}
 						break;
@@ -299,19 +298,21 @@ namespace gs
 	}
 	
 	void togglePause() {
+		
+		PAUSED = !PAUSED;
 
 		if (PAUSED == true) {
-			ClearMenuStrip(sWindow);
-			clearScreen(1);
-			drawSystemText(1, 10, 10, "Playing");
+			SetMenuStrip (sWindow, &MENU_Game);
+
+			if (SHOW_OSD) {
+				runOSD();
+			}
+
 		}
 		else {
-			SetMenuStrip (sWindow, &MENU_Game);
-			clearScreen(0);
-			drawSystemText(1, 10, 10, "Paused");
+			ClearMenuStrip(sWindow);
 		}
 
-		PAUSED = !PAUSED;
 	}
 
 
