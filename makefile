@@ -16,7 +16,8 @@ ifeq ($(PLATFORM), amiga)
 				source/amiga/file.o\
 				source/amiga/string_format.o\
 				source/amiga/screen.o\
-				source/amiga/timer.o
+				source/amiga/timer.o\
+				source/amiga/cursor.o
 
 	CC		= m68k-amigaos-gcc
 	DELETE	= rm

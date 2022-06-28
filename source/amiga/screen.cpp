@@ -23,6 +23,7 @@
 #include "../globals.h"
 #include "../functions.h"
 #include "timer_amiga.h"
+#include "cursor_amiga.h"
 
 #include <proto/exec.h>
 #include <proto/dos.h>
@@ -72,10 +73,10 @@ namespace gs
 		FPF_ROMFONT | FPF_DESIGNED,	/* Flags */
 	};
 
-	GS_AMIGA_TEXT(TEXT_Resume, "Resume");
+	GS_AMIGA_TEXT(TEXT_Unpause, "Resume");
 	GS_AMIGA_TEXT(TEXT_Quit, "Quit");
-	GS_AMIGA_MENU_ITEM(MENUITEM_Pause, &TEXT_Resume, NULL, 0);
-	GS_AMIGA_MENU_ITEM(MENUITEM_Quit, &TEXT_Quit, &MENUITEM_Pause, 12);
+	GS_AMIGA_MENU_ITEM(MENUITEM_Unpause, &TEXT_Unpause, NULL, 0);
+	GS_AMIGA_MENU_ITEM(MENUITEM_Quit, &TEXT_Quit, &MENUITEM_Unpause, 12);
 
 	GS_AMIGA_MENU(MENU_Game, GS_GAME_NAME, &MENUITEM_Quit);
 	
@@ -156,11 +157,14 @@ namespace gs
 			return false;
 		}
 
+		openAmigaCursor(sWindow);
 
 		return true;
 	}
 
 	bool closeScreen() {
+
+		closeAmigaCursor();
 		
 		sSystemTimer.close();
 
@@ -305,8 +309,7 @@ namespace gs
 	}
 
 	void drawBox(uint8 colour, uint16 x, uint16 y, uint16 w, uint16 h) {
-		SetBPen(&sRastPort, colour);
-		EraseRect(&sRastPort, x, y, x + w, y + h);
+		FillPixelArray(&sRastPort, x, y, w, h, colour);
 	}
 	
 	void togglePause() {
@@ -326,6 +329,9 @@ namespace gs
 		}
 
 	}
+	
+	void setCursor(CursorKind type) {
 
+	}
 
 }

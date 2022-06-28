@@ -15,25 +15,21 @@
  *
  */
 
-#ifndef GS_FUNCTIONS_H
-#define GS_FUNCTIONS_H
+#ifndef GS_CURSOR_H
+#define GS_CURSOR_H
 
 #include "types.h"
 
 namespace gs
 {
-	void startScene(uint16 roomNum);
-	
-	void setVar(uint32 varName, int32 value);
 
-	int32 getVar(uint32 varName);
+	enum CursorKind
+	{
+		CK_Pointer = 0,
+		CK_Busy = 1,
+	};
 
-	void togglePause();
-
-	void runOSD();
-
-	void runFrame();
-
+	void setCursor(uint8 kind);
 
 }
 

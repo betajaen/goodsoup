@@ -15,26 +15,18 @@
  *
  */
 
-#ifndef GS_FUNCTIONS_H
-#define GS_FUNCTIONS_H
+#ifndef GS_AMIGA_CURSOR_H
+#define GS_AMIGA_CURSOR_H
 
-#include "types.h"
+#include "../cursor.h"
+
+struct Window;
 
 namespace gs
 {
-	void startScene(uint16 roomNum);
-	
-	void setVar(uint32 varName, int32 value);
+	void openAmigaCursor(struct Window*);
 
-	int32 getVar(uint32 varName);
-
-	void togglePause();
-
-	void runOSD();
-
-	void runFrame();
-
-
+	void closeAmigaCursor();
 }
 
 #endif
