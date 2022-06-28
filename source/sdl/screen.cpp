@@ -173,6 +173,21 @@ namespace gs
 		SDL_FillRect(sSurface, &rect, colour);
 		sSurfaceDirty = true;
 	}
+	
+	void drawSystemText(uint8 colour, uint16 x, uint16 y, const char* text) {
+		printf("SYSTEX: %s\n", text);
+	}
+
+	void drawSystemTextF(uint8 colour, uint16 x, uint16 y, const char* fmt, ...) {
+
+		static char sTemp[256] = { 0 };
+
+		va_list arg;
+		va_start(arg, fmt);
+
+		SDL_vsnprintf(sTemp, 256, fmt, arg);
+		printf("SYSTEX: %s\n", &sTemp[0]);
+	}
 
 	void togglePause() {
 

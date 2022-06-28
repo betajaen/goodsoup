@@ -25,17 +25,17 @@ For 0.4
 
 [x] Merge COMI/Common namespaces to gs
 [x] Amiga RTG Screen
-[ ] Amiga On screen debugger
+[x] Amiga On screen debugger
 [x] Amiga RMB menu to quit
 [x] Amiga event loop
 [x] Amiga rough calling of runFrame
 [x] Amiga accurate timer to call runFrame
-[ ] Amiga key controls
+[x] Amiga key controls
 [ ] Amiga mouse cursor with a simple cross
 [x] SDL Window
-[ ] SDL On screen debugger
+[-] SDL On screen debugger
 [x] SDL rough calling of runFrame
-[ ] SDL accurate timer to call runFrame
+[-] SDL accurate timer to call runFrame
 [x] SDL Click X to quit
 [x] SDL event loop
 [ ] SDL key controls
