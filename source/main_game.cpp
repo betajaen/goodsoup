@@ -104,9 +104,16 @@ namespace gs
 #endif
 	}
 
+	uint8 col = 0;
+	uint32 frameCounter = 0;
+
 	void runFrame() {
-		//debug(GS_THIS, "** FRAME");
-		drawBox(3, 10, 30, 100, 30);
+		frameCounter++;
+
+		debug(GS_THIS, "** FRAME %ld", frameCounter);
+
+		clearScreen(col++);
+		drawBox(col++, 10, 30, 100, 30);
 		VM->runAllScripts();
 	}
 

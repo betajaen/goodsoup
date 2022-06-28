@@ -12,7 +12,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
- *
+ * 
  */
 
 #define GS_FILE_NAME "screen"
@@ -22,6 +22,7 @@
 #include "../profile.h"
 #include "../globals.h"
 #include "../functions.h"
+#include "timer_amiga.h"
 
 #include <proto/exec.h>
 #include <proto/dos.h>
@@ -43,6 +44,7 @@
 #include <intuition/intuition.h>
 #include <intuition/intuitionbase.h>
 
+
 #define GS_AMIGA_TEXT(NAME, STR)\
 	struct IntuiText NAME = { 0, 1, JAM2, 4, 2, NULL, (UBYTE*) STR, NULL }
 #define GS_AMIGA_MENU_ITEM(NAME, TEXT, PREV, Y)\
@@ -56,7 +58,8 @@ namespace gs
 	struct Window* sWindow;
 	struct ScreenBuffer* sScreenBuffer;
 	struct RastPort sRastPort;
-	
+	SystemTimer sSystemTimer;
+
 	struct TextAttr sDefaultFont =
 	{
 		(STRPTR) "topaz.font", 		/* Name */
@@ -145,11 +148,18 @@ namespace gs
 			return false;
 		}
 		
+		if (sSystemTimer.open() == false) {
+			return false;
+		}
+
+
 		return true;
 	}
 
 	bool closeScreen() {
 		
+		sSystemTimer.close();
+
 		if (sScreenBuffer && sScreen)
 		{
 			FreeScreenBuffer(sScreen, sScreenBuffer);
@@ -173,87 +183,90 @@ namespace gs
 
 	void screenLoop() {
 
+		uint32 timerBit = sSystemTimer.start(33333); // 1/30 seconds in microseconds.
+		uint32 windowBit = (1 << sWindow->UserPort->mp_SigBit);
+
+		debug(GS_THIS, "Signal bit = %lx", timerBit);
+
+		uint32 signalBits = windowBit | timerBit | SIGBREAKF_CTRL_C;
+
 		while (QUIT_NOW == false) {
 
-			ULONG signal = Wait((1 << sWindow->UserPort->mp_SigBit) | SIGBREAKF_CTRL_C);
+			ULONG signal = Wait(signalBits);
 
-			if (signal & SIGBREAKF_CTRL_C)
-			{
+			if (signal & SIGBREAKF_CTRL_C) {
 				QUIT_NOW = true;
+				break;
 			}
+			else if (signal & windowBit) {
 
-			struct IntuiMessage* msg;
-			bool step = false;
+				struct IntuiMessage* msg;
+				bool step = false;
 
-			while (true)
-			{
-				msg = (struct IntuiMessage*)GetMsg(sWindow->UserPort);
-
-				if (msg == NULL)
-					break;
-
-				struct TagItem* tstate, * tag, * tags;
-				ULONG tiData;
-
-				switch (msg->Class)
+				while (true)
 				{
-					case IDCMP_CLOSEWINDOW: {
-						QUIT_NOW = true;
-					}
-					break;
-					case IDCMP_VANILLAKEY: {
-						if (msg->Code == 27) {
+					msg = (struct IntuiMessage*)GetMsg(sWindow->UserPort);
+
+					if (msg == NULL)
+						break;
+
+					struct TagItem* tstate, * tag, * tags;
+					ULONG tiData;
+
+					switch (msg->Class)
+					{
+						case IDCMP_CLOSEWINDOW: {
 							QUIT_NOW = true;
 						}
-						else if (msg->Code == 32) {
-							togglePause();
-							step = false;
-						}
-						else if (PAUSED && (msg->Code == 115 || msg->Code == 83)) {
-							debug(GS_THIS, "Frame Step");
-							runFrame();
-							drawSystemText(1, 32, GS_SCREEN_HEIGHT - 32, "Step");
-						}
-					}
-					break;
-					case IDCMP_MENUPICK: {
-						
-						uint16 menuNum = MENUNUM((msg->Code));
-						uint16 itemNum = ITEMNUM((msg->Code));
-
-						if (menuNum == 0) {
-							if (itemNum == 1) {
+						break;
+						case IDCMP_VANILLAKEY: {
+							if (msg->Code == 27) {
+								QUIT_NOW = true;
+							}
+							else if (msg->Code == 32) {
 								togglePause();
 								step = false;
 							}
-							else if (itemNum == 0) {
-								QUIT_NOW = true;
+							else if (PAUSED && (msg->Code == 115 || msg->Code == 83)) {
+								debug(GS_THIS, "Frame Step");
+								runFrame();
+								drawSystemText(1, 32, GS_SCREEN_HEIGHT - 32, "Step");
 							}
 						}
-					}
-					break;
-					case IDCMP_INTUITICKS: {
-					
-						/*
-							TODO: This is placeholder code with the IDCMP_INTUITICKS flag.
+						break;
+						case IDCMP_MENUPICK: {
+						
+							uint16 menuNum = MENUNUM((msg->Code));
+							uint16 itemNum = ITEMNUM((msg->Code));
 
-							This will tick the runFrame function approx 10 times a second.
-
-							Eventually this will be replaced by a proper OS friendly timer callback.
-
-						*/
-						if (PAUSED == false) {
-							runFrame();
+							if (menuNum == 0) {
+								if (itemNum == 1) {
+									togglePause();
+									step = false;
+								}
+								else if (itemNum == 0) {
+									QUIT_NOW = true;
+								}
+							}
 						}
-
+						break;
 					}
-					break;
+					ReplyMsg((struct Message*)msg);
 				}
-				ReplyMsg((struct Message*)msg);
+			}
+			else if (signal & timerBit) {
+				if (sSystemTimer.isReady()) {
+					if (PAUSED == false) {
+						runFrame();
+					}
+
+					sSystemTimer.start(33333);
+				}
 			}
 
 		}
 
+		sSystemTimer.close();
 	}
 	
 	void clearScreen(uint8 colour) {
