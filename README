@@ -1,5 +1,11 @@
-Goodsoup
-========
+Short:        Amiga port of Curse of Monkey Island
+Uploader:     betajaen@users.noreply.github.com (Robin Southern)
+Author:       betajaen@users.noreply.github.com (Robin Southern)
+Type:         game/role
+Requires:     68020, CyberGfx, COMI data files
+Version:      0.4
+Architecture: m68k-amigaos >= 3.1
+Distribution: Aminet
 
 This is a game interpreter and player for the Lucasarts game "Curse of Monkey Island" (COMI) 
 for the Commodore Amiga range of computers. This allows you to play the Curse of Monkey Island
@@ -39,7 +45,7 @@ An CBM Amiga (or CBM Amiga Emulator) with the following features:-
 Status
 ------
 
-Goodsoup is version 0.3, it has most of the scripting code completed. It is capable
+Goodsoup is version 0.4, it has most of the scripting code completed. It is capable
 of loading script and room files from the data files. It is capable of "booting" 
 the game by running the boot scripts, upto the difficulty selection screen.
 
@@ -89,7 +95,7 @@ from shell. Type the following:-
 Usage
 -----
 
-The game itself should be straighforward to play. To access the game controls,
+The game itself is straightforward to play. To access the game controls,
 the game must be paused via the space bar. You can access the Amiga RMB Menu,
 to access controls to; Resume and Quit the Game. Press the space bar again to
 resume playing.
