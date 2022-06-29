@@ -119,6 +119,25 @@ namespace gs
 						}
 					}
 					break;
+					case SDL_MOUSEBUTTONUP: 
+					case SDL_MOUSEBUTTONDOWN: {
+						MOUSE_X = event.button.x;
+						MOUSE_Y = event.button.y;
+
+						if (event.button.button == 0 && event.motion.state == 0) {
+							MOUSE_LMB_STATE = -1;
+						}
+						else if (event.button.button == 0 && event.motion.state == 1) {
+							MOUSE_LMB_STATE = 1;
+						}
+						else if (event.button.button == 0 && event.motion.state == 0) {
+							MOUSE_RMB_STATE = -1;
+						}
+						else if (event.button.button == 0 && event.motion.state == 1) {
+							MOUSE_RMB_STATE = 1;
+						}
+					}
+					break;
 				}
 			}
 
