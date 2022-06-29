@@ -3,7 +3,7 @@ Uploader:     betajaen@users.noreply.github.com (Robin Southern)
 Author:       betajaen@users.noreply.github.com (Robin Southern)
 Type:         game/role
 Requires:     68020, CyberGfx, COMI data files
-Version:      0.4
+Version:      0.5
 Architecture: m68k-amigaos >= 3.1
 Distribution: Aminet
 
@@ -45,7 +45,7 @@ An CBM Amiga (or CBM Amiga Emulator) with the following features:-
 Status
 ------
 
-Goodsoup is version 0.4, it has most of the scripting code completed. It is capable
+Goodsoup is version 0.5, it has most of the scripting code completed. It is capable
 of loading script and room files from the data files. It is capable of "booting" 
 the game by running the boot scripts, upto the difficulty selection screen.
 

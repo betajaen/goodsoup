@@ -38,10 +38,19 @@ For 0.4
 [-] SDL accurate timer to call runFrame
 [x] SDL Click X to quit
 [x] SDL event loop
-[ ] SDL key controls
-[ ] SDL mouse cursor controls using OS pointer image
+[-] SDL key controls
+[x] SDL mouse cursor controls using OS pointer image
 [x] Continuous or Stepped Frame advancement via hotkeys
 [x] Pause/Resume of gameplay
+
+For 0.5
+=======
+
+... Objects ...
+
+... Graphics ...
+
+... Resource Garbage Collection ...
 
 COMI:
 
@@ -50,11 +59,6 @@ COMI:
 [ ] Loads Wally/Guybrush/Cannon Room
 [ ] Load Actors
 [ ] Actor related placeholder opcodes implemented
-
-For 0.5
-=======
-
-... Graphics ...
-
-... Resource Garbage Collection ...
-
+[ ] Load Objects
+[ ] Object related placeholder opcodes implemented
+[ ] Screen Hitboxes

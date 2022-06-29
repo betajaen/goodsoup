@@ -31,7 +31,7 @@
 #include "screen.h"
 #include "functions.h"
 
-extern const char GOODSOUP_VERSION_STR[] = "$VER: goodsoup 0.3 (" __AMIGADATE__ ")";
+extern const char GOODSOUP_VERSION_STR[] = "$VER: goodsoup 0.5 (" __AMIGADATE__ ")";
 
 #if GS_TEST == 1
 namespace test
