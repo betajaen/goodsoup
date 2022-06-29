@@ -23,6 +23,7 @@
 #include "../screen.h"
 #include "../globals.h"
 #include "../functions.h"
+#include "../room.h"
 
 #include <SDL2/SDL.h>
 
@@ -218,6 +219,10 @@ namespace gs
 		}
 
 		PAUSED = !PAUSED;
+	}
+
+	void drawRoomBackground(RoomData* roomData) {
+
 	}
 
 }

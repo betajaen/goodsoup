@@ -27,6 +27,7 @@
 #include "vm_vars.h"
 #include "disk.h"
 #include "utils.h"
+#include "screen.h"
 
 namespace gs
 {
@@ -262,6 +263,11 @@ namespace gs
 		}
 
 		/* TODO: Set Camera to follow actor - if there is one*/
+
+		/* TEMP */
+		if (roomData) {
+			drawRoomBackground(roomData);
+		}
 
 	}
 

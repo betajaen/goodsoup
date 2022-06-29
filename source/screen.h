@@ -22,6 +22,8 @@
 
 namespace gs
 {
+	class RoomData;
+
 	bool openScreen();
 	bool closeScreen();
 	void screenLoop();
@@ -30,6 +32,7 @@ namespace gs
 	void drawSystemTextF(uint8 colour, uint16 x, uint16 y, const char* fmt, ...);
 	void clearScreen(uint8 colour);
 	void drawBox(uint8 colour, uint16 x, uint16 y, uint16 w, uint16 h);
+	void drawRoomBackground(RoomData* roomData);
 }
 
 #endif

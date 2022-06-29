@@ -22,6 +22,8 @@
 #include "../profile.h"
 #include "../globals.h"
 #include "../functions.h"
+#include "../room.h"
+
 #include "timer_amiga.h"
 #include "cursor_amiga.h"
 
@@ -355,5 +357,8 @@ namespace gs
 	void setCursor(CursorKind type) {
 
 	}
+	
+	void drawRoomBackground(RoomData* roomData) {
 
+	}
 }
