@@ -112,8 +112,7 @@ namespace gs
 	void runFrame() {
 		FRAME_NUM++;
 
-		clearScreen(col++);
-		drawBox(col++, 10, 30, 100, 30);
+		drawBox(col++, 10, 10, 10, 10);
 		VM->runAllScripts();
 
 		if (SHOW_OSD) {
