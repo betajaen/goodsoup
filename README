@@ -1,12 +1,21 @@
 Goodsoup
 ========
 
-This is a game interpreter for the Lucasarts game "Curse of Monkey Island" (COMI) for the Commodore Amiga range of computers. Goodsoup is a partial fork of the ScummVM 0.9.1 SCUMM V8 Code by the ScummVM Team.
+This is a game interpreter and player for the Lucasarts game "Curse of Monkey Island" (COMI) 
+for the Commodore Amiga range of computers. This allows you to play the Curse of Monkey Island
+game, natively without emulation on the Commodore Amiga using its software APIs using a 
+copy of the COMI PC data files only.
+
+Goodsoup is a partial fork and reimplementation of the following codebases:
+
+	- ScummVM 0.9.1 (SCUMM V8) Code by the ScummVM Team.
+	- NScumm (NScumm.Scumm) Code by Valéry Sablonnière.
 
 Copying
 -------
 
-Goodsoup is licensed under the GNU General Public License version 2. Please refer to the COPYING file, which is included in this source code distribution.
+Goodsoup is licensed under the GNU General Public License version 2. Please refer to the
+COPYING file, which is included in this source code distribution.
 
 Supported Games
 ---------------
@@ -23,8 +32,73 @@ An CBM Amiga (or CBM Amiga Emulator) with the following features:-
 * At least 2 MiBs of RAM
 * At least a Motorola 68020 Processor
 * A Harddrive partition with 940 MiB free of space
-* A P96 compatible graphics software/hardware that is capable of supporting a 640x480 8-bit resolution
+* A P96 compatible graphics software and hardware that is capable of supporting 
+  a 640x480 8-bit resolution at least 25 frames per second.
 * AHI software installed with compatible audio hardware
+
+Status
+------
+
+Goodsoup is version 0.3, it has most of the scripting code completed. It is capable
+of loading script and room files from the data files. It is capable of "booting" 
+the game by running the boot scripts, upto the difficulty selection screen.
+
+Screen Graphics are not yet supported. Audio is not currently supported.
+
+Installation
+------------
+
+Copy the Goodsoup folder to your harddrive. Inside the goodsoup folder should be 
+placed from the COMI data disks the following files:-
+
+	- COMI.LA0
+	- COMI.LA1
+	- COMI.LA2
+	- RESOURCE/BBSAN.SAN
+	- RESOURCE/CURSERNG.SAN
+	- RESOURCE/FG010GP.SAN
+	- RESOURCE/FINALE.SAN
+	- RESOURCE/FONT0.NUT
+	- RESOURCE/FONT1.NUT
+	- RESOURCE/FONT2.NUT
+	- RESOURCE/FONT3.NUT
+	- RESOURCE/FONT4.NUT
+	- RESOURCE/KIS030.SAN
+	- RESOURCE/LANGUAGE.TAB
+	- RESOURCE/LAVARIDE.SAN
+	- RESOURCE/LIFTCRSE.SAN
+	- RESOURCE/MORESLAW.SAN
+	- RESOURCE/MUSDISK1.BUN
+	- RESOURCE/MUSDISK2.BUN
+	- RESOURCE/NEWBOOTS.SAN
+	- RESOURCE/OPENING.SAN
+	- RESOURCE/SB010.SAN
+	- RESOURCE/SB020.SAN
+	- RESOURCE/SINKSHP.SAN
+	- RESOURCE/VOXDISK1.BUN
+	- RESOURCE/VOXDISK2.BUN
+	- RESOURCE/WRECKSAN.SAN
+	- RESOURCE/ZAP010.SAN
+
+Double click on the monkey3 program to launch the program from Workbench, or
+from shell. Type the following:-
+
+	stack 65536
+	monkey3
+
+Usage
+-----
+
+The game itself should be straighforward to play. To access the game controls,
+the game must be paused via the space bar. You can access the Amiga RMB Menu,
+to access controls to; Resume and Quit the Game. Press the space bar again to
+resume playing.
+
+Whilst paused, you can press the S key to step the game forward by one frame.
+
+Once the game has been exited, a message will appear to Thanking you for playing,
+this ensures that all the memory allocated and disk resources have been released
+correctly.
 
 Compiling
 ---------
