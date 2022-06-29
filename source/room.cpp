@@ -266,6 +266,12 @@ namespace gs
 
 		/* TEMP */
 		if (roomData) {
+			RoomPaletteData* palette = roomData->getPalette(0);
+
+			if (palette) {
+				setRoomPalette(palette);
+			}
+
 			drawRoomBackground(roomData);
 		}
 

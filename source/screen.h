@@ -23,6 +23,7 @@
 namespace gs
 {
 	class RoomData;
+	struct RoomPaletteData;
 
 	bool openScreen();
 	bool closeScreen();
@@ -32,6 +33,7 @@ namespace gs
 	void drawSystemTextF(uint8 colour, uint16 x, uint16 y, const char* fmt, ...);
 	void clearScreen(uint8 colour);
 	void drawBox(uint8 colour, uint16 x, uint16 y, uint16 w, uint16 h);
+	void setRoomPalette(RoomPaletteData* palette);
 	void drawRoomBackground(RoomData* roomData);
 }
 

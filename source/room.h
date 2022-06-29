@@ -107,8 +107,8 @@ namespace gs
 			return _palettes.getSize();
 		}
 
-		RoomPaletteData& getPalette(uint8 index) {
-			return _palettes.get(index);
+		RoomPaletteData* getPalette(uint8 index) {
+			return _palettes.ptr(index);
 		}
 
 	};
@@ -134,6 +134,14 @@ namespace gs
 
 		bool hasGraphicsData() const {
 			return graphicsData != NULL;
+		}
+
+		RoomPaletteData* getPalette(uint8 index) const {
+			if (graphicsData == NULL) {
+				return NULL;
+			}
+
+			return graphicsData->getPalette(index);
 		}
 
 		bool getFirstScript(RoomScriptKind kind, ReadSpan<byte, uint16>& out_Script) const {

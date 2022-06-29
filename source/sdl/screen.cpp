@@ -220,6 +220,17 @@ namespace gs
 
 		PAUSED = !PAUSED;
 	}
+	
+	void setRoomPalette(RoomPaletteData* palette) {
+		uint8* rgb = &palette->palette[0];
+		for (uint16 i = 0; i < 256; i++) {
+			SDL_Color& colour = sPalette[i];
+			colour.r = *rgb++;
+			colour.g = *rgb++;
+			colour.b = *rgb++;
+		}
+		sPaletteDirty = true;
+	}
 
 	void drawRoomBackground(RoomData* roomData) {
 

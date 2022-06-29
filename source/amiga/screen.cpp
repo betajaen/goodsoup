@@ -75,6 +75,8 @@ namespace gs
 		FPF_ROMFONT | FPF_DESIGNED,	/* Flags */
 	};
 
+	ULONG sPalette[2 + (256 * 3)] = { 0 };
+
 	GS_AMIGA_TEXT(TEXT_Unpause, "Resume");
 	GS_AMIGA_TEXT(TEXT_Quit, "Quit");
 	GS_AMIGA_MENU_ITEM(MENUITEM_Unpause, &TEXT_Unpause, NULL, 0);
@@ -108,6 +110,10 @@ namespace gs
 			SA_Title, (ULONG) GS_GAME_NAME,
 			SA_ShowTitle, FALSE,
 			SA_Type, CUSTOMSCREEN,
+			SA_FullPalette, TRUE,
+			SA_Colors32, TRUE,
+			SA_Exclusive, TRUE,
+			SA_AutoScroll, FALSE,
 			SA_Font, (ULONG) &sDefaultFont,
 			TAG_DONE
 		);
@@ -358,7 +364,25 @@ namespace gs
 
 	}
 	
-	void drawRoomBackground(RoomData* roomData) {
+	void setRoomPalette(RoomPaletteData* palette) {
+		
+		ULONG* dst = &sPalette[0];
+		uint8* src = &palette->palette[0];
 
+		*dst = 256L << 16 | 0;
+		dst++;
+
+		for (uint16 i = 0; i < 256 * 3; i++) {
+			*dst = (*src << 24) | 0xFFFFFF;
+			dst++;
+			src++;
+		}
+
+		*dst = 0;
+
+		LoadRGB32(&sScreen->ViewPort, &sPalette[0]);
+	}
+
+	void drawRoomBackground(RoomData* roomData) {
 	}
 }
