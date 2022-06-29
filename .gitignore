@@ -12,4 +12,4 @@ dist/*.LA2
 dist/*.la2
 dist/RESOURCE
 dist/resource
-
+dist/README
