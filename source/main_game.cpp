@@ -48,6 +48,10 @@ namespace gs
 	int32 SENTENCE_NUM = 0;
 	bool SHOW_OSD = true;
 	uint32 FRAME_NUM = 0;
+	int32 MOUSE_X;
+	int32 MOUSE_Y;
+	int32 MOUSE_LMB_STATE;
+	int32 MOUSE_RMB_STATE;
 
 	void cleanup() {
 		deleteObject(VM);
@@ -114,6 +118,9 @@ namespace gs
 
 		drawBox(col++, 10, 10, 10, 10);
 		VM->runAllScripts();
+
+		MOUSE_LMB_STATE = 0;
+		MOUSE_RMB_STATE = 0;
 
 		if (SHOW_OSD) {
 			runOSD();

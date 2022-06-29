@@ -143,7 +143,7 @@ namespace gs
 			WA_SimpleRefresh, TRUE,
 			WA_CloseGadget, FALSE,
 			WA_DepthGadget, FALSE,
-			WA_IDCMP, IDCMP_CLOSEWINDOW | IDCMP_VANILLAKEY |IDCMP_IDCMPUPDATE | IDCMP_INTUITICKS | IDCMP_MENUPICK,
+			WA_IDCMP, IDCMP_CLOSEWINDOW | IDCMP_VANILLAKEY | IDCMP_IDCMPUPDATE | IDCMP_MOUSEBUTTONS,
 			TAG_END
 		);
 		
@@ -258,6 +258,25 @@ namespace gs
 							}
 						}
 						break;
+						case IDCMP_MOUSEBUTTONS: {
+							MOUSE_X = msg->MouseX;
+							MOUSE_Y = msg->MouseY;
+
+							if (msg->Code == SELECTUP) {
+								MOUSE_LMB_STATE = 1;
+							}
+							else {
+								MOUSE_LMB_STATE = -1;
+							}
+
+							if (msg->Code == MENUUP) {
+								MOUSE_RMB_STATE = 1;
+							}
+							else {
+								MOUSE_RMB_STATE = -1;
+							}
+						}
+						break;
 					}
 					ReplyMsg((struct Message*)msg);
 				}
@@ -318,6 +337,8 @@ namespace gs
 
 		if (PAUSED == true) {
 			SetMenuStrip (sWindow, &MENU_Game);
+			
+			ModifyIDCMP(sWindow, IDCMP_IDCMPUPDATE | IDCMP_VANILLAKEY | IDCMP_MENUPICK);
 
 			if (SHOW_OSD) {
 				runOSD();
@@ -326,6 +347,7 @@ namespace gs
 		}
 		else {
 			ClearMenuStrip(sWindow);
+			ModifyIDCMP(sWindow, IDCMP_CLOSEWINDOW | IDCMP_VANILLAKEY | IDCMP_IDCMPUPDATE | IDCMP_MOUSEBUTTONS);
 		}
 
 	}
