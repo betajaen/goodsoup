@@ -195,7 +195,7 @@ namespace gs
 	}
 	
 	void drawSystemText(uint8 colour, uint16 x, uint16 y, const char* text) {
-		printf("SYSTEX: %s\n", text);
+		//printf("SYSTEX: %s\n", text);
 	}
 
 	void drawSystemTextF(uint8 colour, uint16 x, uint16 y, const char* fmt, ...) {
@@ -206,7 +206,7 @@ namespace gs
 		va_start(arg, fmt);
 
 		SDL_vsnprintf(sTemp, 256, fmt, arg);
-		printf("SYSTEX: %s\n", &sTemp[0]);
+		//printf("SYSTEX: %s\n", &sTemp[0]);
 	}
 
 	void togglePause() {
@@ -232,7 +232,7 @@ namespace gs
 		sPaletteDirty = true;
 	}
 
-	void drawRoomBackground(RoomData* roomData) {
+	void blitBitmap(uint32 x, uint32 y, uint32 w, uint32 h, uint32 len, byte*) {
 
 	}
 

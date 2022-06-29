@@ -383,6 +383,6 @@ namespace gs
 		LoadRGB32(&sScreen->ViewPort, &sPalette[0]);
 	}
 
-	void drawRoomBackground(RoomData* roomData) {
+	void blitBitmap(uint32 x, uint32 y, uint32 w, uint32 h, uint32 len, byte*) {
 	}
 }

@@ -15,28 +15,19 @@
  *
  */
 
-#ifndef GS_SCREEN_H
-#define GS_SCREEN_H
+#define GS_FILE_NAME "screen"
 
-#include "types.h"
-#include "buffer.h"
+#include "room.h"
 
 namespace gs
 {
-	class RoomData;
-	struct RoomPaletteData;
 
-	bool openScreen();
-	bool closeScreen();
-	void screenLoop();
-	void setScreenPalette(uint8* palette, uint8 from = 0, uint8 to = 255);
-	void drawSystemText(uint8 colour, uint16 x, uint16 y, const char* text);
-	void drawSystemTextF(uint8 colour, uint16 x, uint16 y, const char* fmt, ...);
-	void clearScreen(uint8 colour);
-	void drawBox(uint8 colour, uint16 x, uint16 y, uint16 w, uint16 h);
-	void setRoomPalette(RoomPaletteData* palette);
-	void blitBitmap(uint32 x, uint32 y, uint32 w, uint32 h, uint32 len, byte*);
-	void drawRoomBackgroundSimple(Buffer<byte, uint32>& data, uint32 width, uint32 height);
+	void drawStripComplex(int placeholder) {
+
+	}
+
+	void drawRoomBackgroundSimple(Buffer<byte, uint32>& data, uint32 width, uint32 height) {
+
+	}
+
 }
-
-#endif

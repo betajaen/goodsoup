@@ -93,6 +93,9 @@ namespace gs
 
 		FixedArray<RoomColourCycle, MAX_ROOM_COLOUR_CYCLES, uint8> _paletteCycles;
 
+		Buffer<byte, uint32> _backgrounds[16];
+		uint8 _numBackgrounds;
+
 	public:
 
 		RoomGraphicsData();
@@ -109,6 +112,14 @@ namespace gs
 
 		RoomPaletteData* getPalette(uint8 index) {
 			return _palettes.ptr(index);
+		}
+
+		uint8 getNumBackgrounds() const {
+			return _numBackgrounds;
+		}
+
+		Buffer<byte, uint32>& getBackground(uint8 idx) {
+			return _backgrounds[idx];
 		}
 
 	};
@@ -134,6 +145,25 @@ namespace gs
 
 		bool hasGraphicsData() const {
 			return graphicsData != NULL;
+		}
+
+		uint8 getNumBackgrounds() const {
+			if (graphicsData == NULL)
+				return 0;
+
+			return graphicsData->getNumBackgrounds();
+		}
+
+		Buffer<byte, uint32>& getBackground(uint8 idx) {
+
+			static Buffer<byte, uint32> _temp;
+
+			if (graphicsData == NULL) {
+				error(GS_THIS, "Cannot get background as GraphicsData was not loaded!");
+				return _temp;
+			}
+
+			return graphicsData->getBackground(idx);
 		}
 
 		RoomPaletteData* getPalette(uint8 index) const {

@@ -26,6 +26,7 @@ namespace gs
 	RoomGraphicsData::RoomGraphicsData() {
 		_width = 0;
 		_height = 0;
+		_numBackgrounds = 0;
 	}
 
 	RoomGraphicsData::~RoomGraphicsData() {
@@ -35,11 +36,53 @@ namespace gs
 	void RoomGraphicsData::open(uint16 width, uint16 height) {
 		_width = width;
 		_height =height;
+		_numBackgrounds = 0;
 	}
 
 	void RoomGraphicsData::close() {
 		_width = 0;
 		_height = 0;
+		if (_numBackgrounds) {
+			for (uint8 i = 0; i < _numBackgrounds; i++) {
+				Buffer<byte, uint32>& image = _backgrounds[i];
+				image.release();
+			}
+			_numBackgrounds = 0;
+		}
+	}
+
+	static bool readInsideSMAP(DiskReader& reader, TagPair& tag, FixedArray<uint32, 16, uint8>& chunks, uint8& chunksCount) {
+		
+		while (reader.pos() < tag.end()) {
+			TagPair innerTag = reader.readTagPair();
+			
+			if (innerTag.isTag(GS_MAKE_ID('Z', 'P', 'L', 'N'))) {
+				
+				TagPair offsTag;
+						
+				// OFFS - Offsets.
+				if (reader.readAndCompareTag(GS_MAKE_ID('O', 'F', 'F', 'S'), offsTag) == false) {
+					error(GS_THIS, "Expected OFFS tag after PALS tag! Got %s", offsTag.tagStr());
+					return false;
+				}
+
+				if (readInsideSMAP(reader, offsTag, chunks, chunksCount) == false)
+					return false;
+
+				continue;
+			}
+			else if (innerTag.isTag(GS_MAKE_ID('Z', 'P', 'L', 'N'))) {
+				chunks[chunksCount++] = innerTag.dataPos;
+
+				reader.skip(innerTag);
+			}
+
+			error(GS_THIS, "Unsupported tag %s from", innerTag.tagStr(), tag.tagStr());
+
+			reader.skip(innerTag);
+		}
+
+		return true;
 	}
 	
 	bool RoomGraphicsData::readFromDisk(DiskReader& reader, const TagPair& lflf, uint16 debug_roomNum) {
@@ -137,6 +180,67 @@ namespace gs
 
 							debug(GS_THIS, "CYCL(%ld)", (uint32) (index - 1));
 						}
+
+						continue;
+
+					}
+					
+					if (tag.isTag(GS_MAKE_ID('I', 'M', 'A', 'G'))) {
+
+						TagPair wrapTag;
+						
+						if (reader.readAndCompareTag(GS_MAKE_ID('W', 'R', 'A', 'P'), wrapTag) == false) {
+							error(GS_THIS, "Expected WRAP tag after IMAG tag! Got %s", wrapTag.tagStr());
+							abort_quit_stop();
+							return false;
+						}
+
+						TagPair offsTag;
+						
+						// OFFS - Offsets.
+						if (reader.readAndCompareTag(GS_MAKE_ID('O', 'F', 'F', 'S'), offsTag) == false) {
+							error(GS_THIS, "Expected OFFS tag after IMAG tag! Got %s", offsTag.tagStr());
+							return false;
+						}
+
+						reader.skip(offsTag);
+						
+						TagPair smapTag;
+						
+						// SMAP - Screen? Map.
+						if (reader.readAndCompareTag(GS_MAKE_ID('S', 'M', 'A', 'P'), smapTag) == false) {
+							error(GS_THIS, "Expected SMAP tag after OFFS tag! Got %s", smapTag.tagStr());
+							return false;
+						}
+
+						debug(GS_THIS, "In SMAP tag %ld!!", smapTag.length);
+
+						FixedArray<uint32, 16, uint8> chunks;
+						uint8 chunksCount = 0;
+
+						readInsideSMAP(reader, smapTag, chunks, chunksCount);
+
+
+						debug(GS_THIS, "Passed. Num chunks = %ld", (uint32) chunksCount);
+
+						if (chunksCount == 0) {
+							_numBackgrounds = 1;
+							Buffer<byte, uint32>& background = _backgrounds[0];
+						
+							uint32 backgroundSize = smapTag.length;
+
+							debug(GS_THIS, "Reading background of size %ld", backgroundSize);
+						
+						
+							background.setSize(backgroundSize, 0);
+							ReadWriteSpan<byte, uint32> backgroundData = background.getReadWriteSpan<uint32>();
+							
+							uint32 tempPos = reader.pos();
+							reader.seek(smapTag);
+							reader.readBytes(backgroundData);
+							reader.seek(tempPos);
+						}
+
 
 						continue;
 

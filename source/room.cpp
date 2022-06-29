@@ -272,7 +272,14 @@ namespace gs
 				setRoomPalette(palette);
 			}
 
-			drawRoomBackground(roomData);
+
+			if (roomData->getNumBackgrounds() != 0) {
+				Buffer<byte, uint32>& backgroundData = roomData->getBackground(0);
+				if (backgroundData.getSize() > 0) {
+					drawRoomBackgroundSimple(backgroundData, 640, 480); // TEMP.
+				}
+			}
+
 		}
 
 	}
