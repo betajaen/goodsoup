@@ -118,7 +118,7 @@ namespace gs
 			return _numBackgrounds;
 		}
 
-		ReadSpan<byte, uint32>& getBackground(uint8 idx) {
+		ReadSpan<byte, uint32> getBackground(uint8 idx) const {
 			return _backgrounds[idx].getReadSpan<uint32>();
 		}
 
@@ -154,13 +154,11 @@ namespace gs
 			return graphicsData->getNumBackgrounds();
 		}
 
-		ReadSpan<byte, uint32>& getBackground(uint8 idx) {
-
-			static Buffer<byte, uint32> _temp;
+		ReadSpan<byte, uint32> getBackground(uint8 idx) const {
 
 			if (graphicsData == NULL) {
 				error(GS_THIS, "Cannot get background as GraphicsData was not loaded!");
-				return _temp;
+				return ReadSpan<byte, uint32>();
 			}
 
 			return graphicsData->getBackground(idx);

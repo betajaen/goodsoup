@@ -274,7 +274,7 @@ namespace gs
 
 
 			if (roomData->getNumBackgrounds() != 0) {
-				Buffer<byte, uint32>& backgroundData = roomData->getBackground(0);
+				ReadSpan<byte, uint32> backgroundData = roomData->getBackground(0);
 				if (backgroundData.getSize() > 0) {
 					drawRoomBackgroundSimple(backgroundData, 640, 480); // TEMP.
 				}

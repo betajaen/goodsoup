@@ -20,6 +20,7 @@
 
 #include "types.h"
 #include "debug.h"
+#include "endian.h"
 
 namespace gs
 {
@@ -67,6 +68,10 @@ namespace gs
 			return &_data[idx];
 		}
 
+		const T* ptr_unchecked(Index idx) const {
+			return &_data[idx];
+		}
+
 		const T& get(Index idx) const {
 			if (idx >= _size)
 				error(GS_THIS, "ReadSpan(Out of bounds, const, %d)", idx);
@@ -79,7 +84,95 @@ namespace gs
 		}
 
 	};
-	
+
+	template<typename T, typename Index = uint16>
+	struct SequentialReadSpanReader {
+		private:
+			ReadSpan<T, Index> _span;
+			Index _pos;
+		public:
+
+			SequentialReadSpanReader(const ReadSpan<T, Index>& span)
+				: _span(span), _pos(0) {
+			}
+
+			void skip_unchecked(Index amount) {
+				_pos += amount;
+			}
+
+			void setPos_unchecked(Index index) {
+				_pos = index;
+			}
+			
+			Index getPos() const {
+				return _pos;
+			}
+
+			byte peek() const {
+				return _span.get_unchecked(_pos);
+			}
+			
+			int8 readInt8_unchecked() {
+				int8 value = (int8) _span.get_unchecked(_pos);
+				_pos++;
+				return value;
+			}
+
+			uint8 readUint8_unchecked() {
+				uint8 value = _span.get_unchecked(_pos);
+				_pos++;
+				return value;
+			}
+
+			uint16 readUint16LE_unchecked() {
+				uint16 value = READ_LE_UINT16(_span.ptr(_pos));
+				_pos += 2;
+				return value;
+			}
+		
+			uint16 readUint16BE_unchecked() {
+				uint16 value = READ_BE_UINT16(_span.ptr(_pos));
+				_pos += 2;
+				return value;
+			}
+			
+			int16 readInt16LE_unchecked() {
+				int16 value = READ_LE_INT16(_span.ptr(_pos));
+				_pos += 2;
+				return value;
+			}
+		
+			int16 readInt16BE_unchecked() {
+				int16 value = READ_BE_INT16(_span.ptr(_pos));
+				_pos += 2;
+				return value;
+			}
+
+			uint32 readUint32LE_unchecked() {
+				uint32 value = READ_LE_UINT32(_span.ptr(_pos));
+				_pos += 4;
+				return value;
+			}
+		
+			uint32 readUint32BE_unchecked() {
+				uint32 value = READ_BE_UINT32(_span.ptr(_pos));
+				_pos += 4;
+				return value;
+			}
+		
+			int32 readInt32LE_unchecked() {
+				int32 value = READ_LE_INT32(_span.ptr(_pos));
+				_pos += 4;
+				return value;
+			}
+		
+			int32 readInt32BE_unchecked() {
+				int32 value = READ_BE_INT32(_span.ptr(_pos));
+				_pos += 4;
+				return value;
+			}
+	};
+
 	template<typename T, typename Index = uint16>
 	struct ReadWriteSpan {
 	private:
