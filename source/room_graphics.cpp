@@ -58,11 +58,19 @@ namespace gs
 			
 			if (innerTag.isTag(GS_MAKE_ID('Z', 'P', 'L', 'N'))) {
 				
+				TagPair wrapTag;
+
+				// OFFS - Offsets.
+				if (reader.readAndCompareTag(GS_MAKE_ID('W', 'R', 'A', 'P'), wrapTag) == false) {
+					error(GS_THIS, "Expected WRAP tag after ZPLN tag! Got %s", wrapTag.tagStr());
+					return false;
+				}
+
 				TagPair offsTag;
 						
 				// OFFS - Offsets.
 				if (reader.readAndCompareTag(GS_MAKE_ID('O', 'F', 'F', 'S'), offsTag) == false) {
-					error(GS_THIS, "Expected OFFS tag after PALS tag! Got %s", offsTag.tagStr());
+					error(GS_THIS, "Expected OFFS tag after OFFS tag! Got %s", offsTag.tagStr());
 					return false;
 				}
 
@@ -77,7 +85,7 @@ namespace gs
 				reader.skip(innerTag);
 			}
 
-			error(GS_THIS, "Unsupported tag %s from", innerTag.tagStr(), tag.tagStr());
+			// error(GS_THIS, "Unsupported tag %s from", innerTag.tagStr(), tag.tagStr());
 
 			reader.skip(innerTag);
 		}
@@ -213,32 +221,36 @@ namespace gs
 							return false;
 						}
 
-						debug(GS_THIS, "In SMAP tag %ld!!", smapTag.length);
-
 						FixedArray<uint32, 16, uint8> chunks;
 						uint8 chunksCount = 0;
 
 						readInsideSMAP(reader, smapTag, chunks, chunksCount);
 
-
-						debug(GS_THIS, "Passed. Num chunks = %ld", (uint32) chunksCount);
+						debug(GS_THIS, "SMAP(%ld, %ld)", (uint32) debug_roomNum, (uint32) chunksCount);
 
 						if (chunksCount == 0) {
+
 							_numBackgrounds = 1;
 							Buffer<byte, uint32>& background = _backgrounds[0];
 						
 							uint32 backgroundSize = smapTag.length;
 
-							debug(GS_THIS, "Reading background of size %ld", backgroundSize);
-						
-						
 							background.setSize(backgroundSize, 0);
 							ReadWriteSpan<byte, uint32> backgroundData = background.getReadWriteSpan<uint32>();
 							
-							uint32 tempPos = reader.pos();
-							reader.seek(smapTag);
+							reader.seek(smapTag.dataPos + 24);
+
+							uint32 p = reader.readUInt32LE();
+
 							reader.readBytes(backgroundData);
-							reader.seek(tempPos);
+							reader.seek(smapTag);
+							reader.skip(smapTag);
+						}
+						else {
+							NO_FEATURE(GS_THIS, "Unhandled Room %ld Graphics where are multiple ZPlane graphics!", (uint32) debug_roomNum);
+							
+							reader.seek(smapTag);
+							reader.skip(smapTag);
 						}
 
 
