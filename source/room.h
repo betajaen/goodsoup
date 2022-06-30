@@ -118,8 +118,8 @@ namespace gs
 			return _numBackgrounds;
 		}
 
-		Buffer<byte, uint32>& getBackground(uint8 idx) {
-			return _backgrounds[idx];
+		ReadSpan<byte, uint32>& getBackground(uint8 idx) {
+			return _backgrounds[idx].getReadSpan<uint32>();
 		}
 
 	};
@@ -154,7 +154,7 @@ namespace gs
 			return graphicsData->getNumBackgrounds();
 		}
 
-		Buffer<byte, uint32>& getBackground(uint8 idx) {
+		ReadSpan<byte, uint32>& getBackground(uint8 idx) {
 
 			static Buffer<byte, uint32> _temp;
 

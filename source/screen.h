@@ -36,7 +36,7 @@ namespace gs
 	void drawBox(uint8 colour, uint16 x, uint16 y, uint16 w, uint16 h);
 	void setRoomPalette(RoomPaletteData* palette);
 	void blitBitmap(uint32 x, uint32 y, uint32 w, uint32 h, uint32 len, byte*);
-	void drawRoomBackgroundSimple(Buffer<byte, uint32>& data, uint32 width, uint32 height);
+	void drawRoomBackgroundSimple(ReadSpan<byte, uint32>& data, uint32 width, uint32 height);
 }
 
 #endif

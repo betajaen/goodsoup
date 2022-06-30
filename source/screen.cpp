@@ -26,8 +26,13 @@ namespace gs
 
 	}
 
-	void drawRoomBackgroundSimple(Buffer<byte, uint32>& data, uint32 width, uint32 height) {
+	void drawStrip(ReadSpan<byte, uint32>& data, uint32 stripNum, uint32 width, uint32 height) {
+		const uint32 stripNumOffset = stripNum * 4;
 
+	}
+
+	void drawRoomBackgroundSimple(ReadSpan<byte, uint32>& data, uint32 width, uint32 height) {
+		drawStrip(data, 0, width, height);
 	}
 
 }
