@@ -31,7 +31,7 @@ namespace gs
 #define READ_BIT (cl--, bit = bits & 1, bits >>= 1, bit)
 #define FILL_BITS do {              \
 		if (cl <= 8) {              \
-			bits |= (reader.readInt8_unchecked() << cl); \
+			bits |= (reader.readUint8_unchecked() << cl); \
 			cl += 8;                \
 		}                           \
 	} while (0)
@@ -41,8 +41,8 @@ namespace gs
 
 	void drawStripBasicV(SequentialReadSpanReader<byte, uint32> reader, uint8* dst, uint32 height, uint8 decompMask, uint8 decompShift) {
 		
-		uint8 colour = reader.readInt8_unchecked();
-		uint32 bits = reader.readInt8_unchecked();
+		uint8 colour = reader.readUint8_unchecked();
+		uint32 bits = reader.readUint8_unchecked();
 		uint8 cl = 8;
 		uint8 bit;
 		int8 inc = -1;
@@ -100,7 +100,7 @@ namespace gs
 
 				FILL_BITS;
 				if (!transparentCheck || colour != transparentColour)
-					*dst = colour; // Temp.
+					*dst = colour;
 				dst++;
 
 			againPos:
@@ -172,9 +172,11 @@ namespace gs
 				warn(GS_THIS, "Unsupported drawStrip#%ld functionality!", (uint32) code);
 			return;
 			case 18:
+				transparentCheck = false;
 				drawStripBasicV(reader, dst, height, 255, 8);
 			return;
 			case 108:
+				transparentCheck = true;
 				drawStripComplex(reader, dst, height, 255, 8);
 			return;
 		}
@@ -201,7 +203,7 @@ namespace gs
 			
 			dst = &screen[x * 8];
 			reader.setPos_unchecked(x * 8);
-
+			transparentCheck = true;
 			drawStrip(imageData, dst, stripNum, GS_BITMAP_ROWS);
 
 		}
