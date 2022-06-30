@@ -248,5 +248,16 @@ namespace gs
 
 		sSurfaceDirty = true;
 	}
+	
+	void blitCopyBitmap(byte* bitmap) {
+		
+		SDL_LockSurface(sSurface);
+		uint8* dst = (uint8*) sSurface->pixels;
+		
+		SDL_memcpy(dst, bitmap, GS_SCREEN_WIDTH * GS_SCREEN_HEIGHT);
+	
+		SDL_UnlockSurface(sSurface);
 
+		sSurfaceDirty = true;
+	}
 }

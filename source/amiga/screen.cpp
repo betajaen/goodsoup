@@ -389,4 +389,8 @@ namespace gs
 	void blitLine(uint16 y, byte* lineData) {
 		WritePixelArray(lineData, 0, 0, GS_SCREEN_WIDTH, &sRastPort, 0, y, GS_SCREEN_WIDTH, 1, RECTFMT_LUT8);
 	}
+	
+	void blitCopyBitmap(byte* bitmap) {
+		WritePixelArray(bitmap, 0, 0, GS_SCREEN_WIDTH, &sRastPort, 0, 0, GS_SCREEN_WIDTH, GS_SCREEN_HEIGHT, RECTFMT_LUT8);
+	}
 }
