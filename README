@@ -12,6 +12,8 @@ for the Commodore Amiga range of computers. This allows you to play the Curse of
 game, natively without emulation on the Commodore Amiga using its software APIs using a 
 copy of the COMI PC data files only.
 
+In laymans terms; Goodsoup is "COMI.exe" for the Amiga.
+
 Goodsoup is a partial fork and reimplementation of the following codebases:
 
 	- ScummVM 0.9.1 (SCUMM V8) Code by the ScummVM Team.
@@ -49,7 +51,8 @@ Goodsoup is version 0.5, it has most of the scripting code completed. It is capa
 of loading script and room files from the data files. It is capable of "booting" 
 the game by running the boot scripts, upto the difficulty selection screen.
 
-- Graphics are currently being worked on.
+- Graphics are primitive are currently being worked on.
+- Input will be worked on in a future milestone.
 - Audio will be worked on in a future milestone.
 
 Installation
