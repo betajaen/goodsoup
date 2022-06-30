@@ -49,7 +49,8 @@ Goodsoup is version 0.5, it has most of the scripting code completed. It is capa
 of loading script and room files from the data files. It is capable of "booting" 
 the game by running the boot scripts, upto the difficulty selection screen.
 
-Screen Graphics are not yet supported. Audio is not currently supported.
+- Graphics are currently being worked on.
+- Audio will be worked on in a future milestone.
 
 Installation
 ------------
