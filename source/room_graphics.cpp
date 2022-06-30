@@ -239,9 +239,6 @@ namespace gs
 							ReadWriteSpan<byte, uint32> backgroundData = background.getReadWriteSpan<uint32>();
 							
 							reader.seek(smapTag.dataPos + 24);
-
-							uint32 p = reader.readUInt32LE();
-
 							reader.readBytes(backgroundData);
 							reader.seek(smapTag);
 							reader.skip(smapTag);
