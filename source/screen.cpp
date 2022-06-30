@@ -22,9 +22,32 @@
 
 namespace gs
 {
+	static uint8 line[640];
+
+	static uint8 rnd = 23;
 
 	void drawStripComplex(SequentialReadSpanReader<byte, uint32> reader, uint32 width, uint32 height) {
 		clearScreen(108); // TEMP
+
+		const uint32 origin = reader.getPos();
+
+		uint8 colour = reader.readInt8_unchecked();
+		uint8 bits = reader.readInt8_unchecked();
+		uint8 cl = 8;
+		uint8* dst = &line[0];
+
+		for (uint16 y=0;y < GS_SCREEN_HEIGHT;y++) {
+
+			for(uint16 i=0;i < GS_SCREEN_WIDTH;i++) {
+				line[i] = rnd++;
+			}
+
+			blitLine(y, &line[0]);
+			
+
+		}
+
+
 	}
 
 	void drawStrip(SequentialReadSpanReader<byte, uint32> reader, uint32 stripNum, uint32 width, uint32 height) {
@@ -56,7 +79,7 @@ namespace gs
 			return;
 		}
 
-		drawStrip(SequentialReadSpanReader<byte, uint32>(data), 0, width, height);
+		drawStrip(SequentialReadSpanReader<byte, uint32>(data), 0, GS_SCREEN_WIDTH, GS_SCREEN_HEIGHT);
 	}
 
 }

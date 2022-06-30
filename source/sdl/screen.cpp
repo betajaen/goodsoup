@@ -235,5 +235,18 @@ namespace gs
 	void blitBitmap(uint32 x, uint32 y, uint32 w, uint32 h, uint32 len, byte*) {
 
 	}
+	
+	void blitLine(uint16 y, byte* lineData) {
+		
+		SDL_LockSurface(sSurface);
+		uint8* dst = (uint8*) sSurface->pixels;
+		dst += y * sSurface->pitch;
+
+		SDL_memcpy(dst, lineData, GS_SCREEN_WIDTH);
+	
+		SDL_UnlockSurface(sSurface);
+
+		sSurfaceDirty = true;
+	}
 
 }
