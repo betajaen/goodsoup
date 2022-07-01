@@ -86,10 +86,14 @@ namespace gs
 		return true;
 	}
 	
-	bool RoomData::_readRoomData(DiskReader& reader, const TagPair& lflf, bool readProperties, bool readScripts, bool readGraphics) {
+	bool RoomData::_readRoomData(DiskReader& reader, const TagPair& lflf, bool readProperties, bool readScripts, bool readGraphics, bool readObjects) {
 		
 		if (readGraphics) {
 			readProperties = true;
+		}
+
+		if (readObjects) {
+			readScripts = true;
 		}
 
 
@@ -123,10 +127,14 @@ namespace gs
 				return false;
 		}
 
+		if (readObjects) {
+			NO_FEATURE(GS_THIS, "readObjects not implemented");
+		}
+
 		return true;
 	}
 
-	bool RoomData::readFromDisk(DiskReader& reader, bool readProperties, bool readScripts, bool readGraphics) {
+	bool RoomData::readFromDisk(DiskReader& reader, bool readProperties, bool readScripts, bool readGraphics, bool readObjects) {
 
 		TagPair lflf;
 		if (_readLFLF(reader, lflf) == false)
@@ -134,16 +142,16 @@ namespace gs
 
 		close(true, true);
 
-		return _readRoomData(reader, lflf, readProperties, readScripts, readGraphics);
+		return _readRoomData(reader, lflf, readProperties, readScripts, readGraphics, readObjects);
 	}
 
-	bool RoomData::mergeFromDisk(DiskReader& reader, bool readProperties, bool readScripts, bool readGraphics) {
+	bool RoomData::mergeFromDisk(DiskReader& reader, bool readProperties, bool readScripts, bool readGraphics, bool readObjects) {
 
 		TagPair lflf;
 		if (_readLFLF(reader, lflf) == false)
 			return false;
 
-		return _readRoomData(reader, lflf, readProperties, readScripts, readGraphics);
+		return _readRoomData(reader, lflf, readProperties, readScripts, readGraphics, readObjects);
 	}
 
 	bool RoomData::_readProperties(DiskReader& reader, const TagPair& lflf) {

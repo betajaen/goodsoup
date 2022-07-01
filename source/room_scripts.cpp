@@ -64,6 +64,23 @@ namespace gs
 						numScripts++;
 						scriptTotalLength += roomPair.length - sizeof(uint32);
 					}
+					else if (roomPair.isTag(GS_MAKE_ID('O','B','C','D'))) {
+						
+						while (reader.pos() < roomPair.end()) {
+
+							TagPair obcdTag = reader.readTagPair();
+
+							if (obcdTag.isTag(GS_MAKE_ID('V', 'E', 'R', 'B'))) {
+								numScripts++;
+								scriptTotalLength += obcdTag.length;
+							}
+
+							reader.skip(obcdTag);
+						}
+
+						continue;
+
+					}
 
 					reader.skip(roomPair);
 				}
@@ -137,9 +154,39 @@ namespace gs
 
 						continue;
 					}
-			
+					else if (roomPair.isTag(GS_MAKE_ID('O','B','C','D'))) {
+						
+						while (reader.pos() < roomPair.end()) {
+
+							TagPair obcdTag = reader.readTagPair();
+
+							if (obcdTag.isTag(GS_MAKE_ID('V', 'E', 'R', 'B'))) {
+								RoomScriptInfo& info = scriptInfo.get_unchecked(scriptIdx);
+								info.fileOffset = reader.pos();
+								info.length = obcdTag.length;
+								info.scriptOffset = scriptOffset;
+								
+								ReadWriteSpan<byte, uint16> span = scriptData.getReadWriteSpan<uint16>(scriptOffset, info.length);
+								reader.readBytes(span);
+								
+								debug(GS_THIS, "%s %ld %ld %ld %ld", obcdTag.tagStr(), (uint32) scriptIdx, (uint32) (info.num), (uint32) scriptOffset, (uint32) obcdTag.length);
+								
+								scriptIdx++;
+								scriptOffset += info.length;
+
+								continue;
+							}
+
+							reader.skip(obcdTag);
+						}
+
+						continue;
+
+					}
+
 					reader.skip(roomPair);
 				}
+				
 
 				continue;
 			}

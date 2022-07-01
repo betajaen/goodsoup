@@ -53,7 +53,8 @@ namespace gs
 		RSK_Entrance= 1,	// Entrance Script
 		RSK_Exit = 2,	// Exit Script
 		RSK_Script = 3,	// Room Script
-		RSK_LocalScript = 4
+		RSK_LocalScript = 4,
+		RSK_ObjectScript = 5
 	};
 	
 	class RoomScriptData {
@@ -79,6 +80,7 @@ namespace gs
 		bool getFirstScript(RoomScriptKind kind, ReadSpan<byte, uint16>& out_Script) const ;
 		bool getScript(RoomScriptKind kind, uint32 fileOffset, ReadSpan<byte, uint16>& out_Script) const;
 		bool getLocalNumberedScript(uint16 num, ReadSpan<byte, uint16>& out_Script) const;
+		bool getObjectNumberedScript(uint16 num, ReadSpan<byte, uint16>& out_Script) const;
 
 		bool readFromDisk(DiskReader& reader, const TagPair& lflf, uint16 debug_roomNum);
 
@@ -127,7 +129,7 @@ namespace gs
 	class RoomData : public ResourceData
 	{
 		bool _readLFLF(DiskReader& reader, TagPair& lflf);
-		bool _readRoomData(DiskReader& reader, const TagPair& lflf, bool readProperties, bool readScripts, bool graphics);
+		bool _readRoomData(DiskReader& reader, const TagPair& lflf, bool readProperties, bool readScripts, bool readGraphics, bool readObjects);
 		bool _readProperties(DiskReader& reader, const TagPair& lflf);
 
 	public:
@@ -201,8 +203,8 @@ namespace gs
 
 		uint16 width, height, numObjects, numZBuffers;
 		
-		bool readFromDisk(DiskReader& reader, bool readProperties = true, bool readScripts = true, bool readGraphics = true);
-		bool mergeFromDisk(DiskReader& reader, bool readPproperties = true, bool readScripts = true, bool readGraphics = true);
+		bool readFromDisk(DiskReader& reader, bool readProperties = true, bool readScripts = true, bool readGraphics = true, bool readObjects = true);
+		bool mergeFromDisk(DiskReader& reader, bool readPproperties = true, bool readScripts = true, bool readGraphics = true, bool readObjects = true);
 
 	};
 
