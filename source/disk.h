@@ -84,6 +84,22 @@ namespace gs
 		inline byte readByte() {
 			return _file.readByte();
 		}
+		
+		inline int16 readInt16BE() {
+			return _file.readInt16BE();
+		}
+
+		inline int32 readInt32BE() {
+			return _file.readInt32BE();
+		}
+
+		inline int16 readInt16LE() {
+			return _file.readInt16LE();
+		}
+
+		inline int32 readInt32LE() {
+			return _file.readInt32LE();
+		}
 
 		inline uint16 readUInt16BE() {
 			return _file.readUInt16BE();

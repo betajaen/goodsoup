@@ -128,7 +128,7 @@ namespace gs
 		}
 
 		if (readObjects) {
-			NO_FEATURE(GS_THIS, "readObjects not implemented");
+			_readObjects(reader, lflf);
 		}
 
 		return true;
@@ -190,6 +190,90 @@ namespace gs
 		return false;
 	}
 
+	static bool readObject(DiskReader& reader, const TagPair& obcdPair, RoomScriptData* scriptData, uint16 debug_roomNum) {
+
+		ObjectData* object = NULL;
+		
+		while (reader.pos() < obcdPair.end()) {
+			TagPair tag = reader.readTagPair();
+			
+			if (tag.isTag(GS_MAKE_ID('C', 'D', 'H', 'D'))) {
+
+				uint32 version = reader.readUInt32LE();
+				uint16 objectNum = reader.readUInt16LE();
+
+				uint16 objectIdx = OBJECTS->newObject(objectNum);
+				object = OBJECTS->getObjectPtr_unchecked(objectIdx);
+
+				object->_parent =  reader.readByte();
+				object->_parentState = reader.readByte();
+				object->_flags = OF_AllowMaskOr;
+				
+				if (scriptData->getObjectNumberedScript(object->_num, object->_scriptData) == false) {
+					error(GS_THIS, "Could not retrieve script data for Object %ld in Room %ld", (uint32) object->_num, (uint32) debug_roomNum);
+				}
+
+				continue;
+			}
+			else if (tag.isTag(GS_MAKE_ID('V', 'E', 'R', 'B'))) {
+				reader.skip(tag); // Already memory at this point. Skip it.
+				continue;
+			}
+			else if (tag.isTag(GS_MAKE_ID('O', 'B', 'N', 'A'))) {
+				
+				if (object == NULL) {
+					error(GS_THIS, "Name was read before header!");
+					return false;
+				}
+
+				NO_FEATURE(GS_THIS, "Reading Object Name");
+				reader.skip(tag);
+				continue;
+			}
+			
+			debug(GS_THIS, "Unknown tag %s", tag.tagStr());
+
+			reader.skip(tag);
+		}
+
+		if (object != NULL) {
+			debug(GS_THIS, "Read Object %ld", (uint32) object->_num);
+		}
+
+		return object != NULL;
+	}
+	
+	bool RoomData::_readObjects(DiskReader& reader, const TagPair& lflf) {
+		reader.seek(lflf);
+
+		while (reader.pos() < lflf.end()) {
+			TagPair roomPair = reader.readTagPair();
+
+			if (roomPair.isTag(GS_MAKE_ID('R', 'M', 'S', 'C'))) {
+
+				while (reader.pos() < roomPair.end()) {
+					TagPair rmscPair = reader.readTagPair();
+
+					if (rmscPair.isTag(GS_MAKE_ID('O', 'B', 'C', 'D'))) {
+
+						if (readObject(reader, rmscPair, scriptData, getNum()) == false)
+							return false;
+
+
+						continue;
+					}
+
+					reader.skip(rmscPair);
+				}
+
+				break;
+			}
+
+			reader.skip(roomPair);
+		}
+
+		return true;
+	}
 
 	void startRoom(uint16 roomNum, bool runExitScript, bool runEnterScript) {
 

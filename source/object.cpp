@@ -97,6 +97,9 @@ namespace gs
 		_bUsed = false;
 		_bIsFloating = false;
 		_bIsLocked = false;
+		_parent = 0;
+		_parentState = 0;
+		_flags = OF_None;
 	}
 
 

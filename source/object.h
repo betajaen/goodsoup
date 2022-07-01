@@ -32,11 +32,23 @@ namespace gs
 
 #define MAX_OBJECTS 200
 
+	enum ObjectFlags {
+		OF_None = 0,
+		OF_AllowMaskOr = 1,
+		OF_DrawMaskOnAll = 2,
+		OF_ObjectMode = 8,
+	};
+
 	struct ObjectData {
 		uint16 _num, _idx, _roomNum;
 		uint8  _bIsFloating;
 		uint8  _bUsed;
 		uint8  _bIsLocked;
+		uint8  _parent;
+		uint8  _parentState;
+		uint8  _flags;
+
+		ReadSpan<byte, uint16> _scriptData;
 
 		void clear();
 	};
@@ -57,6 +69,10 @@ namespace gs
 		
 		void clearObjects();
 		void clearRoomObjects();
+
+		ObjectData* getObjectPtr_unchecked(uint16 idx) {
+			return &_objects[idx];
+		}
 
 		ObjectData& getObjectByIdx_unchecked(uint16 idx) {
 			return _objects[idx];

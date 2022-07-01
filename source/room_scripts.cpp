@@ -66,10 +66,12 @@ namespace gs
 					}
 					else if (roomPair.isTag(GS_MAKE_ID('O','B','C','D'))) {
 						
+						uint16 objectId = 0;
+
 						while (reader.pos() < roomPair.end()) {
 
 							TagPair obcdTag = reader.readTagPair();
-
+							
 							if (obcdTag.isTag(GS_MAKE_ID('V', 'E', 'R', 'B'))) {
 								numScripts++;
 								scriptTotalLength += obcdTag.length;
@@ -156,15 +158,25 @@ namespace gs
 					}
 					else if (roomPair.isTag(GS_MAKE_ID('O','B','C','D'))) {
 						
+						uint16 objectNum = 0;
+
 						while (reader.pos() < roomPair.end()) {
 
 							TagPair obcdTag = reader.readTagPair();
+							if (obcdTag.isTag(GS_MAKE_ID('C', 'D', 'H', 'D'))) {
+								reader.skip(4); // version
+								objectNum = reader.readUInt16LE();
+								reader.skip(2); // parent and parentState
 
-							if (obcdTag.isTag(GS_MAKE_ID('V', 'E', 'R', 'B'))) {
+								continue;
+							}
+							else if (obcdTag.isTag(GS_MAKE_ID('V', 'E', 'R', 'B'))) {
 								RoomScriptInfo& info = scriptInfo.get_unchecked(scriptIdx);
 								info.fileOffset = reader.pos();
 								info.length = obcdTag.length;
 								info.scriptOffset = scriptOffset;
+								info.num = objectNum;
+								info.kind = RSK_VerbScript;
 								
 								ReadWriteSpan<byte, uint16> span = scriptData.getReadWriteSpan<uint16>(scriptOffset, info.length);
 								reader.readBytes(span);
@@ -252,6 +264,21 @@ namespace gs
 		}
 
 		error(GS_THIS, "Could not find room script number %ld in Room!", (uint32) num);
+		abort_quit_stop();
+
+		return false;
+	}
+	
+	bool RoomScriptData::getObjectNumberedScript(uint16 num, ReadSpan<byte, uint16>& out_Script) const {
+		for (uint8 i = 0; i < numScripts; i++) {
+			const RoomScriptInfo& info = scriptInfo.get_unchecked(i);
+			if (info.kind == RSK_VerbScript && info.num == num) {
+				out_Script = scriptData.getReadSpan(info.scriptOffset, info.length);
+				return true;
+			}
+		}
+
+		error(GS_THIS, "Could not find object script number %ld in Room!", (uint32) num);
 		abort_quit_stop();
 
 		return false;

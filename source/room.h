@@ -54,7 +54,7 @@ namespace gs
 		RSK_Exit = 2,	// Exit Script
 		RSK_Script = 3,	// Room Script
 		RSK_LocalScript = 4,
-		RSK_ObjectScript = 5
+		RSK_VerbScript = 5
 	};
 	
 	class RoomScriptData {
@@ -131,6 +131,7 @@ namespace gs
 		bool _readLFLF(DiskReader& reader, TagPair& lflf);
 		bool _readRoomData(DiskReader& reader, const TagPair& lflf, bool readProperties, bool readScripts, bool readGraphics, bool readObjects);
 		bool _readProperties(DiskReader& reader, const TagPair& lflf);
+		bool _readObjects(DiskReader& reader, const TagPair& lflf);
 
 	public:
 
