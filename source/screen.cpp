@@ -35,14 +35,15 @@ namespace gs
 			cl += 8;                \
 		}                           \
 	} while (0)
-	
+#define FETCH_BYTE reader.readUint8_unchecked()
+
 	static uint8 transparentColour = 5;	// TODO
 	static bool transparentCheck = false;
 
 	void drawStripBasicV(SequentialReadSpanReader<byte, uint32> reader, uint8* dst, uint32 height, uint8 decompMask, uint8 decompShift) {
 		
-		uint8 colour = reader.readUint8_unchecked();
-		uint32 bits = reader.readUint8_unchecked();
+		uint8 colour = FETCH_BYTE;
+		uint32 bits = FETCH_BYTE;
 		uint8 cl = 8;
 		uint8 bit;
 		int8 inc = -1;
@@ -84,8 +85,8 @@ namespace gs
 
 	void drawStripComplex(SequentialReadSpanReader<byte, uint32> reader, uint8* dst, uint32 height, uint8 decompMask, uint8 decompShift) {
 		
-		uint8 colour = reader.readInt8_unchecked();
-		uint32 bits = reader.readInt8_unchecked();
+		uint8 colour = FETCH_BYTE;
+		uint32 bits = FETCH_BYTE;
 		uint8 cl = 8;
 		uint8 bit;
 		uint8 incm, reps;
@@ -142,7 +143,7 @@ namespace gs
 							dst++;
 						} while ((--reps) != 0);
 						bits >>= 8;
-						bits |= reader.readInt8_unchecked() << (cl - 8);
+						bits |= FETCH_BYTE << (cl - 8);
 						goto againPos;
 					}
 				}
@@ -159,13 +160,9 @@ namespace gs
 		reader.skip_unchecked(stripNum * 4);
 		const uint32 stripBegin = reader.readUint32LE_unchecked() - 8;
 
-		debug(GS_THIS, "stripBegin = %ld", stripBegin);
-
 		reader.setPos_unchecked(stripBegin);
 
 		uint8 code = reader.readUint8_unchecked();
-
-		debug(GS_THIS, "Draw strip code %ld", (uint32) code);
 
 		switch (code) {
 			default:
