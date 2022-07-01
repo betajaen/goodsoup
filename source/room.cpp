@@ -28,6 +28,7 @@
 #include "disk.h"
 #include "utils.h"
 #include "screen.h"
+#include "object.h"
 
 namespace gs
 {
@@ -222,6 +223,9 @@ namespace gs
 		/* TODO: Stop Palette Cycling */
 		/* TODO: Shadow Palette Handling */
 		/* TODO: Graphics cleaning flags */
+		
+		OBJECTS->clearRoomObjects();
+		DRAWING_OBJECTS.clear();
 
 		INTS->room = roomNum;
 
@@ -236,8 +240,7 @@ namespace gs
 		/* TODO: Apply Camera Min/Max */
 		/* TODO: Apply Actor to Room, if there is one*/
 		/* TODO: Show Actors */
-		/* TODO: Run Entry Script*/
-
+		
 		if (sCurrentRoom != NULL && runEnterScript) {
 			
 			if (INTS->entryScript > 0) {
@@ -261,6 +264,7 @@ namespace gs
 			}
 
 		}
+
 
 		/* TODO: Set Camera to follow actor - if there is one*/
 

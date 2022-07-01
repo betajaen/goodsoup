@@ -32,27 +32,64 @@ namespace gs
 
 #define MAX_OBJECTS 200
 
-	struct ObjectData
-	{
-		uint16 _num;
+	struct ObjectData {
+		uint16 _num, _idx, _roomNum;
+		uint8  _bIsFloating;
+		uint8  _bUsed;
+		uint8  _bIsLocked;
 
 		void clear();
 	};
 
-	extern ObjectData* OBJECTS;
+	class ObjectState {
 
-	void openObjects();
-	void closeObjects();
-	void clearObjects();
+		ObjectData _objects[MAX_OBJECTS];
+	public:
 
-	inline ObjectData* getObject(uint16 idx) {
-		if (idx < MAX_OBJECTS) {
-			return &OBJECTS[idx];
+		ObjectState();
+		~ObjectState();
+
+
+		uint16 newObject(uint16 num);
+		uint16 releaseObjectByIdx(uint16 idx);
+		uint16 releaseObjectByNum(uint16 idx);
+		uint16 findObjectIdxByNum(uint16 objectNum);
+		
+		void clearObjects();
+		void clearRoomObjects();
+
+		ObjectData& getObjectByIdx_unchecked(uint16 idx) {
+			return _objects[idx];
 		}
 
-		error(GS_THIS, "Object %ld out of range!", idx);
-		return NULL;
-	}
+		ObjectData& getObjectByIdx(uint16 idx) {
+			if (idx > 0 && idx < MAX_OBJECTS) {
+				return _objects[idx];
+			}
+		
+			error(GS_THIS, "Object %ld out of range!", idx);
+			return _objects[0];
+		}
+		
+		const ObjectData& getObjectByIdx_unchecked(uint16 idx) const {
+			return _objects[idx];
+		}
+
+		const ObjectData& getObjectByIdx(uint16 idx) const {
+			if (idx > 0 && idx < MAX_OBJECTS) {
+				return _objects[idx];
+			}
+		
+			error(GS_THIS, "Object %ld out of range!", idx);
+			return _objects[0];
+		}
+
+	};
+
+
+	extern ObjectState* OBJECTS;
+	extern Array<ObjectData*> DRAWING_OBJECTS;
+
 
 }
 

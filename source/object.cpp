@@ -22,25 +22,82 @@
 
 namespace gs
 {
-	ObjectData* OBJECTS = NULL;
+	ObjectState* OBJECTS = NULL;
+	Array<ObjectData*, uint16> DRAWING_OBJECTS;
 
-	void ObjectData::clear() {
-		_num = 0;
+	ObjectState::ObjectState() {
+		for (uint16 i = 0; i < MAX_OBJECTS; i++) {
+			_objects[i]._idx = i;
+		}
+	}
+
+	ObjectState::~ObjectState() {
+	}
+
+	uint16 ObjectState::newObject(uint16 num) {
+		for (uint16 i = 1; i < MAX_OBJECTS; i++) {
+			ObjectData& object = _objects[i];
+
+			if (object._bUsed == false) {
+				object._num = num;
+				object._bUsed = true;
+				return i;
+			}
+		}
+
+		return 0;
 	}
 	
-	void openObjects() {
-		OBJECTS = (ObjectData*) allocateMemory(MAX_OBJECTS, sizeof(ObjectData), MF_Clear);
-	}
-
-	void closeObjects() {
-		releaseMemoryChecked(OBJECTS);
-	}
-
-	void clearObjects() {
-		for (uint16 i = 0;i < MAX_OBJECTS; i++) {
-			ObjectData& object = OBJECTS[i];
+	uint16 ObjectState::releaseObjectByIdx(uint16 idx) {
+		if (idx > 0 && idx < MAX_OBJECTS) {
+			ObjectData& object = _objects[idx];
 			object.clear();
 		}
 	}
+
+	uint16 ObjectState::releaseObjectByNum(uint16 objectNum) {
+		uint16 idx = findObjectIdxByNum(objectNum);
+
+		if (idx != 0) {
+			releaseObjectByIdx(idx);
+		}
+	}
+
+	uint16 ObjectState::findObjectIdxByNum(uint16 objectNum) {
+		for (uint16 i = 1; i < MAX_OBJECTS; i++) {
+			ObjectData& object = _objects[i];
+			if (object._num == objectNum) {
+				return i;
+			}
+		}
+
+		return 0;
+	}
+	
+	void ObjectState::clearObjects() {
+		for (uint16 i = 1;i < MAX_OBJECTS; i++) {
+			ObjectData& object = _objects[i];
+			object.clear();
+		}
+	}
+	
+	void ObjectState::clearRoomObjects() {
+		for (uint16 i = 1; i < MAX_OBJECTS; i++) {
+			ObjectData& object = _objects[i];
+
+			if ((object._bIsFloating == false) || (object._bIsLocked == false)) {
+				object.clear();
+			}
+		}
+	}
+
+	void ObjectData::clear() {
+		_num = 0;
+		_roomNum = 0;
+		_bUsed = false;
+		_bIsFloating = false;
+		_bIsLocked = false;
+	}
+
 
 }

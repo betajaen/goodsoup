@@ -30,6 +30,7 @@
 #include "profile.h"
 #include "screen.h"
 #include "functions.h"
+#include "object.h"
 
 extern const char GOODSOUP_VERSION_STR[] = "$VER: goodsoup 0.5 (" __AMIGADATE__ ")";
 
@@ -54,6 +55,7 @@ namespace gs
 	int32 MOUSE_RMB_STATE;
 
 	void cleanup() {
+		deleteObject(OBJECTS);
 		deleteObject(VM);
 		deleteObject(INTS);
 		deleteObject(BOOLS);
@@ -89,6 +91,7 @@ namespace gs
 		INTS = newObject<VmIntVars>();
 		BOOLS = newObject<VmBoolVars>();
 		LOCALS = newObject<VmLocalVars>();
+		OBJECTS = newObject<ObjectState>();
 
 		if (INDEX->readFromFile(GS_GAME_PATH GS_INDEX_FILENAME) == false) {
 			cleanup();
