@@ -91,8 +91,6 @@ namespace gs
 		uint8 bit;
 		uint8 incm, reps;
 
-		debug(GS_THIS, "colour = %ld, bits = %ld", (uint32) colour, (uint32) bits);
-
 		do {
 			
 			int16 x = 8;
