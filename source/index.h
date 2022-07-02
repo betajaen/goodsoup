@@ -37,12 +37,12 @@ namespace gs
 	public:
 
 		void reset() {
-			clearMemoryNonAllocated(_roomNum, sizeof(_roomNum));
+			clearMemoryNonAllocated(_diskOrRoomNum, sizeof(_diskOrRoomNum));
 			clearMemoryNonAllocated(_offset, sizeof(_offset));
 		}
 
 		const char* _name;
-		uint8  _roomNum[Capacity];
+		uint8  _diskOrRoomNum[Capacity];
 		uint32 _offset[Capacity];
 	};
 
@@ -51,20 +51,11 @@ namespace gs
 	{
 		String  _name;
 		byte   _state;
-		byte   _room;
+		byte   _roomNum;
 		byte   _owner;
 		byte   _padding;
 		uint32 _class;
 	};
-
-	class ObjectLocationTable
-	{
-	public:
-		void reset();
-
-		ObjectLocation	_objects[NUM_OBJECT_GLOBALS];
-	};
-
 
 	class Index
 	{
@@ -75,15 +66,15 @@ namespace gs
 
 		bool readFromFile(const char* path);
 
-		bool getRoom(uint16 num, uint8& roomNum, uint32& offset) {
+		bool getRoom(uint16 roomNum, uint8& diskNum, uint32& offset) {
 
-			if (num >= NUM_ROOMS) {
-				error(GS_THIS, "Attempted to load room out of bounds! %ld", (uint32)num);
+			if (roomNum >= NUM_ROOMS) {
+				error(GS_THIS, "Attempted to load room out of bounds! %ld", (uint32)roomNum);
 				return false;
 			}
 
-			roomNum = _scriptsResources._roomNum[num];
-			offset = _scriptsResources._offset[num];
+			diskNum = _roomsResources._diskOrRoomNum[roomNum];
+			offset = _roomsResources._offset[roomNum];
 
 			return true;
 		}
@@ -95,7 +86,7 @@ namespace gs
 				return false;
 			}
 
-			roomNum = _scriptsResources._roomNum[num];
+			roomNum = _scriptsResources._diskOrRoomNum[num];
 			offset = _scriptsResources._offset[num];
 
 			return true;
@@ -110,6 +101,19 @@ namespace gs
 			}
 		}
 
+		bool getObject(uint16 objectNum, uint16& roomNum, uint8& diskNum) {
+			
+			if (objectNum >= NUM_OBJECT_GLOBALS) {
+				error(GS_THIS, "Attempted to load object out of bounds! %ld", (uint32)objectNum);
+				return false;
+			}
+
+			roomNum = _objects[objectNum]._roomNum;
+			diskNum = _roomsResources._diskOrRoomNum[roomNum];
+
+			return true;
+		}
+
 	private:
 
 		String					    _roomNames[NUM_ROOMS + 1];
@@ -119,7 +123,7 @@ namespace gs
 		ResourceIndexTable<RK_SOUND, NUM_SOUNDS>	_soundsResources;
 		ResourceIndexTable<RK_COSTUME, NUM_COSTUMES>	_costumesResources;
 		ResourceIndexTable<RK_CHARSET, NUM_CHARSETS>	_charsetResources;
-		ObjectLocationTable					_objectTable;
+		ObjectLocation	_objects[NUM_OBJECT_GLOBALS];
 
 	};
 }

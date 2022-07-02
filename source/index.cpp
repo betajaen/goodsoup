@@ -72,7 +72,7 @@ namespace gs
 		table.reset();
 		table._name = name;
 
-		file.readBytes(table._roomNum, length);
+		file.readBytes(table._diskOrRoomNum, length);
 
 		uint32* offset = &table._offset[0];
 		for (uint32 i = 0; i < length; i++) {
@@ -240,20 +240,18 @@ namespace gs
 					return false;
 				}
 
-				_objectTable.reset();
-
 				char objectNameTemp[42] = { 0 };
 
 				for (uint32 i = 0; i < NUM_OBJECT_GLOBALS; i++) {
-					ObjectLocation& entry = _objectTable._objects[i];
+					ObjectLocation& entry = _objects[i];
 					_file.readBytes(&objectNameTemp, 40);
 					entry._name.copyFrom(&objectNameTemp[0]);
 					entry._state = _file.readByte();
-					entry._room = _file.readByte();
+					entry._roomNum = _file.readByte();
 					entry._class = _file.readUInt32LE();
 					entry._owner = 0xFF;
 
-					verbose(GS_THIS, "(DOBJ, %ld, %s, 0x%2x, 0x%08x, %ld)", i, entry._name.string(), entry._room, entry._class, entry._owner);
+					verbose(GS_THIS, "(DOBJ, %ld, %s, 0x%2x, 0x%08x, %ld)", i, entry._name.string(), entry._roomNum, entry._class, entry._owner);
 				}
 
 #if GS_TEST == 2
@@ -331,9 +329,6 @@ namespace gs
 		info(GS_THIS, "Read Index File at %s", path);
 		return true;
 	}
-
-	void ObjectLocationTable::reset() {
-		clearMemoryNonAllocated(_objects, sizeof(_objects));
-	}
+	
 
 }
