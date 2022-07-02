@@ -24,7 +24,6 @@
 namespace gs
 {
 	RoomScriptData::RoomScriptData() {
-		numScripts = 0;
 	}
 
 	RoomScriptData::~RoomScriptData() {
@@ -32,78 +31,19 @@ namespace gs
 	}
 
 	void RoomScriptData::close() {
-		numScripts = 0;
-		scriptInfo.release();
-		scriptData.release();
+
+		for (uint16 i = 0; i < _scripts.size(); i++) {
+			NewScriptDataReference& script = _scripts.get_unchecked(i);
+			script.gcForget();
+		}
+
+		_scripts.clear();
 	}
 	
-	bool RoomScriptData::readFromDisk(DiskReader& reader, const TagPair& lflf, uint16 debug_roomNum) {
+	bool RoomScriptData::readFromDisk(DiskReader& reader, const TagPair& lflf, uint16 roomNum) {
 		
-		reader.seek(lflf);
-
-		// Discover number of scripts and total length in bytes
-		numScripts = 0;
-		uint32 scriptTotalLength = 0;
-
-		while (reader.pos() < lflf.end()) {
-			TagPair pair = reader.readTagPair();
-
-			if (pair.isTag(GS_MAKE_ID('R','M','S','C'))) {
-				while(reader.pos() < pair.end()) {
-					TagPair roomPair = reader.readTagPair();
-
-					if (roomPair.isTag(
-						GS_MAKE_ID('E','N','C','D'),
-						GS_MAKE_ID('E','X','C','D'),
-						GS_MAKE_ID('L','S','C','R')
-					)) {
-						numScripts++;
-						scriptTotalLength += roomPair.length;
-					}
-					else if (roomPair.isTag(GS_MAKE_ID('L','S','C','R'))) {
-						numScripts++;
-						scriptTotalLength += roomPair.length - sizeof(uint32);
-					}
-					else if (roomPair.isTag(GS_MAKE_ID('O','B','C','D'))) {
-						
-						uint16 objectId = 0;
-
-						while (reader.pos() < roomPair.end()) {
-
-							TagPair obcdTag = reader.readTagPair();
-							
-							if (obcdTag.isTag(GS_MAKE_ID('V', 'E', 'R', 'B'))) {
-								numScripts++;
-								scriptTotalLength += obcdTag.length;
-							}
-
-							reader.skip(obcdTag);
-						}
-
-						continue;
-
-					}
-
-					reader.skip(roomPair);
-				}
-
-				continue;
-			}
-
-			reader.skip(pair);
-		}
-
-		if (numScripts > MAX_ROOM_SCRIPTS) {
-			error(GS_THIS, "Maximum Number (%ld) of supported scripts (%ld) for this Room (%ld) has been exceeded!", (uint32) MAX_ROOM_SCRIPTS, (uint32) numScripts, (uint32) debug_roomNum);
-			return false;
-		}
 
 		// Read Script Info and opcodes into info and data.
-		scriptInfo.setSize(numScripts, 0);
-		scriptData.setSize(scriptTotalLength, 0);
-		uint8 scriptIdx = 0;
-		uint32 scriptOffset = 0;
-
 		reader.seek(lflf);
 
 		while (reader.pos() < lflf.end()) {
@@ -113,79 +53,22 @@ namespace gs
 				while(reader.pos() < pair.end()) {
 					TagPair roomPair = reader.readTagPair();
 
-					if (roomPair.isTag(
-						GS_MAKE_ID('E','N','C','D'),
-						GS_MAKE_ID('E','X','C','D'),
-						GS_MAKE_ID('L','S','C','R')
-					)) {
-						RoomScriptInfo& info = scriptInfo.get_unchecked(scriptIdx);
-						info.fileOffset = reader.pos();
-						info.length = roomPair.length;
-						info.scriptOffset = scriptOffset;
-						
-						if (roomPair.isTag(GS_MAKE_ID('E', 'N', 'C', 'D'))) {
-							info.kind = RSK_Entrance;
-							info.num = 0xFFFF;
-						}
-						else if (roomPair.isTag(GS_MAKE_ID('E', 'X', 'C', 'D'))) {
-							info.kind = RSK_Exit;
-							info.num = 0xFFFF;
-						}
-						else {
-
-							info.length -= sizeof(uint32);
-							info.kind = RSK_LocalScript;
-							info.num = reader.readUInt32LE();
-						}
-
-						ReadWriteSpan<byte, uint16> span = scriptData.getReadWriteSpan<uint16>(scriptOffset, info.length);
-						reader.readBytes(span);
-
-						debug(GS_THIS, "%s %ld %ld %ld %ld", roomPair.tagStr(), (uint32) scriptIdx, (uint32) (info.num), (uint32) scriptOffset, (uint32) roomPair.length);
-
-						scriptIdx++;
-						scriptOffset += info.length;
-
+					if (roomPair.isTag(GS_MAKE_ID('E', 'N', 'C', 'D'))) {
+						NewScriptDataReference script =  SCRIPTS->readEntranceScript(roomNum, roomPair.length, reader);
+						_scripts.push(script);
 						continue;
 					}
-					else if (roomPair.isTag(GS_MAKE_ID('O','B','C','D'))) {
-						
-						uint16 objectNum = 0;
-
-						while (reader.pos() < roomPair.end()) {
-
-							TagPair obcdTag = reader.readTagPair();
-							if (obcdTag.isTag(GS_MAKE_ID('C', 'D', 'H', 'D'))) {
-								reader.skip(4); // version
-								objectNum = reader.readUInt16LE();
-								reader.skip(2); // parent and parentState
-
-								continue;
-							}
-							else if (obcdTag.isTag(GS_MAKE_ID('V', 'E', 'R', 'B'))) {
-								RoomScriptInfo& info = scriptInfo.get_unchecked(scriptIdx);
-								info.fileOffset = reader.pos();
-								info.length = obcdTag.length;
-								info.scriptOffset = scriptOffset;
-								info.num = objectNum;
-								info.kind = RSK_RoomVerbScript;
-								
-								ReadWriteSpan<byte, uint16> span = scriptData.getReadWriteSpan<uint16>(scriptOffset, info.length);
-								reader.readBytes(span);
-								
-								debug(GS_THIS, "%s %ld %ld %ld %ld", obcdTag.tagStr(), (uint32) scriptIdx, (uint32) (info.num), (uint32) scriptOffset, (uint32) obcdTag.length);
-								
-								scriptIdx++;
-								scriptOffset += info.length;
-
-								continue;
-							}
-
-							reader.skip(obcdTag);
-						}
-
+					else if (roomPair.isTag(GS_MAKE_ID('E', 'X', 'C', 'D'))) {
+						NewScriptDataReference script =  SCRIPTS->readExitScript(roomNum, roomPair.length, reader);
+						_scripts.push(script);
 						continue;
+					}
+					else if (roomPair.isTag(GS_MAKE_ID('L', 'S', 'C', 'R'))) {
+						uint32 num = reader.readUInt32LE();
 
+						NewScriptDataReference script =  SCRIPTS->readLocalScript(roomNum, num, roomPair.length - sizeof(uint32), reader);
+						_scripts.push(script);
+						continue;
 					}
 
 					reader.skip(roomPair);
@@ -201,12 +84,24 @@ namespace gs
 		return true;
 	}
 	
-	bool RoomScriptData::getFirstScript(RoomScriptKind kind, ReadSpan<byte, uint16>& out_Script) const {
-		if (scriptData.getSize() > 0) {
-			for (uint8 i = 0; i < numScripts; i++) {
-				const RoomScriptInfo& info = scriptInfo.get_unchecked(i);
-				if (info.kind == kind) {
-					out_Script = scriptData.getReadSpan(info.scriptOffset, info.length);
+	bool RoomScriptData::getFirstScript(uint8 kind, NewScriptDataReference& out_Script) const {
+		if (_scripts.size() > 0) {
+			for (uint8 i = 0; i < _scripts.size(); i++) {
+				const NewScriptDataReference& script = _scripts.get_unchecked(i);
+				if (script.getKind() == kind) {
+					out_Script.copyFrom(script);
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+	
+	bool RoomScriptData::hasFirstScript(uint8 kind) const {
+		if (_scripts.size() > 0) {
+			for (uint8 i = 0; i < _scripts.size(); i++) {
+				const NewScriptDataReference& script = _scripts.get_unchecked(i);
+				if (script.getKind() == kind) {
 					return true;
 				}
 			}
@@ -214,25 +109,15 @@ namespace gs
 		return false;
 	}
 
-	bool RoomScriptData::getScript(RoomScriptKind kind, uint32 fileOffset, ReadSpan<byte, uint16>& out_Script) const {
-		if (numScripts > 0) {
-			for (uint8 i = 0; i < numScripts; i++) {
-				const RoomScriptInfo& info = scriptInfo.get_unchecked(i);
-				if (info.kind == kind && info.fileOffset == fileOffset) {
-					out_Script = scriptData.getReadSpan(info.scriptOffset, info.length);
+	bool RoomScriptData::getLocalNumberedScript(uint32 num, NewScriptDataReference& out_Script) const {
+		
+		if (_scripts.size() > 0) {
+			for (uint8 i = 0; i < _scripts.size(); i++) {
+				const NewScriptDataReference& script = _scripts.get_unchecked(i);
+				if (script.matchIdKind(num, SDK_RoomLocalScript)) {
+					out_Script.copyFrom(script);
 					return true;
 				}
-			}
-		}
-		return false;
-	}
-
-	bool RoomScriptData::getLocalNumberedScript(uint16 num, ReadSpan<byte, uint16>& out_Script) const {
-		for (uint8 i = 0; i < numScripts; i++) {
-			const RoomScriptInfo& info = scriptInfo.get_unchecked(i);
-			if (info.kind == RSK_LocalScript && info.num == num) {
-				out_Script = scriptData.getReadSpan(info.scriptOffset, info.length);
-				return true;
 			}
 		}
 
@@ -242,18 +127,4 @@ namespace gs
 		return false;
 	}
 	
-	bool RoomScriptData::getObjectNumberedScript(uint16 num, ReadSpan<byte, uint16>& out_Script) const {
-		for (uint8 i = 0; i < numScripts; i++) {
-			const RoomScriptInfo& info = scriptInfo.get_unchecked(i);
-			if (info.kind == RSK_RoomVerbScript && info.num == num) {
-				out_Script = scriptData.getReadSpan(info.scriptOffset, info.length);
-				return true;
-			}
-		}
-
-		error(GS_THIS, "Could not find object script number %ld in Room!", (uint32) num);
-		abort_quit_stop();
-
-		return false;
-	}
 }

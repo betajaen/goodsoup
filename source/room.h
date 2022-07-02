@@ -26,6 +26,7 @@
 #include "disk.h"
 #include "profile.h"
 #include "debug.h"
+#include "script.h"
 
 namespace gs
 {
@@ -57,6 +58,7 @@ namespace gs
 	};
 	
 	class RoomScriptData {
+		Array<NewScriptDataReference> _scripts;
 	public:
 		
 		struct RoomScriptInfo {
@@ -72,14 +74,10 @@ namespace gs
 		
 		void close();
 
-		uint8 numScripts;
-		Buffer<RoomScriptInfo, uint8> scriptInfo;
-		Buffer<byte, uint32> scriptData;
 		
-		bool getFirstScript(RoomScriptKind kind, ReadSpan<byte, uint16>& out_Script) const ;
-		bool getScript(RoomScriptKind kind, uint32 fileOffset, ReadSpan<byte, uint16>& out_Script) const;
-		bool getLocalNumberedScript(uint16 num, ReadSpan<byte, uint16>& out_Script) const;
-		bool getObjectNumberedScript(uint16 num, ReadSpan<byte, uint16>& out_Script) const;
+		bool getFirstScript(uint8 kind, NewScriptDataReference& out_Script) const;
+		bool hasFirstScript(uint8 kind) const;
+		bool getLocalNumberedScript(uint32 num, NewScriptDataReference& out_Script) const;
 
 		bool readFromDisk(DiskReader& reader, const TagPair& lflf, uint16 debug_roomNum);
 
@@ -186,21 +184,21 @@ namespace gs
 			return graphicsData->getPalette(index);
 		}
 
-		bool getFirstScript(RoomScriptKind kind, ReadSpan<byte, uint16>& out_Script) const {
+		bool getFirstScript(uint8 kind, NewScriptDataReference& out_Script) const {
 			if (scriptData != NULL) {
 				return scriptData->getFirstScript(kind, out_Script);
 			}
 			return false;
 		}
-
-		bool getScript(RoomScriptKind kind, uint32 fileOffset, ReadSpan<byte, uint16>& out_Script) {
+		
+		bool hasFirstScript(uint8 kind) const {
 			if (scriptData != NULL) {
-				return scriptData->getScript(kind, fileOffset, out_Script);
+				return scriptData->hasFirstScript(kind);
 			}
 			return false;
 		}
 
-		bool getLocalNumberedScript(uint16 num, ReadSpan<byte, uint16>& out_Script) {
+		bool getLocalNumberedScript(uint16 num, NewScriptDataReference& out_Script) {
 			if (scriptData != NULL) {
 				return scriptData->getLocalNumberedScript(num, out_Script);
 			}

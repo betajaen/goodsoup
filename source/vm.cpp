@@ -721,9 +721,10 @@ namespace gs
 			RoomData* room = getRoom();
 
 			if (room) {
-				RoomScriptKind roomScriptKind = FSI_ROOM_ENTRANCE ? RSK_Entrance : RSK_Exit;
-				if (room->getFirstScript(roomScriptKind, _script)) {
-					return true;
+				uint8 roomScriptKind = FSI_ROOM_ENTRANCE ? SDK_RoomLocalEntrance : SDK_RoomLocalExit;
+
+				if (room->getFirstScript(roomScriptKind, _scriptReference)) {
+					_script = _scriptReference.getData();
 				}
 			}
 		}
@@ -731,7 +732,8 @@ namespace gs
 			RoomData* room = getRoom();
 
 			if (room) {
-				if (room->getLocalNumberedScript(num, _script)) {
+				if (room->getLocalNumberedScript(num, _scriptReference)) {
+					_script = _scriptReference.getData();
 					return true;
 				}
 			}

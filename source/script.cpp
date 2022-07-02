@@ -171,36 +171,36 @@ namespace gs
 		return NewScriptDataReference(script);
 	}
 
-	NewScriptData* ScriptState::getLocalScript(uint16 roomNum, uint16 localScriptNum) {
-		return NULL;
+	NewScriptDataReference ScriptState::getLocalScript(uint16 roomNum, uint32 localScriptNum) {
+		return NewScriptDataReference();
 	}
 
-	NewScriptData* ScriptState::getEntranceScript(uint16 roomNum) {
-		return NULL;
+	NewScriptDataReference ScriptState::getEntranceScript(uint16 roomNum) {
+		return NewScriptDataReference();
 	}
 
-	NewScriptData* ScriptState::getExitScript(uint16 roomNum) {
-		return NULL;
+	NewScriptDataReference ScriptState::getExitScript(uint16 roomNum) {
+		return NewScriptDataReference();
 	}
 
-	NewScriptData* ScriptState::getVerbScript(uint16 objectNum) {
-		return NULL;
+	NewScriptDataReference ScriptState::getVerbScript(uint16 objectNum) {
+		return NewScriptDataReference();
 	}
 
-	NewScriptData* ScriptState::readLocalScript(uint16 roomNum, uint16 localScriptNum, uint16 scriptLength, DiskReader& reader) {
-		return NULL;
+	NewScriptDataReference ScriptState::readLocalScript(uint16 roomNum, uint32 localScriptNum, uint16 scriptLength, DiskReader& reader) {
+		return NewScriptDataReference();
 	}
 
-	NewScriptData* ScriptState::readEntranceScript(uint16 roomNum, uint16 scriptLength, DiskReader& reader) {
-		return NULL;
+	NewScriptDataReference ScriptState::readEntranceScript(uint16 roomNum, uint16 scriptLength, DiskReader& reader) {
+		return NewScriptDataReference();
 	}
 
-	NewScriptData* ScriptState::readExitScript(uint16 roomNum, uint16 scriptLength, DiskReader& reader) {
-		return NULL;
+	NewScriptDataReference ScriptState::readExitScript(uint16 roomNum, uint16 scriptLength, DiskReader& reader) {
+		return NewScriptDataReference();
 	}
 
-	NewScriptData* ScriptState::readVerbScript(uint16 objectNum, uint16 verbNum, uint16 scriptLength, DiskReader& reader) {
-		return NULL;
+	NewScriptDataReference ScriptState::readVerbScript(uint16 objectNum, uint16 verbNum, uint16 scriptLength, DiskReader& reader) {
+		return NewScriptDataReference();
 	}
 
 }

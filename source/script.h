@@ -40,7 +40,7 @@ namespace gs
 
 	enum ScriptDataFlags {
 		SDF_None = 0,
-		SDF_Floating = 1,
+		SDF_Floating = 1
 	};
 	
 	struct NewScriptDataReference;
@@ -49,7 +49,7 @@ namespace gs
 		OpcodeData _script;
 		uint32 _fileOffset;
 		uint16 _parentId;
-		uint16 _id;
+		uint32 _id;
 		uint8 _kind;
 		uint8 _diskNum;
 		uint8 _users;
@@ -89,7 +89,7 @@ namespace gs
 			gcForget();
 		}
 
-		NewScriptDataReference(NewScriptData* other) 
+		explicit NewScriptDataReference(NewScriptData* other) 
 			: _script(other)
 		{
 			if (_script) {
@@ -120,28 +120,22 @@ namespace gs
 			_script = other._script;
 			other._script = NULL;
 		}
-		
-		NewScriptDataReference& operator=(NewScriptDataReference& other) {
+
+		void copyFrom(const NewScriptDataReference& other) {
 			gcForget();
-
 			_script = other._script;
-
-			if (_script != NULL) {
+			if (_script) {
 				_script->gcGain();
 			}
-
+		}
+		
+		NewScriptDataReference& operator=(NewScriptDataReference& other) {
+			copyFrom(other);
 			return *this;
 		}
 
 		NewScriptDataReference& operator=(const NewScriptDataReference& other) {
-			gcForget();
-
-			_script = other._script;
-
-			if (_script != NULL) {
-				_script->gcGain();
-			}
-
+			copyFrom(other);
 			return *this;
 		}
 
@@ -153,6 +147,50 @@ namespace gs
 			return OpcodeSpan();
 		}
 
+		uint8 getKind() const {
+			if (_script == NULL) {
+				return SDK_None;
+			}
+			else {
+				return _script->_kind;
+			}
+		}
+		
+		bool matchId(uint32 id) const {
+			if (_script == NULL) {
+				return false;
+			}
+			else {
+				return _script->_id == id;
+			}
+		}
+		
+		bool matchId(uint32 id, uint16 parentId) const {
+			if (_script == NULL) {
+				return false;
+			}
+			else {
+				return _script->_id == id && _script->_parentId == parentId;
+			}
+		}
+
+		bool matchIdKind(uint32 id, uint8 kind) const {
+			if (_script == NULL) {
+				return false;
+			}
+			else {
+				return _script->_id == id && _script->_kind == kind;
+			}
+		}
+
+		bool matchIdKind(uint32 id, uint16 parentId, uint8 kind) const {
+			if (_script == NULL) {
+				return false;
+			}
+			else {
+				return _script->_id == id && _script->_parentId == parentId && _script->_kind == kind;
+			}
+		}
 
 		void gcForget() {
 			if (_script != NULL) {
@@ -182,21 +220,21 @@ namespace gs
 
 		NewScriptDataReference getOrLoadGlobalScript(uint16 scriptNum);
 
-		NewScriptData* getLocalScript(uint16 roomNum, uint16 localScriptNum);
+		NewScriptDataReference getLocalScript(uint16 roomNum, uint32 localScriptNum);
 
-		NewScriptData* getEntranceScript(uint16 roomNum);
+		NewScriptDataReference getEntranceScript(uint16 roomNum);
 
-		NewScriptData* getExitScript(uint16 roomNum);
+		NewScriptDataReference getExitScript(uint16 roomNum);
 
-		NewScriptData* getVerbScript(uint16 objectNum);
+		NewScriptDataReference getVerbScript(uint16 objectNum);
 
-		NewScriptData* readLocalScript(uint16 roomNum, uint16 localScriptNum, uint16 scriptLength, DiskReader& reader);
+		NewScriptDataReference readLocalScript(uint16 roomNum, uint32 localScriptNum, uint16 scriptLength, DiskReader& reader);
 
-		NewScriptData* readEntranceScript(uint16 roomNum, uint16 scriptLength, DiskReader& reader);
+		NewScriptDataReference readEntranceScript(uint16 roomNum, uint16 scriptLength, DiskReader& reader);
 
-		NewScriptData* readExitScript(uint16 roomNum, uint16 scriptLength, DiskReader& reader);
+		NewScriptDataReference readExitScript(uint16 roomNum, uint16 scriptLength, DiskReader& reader);
 
-		NewScriptData* readVerbScript(uint16 objectNum, uint16 verbNum, uint16 scriptLength, DiskReader& reader);
+		NewScriptDataReference readVerbScript(uint16 objectNum, uint16 verbNum, uint16 scriptLength, DiskReader& reader);
 
 	};
 

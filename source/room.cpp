@@ -211,14 +211,13 @@ namespace gs
 				data->_parentState = reader.readByte();
 				data->_flags = OF_AllowMaskOr;
 				
-				if (scriptData->getObjectNumberedScript(object->_num, data->_scriptData) == false) {
-					error(GS_THIS, "Could not retrieve script data for Object %ld in Room %ld", (uint32) object->_num, (uint32) getNum());
-				}
-
 				continue;
 			}
 			else if (tag.isTag(GS_MAKE_ID('V', 'E', 'R', 'B'))) {
-				reader.skip(tag); // Already in memory at this point. Skip it.
+
+				NO_FEATURE(GS_THIS, "Reading of Verb Script Data");
+
+				reader.skip(tag);
 				continue;
 			}
 			else if (tag.isTag(GS_MAKE_ID('O', 'B', 'N', 'A'))) {
@@ -283,7 +282,7 @@ namespace gs
 		_parentState = 0;
 		_flags = 0;
 		_scriptData = ReadSpan<byte, uint16>();
-	};
+	}
 
 	void startRoom(uint16 roomNum, bool runExitScript, bool runEnterScript) {
 
@@ -296,9 +295,8 @@ namespace gs
 
 		if (sCurrentRoom != NULL && runExitScript) {
 
-			ReadSpan<byte, uint16> script;
 
-			if (sCurrentRoom->getFirstScript(RSK_Exit, script)) {
+			if (sCurrentRoom->hasFirstScript(RSK_Exit)) {
 				VM->runRoomScript(FSI_ROOM_EXIT);
 				if (QUIT_NOW)
 					return;
@@ -351,9 +349,7 @@ namespace gs
 					return;
 			}
 
-			ReadSpan<byte, uint16> script;
-
-			if (sCurrentRoom->getFirstScript(RSK_Entrance, script)) {
+			if (sCurrentRoom->hasFirstScript(RSK_Entrance)) {
 				VM->runRoomScript(FSI_ROOM_ENTRANCE);
 				if (QUIT_NOW)
 					return;
