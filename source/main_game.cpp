@@ -128,6 +128,11 @@ namespace gs
 		if (SHOW_OSD) {
 			runOSD();
 		}
+		
+#if defined(GS_ONE_FRAME) && GS_ONE_FRAME == 1
+		warn(GS_THIS, "One Frame Only");
+		QUIT_NOW = true;
+#endif
 	}
 
 }
