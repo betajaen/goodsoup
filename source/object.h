@@ -55,7 +55,9 @@ namespace gs
 
 	class ObjectState {
 
+		uint16 _numObjects;
 		ObjectData _objects[MAX_OBJECTS];
+
 	public:
 
 		ObjectState();
@@ -98,6 +100,10 @@ namespace gs
 		
 			error(GS_THIS, "Object %ld out of range!", idx);
 			return _objects[0];
+		}
+
+		inline uint16 getCount() const {
+			return _numObjects;
 		}
 
 	};

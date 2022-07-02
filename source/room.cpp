@@ -216,7 +216,7 @@ namespace gs
 				continue;
 			}
 			else if (tag.isTag(GS_MAKE_ID('V', 'E', 'R', 'B'))) {
-				reader.skip(tag); // Already memory at this point. Skip it.
+				reader.skip(tag); // Already in memory at this point. Skip it.
 				continue;
 			}
 			else if (tag.isTag(GS_MAKE_ID('O', 'B', 'N', 'A'))) {
@@ -231,7 +231,7 @@ namespace gs
 				continue;
 			}
 			
-			debug(GS_THIS, "Unknown tag %s", tag.tagStr());
+			debug(GS_THIS, "Unknown tag after OBCD %s %ld", tag.tagStr(), tag.length);
 
 			reader.skip(tag);
 		}

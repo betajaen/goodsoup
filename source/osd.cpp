@@ -24,6 +24,7 @@
 #include "screen.h"
 #include "globals.h"
 #include "index.h"
+#include "object.h"
 
 namespace gs
 {
@@ -49,6 +50,8 @@ namespace gs
 
 			drawSystemTextF(1, 10, 40, "Room: %ld %s", (uint32) room->getNum(), roomName.string());
 		}
+
+		drawSystemTextF(1, 10, 50, "Objects: %ld", (uint32) OBJECTS->getCount());
 
 	}
 

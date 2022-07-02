@@ -25,8 +25,10 @@ namespace gs
 	ObjectState* OBJECTS = NULL;
 	Array<ObjectData*, uint16> DRAWING_OBJECTS;
 
-	ObjectState::ObjectState() {
+	ObjectState::ObjectState() 
+		: _numObjects(0) {
 		for (uint16 i = 0; i < MAX_OBJECTS; i++) {
+			ObjectData& object = _objects[i];
 			_objects[i]._idx = i;
 		}
 	}
@@ -41,6 +43,7 @@ namespace gs
 			if (object._bUsed == false) {
 				object._num = num;
 				object._bUsed = true;
+				_numObjects++;
 				return i;
 			}
 		}
@@ -51,7 +54,10 @@ namespace gs
 	uint16 ObjectState::releaseObjectByIdx(uint16 idx) {
 		if (idx > 0 && idx < MAX_OBJECTS) {
 			ObjectData& object = _objects[idx];
-			object.clear();
+			if (object._bUsed) {
+				object.clear();
+				_numObjects--;
+			}
 		}
 	}
 
@@ -77,16 +83,23 @@ namespace gs
 	void ObjectState::clearObjects() {
 		for (uint16 i = 1;i < MAX_OBJECTS; i++) {
 			ObjectData& object = _objects[i];
-			object.clear();
+			if (object._bUsed) {
+				object.clear();
+			}
 		}
+
+		_numObjects = 0;
 	}
 	
 	void ObjectState::clearRoomObjects() {
 		for (uint16 i = 1; i < MAX_OBJECTS; i++) {
 			ObjectData& object = _objects[i];
 
-			if ((object._bIsFloating == false) || (object._bIsLocked == false)) {
+			if (object._bUsed && 
+				(object._bIsFloating == false) || (object._bIsFloating == true && object._bIsLocked == false)
+			) {
 				object.clear();
+				_numObjects--;
 			}
 		}
 	}
