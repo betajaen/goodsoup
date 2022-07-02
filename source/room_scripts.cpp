@@ -90,14 +90,6 @@ namespace gs
 				continue;
 			}
 
-			if (pair.isTag(GS_MAKE_ID('S','C','R','P'))) {
-				numScripts++;
-				scriptTotalLength += pair.length;
-				
-				reader.skip(pair);
-				continue;
-			}
-
 			reader.skip(pair);
 		}
 
@@ -203,25 +195,6 @@ namespace gs
 				continue;
 			}
 
-			if (pair.isTag(GS_MAKE_ID('S','C','R','P'))) {
-				
-				RoomScriptInfo& info = scriptInfo.get_unchecked(scriptIdx);
-				info.fileOffset = reader.pos();
-				info.length = pair.length;
-				info.scriptOffset = scriptOffset;
-				info.num = 0xFFFF;
-				info.kind = RSK_Script;
-
-				ReadWriteSpan<byte, uint16> span = scriptData.getReadWriteSpan<uint16>(scriptOffset, pair.length);
-				reader.readBytes(span);
-				
-				debug(GS_THIS, "%s %ld %ld", pair.tagStr(), (uint32) scriptIdx, (uint32) scriptOffset, (uint32) pair.length);
-
-				scriptIdx++;
-				scriptOffset += pair.length;
-
-				continue;
-			}
 			reader.skip(pair);
 		}
 

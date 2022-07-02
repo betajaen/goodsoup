@@ -52,9 +52,8 @@ namespace gs
 	enum RoomScriptKind {
 		RSK_Entrance= 1,	// Entrance Script
 		RSK_Exit = 2,	// Exit Script
-		RSK_Script = 3,	// Room Script
-		RSK_LocalScript = 4,
-		RSK_VerbScript = 5
+		RSK_LocalScript = 3,
+		RSK_VerbScript = 4
 	};
 	
 	class RoomScriptData {
