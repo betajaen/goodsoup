@@ -38,9 +38,8 @@ namespace gs
 	enum ObjectKind {
 		OK_None = 0,
 		OK_RoomObject = 1,
-		OK_FLObject = 2,
-		OK_Actor = 3,
-		OK_Inventory = 4
+		OK_Actor = 2,
+		OK_Inventory = 3
 	};
 	
 	enum RoomObjectFlags {
@@ -52,7 +51,8 @@ namespace gs
 
 	enum ObjectVariantFlags {
 		OVF_None = 0,
-		OVF_Locked = 1
+		OVF_Locked = 1,
+		OVF_Floating = 2
 	};
 
 	struct ObjectVariant {
@@ -60,7 +60,6 @@ namespace gs
 		union ObjectVariantData {
 			RoomObjectData* _room;
 			ActorObjectData* _actor;
-			FLObjectData* _fl;
 			InventoryObjectData* _inventory;
 		};
 
@@ -79,6 +78,19 @@ namespace gs
 			}
 			else {
 				_flags &= ~OVF_Locked;
+			}
+		}
+
+		bool isFloating() const {
+			return (_flags & OVF_Floating) == 0;
+		}
+
+		void setFloating(bool isFloating) {
+			if (isFloating) {
+				_flags |= OVF_Floating;
+			}
+			else {
+				_flags &= ~OVF_Floating;
 			}
 		}
 
@@ -102,7 +114,9 @@ namespace gs
 		void release();
 
 
-		ObjectVariant* newObject(uint16 num, uint8 kind);
+		ObjectVariant* newObject(uint16 num, uint8 kind, uint8 flags = 0);
+
+		ObjectVariant* newObject(uint16 num, uint8 kind, DiskReader& reader, const TagPair& tag, uint8 flags = 0);
 
 		void releaseObject(ObjectVariant* variant);
 

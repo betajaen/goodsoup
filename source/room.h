@@ -124,7 +124,9 @@ namespace gs
 	};
 	
 	struct RoomObjectData {
+		
 		void release();
+		bool readFromDisk(DiskReader& reader, const TagPair& obcdTag);
 
 		uint16 _num;
 		uint8 _parent;

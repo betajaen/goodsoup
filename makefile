@@ -73,6 +73,7 @@ OBJ +=	source/main_game.o\
 		source/room.o\
 		source/room_scripts.o\
 		source/room_graphics.o\
+		source/room_objects.o\
 		source/index.o\
 		source/resource.o\
 		source/disk.o\

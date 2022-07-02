@@ -23,7 +23,9 @@
 
 namespace gs
 {
-	void loadFloatingObject(uint16 objectNum);
+	class ObjectVariant;
+
+	ObjectVariant* loadFloatingObject(uint16 objectNum);
 
 	int16 getObjectX(uint16 num);
 	int16 getObjectY(uint16 num);

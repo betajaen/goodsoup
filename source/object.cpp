@@ -41,10 +41,11 @@ namespace gs
 	}
 
 
-	ObjectVariant* ObjectState::newObject(uint16 num, uint8 kind) {
+	ObjectVariant* ObjectState::newObject(uint16 num, uint8 kind, uint8 flags) {
 		ObjectVariant* object = _objects.acquire();
 		object->_num = num;
 		object->_kind = kind;
+		object->_flags = flags;
 
 		switch (kind) {
 			case OK_RoomObject: {
@@ -56,6 +57,19 @@ namespace gs
 		return object;
 	}
 	
+	ObjectVariant* ObjectState::newObject(uint16 num, uint8 kind, DiskReader& reader, const TagPair& tag, uint8 flags) {
+		ObjectVariant* object = this->newObject(num, kind, flags);
+
+		switch (kind) {
+			case OK_RoomObject: {
+				object->_data._room->readFromDisk(reader, tag);
+			}
+			break;
+		}
+
+		return object;
+	}
+
 	void ObjectState::releaseObject(ObjectVariant* object) {
 		if (object == NULL ) {
 			warn(GS_THIS, "Tried to release a NULL ObjectVariant!");
@@ -106,10 +120,13 @@ namespace gs
 			if (object->_kind == OK_RoomObject) {
 				object->release();
 				objectsToClear.push(object);
+				continue;
 			}
-			else if (object->_kind == OK_FLObject && object->isLocked() == false) {
+			
+			if (object->_kind == OK_RoomObject && object->isFloating() && object->isLocked() == false) {
 				object->release();
 				objectsToClear.push(object);
+				continue;
 			}
 		}
 
@@ -133,10 +150,6 @@ namespace gs
 				_data._room->release();
 				OBJECTS->_roomObjectDatas.release(_data._room);
 				_data._room = NULL;
-			}
-			break;
-			case OK_FLObject: {
-				NO_FEATURE(GS_THIS, "Not handled for clear for OK_FLObject");
 			}
 			break;
 			case OK_Actor: {
