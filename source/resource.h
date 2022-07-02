@@ -152,9 +152,7 @@ namespace gs
 
 		Disk _disk[NUM_DISKS];
 		ResourceCollection<RoomData, RK_ROOM> _rooms;
-		ResourceCollection<ScriptData, RK_SCRIPT> _scripts;
 
-		Disk& _getDisk(uint8 num);
 
 	public:
 
@@ -163,11 +161,10 @@ namespace gs
 
 		bool open();
 		void close();
-
-		ScriptData* loadScriptData(uint16 num);
+		
+		Disk& _getDisk(uint8 num);
 		RoomData* loadRoomData(uint16 num);
 
-		ScriptData* getScriptData(uint16 num);
 		RoomData* getRoomData(uint16 num);
 	};
 

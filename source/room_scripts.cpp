@@ -168,7 +168,7 @@ namespace gs
 								info.length = obcdTag.length;
 								info.scriptOffset = scriptOffset;
 								info.num = objectNum;
-								info.kind = RSK_VerbScript;
+								info.kind = RSK_RoomVerbScript;
 								
 								ReadWriteSpan<byte, uint16> span = scriptData.getReadWriteSpan<uint16>(scriptOffset, info.length);
 								reader.readBytes(span);
@@ -245,7 +245,7 @@ namespace gs
 	bool RoomScriptData::getObjectNumberedScript(uint16 num, ReadSpan<byte, uint16>& out_Script) const {
 		for (uint8 i = 0; i < numScripts; i++) {
 			const RoomScriptInfo& info = scriptInfo.get_unchecked(i);
-			if (info.kind == RSK_VerbScript && info.num == num) {
+			if (info.kind == RSK_RoomVerbScript && info.num == num) {
 				out_Script = scriptData.getReadSpan(info.scriptOffset, info.length);
 				return true;
 			}

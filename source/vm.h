@@ -24,11 +24,11 @@
 #include "vm_stack.h"
 #include "vm_array.h"
 #include "profile.h"
+#include "script.h"
 
 namespace gs
 {
 	class VirtualMachine;
-	class ScriptData;
 
 	extern VirtualMachine* VM;
 
@@ -146,14 +146,15 @@ namespace gs
 			uint8  opcode, context, contextAfter;
 		};
 
-		ReadSpan<byte, uint16>			_nullScript;
+		OpcodeSpan						_nullScript;
 		Buffer<int32>					_intGlobals;
 		Buffer<byte>					_boolGlobals;
 		ScriptContext					_context[MAX_SCRIPT_CONTEXTS];
 		ScriptStackItem					_contextStack[NUM_STACK_SCRIPTS];
 		uint16							_contextStackSize;
 		uint32							_pc, _pcAfter, _pcOpcode;
-		ReadSpan<byte, uint16>			_script;
+		NewScriptDataReference			_scriptReference;
+		OpcodeSpan						_script;
 		byte							_opcode;
 		Array<char>						_messageTemp;
 		RingLog<PcState>				_lastPcStates;

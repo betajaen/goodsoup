@@ -47,7 +47,6 @@ namespace gs
 			_disk[i].close();
 		}
 
-		_scripts.reset();
 		_rooms.reset();
 	}
 
@@ -76,38 +75,6 @@ namespace gs
 		return _disk[num - 1];
 	}
 
-	ScriptData* Resources::loadScriptData(uint16 num)
-	{
-		uint8 script_roomNum;
-		uint32 script_offset;
-
-		if (INDEX->getScript(num, script_roomNum, script_offset) == false) {
-			return NULL;
-		}
-
-		uint8 room_diskNum;
-		uint32 room_resOffset;
-
-		if (INDEX->getRoom(script_roomNum, room_diskNum, room_resOffset) == false) {
-			return NULL;
-		}
-
-		uint32 room_offset;
-		Disk& disk = _getDisk(room_diskNum);
-		disk.getRoomOffset(script_roomNum, room_offset);
-
-		ScriptData* script = _scripts.create(num, room_diskNum);
-		DiskReader reader = disk.readSection(room_offset + script_offset);
-
-		if (script->readFromDisk(reader) == false) {
-			_scripts.destroy(script);
-		abort_quit_stop();
-			return NULL;
-		}
-
-		return script;
-	}
-
 	RoomData* Resources::loadRoomData(uint16 num)
 	{
 		/* TODO */
@@ -134,17 +101,6 @@ namespace gs
 		return room;
 	}
 
-
-	ScriptData* Resources::getScriptData(uint16 num) {
-		ScriptData* script = _scripts.find(num);
-
-		if (script == NULL) {
-			script = loadScriptData(num);
-		}
-
-		return script;
-	}
-	
 	RoomData* Resources::getRoomData(uint16 num) {
 		RoomData* room = _rooms.find(num);
 

@@ -53,7 +53,7 @@ namespace gs
 		RSK_Entrance= 1,	// Entrance Script
 		RSK_Exit = 2,	// Exit Script
 		RSK_LocalScript = 3,
-		RSK_VerbScript = 4
+		RSK_RoomVerbScript = 4
 	};
 	
 	class RoomScriptData {

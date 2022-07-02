@@ -700,13 +700,22 @@ namespace gs
 		const uint16 num = context._scriptNum;
 		const uint8 where = context._scriptWhere;
 
+		_scriptReference.gcForget();
+		_script = _nullScript;
+
 
 		if (num < NUM_GLOBAL_SCRIPTS && where == OW_Global) {
-			ScriptData* script = RESOURCES->getScriptData(context._scriptNum);
-			if (script) {
-				_script = script->getDataPtr();
-				return true;
+
+			_scriptReference = SCRIPTS->getOrLoadGlobalScript(context._scriptNum);
+
+			if (_scriptReference.isNull()) {
+				_script = _nullScript;
+				return false;
 			}
+
+			_script = _scriptReference.getData();
+
+			return true;
 		}
 		else if (num == FSI_ROOM_ENTRANCE || num == FSI_ROOM_EXIT) {
 			RoomData* room = getRoom();
