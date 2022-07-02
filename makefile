@@ -78,7 +78,8 @@ OBJ +=	source/main_game.o\
 		source/utils.o\
 		source/osd.o\
 		source/screen.o\
-		source/object.o
+		source/object.o\
+		source/object_functions.o
 
 all: $(OBJ)
 	$(CC) -o $(PROGRAM) $(OBJ) $(CFLAGS)

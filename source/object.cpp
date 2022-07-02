@@ -67,6 +67,11 @@ namespace gs
 			return;
 		}
 
+		if (_lastObject == object) {
+			_lastObject = NULL;
+			_lastObjectNum = 0;
+		}
+
 		object->release();
 		_objects.release_unchecked(object);
 	}
@@ -85,7 +90,9 @@ namespace gs
 		}
 
 		_objects.clear();
-
+		
+		_lastObject = NULL;
+		_lastObjectNum = 0;
 	}
 
 	void ObjectState::clearRoomObjects() {
@@ -114,7 +121,9 @@ namespace gs
 
 			objectsToClear.release();
 		}
-
+		
+		_lastObject = NULL;
+		_lastObjectNum = 0;
 	}
 
 	void ObjectVariant::release() {

@@ -25,6 +25,7 @@
 #include "disk.h"
 #include "profile.h"
 #include "debug.h"
+#include "point.h"
 
 namespace gs
 {
@@ -88,6 +89,9 @@ namespace gs
 
 		ArrayPool<ObjectVariant, uint16> _objects;
 
+		mutable uint16 _lastObjectNum;
+		mutable ObjectVariant* _lastObject;
+
 	public:
 		
 		ArrayPool<RoomObjectData, uint16> _roomObjectDatas;
@@ -105,6 +109,10 @@ namespace gs
 		void releaseObjectByNum(uint16 objectNum);
 
 		bool findObjectIdxByNum(uint16 objectNum, uint16& out_Idx) const {
+
+			if (objectNum == 0)
+				return false;
+
 			for(uint16 i=0; i < _objects.getSize();i++) {
 				const ObjectVariant* object = _objects.get_unchecked(i);
 				if (object->_num == objectNum) {
@@ -119,10 +127,15 @@ namespace gs
 
 			if (objectNum == 0)
 				return NULL;
+			
+			if (objectNum == _lastObjectNum)
+				return _lastObject;
 
 			for(uint16 i=0; i < _objects.getSize();i++) {
 				ObjectVariant* object = _objects.get_unchecked(i);
 				if (object->_num == objectNum) {
+					_lastObjectNum = i;
+					_lastObject = object;
 					return object;
 				}
 			}
@@ -130,9 +143,18 @@ namespace gs
 		}
 
 		const ObjectVariant* findObjectByNum(uint16 objectNum) const {
+			
+			if (objectNum == 0)
+				return NULL;
+
+			if (objectNum == _lastObjectNum)
+				return _lastObject;
+
 			for(uint16 i=0; i < _objects.getSize();i++) {
 				const ObjectVariant* object = _objects.get_unchecked(i);
 				if (object->_num == objectNum) {
+					_lastObjectNum = i;
+					_lastObject = (ObjectVariant*) object;
 					return object;
 				}
 			}
@@ -159,7 +181,6 @@ namespace gs
 
 	extern ObjectState* OBJECTS;
 	extern Array<ObjectVariant*> DRAWING_OBJECTS;
-
 
 }
 

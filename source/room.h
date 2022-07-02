@@ -133,6 +133,7 @@ namespace gs
 		uint8 _parent;
 		uint8 _parentState;
 		uint8 _flags;
+		int16 _x, _y;
 		ReadSpan<byte, uint16> _scriptData;
 	};
 
