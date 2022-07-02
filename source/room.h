@@ -125,6 +125,16 @@ namespace gs
 		}
 
 	};
+	
+	struct RoomObjectData {
+		void release();
+
+		uint16 _num;
+		uint8 _parent;
+		uint8 _parentState;
+		uint8 _flags;
+		ReadSpan<byte, uint16> _scriptData;
+	};
 
 	class RoomData : public ResourceData
 	{
@@ -132,6 +142,7 @@ namespace gs
 		bool _readRoomData(DiskReader& reader, const TagPair& lflf, bool readProperties, bool readScripts, bool readGraphics, bool readObjects);
 		bool _readProperties(DiskReader& reader, const TagPair& lflf);
 		bool _readObjects(DiskReader& reader, const TagPair& lflf);
+		bool _readObject(DiskReader& reader, const TagPair& obcdPair, RoomScriptData* scriptData);
 
 	public:
 
@@ -201,6 +212,7 @@ namespace gs
 
 		RoomScriptData* scriptData;
 		RoomGraphicsData* graphicsData;
+		Array<RoomObjectData*> objects;
 
 		uint16 width, height, numObjects, numZBuffers;
 		

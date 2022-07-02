@@ -190,9 +190,9 @@ namespace gs
 		return false;
 	}
 
-	static bool readObject(DiskReader& reader, const TagPair& obcdPair, RoomScriptData* scriptData, uint16 debug_roomNum) {
+	bool RoomData::_readObject(DiskReader& reader, const TagPair& obcdPair, RoomScriptData* scriptData) {
 
-		ObjectData* object = NULL;
+		ObjectVariant* object = NULL;
 		
 		while (reader.pos() < obcdPair.end()) {
 			TagPair tag = reader.readTagPair();
@@ -202,15 +202,17 @@ namespace gs
 				uint32 version = reader.readUInt32LE();
 				uint16 objectNum = reader.readUInt16LE();
 
-				uint16 objectIdx = OBJECTS->newObject(objectNum);
-				object = OBJECTS->getObjectPtr_unchecked(objectIdx);
-
-				object->_parent =  reader.readByte();
-				object->_parentState = reader.readByte();
-				object->_flags = OF_AllowMaskOr;
+				object = OBJECTS->newObject(objectNum, OK_RoomObject);
 				
-				if (scriptData->getObjectNumberedScript(object->_num, object->_scriptData) == false) {
-					error(GS_THIS, "Could not retrieve script data for Object %ld in Room %ld", (uint32) object->_num, (uint32) debug_roomNum);
+				RoomObjectData* data = object->_data._room;
+				
+				data->_num = objectNum;
+				data->_parent = reader.readByte();
+				data->_parentState = reader.readByte();
+				data->_flags = OF_AllowMaskOr;
+				
+				if (scriptData->getObjectNumberedScript(object->_num, data->_scriptData) == false) {
+					error(GS_THIS, "Could not retrieve script data for Object %ld in Room %ld", (uint32) object->_num, (uint32) getNum());
 				}
 
 				continue;
@@ -256,7 +258,7 @@ namespace gs
 
 					if (rmscPair.isTag(GS_MAKE_ID('O', 'B', 'C', 'D'))) {
 
-						if (readObject(reader, rmscPair, scriptData, getNum()) == false)
+						if (_readObject(reader, rmscPair, scriptData) == false)
 							return false;
 
 
@@ -274,6 +276,14 @@ namespace gs
 
 		return true;
 	}
+	
+	void RoomObjectData::release() {
+		_num = 0;
+		_parent = 0;
+		_parentState = 0;
+		_flags = 0;
+		_scriptData = ReadSpan<byte, uint16>();
+	};
 
 	void startRoom(uint16 roomNum, bool runExitScript, bool runEnterScript) {
 

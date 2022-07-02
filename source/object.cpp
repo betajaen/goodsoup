@@ -19,100 +19,117 @@
 
 #include "object.h"
 #include "memory.h"
+#include "room.h"
 
 namespace gs
 {
 	ObjectState* OBJECTS = NULL;
-	Array<ObjectData*, uint16> DRAWING_OBJECTS;
+	Array<ObjectVariant*, uint16> DRAWING_OBJECTS;
 
-	ObjectState::ObjectState() 
-		: _numObjects(0) {
-		for (uint16 i = 0; i < MAX_OBJECTS; i++) {
-			ObjectData& object = _objects[i];
-			_objects[i]._idx = i;
-		}
+	ObjectState::ObjectState() {
 	}
 
 	ObjectState::~ObjectState() {
+		release();
 	}
 
-	uint16 ObjectState::newObject(uint16 num) {
-		for (uint16 i = 1; i < MAX_OBJECTS; i++) {
-			ObjectData& object = _objects[i];
+	
+	void ObjectState::release() {
+		_objects.clear();
+		_roomObjectDatas.clear();
+	}
 
-			if (object._bUsed == false) {
-				object._num = num;
-				object._bUsed = true;
-				_numObjects++;
-				return i;
+
+	ObjectVariant* ObjectState::newObject(uint16 num, uint8 kind) {
+		ObjectVariant* object = _objects.acquire();
+		object->_num = num;
+		object->_kind = kind;
+
+		switch (kind) {
+			case OK_RoomObject: {
+				object->_data._room = _roomObjectDatas.acquire();
 			}
+			break;
 		}
 
-		return 0;
+		return object;
 	}
 	
-	uint16 ObjectState::releaseObjectByIdx(uint16 idx) {
-		if (idx > 0 && idx < MAX_OBJECTS) {
-			ObjectData& object = _objects[idx];
-			if (object._bUsed) {
-				object.clear();
-				_numObjects--;
-			}
-		}
-	}
-
-	uint16 ObjectState::releaseObjectByNum(uint16 objectNum) {
-		uint16 idx = findObjectIdxByNum(objectNum);
-
-		if (idx != 0) {
-			releaseObjectByIdx(idx);
-		}
-	}
-
-	uint16 ObjectState::findObjectIdxByNum(uint16 objectNum) {
-		for (uint16 i = 1; i < MAX_OBJECTS; i++) {
-			ObjectData& object = _objects[i];
-			if (object._num == objectNum) {
-				return i;
-			}
+	void ObjectState::releaseObject(ObjectVariant* object) {
+		if (object == NULL ) {
+			warn(GS_THIS, "Tried to release a NULL ObjectVariant!");
+			return;
 		}
 
-		return 0;
-	}
-	
-	void ObjectState::clearObjects() {
-		for (uint16 i = 1;i < MAX_OBJECTS; i++) {
-			ObjectData& object = _objects[i];
-			if (object._bUsed) {
-				object.clear();
-			}
+		if (object->_kind == OK_None) {
+			warn(GS_THIS, "Tried to release a None ObjectVariant!");
+			return;
 		}
 
-		_numObjects = 0;
+		object->release();
+		_objects.release_unchecked(object);
 	}
-	
+
+	void ObjectState::releaseObjectByNum(uint16 objectNum) {
+		releaseObject(findObjectByNum(objectNum));
+	}
+
 	void ObjectState::clearRoomObjects() {
-		for (uint16 i = 1; i < MAX_OBJECTS; i++) {
-			ObjectData& object = _objects[i];
 
-			if (object._bUsed && 
-				(object._bIsFloating == false) || (object._bIsFloating == true && object._bIsLocked == false)
-			) {
-				object.clear();
-				_numObjects--;
+		static Array<ObjectVariant*> objectsToClear;
+
+		for(uint16 i=0;i < _objects.getSize(); i++) {
+
+			ObjectVariant* object = _objects.get_unchecked(i);
+
+			if (object->_kind == OK_RoomObject) {
+				object->release();
+				objectsToClear.push(object);
+			}
+			else if (object->_kind == OK_FLObject && object->isLocked() == false) {
+				object->release();
+				objectsToClear.push(object);
 			}
 		}
+
+		if (objectsToClear.size()) {
+			for (uint16 i = 0; i < objectsToClear.size(); i++) {
+				ObjectVariant* object = objectsToClear.get_unchecked(i);
+				_objects.release_unchecked(object);
+			}
+
+			objectsToClear.release();
+		}
+
 	}
 
-	void ObjectData::clear() {
+	void ObjectVariant::release() {
+
+		switch (_kind) {
+			case OK_RoomObject: {
+				_data._room->release();
+				OBJECTS->_roomObjectDatas.release(_data._room);
+				_data._room = NULL;
+			}
+			break;
+			case OK_FLObject: {
+				NO_FEATURE(GS_THIS, "Not handled for clear for OK_FLObject");
+			}
+			break;
+			case OK_Actor: {
+				NO_FEATURE(GS_THIS, "Not handled for clear for OK_Actor");
+			}
+			break;
+			case OK_Inventory: {
+				NO_FEATURE(GS_THIS, "Not handled for clear for OK_Inventory");
+			}
+			break;
+		}
+
 		_num = 0;
-		_roomNum = 0;
-		_bUsed = false;
-		_bIsFloating = false;
-		_bIsLocked = false;
-		_parent = 0;
-		_parentState = 0;
-		_flags = OF_None;
+		_kind = OK_None;
+		_flags = OVF_None;
+		_data._room = NULL;
 	}
 
 
