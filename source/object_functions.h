@@ -23,6 +23,8 @@
 
 namespace gs
 {
+	void loadFloatingObject(uint16 objectNum);
+
 	int16 getObjectX(uint16 num);
 	int16 getObjectY(uint16 num);
 	Point getObjectXY(uint16 num);

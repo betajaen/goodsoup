@@ -26,6 +26,7 @@
 #include "utils.h"
 #include "functions.h"
 #include "vm_array.h"
+#include "object_functions.h"
 
 #define DEBUG_OPCODES 0
 
@@ -949,8 +950,9 @@ namespace gs
 					case ResourceRoutineOp_LoadCostume:
 						NO_FEATURE(GS_THIS, "Not implemented OP_resourceRoutines ResourceRoutineOp_LoadCostume");
 					return;
-					case ResourceRoutineOp_LoadObject:
-						NO_FEATURE(GS_THIS, "Not implemented OP_resourceRoutines ResourceRoutineOp_LoadObject");
+					case ResourceRoutineOp_LoadObject: {
+						loadFloatingObject(resId);
+					}
 					return;
 					case ResourceRoutineOp_LoadRoom:
 						NO_FEATURE(GS_THIS, "Not implemented OP_resourceRoutines ResourceRoutineOp_LoadRoom");

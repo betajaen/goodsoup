@@ -18,11 +18,16 @@
 #define GS_FILE_NAME "object"
 
 #include "object.h"
+#include "index.h"
 #include "room.h"
 
 namespace gs
 {
 	
+	void loadFloatingObject(uint16 objectNum) {
+		NO_FEATURE(GS_THIS, "Not implemented loadFloatingObject %ld", (uint32) objectNum);
+	}
+
 	int16 getObjectX(uint16 num) {
 		const ObjectVariant* object = OBJECTS->findObjectByNum(num);
 		
