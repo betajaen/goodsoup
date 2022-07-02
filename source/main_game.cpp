@@ -108,6 +108,7 @@ namespace gs
 		VM->reset();
 		VM->runScript(1, false, false);
 
+		info(GS_THIS, "Starting Main Loop");
 		screenLoop();
 
 		cleanup();
