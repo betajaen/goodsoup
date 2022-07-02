@@ -35,6 +35,7 @@ namespace gs
 
 	
 	void ObjectState::release() {
+		clearObjects();
 		_objects.clear();
 		_roomObjectDatas.clear();
 	}
@@ -72,6 +73,19 @@ namespace gs
 
 	void ObjectState::releaseObjectByNum(uint16 objectNum) {
 		releaseObject(findObjectByNum(objectNum));
+	}
+
+	void ObjectState::clearObjects() {
+
+		for(uint16 i=0;i < _objects.getSize(); i++) {
+			ObjectVariant* object = _objects.get_unchecked(i);
+			if (object->_kind != OK_None) {
+				object->release();
+			}
+		}
+
+		_objects.clear();
+
 	}
 
 	void ObjectState::clearRoomObjects() {
