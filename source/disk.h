@@ -63,8 +63,9 @@ namespace gs
 	private:
 		ReadFile& _file;
 	public:
-
+		
 		DiskReader(ReadFile& file);
+		DiskReader(ReadFile& file, uint32 offset);
 		~DiskReader();
 
 		template<typename Index>
@@ -187,6 +188,17 @@ namespace gs
 		bool getRoomOffset(uint8 num, uint32& offset) const;
 
 		DiskReader readSection(uint32 offset);
+
+		DiskReader openRoomForReading(uint16 roomNum) {
+			uint32 offset = 0;
+			
+			if (getRoomOffset(roomNum, offset) == false) {
+				error(GS_THIS, "Could not open room! %ld", (uint32) roomNum);
+				abort_quit_stop();
+			}
+
+			return DiskReader(_file, offset);
+		}
 
 	};
 

@@ -186,6 +186,11 @@ namespace gs
 	DiskReader::DiskReader(ReadFile& file)
 		: _file(file) {
 	}
+	
+	DiskReader::DiskReader(ReadFile& file, uint32 offset)
+		: _file(file) {
+		_file.seek(offset);
+	}
 
 	DiskReader::~DiskReader() {
 	}
