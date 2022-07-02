@@ -40,14 +40,14 @@ namespace gs
 		OK_RoomObject = 1,
 		OK_FLObject = 2,
 		OK_Actor = 3,
-		OK_Inventory = 4,
+		OK_Inventory = 4
 	};
 	
 	enum RoomObjectFlags {
 		OF_None = 0,
 		OF_AllowMaskOr = 1,
 		OF_DrawMaskOnAll = 2,
-		OF_ObjectMode = 8,
+		OF_ObjectMode = 8
 	};
 
 	enum ObjectVariantFlags {
