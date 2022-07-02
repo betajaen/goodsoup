@@ -29,6 +29,9 @@ namespace gs
 
 		Point()
 			: x(0), y(0) {}
+
+		Point(int16 xValue, int16 yValue)
+			: x(xValue), y(yValue) {}
 	};
 
 
