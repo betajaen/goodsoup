@@ -55,10 +55,6 @@ namespace gs
 			return false;
 		}
 
-		debug(GS_THIS, "Find Object %ld, Room %ld, Disk %ld", (uint32) objectNum, (uint32) roomNum, (uint32) diskNum);
-
-        uint32 objectObcdPosition = 0;
-
 		while (reader.pos() < lflf.end()) {
 			TagPair roomPair = reader.readTagPair();
 
@@ -76,13 +72,11 @@ namespace gs
 							
 								uint32 readVersion = reader.readUInt32LE();
 								uint16 readObjectNum = reader.readUInt16LE();
-                                objectObcdPosition++;
+
                                 if (readObjectNum != objectNum) { // Not this one. Skip OBCD completely.
 									reader.seek(rmscPair);
 									break;
 								}
-
-                                debug(GS_THIS, "+Object Offset %ld", objectObcdPosition);
 
 								reader.seek(rmscPair); // Skip back to outer tag, so it can be read in full.
 								return OBJECTS->newObject(objectNum, OK_RoomObject, reader, rmscPair, OVF_Floating);

@@ -73,7 +73,11 @@ namespace gs
 				continue;
 			}
 			else if (tag.isTag(GS_MAKE_ID('O', 'B', 'N', 'A'))) {
-				
+				reader.skip(tag);
+
+				// Currently Disabled, as it is unknown if this is actually required in functionality, and where
+				// the data should be put, and if it should what *visible* objects should have this functionality.
+#if 0
 				if (object == NULL) {
 					error(GS_THIS, "Name was read before header!");
 					return false;
@@ -91,8 +95,8 @@ namespace gs
 
                 debug(GS_THIS, "+Object Name = \"%s\", %ld, %ld", &nameTemp[0], (uint32) nameLength, (uint32) tag.length);
 
-				//NO_FEATURE(GS_THIS, "Reading Object Name");
 				reader.seekEndOf(tag);
+#endif
 				continue;
 			}
 			
