@@ -58,12 +58,6 @@ namespace gs
 
 	};
 
-	enum FixedScriptIds
-	{
-		FSI_ROOM_ENTRANCE = 10002,
-		FSI_ROOM_EXIT = 10001
-	};
-
 }
 
 #endif

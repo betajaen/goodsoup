@@ -22,21 +22,42 @@
 #include "buffer.h"
 #include "pool.h"
 
+
 namespace gs
 {
 #define MAX_SCRIPT_TABLE_ENTRIES 8
 	class DiskReader;
+	struct TagPair;
 
 	typedef Buffer<byte, uint16> OpcodeData;
 	typedef ReadSpan<byte, uint16> OpcodeSpan;
 
 	enum ScriptDataKind {
 		SDK_None = 0,
-		SDK_RoomGlobalScript = 1,
-		SDK_RoomLocalEntrance= 2,
-		SDK_RoomLocalExit = 3,
-		SDK_RoomLocalScript = 4,
-		SDK_RoomVerbScript = 5
+
+		// "Global" scripts.
+		// Stored in Rooms as SCRP tags. Rooms may have multiple SCRP tags.
+		// Offsets to these are stored in the INDEX as _scriptsResources
+		SDK_Global = 1,
+
+		// "Local" scripts.
+		// Stored and ran in the loaded room.
+		// These are either:
+		// 	- LSCR - Local, which has an ID which always starts at 2000
+		// 	- ENCD - Entrance Script, which is always ID 10002
+		//  - EXCD - Exit Script, which is always ID 10001
+		SDK_Local = 2,
+
+		// "Verb" scripts.
+		// Verb scripts which are associated with Objects (which may be floating or non-floating)
+		// Verb scripts may have "functions" which are held in the offsetKey, offsetValues, these
+		// are used with Verbs - Open X, Use Y, etc.
+		SDK_Verb = 3
+	};
+
+	enum HardcodedScriptNum {
+		HSN_RoomEntrance = 10002,
+		HSN_RoomExit = 10001
 	};
 
 	enum ScriptDataFlags {
@@ -49,15 +70,14 @@ namespace gs
 	struct ScriptData {
 		OpcodeData _script;
 		uint32 _fileOffset;
-		uint16 _parentId;
 		uint32 _id;
+		uint16 _parentId;
 		uint8 _kind;
-		uint8 _diskNum;
 		uint8 _users;
 		uint8 _flags;
+		uint8 _numOffsets;
 		uint8 _offsetkeys[MAX_SCRIPT_TABLE_ENTRIES];
 		uint16 _offsetValues[MAX_SCRIPT_TABLE_ENTRIES];
-		uint8 _offsetCount;
 
 		OpcodeSpan getData() const {
 			return _script.getReadSpan<uint16>();
@@ -65,8 +85,8 @@ namespace gs
 
 		bool getData(uint8 key, OpcodeSpan& out_span) const {
 
-			if (_offsetCount != 0) {
-				for (uint8 i = 0; i < _offsetCount; i++) {
+			if (_numOffsets != 0) {
+				for (uint8 i = 0; i < _numOffsets; i++) {
 					if (_offsetkeys[i] == key) {
 						uint16 offset = _offsetValues[i];
 
@@ -240,8 +260,6 @@ namespace gs
 
 	class ScriptState {
 		ArrayPool<ScriptData, uint16> _globals;
-		ArrayPool<ScriptData, uint16> _localEntrances;
-		ArrayPool<ScriptData, uint16> _localExits;
 		ArrayPool<ScriptData, uint16> _locals;
 		ArrayPool<ScriptData, uint16> _objectVerbs;
 
@@ -258,19 +276,9 @@ namespace gs
 
 		ScriptDataReference getLocalScript(uint16 roomNum, uint32 localScriptNum);
 
-		ScriptDataReference getEntranceScript(uint16 roomNum);
+		ScriptDataReference readLocalScript(uint16 roomNum, const TagPair& tag, DiskReader& reader);
 
-		ScriptDataReference getExitScript(uint16 roomNum);
-
-		ScriptDataReference getVerbScript(uint16 objectNum);
-
-		ScriptDataReference readLocalScript(uint16 roomNum, uint32 localScriptNum, uint16 scriptLength, DiskReader& reader);
-
-		ScriptDataReference readEntranceScript(uint16 roomNum, uint16 scriptLength, DiskReader& reader);
-
-		ScriptDataReference readExitScript(uint16 roomNum, uint16 scriptLength, DiskReader& reader);
-
-		ScriptDataReference readVerbScript(uint16 objectNum, uint16 verbNum, uint16 scriptLength, DiskReader& reader);
+		bool readObjectVerbScript(uint16 objectNum, const TagPair& tag, DiskReader& reader);
 
 	};
 

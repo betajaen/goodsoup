@@ -53,28 +53,17 @@ namespace gs
 				while(reader.pos() < pair.end()) {
 					TagPair roomPair = reader.readTagPair();
 
-					if (roomPair.isTag(GS_MAKE_ID('E', 'N', 'C', 'D'))) {
-						ScriptDataReference script =  SCRIPTS->readEntranceScript(roomNum, roomPair.length, reader);
+					if (roomPair.isTag(GS_MAKE_ID('E', 'N', 'C', 'D'), GS_MAKE_ID('E', 'X', 'C', 'D'), GS_MAKE_ID('L', 'S', 'C', 'R'))) {
+						ScriptDataReference script = SCRIPTS->readLocalScript(roomNum, roomPair, reader);
 						_scripts.push(script);
-						continue;
-					}
-					else if (roomPair.isTag(GS_MAKE_ID('E', 'X', 'C', 'D'))) {
-						ScriptDataReference script =  SCRIPTS->readExitScript(roomNum, roomPair.length, reader);
-						_scripts.push(script);
-						continue;
-					}
-					else if (roomPair.isTag(GS_MAKE_ID('L', 'S', 'C', 'R'))) {
-						uint32 num = reader.readUInt32LE();
 
-						ScriptDataReference script =  SCRIPTS->readLocalScript(roomNum, num, roomPair.length - sizeof(uint32), reader);
-						_scripts.push(script);
+						reader.seekEndOf(roomPair);
 						continue;
 					}
 
 					reader.skip(roomPair);
 				}
 				
-
 				continue;
 			}
 
@@ -83,38 +72,28 @@ namespace gs
 
 		return true;
 	}
-	
-	bool RoomScriptData::getFirstScript(uint8 kind, ScriptDataReference& out_Script) const {
+
+	bool RoomScriptData::hasLocalScript(uint32 num) const {
+
 		if (_scripts.size() > 0) {
 			for (uint8 i = 0; i < _scripts.size(); i++) {
 				const ScriptDataReference& script = _scripts.get_unchecked(i);
-				if (script.getKind() == kind) {
-					out_Script.copyFrom(script);
+				if (script.matchIdKind(num, SDK_Local)) {
 					return true;
 				}
 			}
 		}
-		return false;
-	}
-	
-	bool RoomScriptData::hasFirstScript(uint8 kind) const {
-		if (_scripts.size() > 0) {
-			for (uint8 i = 0; i < _scripts.size(); i++) {
-				const ScriptDataReference& script = _scripts.get_unchecked(i);
-				if (script.getKind() == kind) {
-					return true;
-				}
-			}
-		}
+
 		return false;
 	}
 
-	bool RoomScriptData::getLocalNumberedScript(uint32 num, ScriptDataReference& out_Script) const {
+
+	bool RoomScriptData::getLocalScript(uint32 num, ScriptDataReference& out_Script) const {
 		
 		if (_scripts.size() > 0) {
 			for (uint8 i = 0; i < _scripts.size(); i++) {
 				const ScriptDataReference& script = _scripts.get_unchecked(i);
-				if (script.matchIdKind(num, SDK_RoomLocalScript)) {
+				if (script.matchIdKind(num, SDK_Local)) {
 					out_Script.copyFrom(script);
 					return true;
 				}

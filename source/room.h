@@ -50,35 +50,17 @@ namespace gs
 		uint8 palette[3 * 256];
 	};
 
-	enum RoomScriptKind {
-		RSK_Entrance= 1,	// Entrance Script
-		RSK_Exit = 2,	// Exit Script
-		RSK_LocalScript = 3,
-		RSK_RoomVerbScript = 4
-	};
-	
 	class RoomScriptData {
 		Array<ScriptDataReference> _scripts;
 	public:
-		
-		struct RoomScriptInfo {
-			uint32 fileOffset;
-			uint32 scriptOffset;
-			uint16 length;
-			uint16 num;
-			uint8  kind;
-		};
 
 		RoomScriptData();
 		~RoomScriptData();
 		
 		void close();
 
-		
-		bool getFirstScript(uint8 kind, ScriptDataReference& out_Script) const;
-		bool hasFirstScript(uint8 kind) const;
-		bool getLocalNumberedScript(uint32 num, ScriptDataReference& out_Script) const;
-
+		bool hasLocalScript(uint32 num) const;
+		bool getLocalScript(uint32 num, ScriptDataReference& out_Script) const;
 		bool readFromDisk(DiskReader& reader, const TagPair& lflf, uint16 debug_roomNum);
 
 	};
@@ -142,7 +124,6 @@ namespace gs
 		bool _readRoomData(DiskReader& reader, const TagPair& lflf, bool readProperties, bool readScripts, bool readGraphics, bool readObjects);
 		bool _readProperties(DiskReader& reader, const TagPair& lflf);
 		bool _readObjects(DiskReader& reader, const TagPair& lflf);
-		bool _readObject(DiskReader& reader, const TagPair& obcdPair, RoomScriptData* scriptData);
 
 	public:
 
@@ -186,23 +167,16 @@ namespace gs
 			return graphicsData->getPalette(index);
 		}
 
-		bool getFirstScript(uint8 kind, ScriptDataReference& out_Script) const {
+		bool hasLocalScript(uint16 num) {
 			if (scriptData != NULL) {
-				return scriptData->getFirstScript(kind, out_Script);
-			}
-			return false;
-		}
-		
-		bool hasFirstScript(uint8 kind) const {
-			if (scriptData != NULL) {
-				return scriptData->hasFirstScript(kind);
+				return scriptData->hasLocalScript(num);
 			}
 			return false;
 		}
 
-		bool getLocalNumberedScript(uint16 num, ScriptDataReference& out_Script) {
+		bool getLocalScript(uint16 num, ScriptDataReference& out_Script) {
 			if (scriptData != NULL) {
-				return scriptData->getLocalNumberedScript(num, out_Script);
+				return scriptData->getLocalScript(num, out_Script);
 			}
 			warn(GS_THIS, "RoomScriptData was not loaded for %ld", this->getNum());
 			return false;

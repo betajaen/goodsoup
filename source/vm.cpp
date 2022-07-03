@@ -705,7 +705,7 @@ namespace gs
 
 
 		if (num < NUM_GLOBAL_SCRIPTS && where == OW_Global) {
-
+			// SCRP (<2000)
 			_scriptReference = SCRIPTS->getOrLoadGlobalScript(context._scriptNum);
 
 			if (_scriptReference.isNull()) {
@@ -717,22 +717,12 @@ namespace gs
 
 			return true;
 		}
-		else if (num == FSI_ROOM_ENTRANCE || num == FSI_ROOM_EXIT) {
-			RoomData* room = getRoom();
-
-			if (room) {
-				uint8 roomScriptKind = FSI_ROOM_ENTRANCE ? SDK_RoomLocalEntrance : SDK_RoomLocalExit;
-
-				if (room->getFirstScript(roomScriptKind, _scriptReference)) {
-					_script = _scriptReference.getData();
-				}
-			}
-		}
 		else if (num >= NUM_GLOBAL_SCRIPTS) {
+			// LSCR (>2000), EXCD (10001) and ENCD (10002) scripts
 			RoomData* room = getRoom();
 
 			if (room) {
-				if (room->getLocalNumberedScript(num, _scriptReference)) {
+				if (room->getLocalScript(num, _scriptReference)) {
 					_script = _scriptReference.getData();
 					return true;
 				}

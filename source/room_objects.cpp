@@ -24,6 +24,8 @@
 
 namespace gs
 {
+
+
 	void RoomObjectData::release() {
 		_num = 0;
 		_parent = 0;
@@ -61,20 +63,11 @@ namespace gs
 			else if (tag.isTag(GS_MAKE_ID('V', 'E', 'R', 'B'))) {
 				NO_FEATURE(GS_THIS, "Reading Object Verb");
 
-                while(true) {
-                    byte code = reader.readByte();
-                    if (code == 0) {
-                        debug(GS_THIS, "+Verb Table Stop");
-                        break;
-                    }
-
-                    uint16 offset = reader.readUInt16LE();
-                    debug(GS_THIS, "+Verb Table Key=%ld, Offset=%ld", (uint32) code, (uint32) offset);
-                }
-
-                uint32 scriptLength = tag.end() - reader.pos();
-
-                debug(GS_THIS, "+Verb Script Length = %ld", scriptLength);
+				if (SCRIPTS->readObjectVerbScript(object->_num, tag, reader) == false) {
+					error(GS_THIS, "Could not read Object %ld Verb Script", (uint32) object->_num);
+					abort_quit_stop();
+					return false;
+				}
 
 				reader.seekEndOf(tag);
 				continue;

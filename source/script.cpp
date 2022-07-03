@@ -47,22 +47,6 @@ namespace gs
 
 		_globals.clear();
 
-		
-		for (uint16 i = 0; i < _localEntrances.getSize(); i++) {
-			ScriptData* script = _localEntrances.get_unchecked(i);
-			script->poolRelease();
-		}
-
-		_localEntrances.clear();
-		
-		for (uint16 i = 0; i < _localExits.getSize(); i++) {
-			ScriptData* script = _localExits.get_unchecked(i);
-			script->poolRelease();
-		}
-
-		_localExits.clear();
-		
-		
 		for (uint16 i = 0; i < _locals.getSize(); i++) {
 			ScriptData* script = _locals.get_unchecked(i);
 			script->poolRelease();
@@ -98,25 +82,17 @@ namespace gs
 		Disk& disk = RESOURCES->_getDisk(room_diskNum);
 		disk.getRoomOffset(script_roomNum, room_offset);
 
-		debug(GS_THIS, "+SCRIPT Room=%ld:%ld Script=%ld:%ld Total = %ld",
-			(uint32)script_roomNum, (uint32)room_offset, (uint32) scriptNum, (uint32)script_offset, (uint32)(room_offset + script_offset));
-
 		ScriptData* script = _globals.acquire();
-		script->_diskNum = room_diskNum;
 		script->_fileOffset = room_offset + script_offset;
 		script->_flags = 0;
-		script->_kind = SDK_RoomGlobalScript;
+		script->_kind = SDK_Global;
 		script->_id = scriptNum;
 		script->_parentId = script_roomNum;
 		script->_users = 0;
 		
 		DiskReader reader = disk.readSection(script->_fileOffset);
 
-		debug(GS_THIS, "Offset = %ld", script->_fileOffset);
-
 		TagPair tag = reader.readTagPair();
-
-		debug(GS_THIS, "TAG = %s, %ld", tag.tagStr(), tag.length);
 
 		if (tag.isTag(GS_MAKE_ID('S', 'C', 'R', 'P')) == false) {
 			error(GS_THIS, "No Script Header found for Global Script %ld", (uint32) script->_id);
@@ -141,19 +117,20 @@ namespace gs
 
 		reader.readBytes(script->_script, (uint16) tag.length);
 
+		debug(GS_THIS, "+SCRP %ld, %ld", (uint32) script->_id, (uint32) tag.length);
+
 		return script;
 	}
 	
 	void ScriptData::poolRelease() {
 		_script.release();
-		_diskNum = 0;
 		_fileOffset = 0;
 		_flags = 0;
 		_kind = SDK_None;
 		_id = 0;
 		_parentId = 0;
 		_users = 0;
-		_offsetCount = 0;
+		_numOffsets = 0;
 	}
 
 	ScriptDataReference ScriptState::getOrLoadGlobalScript(uint16 scriptNum) {
@@ -173,35 +150,87 @@ namespace gs
 	}
 
 	ScriptDataReference ScriptState::getLocalScript(uint16 roomNum, uint32 localScriptNum) {
+
+		for(uint16 i=0;i < _locals.getSize();i++) {
+			ScriptData* data = _locals.get_unchecked(i);
+			if (data->_parentId == roomNum && data->_id == localScriptNum) {
+				return ScriptDataReference(data);
+			}
+		}
+
 		return ScriptDataReference();
 	}
 
-	ScriptDataReference ScriptState::getEntranceScript(uint16 roomNum) {
-		return ScriptDataReference();
+	ScriptDataReference ScriptState::readLocalScript(uint16 roomNum, const TagPair& tag, DiskReader& reader) {
+
+		ScriptData* script = _locals.acquire();
+		script->_id = 0;
+		script->_parentId = roomNum;
+		script->_fileOffset = tag.dataPos;
+		script->_kind = SDK_Local;
+
+		uint16 length = tag.length;
+
+		if (tag.isTag(GS_MAKE_ID('L','S', 'C', 'R'))) {
+			// Not an EXCD or ENCD, its a LSCR, so the first four bytes is the ID (which always starts at 2000)
+			script->_id = reader.readUInt32LE();
+			length -= sizeof(uint32);
+		}
+		else if (tag.isTag(GS_MAKE_ID('E','N', 'C', 'D'))) {
+			script->_id = HSN_RoomEntrance;
+		}
+		else if (tag.isTag(GS_MAKE_ID('E','X', 'C', 'D'))) {
+			script->_id = HSN_RoomExit;
+		}
+		else {
+			error(GS_THIS, "Unknown Local Script type %s", tag.tagStr());
+			abort_quit_stop();
+			return ScriptDataReference();
+		}
+
+		reader.readBytes(script->_script, length);
+
+		debug(GS_THIS, "+ %s %ld", tag.tagStr(), length);
+
+		return ScriptDataReference(script);
 	}
 
-	ScriptDataReference ScriptState::getExitScript(uint16 roomNum) {
-		return ScriptDataReference();
-	}
+	bool ScriptState::readObjectVerbScript(uint16 objectNum, const TagPair& tag, DiskReader& reader) {
 
-	ScriptDataReference ScriptState::getVerbScript(uint16 objectNum) {
-		return ScriptDataReference();
-	}
+		if (tag.isTag(GS_MAKE_ID('V','E', 'R', 'B')) == false) {
+			error(GS_THIS, "Unexpected tag %ls expected VERB", tag.tagStr());
+			abort_quit_stop();
+			return false;
+		}
 
-	ScriptDataReference ScriptState::readLocalScript(uint16 roomNum, uint32 localScriptNum, uint16 scriptLength, DiskReader& reader) {
-		return ScriptDataReference();
-	}
+		ScriptData* script = _objectVerbs.acquire();
+		script->_id = objectNum;
+		script->_parentId = 0;
+		script->_fileOffset = tag.dataPos;
+		script->_kind = SDK_Verb;
 
-	ScriptDataReference ScriptState::readEntranceScript(uint16 roomNum, uint16 scriptLength, DiskReader& reader) {
-		return ScriptDataReference();
-	}
+		uint16 length = tag.length;
 
-	ScriptDataReference ScriptState::readExitScript(uint16 roomNum, uint16 scriptLength, DiskReader& reader) {
-		return ScriptDataReference();
-	}
+		while(true) {
+			byte verbKey = reader.readByte();
+			length -= sizeof(byte);
 
-	ScriptDataReference ScriptState::readVerbScript(uint16 objectNum, uint16 verbNum, uint16 scriptLength, DiskReader& reader) {
-		return ScriptDataReference();
+			if (verbKey == 0)
+				break;
+
+			uint16 verbOffset = reader.readUInt16LE();
+			length -= sizeof(uint16);
+
+			script->_offsetkeys[script->_numOffsets] = verbKey;
+			script->_offsetValues[script->_numOffsets] = verbOffset;
+			script->_numOffsets++;
+		}
+
+		reader.readBytes(script->_script, length);
+
+		debug(GS_THIS, "+VERB %ld %ld %ld", (uint32) objectNum, (uint32) length, (uint32) script->_numOffsets);
+
+		return true;
 	}
 
 }

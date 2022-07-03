@@ -202,8 +202,8 @@ namespace gs
 		if (sCurrentRoom != NULL && runExitScript) {
 
 
-			if (sCurrentRoom->hasFirstScript(RSK_Exit)) {
-				VM->runRoomScript(FSI_ROOM_EXIT);
+			if (sCurrentRoom->hasLocalScript(HSN_RoomExit)) {
+				VM->runRoomScript(HSN_RoomExit);
 				if (QUIT_NOW)
 					return;
 			}
@@ -255,8 +255,8 @@ namespace gs
 					return;
 			}
 
-			if (sCurrentRoom->hasFirstScript(RSK_Entrance)) {
-				VM->runRoomScript(FSI_ROOM_ENTRANCE);
+			if (sCurrentRoom->hasLocalScript(HSN_RoomEntrance)) {
+				VM->runRoomScript(HSN_RoomEntrance);
 				if (QUIT_NOW)
 					return;
 			}
