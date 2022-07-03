@@ -1367,7 +1367,8 @@ namespace gs
 						NO_FEATURE(GS_THIS, "Not implemented KernelSetOp_SetScaleSlot");
 					return;
 					case KernelSetOp_SetBannerColours:
-						NO_FEATURE(GS_THIS, "Not implemented KernelSetOp_SetBannerColours");
+						// Disabled, due to lack of clarity of what this actually does and amount of spam.
+						// NO_FEATURE(GS_THIS, "Not implemented KernelSetOp_SetBannerColours");
 					return;
 					case KernelSetOp_SetActorChoreLimbFrame:
 						NO_FEATURE(GS_THIS, "Not implemented KernelSetOp_SetActorChoreLimbFrame");
