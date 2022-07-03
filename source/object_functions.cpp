@@ -25,175 +25,87 @@ namespace gs
 {
 	
 	bool loadFloatingObject(uint16 objectNum) {
+		ObjectData* object = OBJECTS->loadFromFloatingObject(objectNum);
 
-		uint16 roomNum;
-		uint8 diskNum;
-
-		if (INDEX->getObject(objectNum, roomNum, diskNum) == false) {
-			error(GS_THIS, "Could not read Floating Object %ld as it does not exist", (uint32) objectNum);
-			abort_quit_stop();
-			return false;
-		}
-
-		Disk& disk = RESOURCES->_getDisk(diskNum);
-		DiskReader reader = disk.openRoomForReading(roomNum);
-		if (reader.pos() == 0) {
-			error(GS_THIS, "Could not read Floating Object %ld as the container room %ld does not exist", (uint32) objectNum, (uint32) roomNum);
-			abort_quit_stop();
-			return false;
-		}
-
-		TagPair lflf = reader.readTagPair();
-		
-		if (lflf.isTag(GS_MAKE_ID('L','F','L','F')) == false) {
-			error(GS_THIS, "Could not read RoomData as its not a Room!", (uint32) roomNum);
-			return false;
-		}
-
-		if (lflf.length == 0) {
-			error(GS_THIS, "Room length %ld is 0 bytes!", (uint32) roomNum);
-			return false;
-		}
-
-		while (reader.pos() < lflf.end()) {
-			TagPair roomPair = reader.readTagPair();
-
-			if (roomPair.isTag(GS_MAKE_ID('R', 'M', 'S', 'C'))) {	// RMSC
-
-				while (reader.pos() < roomPair.end()) {
-					TagPair rmscPair = reader.readTagPair();
-
-					if (rmscPair.isTag(GS_MAKE_ID('O', 'B', 'C', 'D'))) {	// OBCD?
-						
-						while (reader.pos() < rmscPair.end()) {
-							TagPair innerObjectTag = reader.readTagPair();
-			
-							if (innerObjectTag.isTag(GS_MAKE_ID('C', 'D', 'H', 'D'))) {	// CDHD?
-							
-								uint32 readVersion = reader.readUInt32LE();
-								uint16 readObjectNum = reader.readUInt16LE();
-
-                                if (readObjectNum != objectNum) { // Not this one. Skip OBCD completely.
-									reader.seek(rmscPair);
-									break;
-								}
-
-								reader.seek(rmscPair); // Skip back to outer tag, so it can be read in full.
-								return OBJECTS->newObject(objectNum, OK_RoomObject, reader, rmscPair, OVF_Floating);
-							}
-							reader.skip(innerObjectTag);
-						}
-						
-					}
-
-					reader.skip(rmscPair);
-				}
-
-				break;
-			}
-
-			reader.skip(roomPair);
-		}
-
-
-		NO_FEATURE(GS_THIS, "Not implemented loadFloatingObject %ld", (uint32) objectNum);
-		return NULL;
+		return object != NULL;
 	}
 
-	int16 getObjectX(uint16 num) {
-		const ObjectVariant* object = OBJECTS->findObjectByNum(num);
+	int16 getObjectX(uint16 objectNum) {
+		const ObjectData* object = OBJECTS->findObject(objectNum);
 		
 		if (object != NULL) {
-			if (object->_kind == OK_RoomObject) {
-				const RoomObjectData* data = object->_data._room;
-				return data->_x;
-			}
+			return object->_x;
 		}
 		else {
-			warn(GS_THIS, "Missing Object %ld", (uint32) num);
+			warn(GS_THIS, "Missing Object %ld", (uint32) objectNum);
 		}
 
 		return 0;
 	}
 
-	int16 getObjectY(uint16 num) {
-		const ObjectVariant* object = OBJECTS->findObjectByNum(num);
+	int16 getObjectY(uint16 objectNum) {
+		const ObjectData* object = OBJECTS->findObject(objectNum);
 		
 		if (object != NULL) {
-			if (object->_kind == OK_RoomObject) {
-				const RoomObjectData* data = object->_data._room;
-				return data->_x;
-			}
+			return object->_y;
 		}
 		else {
-			warn(GS_THIS, "Missing Object %ld", (uint32) num);
+			warn(GS_THIS, "Missing Object %ld", (uint32) objectNum);
 		}
 
 		return 0;
 
 	}
 
-	Point getObjectXY(uint16 num) {
+	Point getObjectXY(uint16 objectNum) {
 		
-		const ObjectVariant* object = OBJECTS->findObjectByNum(num);
+		const ObjectData* object = OBJECTS->findObject(objectNum);
 		
 		if (object != NULL) {
-			if (object->_kind == OK_RoomObject) {
-				const RoomObjectData* data = object->_data._room;
-				return Point(data->_x, data->_y);
-			}
+			return Point(object->_x, object->_y);
 		}
 		else {
-			warn(GS_THIS, "Missing Object %ld", (uint32) num);
+			warn(GS_THIS, "Missing Object %ld", (uint32) objectNum);
 		}
 
 		return Point();
 	}
 
-	void setObjectXY(uint16 num, const Point& xy) {
+	void setObjectXY(uint16 objectNum, const Point& xy) {
 		
-		ObjectVariant* object = OBJECTS->findObjectByNum(num);
+		ObjectData* object = OBJECTS->findObject(objectNum);
 		
 		if (object != NULL) {
-			if (object->_kind == OK_RoomObject) {
-				RoomObjectData* data = object->_data._room;
-				data->_x = xy.x;
-				data->_y = xy.y;
-			}
+			object->_x = xy.x;
+			object->_y = xy.y;
 		}
 		else {
-			warn(GS_THIS, "Missing Object %ld", (uint32) num);
+			warn(GS_THIS, "Missing Object %ld", (uint32) objectNum);
 		}
 
 	}
 
-	void setObjectX(uint16 num, int16 x) {
+	void setObjectX(uint16 objectNum, int16 x) {
 		
-		ObjectVariant* object = OBJECTS->findObjectByNum(num);
+		ObjectData* object = OBJECTS->findObject(objectNum);
 		
 		if (object != NULL) {
-			if (object->_kind == OK_RoomObject) {
-				RoomObjectData* data = object->_data._room;
-				data->_x = x;
-			}
+			object->_x = x;
 		}
 		else {
-			warn(GS_THIS, "Missing Object %ld", (uint32) num);
+			warn(GS_THIS, "Missing Object %ld", (uint32) objectNum);
 		}
 	}
 
-	void setObjectY(uint16 num, int16 y) {
-		
-		ObjectVariant* object = OBJECTS->findObjectByNum(num);
+	void setObjectY(uint16 objectNum, int16 y) {
+
+		ObjectData* object = OBJECTS->findObject(objectNum);
 		
 		if (object != NULL) {
-			if (object->_kind == OK_RoomObject) {
-				RoomObjectData* data = object->_data._room;
-				data->_y = y;
-			}
+			object->_y = y;
 		}
 		else {
-			warn(GS_THIS, "Missing Object %ld", (uint32) num);
+			warn(GS_THIS, "Missing Object %ld", (uint32) objectNum);
 		}
 	}
 

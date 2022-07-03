@@ -26,6 +26,7 @@
 #include "profile.h"
 #include "debug.h"
 #include "point.h"
+#include "script.h"
 
 namespace gs
 {
@@ -55,18 +56,16 @@ namespace gs
 		OVF_Floating = 2
 	};
 
-	struct ObjectVariant {
-		
-		union ObjectVariantData {
-			RoomObjectData* _room;
-			ActorObjectData* _actor;
-			InventoryObjectData* _inventory;
-		};
-
+	struct ObjectData {
 		uint16 _num;
-		uint8  _kind;
-		uint8  _flags;
-		ObjectVariantData _data;
+		uint8 _parent;
+		uint8 _parentState;
+		uint8 _state;
+		uint8 _flags;
+		uint8 _class;
+		int16 _x, _y;
+		uint16 _width, _height;
+		ScriptDataReference _script;
 
 		bool isLocked() const {
 			return (_flags & OVF_Locked) == 0;
@@ -94,107 +93,39 @@ namespace gs
 			}
 		}
 
-		void release();
+		void clear();
 	};
 
 	class ObjectState {
+		ArrayPool<ObjectData, uint8> _objects;
 
-		ArrayPool<ObjectVariant, uint16> _objects;
-
-		mutable uint16 _lastObjectNum;
-		mutable ObjectVariant* _lastObject;
+		DiskReader _seekToObject(uint16 objectNum, TagPair& out_tag);
+		bool _readIntoObject(ObjectData* data, DiskReader& reader, const TagPair& obcdTag);
 
 	public:
-		
-		ArrayPool<RoomObjectData, uint16> _roomObjectDatas;
 
 		ObjectState();
 		~ObjectState();
 
-		void release();
-
-
-		ObjectVariant* newObject(uint16 num, uint8 kind, uint8 flags = 0);
-
-		ObjectVariant* newObject(uint16 num, uint8 kind, DiskReader& reader, const TagPair& tag, uint8 flags = 0);
-
-		void releaseObject(ObjectVariant* variant);
-
-		void releaseObjectByNum(uint16 objectNum);
-
-		bool findObjectIdxByNum(uint16 objectNum, uint16& out_Idx) const {
-
-			if (objectNum == 0)
-				return false;
-
-			for(uint16 i=0; i < _objects.getSize();i++) {
-				const ObjectVariant* object = _objects.get_unchecked(i);
-				if (object->_num == objectNum) {
-					out_Idx = i;
-					return true;
-				}
-			}
-			return false;
-		}
-		
-		ObjectVariant* findObjectByNum(uint16 objectNum) {
-
-			if (objectNum == 0)
-				return NULL;
-			
-			if (objectNum == _lastObjectNum)
-				return _lastObject;
-
-			for(uint16 i=0; i < _objects.getSize();i++) {
-				ObjectVariant* object = _objects.get_unchecked(i);
-				if (object->_num == objectNum) {
-					_lastObjectNum = i;
-					_lastObject = object;
-					return object;
-				}
-			}
-			return NULL;
-		}
-
-		const ObjectVariant* findObjectByNum(uint16 objectNum) const {
-			
-			if (objectNum == 0)
-				return NULL;
-
-			if (objectNum == _lastObjectNum)
-				return _lastObject;
-
-			for(uint16 i=0; i < _objects.getSize();i++) {
-				const ObjectVariant* object = _objects.get_unchecked(i);
-				if (object->_num == objectNum) {
-					_lastObjectNum = i;
-					_lastObject = (ObjectVariant*) object;
-					return object;
-				}
-			}
-			return NULL;
-		}
-		
-		void clearObjects();
-		void clearRoomObjects();
-
-		ObjectVariant* getObjectByIdx_unchecked(uint16 idx) {
-			return _objects.get_unchecked(idx);
-		}
-		
-		ObjectVariant* getObjectByIdx(uint16 idx) {
-			return _objects.get(idx);
-		}
-
-		inline uint16 getCount() const {
+		uint16 getCount() const {
 			return _objects.getSize();
 		}
-		
+		void dumpObjects();
+		void clearAll();
+		void clearForNewRoom();
+
+		ObjectData* loadFromFloatingObject(uint16 objectNum);
+		ObjectData* loadFromRoomLoad(DiskReader& reader, const TagPair& obcdTag);
+		bool unload(uint16 objectNum);
+
+		bool hasObject(uint16 objectNum) const;
+		ObjectData* findObject(uint16 objectNum);
+
 	};
 
-
 	extern ObjectState* OBJECTS;
-	extern Array<ObjectVariant*> DRAWING_OBJECTS;
+	extern Array<ObjectData*, uint8> DRAWING_OBJECTS;
+
 
 }
 

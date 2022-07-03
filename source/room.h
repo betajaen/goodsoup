@@ -36,6 +36,7 @@ namespace gs
 #define MAX_ROOM_COLOUR_CYCLES 8
 
 	class DiskReader;
+	struct ObjectData;
 
 	struct RoomColourCycle
 	{
@@ -103,19 +104,6 @@ namespace gs
 			return _backgrounds[idx].getReadSpan<uint32>();
 		}
 
-	};
-	
-	struct RoomObjectData {
-		
-		void release();
-		bool readFromDisk(DiskReader& reader, const TagPair& obcdTag);
-
-		uint16 _num;
-		uint8 _parent;
-		uint8 _parentState;
-		uint8 _flags;
-		int16 _x, _y;
-		ReadSpan<byte, uint16> _scriptData;
 	};
 
 	class RoomData : public ResourceData
@@ -186,7 +174,7 @@ namespace gs
 
 		RoomScriptData* scriptData;
 		RoomGraphicsData* graphicsData;
-		Array<RoomObjectData*> objects;
+		Array<ObjectData*> objects;
 
 		uint16 width, height, numObjects, numZBuffers;
 		

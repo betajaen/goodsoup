@@ -230,7 +230,7 @@ namespace gs
 		/* TODO: Shadow Palette Handling */
 		/* TODO: Graphics cleaning flags */
 		
-		OBJECTS->clearRoomObjects();
+		OBJECTS->clearForNewRoom();
 		DRAWING_OBJECTS.clear();
 
 		INTS->room = roomNum;

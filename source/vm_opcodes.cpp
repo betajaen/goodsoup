@@ -1330,7 +1330,7 @@ namespace gs
 				switch(subOp) {
 
 					case KernelSetOp_LockObject: {
-						ObjectVariant* object = OBJECTS->findObjectByNum(_stack.getListItem(1));
+						ObjectData* object = OBJECTS->findObject(_stack.getListItem(1));
 						if (object) {
 							object->setLocked(true);
 						}
@@ -1341,7 +1341,7 @@ namespace gs
 					}
 					return;
 					case KernelSetOp_UnlockObject:{
-						ObjectVariant* object = OBJECTS->findObjectByNum(_stack.getListItem(1));
+						ObjectData* object = OBJECTS->findObject(_stack.getListItem(1));
 						if (object) {
 							object->setLocked(false);
 						}

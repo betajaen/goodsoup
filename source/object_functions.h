@@ -23,16 +23,16 @@
 
 namespace gs
 {
-	class ObjectVariant;
+	class ObjectData;
 
-	ObjectVariant* loadFloatingObject(uint16 objectNum);
+	ObjectData* loadFloatingObject(uint16 objectNum);
 
-	int16 getObjectX(uint16 num);
-	int16 getObjectY(uint16 num);
-	Point getObjectXY(uint16 num);
-	void setObjectXY(uint16 num, const Point& xy);
-	void setObjectX(uint16 num, int16 x);
-	void setObjectY(uint16 num, int16 y);
+	int16 getObjectX(uint16 objectNum);
+	int16 getObjectY(uint16 objectNum);
+	Point getObjectXY(uint16 objectNum);
+	void setObjectXY(uint16 objectNum, const Point& xy);
+	void setObjectX(uint16 objectNum, int16 x);
+	void setObjectY(uint16 objectNum, int16 y);
 }
 
 #endif
