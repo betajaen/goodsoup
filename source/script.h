@@ -43,9 +43,9 @@ namespace gs
 		SDF_Floating = 1
 	};
 
-	struct NewScriptDataReference;
+	struct ScriptDataReference;
 
-	struct NewScriptData {
+	struct ScriptData {
 		OpcodeData _script;
 		uint32 _fileOffset;
 		uint16 _parentId;
@@ -76,20 +76,20 @@ namespace gs
 		void poolRelease();
 	};
 
-	struct NewScriptDataReference {
+	struct ScriptDataReference {
 	private:
-		NewScriptData* _script;
+		ScriptData* _script;
 	public:
 
-		NewScriptDataReference()
+		ScriptDataReference()
 			: _script(NULL) {
 		}
 
-		~NewScriptDataReference() {
+		~ScriptDataReference() {
 			gcForget();
 		}
 
-		explicit NewScriptDataReference(NewScriptData* other)
+		explicit ScriptDataReference(ScriptData* other)
 			: _script(other)
 		{
 			if (_script) {
@@ -97,14 +97,14 @@ namespace gs
 			}
 		}
 		
-		NewScriptDataReference(const NewScriptDataReference& other)
+		ScriptDataReference(const ScriptDataReference& other)
 			: _script(other._script) {
 			if (_script != NULL) {
 				_script->gcGain();
 			}
 		}
 
-		NewScriptDataReference(NewScriptDataReference& other)
+		ScriptDataReference(ScriptDataReference& other)
 			: _script(other._script) {
 			if (_script != NULL) {
 				_script->gcGain();
@@ -115,13 +115,13 @@ namespace gs
 			return _script == NULL;
 		}
 
-		void moveInto(NewScriptDataReference& other) {
+		void moveInto(ScriptDataReference& other) {
 			gcForget();
 			_script = other._script;
 			other._script = NULL;
 		}
 
-		void copyFrom(const NewScriptDataReference& other) {
+		void copyFrom(const ScriptDataReference& other) {
 			gcForget();
 			_script = other._script;
 			if (_script) {
@@ -129,12 +129,12 @@ namespace gs
 			}
 		}
 		
-		NewScriptDataReference& operator=(NewScriptDataReference& other) {
+		ScriptDataReference& operator=(ScriptDataReference& other) {
 			copyFrom(other);
 			return *this;
 		}
 
-		NewScriptDataReference& operator=(const NewScriptDataReference& other) {
+		ScriptDataReference& operator=(const ScriptDataReference& other) {
 			copyFrom(other);
 			return *this;
 		}
@@ -203,13 +203,13 @@ namespace gs
 	};
 
 	class ScriptState {
-		ArrayPool<NewScriptData, uint16> _globals;
-		ArrayPool<NewScriptData, uint16> _localEntrances;
-		ArrayPool<NewScriptData, uint16> _localExits;
-		ArrayPool<NewScriptData, uint16> _locals;
-		ArrayPool<NewScriptData, uint16> _objectVerbs;
+		ArrayPool<ScriptData, uint16> _globals;
+		ArrayPool<ScriptData, uint16> _localEntrances;
+		ArrayPool<ScriptData, uint16> _localExits;
+		ArrayPool<ScriptData, uint16> _locals;
+		ArrayPool<ScriptData, uint16> _objectVerbs;
 
-		NewScriptData* _newGlobal(uint16 scriptNum);
+		ScriptData* _newGlobal(uint16 scriptNum);
 
 	public:
 
@@ -218,23 +218,23 @@ namespace gs
 
 		void release();
 
-		NewScriptDataReference getOrLoadGlobalScript(uint16 scriptNum);
+		ScriptDataReference getOrLoadGlobalScript(uint16 scriptNum);
 
-		NewScriptDataReference getLocalScript(uint16 roomNum, uint32 localScriptNum);
+		ScriptDataReference getLocalScript(uint16 roomNum, uint32 localScriptNum);
 
-		NewScriptDataReference getEntranceScript(uint16 roomNum);
+		ScriptDataReference getEntranceScript(uint16 roomNum);
 
-		NewScriptDataReference getExitScript(uint16 roomNum);
+		ScriptDataReference getExitScript(uint16 roomNum);
 
-		NewScriptDataReference getVerbScript(uint16 objectNum);
+		ScriptDataReference getVerbScript(uint16 objectNum);
 
-		NewScriptDataReference readLocalScript(uint16 roomNum, uint32 localScriptNum, uint16 scriptLength, DiskReader& reader);
+		ScriptDataReference readLocalScript(uint16 roomNum, uint32 localScriptNum, uint16 scriptLength, DiskReader& reader);
 
-		NewScriptDataReference readEntranceScript(uint16 roomNum, uint16 scriptLength, DiskReader& reader);
+		ScriptDataReference readEntranceScript(uint16 roomNum, uint16 scriptLength, DiskReader& reader);
 
-		NewScriptDataReference readExitScript(uint16 roomNum, uint16 scriptLength, DiskReader& reader);
+		ScriptDataReference readExitScript(uint16 roomNum, uint16 scriptLength, DiskReader& reader);
 
-		NewScriptDataReference readVerbScript(uint16 objectNum, uint16 verbNum, uint16 scriptLength, DiskReader& reader);
+		ScriptDataReference readVerbScript(uint16 objectNum, uint16 verbNum, uint16 scriptLength, DiskReader& reader);
 
 	};
 

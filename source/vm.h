@@ -153,7 +153,7 @@ namespace gs
 		ScriptStackItem					_contextStack[NUM_STACK_SCRIPTS];
 		uint16							_contextStackSize;
 		uint32							_pc, _pcAfter, _pcOpcode;
-		NewScriptDataReference			_scriptReference;
+		ScriptDataReference			_scriptReference;
 		OpcodeSpan						_script;
 		byte							_opcode;
 		Array<char>						_messageTemp;

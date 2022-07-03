@@ -41,7 +41,7 @@ namespace gs
 	void ScriptState::release() {
 
 		for (uint16 i = 0; i < _globals.getSize(); i++) {
-			NewScriptData* script = _globals.get_unchecked(i);
+			ScriptData* script = _globals.get_unchecked(i);
 			script->poolRelease();
 		}
 
@@ -49,14 +49,14 @@ namespace gs
 
 		
 		for (uint16 i = 0; i < _localEntrances.getSize(); i++) {
-			NewScriptData* script = _localEntrances.get_unchecked(i);
+			ScriptData* script = _localEntrances.get_unchecked(i);
 			script->poolRelease();
 		}
 
 		_localEntrances.clear();
 		
 		for (uint16 i = 0; i < _localExits.getSize(); i++) {
-			NewScriptData* script = _localExits.get_unchecked(i);
+			ScriptData* script = _localExits.get_unchecked(i);
 			script->poolRelease();
 		}
 
@@ -64,21 +64,21 @@ namespace gs
 		
 		
 		for (uint16 i = 0; i < _locals.getSize(); i++) {
-			NewScriptData* script = _locals.get_unchecked(i);
+			ScriptData* script = _locals.get_unchecked(i);
 			script->poolRelease();
 		}
 		
 		_locals.clear();
 		
 		for (uint16 i = 0; i < _objectVerbs.getSize(); i++) {
-			NewScriptData* script = _objectVerbs.get_unchecked(i);
+			ScriptData* script = _objectVerbs.get_unchecked(i);
 			script->poolRelease();
 		}
 
 		_objectVerbs.clear();
 	}
 
-	NewScriptData* ScriptState::_newGlobal(uint16 scriptNum) {
+	ScriptData* ScriptState::_newGlobal(uint16 scriptNum) {
 
 		uint8 script_roomNum;
 		uint32 script_offset;
@@ -101,7 +101,7 @@ namespace gs
 		debug(GS_THIS, "+SCRIPT Room=%ld:%ld Script=%ld:%ld Total = %ld",
 			(uint32)script_roomNum, (uint32)room_offset, (uint32) scriptNum, (uint32)script_offset, (uint32)(room_offset + script_offset));
 
-		NewScriptData* script = _globals.acquire();
+		ScriptData* script = _globals.acquire();
 		script->_diskNum = room_diskNum;
 		script->_fileOffset = room_offset + script_offset;
 		script->_flags = 0;
@@ -144,7 +144,7 @@ namespace gs
 		return script;
 	}
 	
-	void NewScriptData::poolRelease() {
+	void ScriptData::poolRelease() {
 		_script.release();
 		_diskNum = 0;
 		_fileOffset = 0;
@@ -155,52 +155,52 @@ namespace gs
 		_users = 0;
 	}
 
-	NewScriptDataReference ScriptState::getOrLoadGlobalScript(uint16 scriptNum) {
+	ScriptDataReference ScriptState::getOrLoadGlobalScript(uint16 scriptNum) {
 		
-		NewScriptData* script;
+		ScriptData* script;
 
 		for (uint16 i = 0; i < _globals.getSize(); i++) {
 			script = _globals.get_unchecked(i);
 			if (script->_id == scriptNum) {
-				return NewScriptDataReference(script);
+				return ScriptDataReference(script);
 			}
 		}
 
 		script = _newGlobal(scriptNum);
 
-		return NewScriptDataReference(script);
+		return ScriptDataReference(script);
 	}
 
-	NewScriptDataReference ScriptState::getLocalScript(uint16 roomNum, uint32 localScriptNum) {
-		return NewScriptDataReference();
+	ScriptDataReference ScriptState::getLocalScript(uint16 roomNum, uint32 localScriptNum) {
+		return ScriptDataReference();
 	}
 
-	NewScriptDataReference ScriptState::getEntranceScript(uint16 roomNum) {
-		return NewScriptDataReference();
+	ScriptDataReference ScriptState::getEntranceScript(uint16 roomNum) {
+		return ScriptDataReference();
 	}
 
-	NewScriptDataReference ScriptState::getExitScript(uint16 roomNum) {
-		return NewScriptDataReference();
+	ScriptDataReference ScriptState::getExitScript(uint16 roomNum) {
+		return ScriptDataReference();
 	}
 
-	NewScriptDataReference ScriptState::getVerbScript(uint16 objectNum) {
-		return NewScriptDataReference();
+	ScriptDataReference ScriptState::getVerbScript(uint16 objectNum) {
+		return ScriptDataReference();
 	}
 
-	NewScriptDataReference ScriptState::readLocalScript(uint16 roomNum, uint32 localScriptNum, uint16 scriptLength, DiskReader& reader) {
-		return NewScriptDataReference();
+	ScriptDataReference ScriptState::readLocalScript(uint16 roomNum, uint32 localScriptNum, uint16 scriptLength, DiskReader& reader) {
+		return ScriptDataReference();
 	}
 
-	NewScriptDataReference ScriptState::readEntranceScript(uint16 roomNum, uint16 scriptLength, DiskReader& reader) {
-		return NewScriptDataReference();
+	ScriptDataReference ScriptState::readEntranceScript(uint16 roomNum, uint16 scriptLength, DiskReader& reader) {
+		return ScriptDataReference();
 	}
 
-	NewScriptDataReference ScriptState::readExitScript(uint16 roomNum, uint16 scriptLength, DiskReader& reader) {
-		return NewScriptDataReference();
+	ScriptDataReference ScriptState::readExitScript(uint16 roomNum, uint16 scriptLength, DiskReader& reader) {
+		return ScriptDataReference();
 	}
 
-	NewScriptDataReference ScriptState::readVerbScript(uint16 objectNum, uint16 verbNum, uint16 scriptLength, DiskReader& reader) {
-		return NewScriptDataReference();
+	ScriptDataReference ScriptState::readVerbScript(uint16 objectNum, uint16 verbNum, uint16 scriptLength, DiskReader& reader) {
+		return ScriptDataReference();
 	}
 
 }

@@ -58,7 +58,7 @@ namespace gs
 	};
 	
 	class RoomScriptData {
-		Array<NewScriptDataReference> _scripts;
+		Array<ScriptDataReference> _scripts;
 	public:
 		
 		struct RoomScriptInfo {
@@ -75,9 +75,9 @@ namespace gs
 		void close();
 
 		
-		bool getFirstScript(uint8 kind, NewScriptDataReference& out_Script) const;
+		bool getFirstScript(uint8 kind, ScriptDataReference& out_Script) const;
 		bool hasFirstScript(uint8 kind) const;
-		bool getLocalNumberedScript(uint32 num, NewScriptDataReference& out_Script) const;
+		bool getLocalNumberedScript(uint32 num, ScriptDataReference& out_Script) const;
 
 		bool readFromDisk(DiskReader& reader, const TagPair& lflf, uint16 debug_roomNum);
 
@@ -186,7 +186,7 @@ namespace gs
 			return graphicsData->getPalette(index);
 		}
 
-		bool getFirstScript(uint8 kind, NewScriptDataReference& out_Script) const {
+		bool getFirstScript(uint8 kind, ScriptDataReference& out_Script) const {
 			if (scriptData != NULL) {
 				return scriptData->getFirstScript(kind, out_Script);
 			}
@@ -200,7 +200,7 @@ namespace gs
 			return false;
 		}
 
-		bool getLocalNumberedScript(uint16 num, NewScriptDataReference& out_Script) {
+		bool getLocalNumberedScript(uint16 num, ScriptDataReference& out_Script) {
 			if (scriptData != NULL) {
 				return scriptData->getLocalNumberedScript(num, out_Script);
 			}

@@ -33,7 +33,7 @@ namespace gs
 	void RoomScriptData::close() {
 
 		for (uint16 i = 0; i < _scripts.size(); i++) {
-			NewScriptDataReference& script = _scripts.get_unchecked(i);
+			ScriptDataReference& script = _scripts.get_unchecked(i);
 			script.gcForget();
 		}
 
@@ -54,19 +54,19 @@ namespace gs
 					TagPair roomPair = reader.readTagPair();
 
 					if (roomPair.isTag(GS_MAKE_ID('E', 'N', 'C', 'D'))) {
-						NewScriptDataReference script =  SCRIPTS->readEntranceScript(roomNum, roomPair.length, reader);
+						ScriptDataReference script =  SCRIPTS->readEntranceScript(roomNum, roomPair.length, reader);
 						_scripts.push(script);
 						continue;
 					}
 					else if (roomPair.isTag(GS_MAKE_ID('E', 'X', 'C', 'D'))) {
-						NewScriptDataReference script =  SCRIPTS->readExitScript(roomNum, roomPair.length, reader);
+						ScriptDataReference script =  SCRIPTS->readExitScript(roomNum, roomPair.length, reader);
 						_scripts.push(script);
 						continue;
 					}
 					else if (roomPair.isTag(GS_MAKE_ID('L', 'S', 'C', 'R'))) {
 						uint32 num = reader.readUInt32LE();
 
-						NewScriptDataReference script =  SCRIPTS->readLocalScript(roomNum, num, roomPair.length - sizeof(uint32), reader);
+						ScriptDataReference script =  SCRIPTS->readLocalScript(roomNum, num, roomPair.length - sizeof(uint32), reader);
 						_scripts.push(script);
 						continue;
 					}
@@ -84,10 +84,10 @@ namespace gs
 		return true;
 	}
 	
-	bool RoomScriptData::getFirstScript(uint8 kind, NewScriptDataReference& out_Script) const {
+	bool RoomScriptData::getFirstScript(uint8 kind, ScriptDataReference& out_Script) const {
 		if (_scripts.size() > 0) {
 			for (uint8 i = 0; i < _scripts.size(); i++) {
-				const NewScriptDataReference& script = _scripts.get_unchecked(i);
+				const ScriptDataReference& script = _scripts.get_unchecked(i);
 				if (script.getKind() == kind) {
 					out_Script.copyFrom(script);
 					return true;
@@ -100,7 +100,7 @@ namespace gs
 	bool RoomScriptData::hasFirstScript(uint8 kind) const {
 		if (_scripts.size() > 0) {
 			for (uint8 i = 0; i < _scripts.size(); i++) {
-				const NewScriptDataReference& script = _scripts.get_unchecked(i);
+				const ScriptDataReference& script = _scripts.get_unchecked(i);
 				if (script.getKind() == kind) {
 					return true;
 				}
@@ -109,11 +109,11 @@ namespace gs
 		return false;
 	}
 
-	bool RoomScriptData::getLocalNumberedScript(uint32 num, NewScriptDataReference& out_Script) const {
+	bool RoomScriptData::getLocalNumberedScript(uint32 num, ScriptDataReference& out_Script) const {
 		
 		if (_scripts.size() > 0) {
 			for (uint8 i = 0; i < _scripts.size(); i++) {
-				const NewScriptDataReference& script = _scripts.get_unchecked(i);
+				const ScriptDataReference& script = _scripts.get_unchecked(i);
 				if (script.matchIdKind(num, SDK_RoomLocalScript)) {
 					out_Script.copyFrom(script);
 					return true;
