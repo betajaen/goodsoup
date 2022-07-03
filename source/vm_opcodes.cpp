@@ -27,6 +27,7 @@
 #include "functions.h"
 #include "vm_array.h"
 #include "object_functions.h"
+#include "object.h"
 
 #define DEBUG_OPCODES 0
 
@@ -1325,11 +1326,27 @@ namespace gs
 
 				switch(subOp) {
 
-					case KernelSetOp_LockObject:
-						NO_FEATURE(GS_THIS, "Not implemented KernelSetOp_LockObject");
+					case KernelSetOp_LockObject: {
+						ObjectVariant* object = OBJECTS->findObjectByNum(_stack.getListItem(1));
+						if (object) {
+							object->setLocked(true);
+						}
+						else {
+							error(GS_THIS, "Object does not exist!");
+							abort_quit_stop();
+						}
+					}
 					return;
-					case KernelSetOp_UnlockObject:
-						NO_FEATURE(GS_THIS, "Not implemented KernelSetOp_UnlockObject");
+					case KernelSetOp_UnlockObject:{
+						ObjectVariant* object = OBJECTS->findObjectByNum(_stack.getListItem(1));
+						if (object) {
+							object->setLocked(false);
+						}
+						else {
+							error(GS_THIS, "Object does not exist!");
+							abort_quit_stop();
+						}
+					}
 					return;
 					case KernelSetOp_RemapCostume:
 						NO_FEATURE(GS_THIS, "Not implemented KernelSetOp_RemapCostume");
