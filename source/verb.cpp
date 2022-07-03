@@ -31,15 +31,57 @@ namespace gs
 		clear();
 	}
 
+	Verb* VerbState::getOrNew(uint16 verbNum) {
+
+		for(uint16 i=0;i < NUM_VERBS;i++) {
+			Verb* verb = &_verbs[i];
+
+			if (verb->_num == verbNum) {
+				_lastVerbIdx = i;
+				return verb;
+			}
+		}
+
+		for(uint16 i=0;i < NUM_VERBS;i++) {
+			Verb* verb = &_verbs[i];
+			if (verb->_num == 0) {
+				verb->_num = verbNum;
+				_lastVerbIdx = i;
+				return verb;
+			}
+		}
+
+		error(GS_THIS, "Number of verbs exceeded!");
+		abort_quit_stop();
+
+		return NULL;
+	}
+
+	Verb* VerbState::getVerb(uint8 verbNum) {
+		for(uint16 i=0;i < NUM_VERBS;i++) {
+			Verb* verb = &_verbs[i];
+
+			if (verb->_num == verbNum) {
+				_lastVerbIdx = i;
+				return verb;
+			}
+		}
+
+		return NULL;
+	}
+
 	void VerbState::clear() {
 		for(uint8 i=0;i < NUM_VERBS;i++) {
 			Verb* verb = &_verbs[i];
 			verb->clear();
 		}
+		_lastVerbIdx = 0;
 	}
 
 	void Verb::clear() {
-		placeholder = 0;
+		_num = 0;
+		_mode = 0;
+		_lineSpacing = 0;
 	}
 
 }

@@ -442,7 +442,7 @@ namespace gs
 	};
 
 	enum VerbOp {
-		VerbOp_Init = 0x96,
+		VerbOp_GetOrNew = 0x96,
 		VerbOp_New = 0x97,
 		VerbOp_Delete = 0x98,
 		VerbOp_SetName = 0x99,

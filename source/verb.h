@@ -26,38 +26,30 @@ namespace gs
 {
 
 	struct Verb {
-		uint16 placeholder;
+		uint16 _num;
+		uint8  _mode;
+		int32  _lineSpacing;
 
 		void clear();
 	};
 
 	class VerbState {
 		Verb _verbs[NUM_VERBS];
+		uint8 _lastVerbIdx;
+
 	public:
 		VerbState();
 		~VerbState();
 
 		void clear();
 
-		Verb* getVerb(uint8 idx)  {
-			if (idx >= NUM_VERBS) {
-				error(GS_THIS, "Verb idx %ld is out of bounds!", idx);
-				abort_quit_stop();
-				return NULL;
-			}
+		Verb* getOrNew(uint16 num);
 
-			return &_verbs[idx];
+		Verb* getLastVerbUsed() {
+			return &_verbs[_lastVerbIdx];
 		}
 
-		const Verb* getVerb(uint8 idx) const {
-			if (idx >= NUM_VERBS) {
-				error(GS_THIS, "Verb idx %ld is out of bounds!", idx);
-				abort_quit_stop();
-				return NULL;
-			}
-
-			return &_verbs[idx];
-		}
+		Verb* getVerb(uint8 verbNum);
 
 	};
 

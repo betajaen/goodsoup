@@ -28,6 +28,7 @@
 #include "vm_array.h"
 #include "object_functions.h"
 #include "object.h"
+#include "verb.h"
 
 #define DEBUG_OPCODES 0
 
@@ -1191,12 +1192,13 @@ namespace gs
 				byte subOp = _readByte();
 
 				switch (subOp) {
-					case VerbOp_Init:
-						_stack.pop();
-						NO_FEATURE(GS_THIS, "Not implemented OP_verbOps VerbOp_Init");
+					case VerbOp_GetOrNew: {
+						int32 verbNum = _stack.pop();
+						VERBS->getOrNew(verbNum);
+					}
 					return;
 					case VerbOp_New:
-						NO_FEATURE(GS_THIS, "Not implemented OP_verbOps VerbOp_New");
+						NO_FEATURE(GS_THIS, "Not implemented OP_verbOps VerbOp_Init");
 					return;
 					case VerbOp_Delete:
 						NO_FEATURE(GS_THIS, "Not implemented OP_verbOps VerbOp_Delete");
@@ -1250,9 +1252,10 @@ namespace gs
 						_stack.pop();
 						NO_FEATURE(GS_THIS, "Not implemented OP_verbOps VerbOp_SetCharSet");
 					return;
-					case VerbOp_SetLineSpacing:
-						_stack.pop();
-						NO_FEATURE(GS_THIS, "Not implemented OP_verbOps VerbOp_SetLineSpacing");
+					case VerbOp_SetLineSpacing: {
+						Verb* verb = VERBS->getLastVerbUsed();
+						verb->_lineSpacing = _stack.pop();
+					}
 					return;
 				}
 
