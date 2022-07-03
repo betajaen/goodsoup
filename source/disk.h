@@ -152,6 +152,10 @@ namespace gs
 			_file.skip(tagPair.length);
 		}
 
+        inline void seekEndOf(const TagPair& tagPair) {
+            _file.seek(tagPair.dataPos + tagPair.length);
+        }
+
 		void readTagAndLength(char tag[5], uint32& length);
 
 		bool readAndExpectTag(char a, char b, char c, char d);

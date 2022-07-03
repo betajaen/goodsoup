@@ -60,7 +60,23 @@ namespace gs
 			}
 			else if (tag.isTag(GS_MAKE_ID('V', 'E', 'R', 'B'))) {
 				NO_FEATURE(GS_THIS, "Reading Object Verb");
-				reader.skip(tag);
+
+                while(true) {
+                    byte code = reader.readByte();
+                    if (code == 0) {
+                        debug(GS_THIS, "+Verb Table Stop");
+                        break;
+                    }
+
+                    uint16 offset = reader.readUInt16LE();
+                    debug(GS_THIS, "+Verb Table Key=%ld, Offset=%ld", (uint32) code, (uint32) offset);
+                }
+
+                uint32 scriptLength = tag.end() - reader.pos();
+
+                debug(GS_THIS, "+Verb Script Length = %ld", scriptLength);
+
+				reader.seekEndOf(tag);
 				continue;
 			}
 			else if (tag.isTag(GS_MAKE_ID('O', 'B', 'N', 'A'))) {
@@ -70,8 +86,20 @@ namespace gs
 					return false;
 				}
 
-				NO_FEATURE(GS_THIS, "Reading Object Name");
-				reader.skip(tag);
+                char nameTemp[255] = { 0 };
+                uint16 nameLength = 0;
+
+                while(true) {
+                    char ch = reader.readByte();
+                    nameTemp[nameLength++] = ch;
+                    if (ch == 0)
+                        break;
+                }
+
+                debug(GS_THIS, "+Object Name = \"%s\", %ld, %ld", &nameTemp[0], (uint32) nameLength, (uint32) tag.length);
+
+				//NO_FEATURE(GS_THIS, "Reading Object Name");
+				reader.seekEndOf(tag);
 				continue;
 			}
 			

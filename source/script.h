@@ -42,7 +42,7 @@ namespace gs
 		SDF_None = 0,
 		SDF_Floating = 1
 	};
-	
+
 	struct NewScriptDataReference;
 
 	struct NewScriptData {
@@ -89,7 +89,7 @@ namespace gs
 			gcForget();
 		}
 
-		explicit NewScriptDataReference(NewScriptData* other) 
+		explicit NewScriptDataReference(NewScriptData* other)
 			: _script(other)
 		{
 			if (_script) {
