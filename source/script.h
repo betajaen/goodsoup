@@ -24,6 +24,7 @@
 
 namespace gs
 {
+#define MAX_SCRIPT_TABLE_ENTRIES 8
 	class DiskReader;
 
 	typedef Buffer<byte, uint16> OpcodeData;
@@ -54,6 +55,35 @@ namespace gs
 		uint8 _diskNum;
 		uint8 _users;
 		uint8 _flags;
+		uint8 _offsetkeys[MAX_SCRIPT_TABLE_ENTRIES];
+		uint16 _offsetValues[MAX_SCRIPT_TABLE_ENTRIES];
+		uint8 _offsetCount;
+
+		OpcodeSpan getData() const {
+			return _script.getReadSpan<uint16>();
+		}
+
+		bool getData(uint8 key, OpcodeSpan& out_span) const {
+
+			if (_offsetCount != 0) {
+				for (uint8 i = 0; i < _offsetCount; i++) {
+					if (_offsetkeys[i] == key) {
+						uint16 offset = _offsetValues[i];
+
+						// Size is unknown, but it has to be within the bounds of the script
+						out_span = _script.getReadSpan<uint16>(offset, _script.getSize() - offset);
+						return true;
+					}
+				}
+
+				return false;
+			}
+			else {
+				out_span = _script.getReadSpan<uint16>();
+				return true;
+			}
+
+		}
 
 		void gcGain() {
 			if (_users == 255) {
@@ -141,10 +171,16 @@ namespace gs
 
 		OpcodeSpan getData() const {
 			if (_script != NULL) {
-				return _script->_script.getReadSpan<uint16>();
+				return _script->getData();
 			}
-
 			return OpcodeSpan();
+		}
+
+		bool getData(uint8 key, OpcodeSpan& out_span) const {
+			if (_script != NULL) {
+				return _script->getData(key, out_span);
+			}
+			return false;
 		}
 
 		uint8 getKind() const {

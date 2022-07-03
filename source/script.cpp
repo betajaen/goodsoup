@@ -153,6 +153,7 @@ namespace gs
 		_id = 0;
 		_parentId = 0;
 		_users = 0;
+		_offsetCount = 0;
 	}
 
 	ScriptDataReference ScriptState::getOrLoadGlobalScript(uint16 scriptNum) {
