@@ -63,10 +63,15 @@ namespace gs
 	private:
 		ReadFile& _file;
 	public:
-		
+
+
 		DiskReader(ReadFile& file);
 		DiskReader(ReadFile& file, uint32 offset);
 		~DiskReader();
+
+		static DiskReader Null();
+
+		bool isNull() const;
 
 		template<typename Index>
 		inline void readBytes(ReadWriteSpan<byte, Index>& span) {

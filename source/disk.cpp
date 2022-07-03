@@ -195,6 +195,13 @@ namespace gs
 	DiskReader::~DiskReader() {
 	}
 
+	bool DiskReader::isNull() const {
+		return _file.isOpen() == false;
+	}
+
+	DiskReader DiskReader::Null() {
+		return DiskReader(ReadFile::NullFile, 0UL);
+	}
 
 	bool DiskReader::readAndExpectTag(char a, char b, char c, char d) {
 

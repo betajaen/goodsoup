@@ -22,6 +22,9 @@ namespace gs
 	class ReadFile
 	{
 	public:
+
+		static ReadFile NullFile;
+
 		ReadFile();
 		~ReadFile();
 

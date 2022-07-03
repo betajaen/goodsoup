@@ -17,7 +17,7 @@
 
 #define GS_FILE_NAME "file"
 
-#include "../file.h"
+#include "file_amiga.h"
 #include "../debug.h"
 #include "../endian.h"
 
@@ -26,6 +26,8 @@
 
 namespace gs
 {
+
+	ReadFile ReadFile::NullFile;
 
 	ReadFile::ReadFile()
 		: _file(NULL), _pos(0), _length(0) {
