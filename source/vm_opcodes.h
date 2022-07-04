@@ -241,7 +241,7 @@ namespace gs
 		OP_isActorInBox = 0xd9,
 		OP_getVerbEntrypoint = 0xda,
 		OP_getActorFromXY = 0xdb,
-		OP_findObject = 0xdc,
+		OP_findObjectFromXY = 0xdc,
 		OP_getVerbFromXY = 0xdd,
 		OP_de = 0xde,
 		OP_findInventory = 0xdf,

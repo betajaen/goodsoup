@@ -1640,11 +1640,11 @@ namespace gs
 				NO_FEATURE(GS_THIS, "Not implemented OP_getActorFromXY");
 			}
 			return;
-			case OP_findObject: {
+			case OP_findObjectFromXY: {
 				_stack.pop();
 				_stack.pop();
 				_stack.push(0);
-				NO_FEATURE(GS_THIS, "Not implemented OP_findObject");
+				NO_FEATURE(GS_THIS, "Not implemented OP_findObjectFromXY");
 			}
 			return;
 			case OP_getVerbFromXY: {
