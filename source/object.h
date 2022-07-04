@@ -121,6 +121,8 @@ namespace gs
 		bool hasObject(uint16 objectNum) const;
 		ObjectData* findObject(uint16 objectNum);
 
+		uint16 findObjectNumFromXY(int16 x, int16 y);
+
 	};
 
 	extern ObjectState* OBJECTS;

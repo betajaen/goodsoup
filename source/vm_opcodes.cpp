@@ -1641,10 +1641,9 @@ namespace gs
 			}
 			return;
 			case OP_findObjectFromXY: {
-				_stack.pop();
-				_stack.pop();
-				_stack.push(0);
-				NO_FEATURE(GS_THIS, "Not implemented OP_findObjectFromXY");
+				int32 y = _stack.pop();
+				int32 x = _stack.pop();
+				_stack.push(OBJECTS->findObjectNumFromXY(x, y));
 			}
 			return;
 			case OP_getVerbFromXY: {

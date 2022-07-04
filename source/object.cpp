@@ -318,6 +318,11 @@ namespace gs
 		}
 	}
 
+	uint16 ObjectState::findObjectNumFromXY(int16 x, int16 y) {
+		NO_FEATURE(GS_THIS, "Not implemented ObjectState::findObjectNumFromXY");
+		return 0;
+	}
+
 	void ObjectData::clear() {
 		_num = 0;
 		_state = 0;
