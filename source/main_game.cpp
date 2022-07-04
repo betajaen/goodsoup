@@ -33,6 +33,7 @@
 #include "object.h"
 #include "script.h"
 #include "verb.h"
+#include "actor.h"
 
 extern const char GOODSOUP_VERSION_STR[] = "$VER: goodsoup 0.5 (" __AMIGADATE__ ")";
 
@@ -57,6 +58,7 @@ namespace gs
 	int32 MOUSE_RMB_STATE;
 
 	void cleanup() {
+		deleteObject(ACTORS);
 		deleteObject(VERBS);
 		deleteObject(SCRIPTS);
 		deleteObject(OBJECTS);
@@ -98,6 +100,7 @@ namespace gs
 		OBJECTS = newObject<ObjectState>();
 		SCRIPTS = newObject<ScriptState>();
 		VERBS = newObject<VerbState>();
+		ACTORS = newObject<ActorState>();
 
 		if (INDEX->readFromFile(GS_GAME_PATH GS_INDEX_FILENAME) == false) {
 			cleanup();

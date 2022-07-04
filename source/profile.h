@@ -54,8 +54,8 @@ namespace gs
 		NUM_VERBS = 50,
 		NUM_GLOBAL_SCRIPTS = 2000,
 		NUM_AARY = 142,
-		NUM_DISKS = 2
-
+		NUM_DISKS = 2,
+		NUM_ACTORS = 80
 	};
 
 }
