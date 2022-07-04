@@ -48,6 +48,8 @@ namespace gs
 	extern int32 MOUSE_Y;
 	extern int32 MOUSE_LMB_STATE;
 	extern int32 MOUSE_RMB_STATE;
+
+	extern uint8 CURRENT_ACTOR;
 }
 
 #endif

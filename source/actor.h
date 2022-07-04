@@ -27,11 +27,14 @@
 namespace gs
 {
 
+	extern uint8 CURRENT_ACTOR;
+
 	struct ActorData {
 
 		uint16 _num;
 		uint16 _roomNum;
 		int16 _x, _y, _w, _h;
+		bool _bIsVisible;
 
 		void clear();
 	};
@@ -47,6 +50,10 @@ namespace gs
 
 		void clear();
 
+		ActorData* getActor() {
+			return getActor(CURRENT_ACTOR);
+		}
+
 		ActorData* getActor(uint8 actorNum)  {
 			if (actorNum == 0) {
 				warn(GS_THIS, "getActor is 0");
@@ -59,6 +66,8 @@ namespace gs
 
 			return &_actors[actorNum];
 		}
+
+		bool  putActorAtXY(uint8 actorNum, uint16 roomNum, int16 x, int16 y);
 
 	};
 

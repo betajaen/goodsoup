@@ -29,6 +29,7 @@
 #include "object_functions.h"
 #include "object.h"
 #include "verb.h"
+#include "actor.h"
 
 #define DEBUG_OPCODES 0
 
@@ -902,7 +903,6 @@ namespace gs
 				GS_UNHANDLED_OP;
 			return;
 			case OP_putActorAtXY: {
-
 				int32 roomNum, actorNum, x, y;
 
 				roomNum = _stack.pop();
@@ -910,7 +910,9 @@ namespace gs
 				x = _stack.pop();
 				actorNum = _stack.pop();
 
-				NO_FEATURE(GS_THIS, "Not implemented OP_putActorAtXY (%ld, %ld, %ld, %ld)", roomNum, x, y, actorNum);
+				ACTORS->putActorAtXY(actorNum, roomNum, x, y);
+
+				/* TODO: If this actor is the talking actor and visible. It should stop talking */
 			}
 			return;
 			case OP_putActorAtObject:
@@ -1132,8 +1134,16 @@ namespace gs
 					case ActorOp_SetTextOffset:
 						NO_FEATURE(GS_THIS, "Not implemented OP_actorOps ActorOp_SetTextOffset");
 					return;
-					case ActorOp_Init:
-						NO_FEATURE(GS_THIS, "Not implemented OP_actorOps ActorOp_Init");
+					case ActorOp_Init: {
+						int32 currentActor = _stack.pop();
+						if (currentActor < 0 || currentActor > NUM_ACTORS) {
+							warn(GS_THIS, "ActorOp_Init has an invalid actor num %ld", currentActor);
+						}
+						else {
+							CURRENT_ACTOR = (uint8) currentActor;
+							debug(GS_THIS, "Current Actor = %ld", currentActor);
+						}
+					}
 					return;
 					case ActorOp_SetActorVariable:
 						NO_FEATURE(GS_THIS, "Not implemented OP_actorOps ActorOp_SetActorVariable");

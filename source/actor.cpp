@@ -22,6 +22,7 @@
 namespace gs
 {
 	ActorState* ACTORS = NULL;
+	uint8 CURRENT_ACTOR = 0;
 
 	ActorState::ActorState() {
 		for(uint8 i=0;i < NUM_ACTORS;i++) {
@@ -41,12 +42,28 @@ namespace gs
 		}
 	}
 
+	bool  ActorState::putActorAtXY(uint8 actorNum, uint16 roomNum, int16 x, int16 y) {
+		ActorData* actor = getActor(actorNum);
+		if (actor == NULL) {
+			return false;
+		}
+
+		actor->_x = x;
+		actor->_y = y;
+		// Cases of 0xFF or 0x7FFF which means current room.
+		if (roomNum < NUM_ROOMS) {
+			actor->_roomNum = roomNum;
+		}
+		return true;
+	}
+
 	void ActorData::clear() {
 		_x = 0;
 		_y = 0;
 		_w = 0;
 		_h = 0;
 		_roomNum = 0;
+		_bIsVisible = false;
 	}
 
 }
