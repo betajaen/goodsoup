@@ -1095,8 +1095,12 @@ namespace gs
 					case ActorOp_SetAnimationSpeed:
 						NO_FEATURE(GS_THIS, "Not implemented OP_actorOps ActorOp_SetAnimationSpeed");
 					return;
-					case ActorOp_Default:
-						NO_FEATURE(GS_THIS, "Not implemented OP_actorOps ActorOp_Default");
+					case ActorOp_Default: {
+						ActorData* actor = ACTORS->getActor();
+						if (actor) {
+							actor->initialiseDefault();
+						}
+					}
 					return;
 					case ActorOp_SetElevation:
 						NO_FEATURE(GS_THIS, "Not implemented OP_actorOps ActorOp_SetElevation");
@@ -1104,35 +1108,80 @@ namespace gs
 					case ActorOp_SetPalette:
 						NO_FEATURE(GS_THIS, "Not implemented OP_actorOps ActorOp_SetPalette");
 					return;
-					case ActorOp_SetTalkColour:
-						NO_FEATURE(GS_THIS, "Not implemented OP_actorOps ActorOp_SetTalkColour");
+					case ActorOp_SetTalkColour: {
+						int32 colour = _stack.pop();
+						ActorData* actor = ACTORS->getActor();
+						if (actor) {
+							actor->_talkColour = colour;
+						}
+					}
 					return;
 					case ActorOp_SetActorName:
 						NO_FEATURE(GS_THIS, "Not implemented OP_actorOps ActorOp_SetActorName");
 					return;
-					case ActorOp_SetActorWidth:
-						NO_FEATURE(GS_THIS, "Not implemented OP_actorOps ActorOp_SetActorWidth");
+					case ActorOp_SetActorWidth: {
+						int32 width = _stack.pop();
+						ActorData* actor = ACTORS->getActor();
+						if (actor) {
+							actor->_w = width;
+						}
+					}
 					return;
-					case ActorOp_SetActorScale:
-						NO_FEATURE(GS_THIS, "Not implemented OP_actorOps ActorOp_SetActorScale");
+					case ActorOp_SetActorScale: {
+						int32 scale = _stack.pop();
+						ActorData* actor = ACTORS->getActor();
+						if (actor) {
+							actor->setScale(scale, scale);
+						}
+					}
 					return;
-					case ActorOp_SetNeverZClip:
-						NO_FEATURE(GS_THIS, "Not implemented OP_actorOps ActorOp_SetNeverZClip");
+					case ActorOp_SetNeverZClip: {
+						ActorData* actor = ACTORS->getActor();
+						if (actor) {
+							actor->_forceClip = 0;
+						}
+					}
 					return;
-					case ActorOP_SetAlwaysZClip:
-						NO_FEATURE(GS_THIS, "Not implemented OP_actorOps ActorOP_SetAlwaysZClip");
+					case ActorOP_SetAlwaysZClip: {
+						int32 clip = _stack.pop();
+						ActorData* actor = ACTORS->getActor();
+						if (actor) {
+							if (clip == 255)
+								clip = 100;
+							actor->_forceClip = clip;
+						}
+					}
 					return;
-					case ActorOp_SetIgnoreBoxes:
-						NO_FEATURE(GS_THIS, "Not implemented OP_actorOps ActorOp_SetIgnoreBoxes");
+					case ActorOp_SetIgnoreBoxes: {
+						ActorData* actor = ACTORS->getActor();
+						if (actor) {
+							actor->_bIgnoreBoxes = false;
+							actor->_forceClip = 100;
+							/* TODO: Update Actor Pos in Room */
+						}
+					}
 					return;
-					case ActorOp_SetFollowBoxes:
-						NO_FEATURE(GS_THIS, "Not implemented OP_actorOps ActorOp_SetFollowBoxes");
+					case ActorOp_SetFollowBoxes: {
+						ActorData* actor = ACTORS->getActor();
+						if (actor) {
+							actor->_bIgnoreBoxes = true;
+							actor->_forceClip = 100;
+							/* TODO: Update Actor Pos in Room */
+						}
+					}
 					return;
 					case ActorOp_SetSpecialDraw:
 						NO_FEATURE(GS_THIS, "Not implemented OP_actorOps ActorOp_SetSpecialDraw");
 					return;
-					case ActorOp_SetTextOffset:
-						NO_FEATURE(GS_THIS, "Not implemented OP_actorOps ActorOp_SetTextOffset");
+					case ActorOp_SetTextOffset: {
+						int32 y = _stack.pop();
+						int32 x = _stack.pop();
+						ActorData* actor = ACTORS->getActor();
+						if (actor) {
+							actor->_talkX = x;
+							actor->_talkY = y;
+						}
+					}
 					return;
 					case ActorOp_Init: {
 						int32 currentActor = _stack.pop();
@@ -1181,14 +1230,29 @@ namespace gs
 					case ActorOp_WalkResume:
 						NO_FEATURE(GS_THIS, "Not implemented OP_actorOps ActorOp_WalkResume");
 					return;
-					case ActorOp_SetTalkVolume:
-						NO_FEATURE(GS_THIS, "Not implemented OP_actorOps ActorOp_SetTalkVolume");
+					case ActorOp_SetTalkVolume: {
+						int32 volume = _stack.pop();
+						ActorData* actor = ACTORS->getActor();
+						if (actor) {
+							actor->_talkFrequency = volume;
+						}
+					}
 					return;
-					case ActorOp_SetTalkFrequency:
-						NO_FEATURE(GS_THIS, "Not implemented OP_actorOps ActorOp_SetTalkFrequency");
+					case ActorOp_SetTalkFrequency: {
+						int32 frequency = _stack.pop();
+						ActorData* actor = ACTORS->getActor();
+						if (actor) {
+							actor->_talkFrequency = frequency;
+						}
+					}
 					return;
-					case ActorOp_SetActorPan:
-						NO_FEATURE(GS_THIS, "Not implemented OP_actorOps ActorOp_SetActorPan");
+					case ActorOp_SetActorPan: {
+						int32 pan = _stack.pop();
+						ActorData* actor = ACTORS->getActor();
+						if (actor) {
+							actor->_talkPan = pan;
+						}
+					}
 					return;
 				}
 			}
@@ -1685,9 +1749,15 @@ namespace gs
 					_stack.push(0);
 					return;
 				}
-				
-				NO_FEATURE(GS_THIS, "Not implemented OP_getActorRoom");
-				_stack.push(0);
+
+				ActorData* actor = ACTORS->getActor(actorNum);
+				if (actor) {
+					_stack.push(actor->_roomNum);
+				}
+				else {
+					warn(GS_THIS, "Unknown actor %ld to get room from", (uint16) actorNum);
+					_stack.push(0);
+				}
 			}
 			return;
 			case OP_getActorWalkBox: {

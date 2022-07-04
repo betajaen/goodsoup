@@ -57,6 +57,37 @@ namespace gs
 		return true;
 	}
 
+	void ActorData::initialiseDefault() {
+		_elevation = 0;
+		_w = 24;
+		_talkColour = 15;
+		_talkX = 0;
+		_talkY = 0;
+		_boxScaleX = 0xFF;
+		_boxScaleY = 0xFF;
+		_scaleX = 0xFF;
+		_scaleY = 0xFF;
+		_charset = 0;
+		for(uint8 i=0; i < 16;i++) {
+			_sounds[i] = 0;
+		}
+		_sound = 0;
+		_facing = 0;
+		_targetFacing = 0;
+		/* TODO: Stop Actor Moving (Script) */
+		/* TODO: Set Actor Walk Speed */
+		_bIgnoreBoxes = false;
+		_forceClip = 100;
+		_bIgnoreTurns = false;
+		_talkFrequency = 256;
+		_talkPan = 64;
+		_talkVolume = 127;
+		/* TODO: Reset Frames */
+		_walkScript = 0;
+		_talkScript = 0;
+		/* TODO: Class Data */
+	}
+
 	void ActorData::clear() {
 		_x = 0;
 		_y = 0;
@@ -64,6 +95,29 @@ namespace gs
 		_h = 0;
 		_roomNum = 0;
 		_bIsVisible = false;
+		_elevation = 0;
+		_talkColour = 0;
+		_talkX = 0;
+		_talkY = 0;
+		_boxScaleX = 0;
+		_boxScaleY = 0;
+		_scaleX = 0;
+		_scaleY = 0;
+		_charset = 0;
+		for(uint8 i=0; i < 16;i++) {
+			_sounds[i] = 0;
+		}
+		_sound = 0;
+		_facing = 0;
+		_targetFacing = 0;
+		_bIgnoreBoxes = false;
+		_forceClip = 0;
+		_bIgnoreTurns = false;
+		_talkFrequency = 0;
+		_talkPan = 0;
+		_talkVolume = 0;
+		_walkScript = 0;
+		_talkScript = 0;
 	}
 
 }

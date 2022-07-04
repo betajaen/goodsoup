@@ -33,9 +33,36 @@ namespace gs
 
 		uint16 _num;
 		uint16 _roomNum;
-		int16 _x, _y, _w, _h;
-		bool _bIsVisible;
+		int16 _x, _y, _w, _h, _elevation;
+		int16 _talkX, _talkY;
+		uint8 _talkColour;
+		uint8 _bIsVisible;
+		uint16 _boxScaleX, _boxScaleY, _scaleX, _scaleY;
+		uint8 _charset;
+		uint16 _sounds[16];
+		uint8 _sound;
+		uint16 _facing, _targetFacing;
+		uint8 _bIgnoreBoxes;
+		uint8 _forceClip;
+		uint8 _bIgnoreTurns;
+		uint16 _talkFrequency;
+		uint8 _talkPan;
+		uint8 _talkVolume;
+		uint16 _walkScript;
+		uint16 _talkScript;
+		bool _needRedraw;
 
+		void setScale(int16 x, int16 y) {
+			if (x != -1) {
+				_boxScaleX = x;
+			}
+			if (y != -1) {
+				_boxScaleY = y;
+			}
+			_needRedraw = true;
+		}
+
+		void initialiseDefault();
 		void clear();
 	};
 
