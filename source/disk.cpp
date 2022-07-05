@@ -237,6 +237,8 @@ namespace gs
 			hash.feed(ch);
 		}
 
+		_file.seek(end);
+
 		return hash.hash;
 	}
 
