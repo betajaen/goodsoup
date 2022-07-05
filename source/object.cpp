@@ -113,75 +113,121 @@ namespace gs
 
 	}
 
-	bool ObjectState::_readIntoObject(ObjectData* object, DiskReader &reader, const TagPair &obcdTag) {
+	ObjectData* ObjectState::_readIntoObject(DiskReader &reader, const TagPair &parentTag, bool& out_isNew) {
 
-		if (obcdTag.isTag(GS_MAKE_ID('O', 'B', 'C', 'D')) == false) {
-			error(GS_THIS, "Unexpected tag %s, expected OBCD", obcdTag.tagStr());
-			abort_quit_stop();
-			return false;
-		}
+		// This needs to handle OBCD tags and OBIM tags, in either order. And create or fetch the existing
+		// object.
 
-		reader.seek(obcdTag);
+		int isCorrectTag = false;
+		ObjectData* object = NULL;
 
-		while (reader.pos() < obcdTag.end()) {
-			TagPair tag = reader.readTagPair();
+		// OBCD - Object Code
+		if (parentTag.isTag(GS_MAKE_ID('O', 'B', 'C', 'D'))) {
 
-			if (tag.isTag(GS_MAKE_ID('C', 'D', 'H', 'D'))) {
+			reader.seek(parentTag);
 
-				uint32 version = reader.readUInt32LE();
+			// CDHD header first
+			while (reader.pos() < parentTag.end()) {
+				TagPair tag = reader.readTagPair();
 
-				object->_num = reader.readUInt16LE();
-				object->_parent = reader.readByte();
-				object->_parentState = reader.readByte();
-				object->_flags = OF_AllowMaskOr;
+				if (tag.isTag(GS_MAKE_ID('C', 'D', 'H', 'D'))) {
 
-				continue;
+					uint32 version = reader.readUInt32LE();
+					uint16 objectNum = reader.readUInt16LE();
+
+					object = _acquireByNum(objectNum, out_isNew);
+					object->_parent = reader.readByte();
+					object->_parentState = reader.readByte();
+					object->_flags = OF_AllowMaskOr;
+					break;
+				}
 			}
-			else if (tag.isTag(GS_MAKE_ID('V', 'E', 'R', 'B'))) {
 
-				if (SCRIPTS->readObjectVerbScript(object->_num, tag, reader) == false) {
-					error(GS_THIS, "Could not read Object %ld Verb Script", (uint32) object->_num);
-					abort_quit_stop();
-					return false;
+			// There was no CDHD header.
+			if (object == NULL) {
+				error(GS_THIS, "No CDHD tag found in OBCD!");
+				abort_quit_stop();
+				return NULL;
+			}
+
+			// Second pass
+			reader.seek(parentTag);
+
+			while (reader.pos() < parentTag.end()) {
+
+				TagPair tag = reader.readTagPair();
+
+				if (tag.isTag(GS_MAKE_ID('V', 'E', 'R', 'B'))) {
+
+					if (SCRIPTS->readObjectVerbScript(object->_num, tag, reader) == false) {
+						error(GS_THIS, "Could not read Object %ld Verb Script", (uint32) object->_num);
+						abort_quit_stop();
+						return NULL;
+					}
+
+					reader.seekEndOf(tag);
+					continue;
+				}
+				else if (tag.isTag(GS_MAKE_ID('O', 'B', 'N', 'A'))) {
+					reader.skip(tag);	// Current Ignored.
+					continue;
 				}
 
-				reader.seekEndOf(tag);
-				continue;
-			}
-			else if (tag.isTag(GS_MAKE_ID('O', 'B', 'N', 'A'))) {
 				reader.skip(tag);
-
-				// Currently Disabled, as it is unknown if this is actually required in functionality, and where
-				// the data should be put, and if it should what *visible* objects should have this functionality.
-#if 0
-				if (object == NULL) {
-					error(GS_THIS, "Name was read before header!");
-					return false;
-				}
-
-                char nameTemp[255] = { 0 };
-                uint16 nameLength = 0;
-
-                while(true) {
-                    char ch = reader.readByte();
-                    nameTemp[nameLength++] = ch;
-                    if (ch == 0)
-                        break;
-                }
-
-                debug(GS_THIS, "+Object Name = \"%s\", %ld, %ld", &nameTemp[0], (uint32) nameLength, (uint32) tag.length);
-
-				reader.seekEndOf(tag);
-#endif
-				continue;
 			}
 
-			debug(GS_THIS, "Unknown tag after OBCD %s %ld", tag.tagStr(), tag.length);
+			return object;
+		}
+		// Object Image Header
+		else if (parentTag.isTag(GS_MAKE_ID('I', 'M', 'H', 'D'))) {
 
-			reader.skip(tag);
+			reader.seek(parentTag);
+
+			uint32 hash = reader.readFixedStringAsHash(40);
+			uint16 objectNum = INDEX->findObjectNumFromHash(hash);
+
+			if (objectNum == 0) {
+				reader.seek(parentTag);
+				char name[41] = { 0 };
+				reader.readBytes(&name[0], 41);
+				error(GS_THIS, "Could not find object in Index with hash for %s!", name);
+				return NULL;
+			}
+
+			object = _acquireByNum(objectNum, out_isNew);
+			reader.readUInt32LE(); // Version
+			reader.readInt32LE(); // Num Images?
+			object->_x = reader.readInt32LE();
+			object->_y = reader.readInt32LE();
+			object->_width = reader.readInt32LE();
+			object->_height = reader.readInt32LE();
+
+
+
+			return object;
+
 		}
 
-		return true;
+		error(GS_THIS, "Unknown Object Tag %s", parentTag.tagStr());
+		abort_quit_stop();
+		return NULL;
+	}
+
+	ObjectData* ObjectState::_acquireByNum(uint16 num, bool& out_isNew) {
+		if (num != 0) {
+			for(uint8 i=0;i < _objects.getSize();i++) {
+				ObjectData* object = _objects.get_unchecked(i);
+				if (object->_num == num) {
+					out_isNew = false;
+					return object;
+				}
+			}
+		}
+
+		ObjectData* object = _objects.acquire();
+		object->_num = num;
+		out_isNew = true;
+		return object;
 	}
 
 	void ObjectState::clearAll() {
@@ -249,32 +295,18 @@ namespace gs
 			return NULL;
 		}
 
-		object = _objects.acquire();
+		bool isNew;
+		object = _readIntoObject(reader, tag, isNew);
 
-		if (_readIntoObject(object, reader, tag) == false) {
-			error(GS_THIS, "Could not read (Floating) Object %ld", (uint32) objectNum);
-			_objects.release_unchecked(object);
-			abort_quit_stop();
-			return NULL;
+		if (object) {
+			object->setFloating(true);
 		}
-
-		object->setFloating(true);
 
 		return object;
 	}
 
-	ObjectData* ObjectState::loadFromRoomLoad(DiskReader& reader, const TagPair& tag) {
-
-		ObjectData* object = _objects.acquire();
-
-		if (_readIntoObject(object, reader, tag) == false) {
-			error(GS_THIS, "Did not read Object from room");
-			_objects.release_unchecked(object);
-			abort_quit_stop();
-			return NULL;
-		}
-
-		return object;
+	ObjectData* ObjectState::loadFromRoomLoad(DiskReader& reader, const TagPair& tag, bool& out_isNew) {
+		return _readIntoObject(reader, tag, out_isNew);
 	}
 
 	bool ObjectState::unload(uint16 objectNum) {
@@ -320,6 +352,14 @@ namespace gs
 
 	uint16 ObjectState::findObjectNumFromXY(int16 x, int16 y) {
 		NO_FEATURE(GS_THIS, "Not implemented ObjectState::findObjectNumFromXY (%ld, %ld)", x, y);
+
+		for(uint8 i=0;i < _objects.getSize();i++) {
+			ObjectData* object = _objects.get_unchecked(i);
+			/*TODO*/
+
+			//debug(GS_THIS, "Object num=%ld x=%ld y=%ld w=%ld h=%ld", (uint32) object->_num, object->_x, object->_y, object->_width, object->_height);
+		}
+
 		return 0;
 	}
 

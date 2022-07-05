@@ -100,7 +100,9 @@ namespace gs
 		ArrayPool<ObjectData, uint8> _objects;
 
 		DiskReader _seekToObject(uint16 objectNum, TagPair& out_tag);
-		bool _readIntoObject(ObjectData* data, DiskReader& reader, const TagPair& obcdTag);
+		ObjectData* _readIntoObject(DiskReader& reader, const TagPair& parentTag, bool& out_isNew);
+
+		ObjectData* _acquireByNum(uint16 num, bool& out_isNew);
 
 	public:
 
@@ -115,7 +117,7 @@ namespace gs
 		void clearForNewRoom();
 
 		ObjectData* loadFromFloatingObject(uint16 objectNum);
-		ObjectData* loadFromRoomLoad(DiskReader& reader, const TagPair& obcdTag);
+		ObjectData* loadFromRoomLoad(DiskReader& reader, const TagPair& tag, bool& out_isNew);
 		bool unload(uint16 objectNum);
 
 		bool hasObject(uint16 objectNum) const;
