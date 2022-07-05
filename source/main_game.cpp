@@ -114,7 +114,7 @@ namespace gs
 		VM->reset();
 		VM->runScript(1, false, false);
 
-		info(GS_THIS, "Starting Main Loop");
+		info(GS_THIS, "=========Starting Main Loop===========");
 		screenLoop();
 
 		cleanup();
@@ -128,6 +128,9 @@ namespace gs
 
 	void runFrame() {
 		FRAME_NUM++;
+
+		INTS->mouseX = MOUSE_X;
+		INTS->mouseY = MOUSE_Y;
 
 		drawBox(col++, 10, 10, 10, 10);
 		VM->runAllScripts();

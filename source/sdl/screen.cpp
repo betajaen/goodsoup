@@ -120,6 +120,11 @@ namespace gs
 						}
 					}
 					break;
+					case SDL_MOUSEMOTION: {
+						MOUSE_X = event.motion.x;
+						MOUSE_Y = event.motion.y;
+					}
+					break;
 					case SDL_MOUSEBUTTONUP: 
 					case SDL_MOUSEBUTTONDOWN: {
 						MOUSE_X = event.button.x;
