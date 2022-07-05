@@ -329,6 +329,19 @@ namespace gs
 		info(GS_THIS, "Read Index File at %s", path);
 		return true;
 	}
-	
+
+
+	uint16 Index::findObjectNumFromHash(uint32 hash) {
+
+		for(uint16 i=OBJECT_MIN; i < NUM_OBJECT_GLOBALS;i++) {
+			ObjectLocation* objectLocation = &_objects[i];
+			if (objectLocation->_name.hash() == hash) {
+				return i;
+			}
+		}
+
+		return 0;
+	}
+
 
 }

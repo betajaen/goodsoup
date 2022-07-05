@@ -101,6 +101,8 @@ namespace gs
 			}
 		}
 
+		uint16 findObjectNumFromHash(uint32 hash);
+
 		bool getObject(uint16 objectNum, uint16& roomNum, uint8& diskNum) {
 			
 			if (objectNum >= NUM_OBJECT_GLOBALS) {
