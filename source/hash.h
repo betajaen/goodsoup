@@ -71,6 +71,19 @@ namespace gs
 			return value.hash();
 		}
 	};
+
+	struct HashBuilder {
+		uint32 hash;
+
+		HashBuilder() {
+			hash = 5381;
+		}
+
+		void feed(char ch) {
+			hash = ((hash << 5) + hash) + ch;
+		}
+
+	};
 	
 }
 
