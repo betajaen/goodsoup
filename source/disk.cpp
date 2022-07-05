@@ -26,6 +26,7 @@
 #include "utils.h"
 #include "debug.h"
 #include "profile.h"
+#include "hash.h"
 
 namespace gs
 {
@@ -222,7 +223,23 @@ namespace gs
 		_file.readTag(tag);
 		length = _file.readUInt32BE();
 	}
-	
+
+	uint32 DiskReader::readFixedStringAsHash(uint8 fixedLength) {
+		HashBuilder hash;
+		uint32 end = _file.pos() + fixedLength;
+
+		for(uint8 i=0;i < fixedLength;i++) {
+			char ch = _file.readByte();
+
+			if (ch == 0)
+				break;
+
+			hash.feed(ch);
+		}
+
+		return hash.hash;
+	}
+
 	uint32 DiskReader::sumBytesWithin(uint32 rangeBytes, uint32 numTags, const char** tags, uint32& out_count) {
 		uint32 origin = _file.pos();
 		uint32 end = rangeBytes;

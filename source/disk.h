@@ -127,6 +127,8 @@ namespace gs
 			_file.seek(pos);
 		}
 
+		uint32 readFixedStringAsHash(uint8 fixedLength);
+
 		inline uint32 pos() {
 			return _file.pos();
 		}
