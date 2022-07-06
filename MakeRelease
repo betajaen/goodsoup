@@ -1,0 +1,11 @@
+FAILAT 11
+makedir Goodsoup
+copy dist/monkey3 Goodsoup/monkey3
+copy dist/monkey3.info Goodsoup/monkey3.info
+copy dist/Shell Goodsoup/Shell
+copy dist/Shell.info Goodsoup/Shell.info
+copy dist/README.info Goodsoup/README.info
+copy README Goodsoup/README
+copy dist.info Goodsoup.info
+delete goodsoup.lha
+lha a -aZx goodsoup.lha Goodsoup/#? Goodsoup.info 
