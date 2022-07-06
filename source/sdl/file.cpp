@@ -21,6 +21,7 @@
 
 #include "../debug.h"
 #include "../endian.h"
+#include "../hash.h"
 
 namespace gs
 {
@@ -87,6 +88,24 @@ namespace gs
 
 	void ReadFile::seek(uint32 offset) {
 		_pos = SDL_RWseek(_file, offset, RW_SEEK_SET);
+	}
+
+	uint32 ReadFile::readFixedStringAsHash(uint8 fixedLength) {
+		HashBuilder hash;
+		uint32 end = pos() + fixedLength;
+
+		for(uint8 i=0;i < fixedLength;i++) {
+			char ch = readByte();
+
+			if (ch == 0)
+				break;
+
+			hash.feed(ch);
+		}
+
+		seek(end);
+
+		return hash.hash;
 	}
 
 	byte ReadFile::readByte() {

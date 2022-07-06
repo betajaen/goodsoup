@@ -20,6 +20,7 @@
 #include "file_amiga.h"
 #include "../debug.h"
 #include "../endian.h"
+#include "hash.h"
 
 #include <proto/dos.h>
 
@@ -105,6 +106,24 @@ namespace gs
 		bytesRead = (uint32)Read(_file, dst, length);
 		_pos += bytesRead;
 		return bytesRead;
+	}
+
+	uint32 ReadFile::readFixedStringAsHash(uint8 fixedLength) {
+		HashBuilder hash;
+		uint32 end = pos() + fixedLength;
+
+		for(uint8 i=0;i < fixedLength;i++) {
+			char ch = readByte();
+
+			if (ch == 0)
+				break;
+
+			hash.feed(ch);
+		}
+
+		seek(end);
+
+		return hash.hash;
 	}
 
 	int16 ReadFile::readInt16LE() {

@@ -40,6 +40,7 @@ namespace gs
 		void seek(uint32 position);
 		int32 skip(uint32 bytes);
 
+		uint32 readFixedStringAsHash(uint8 fixedLength);
 		byte readByte();
 		uint32 readBytes(void* dst, uint32 length);
 		uint16 readUInt16LE();
