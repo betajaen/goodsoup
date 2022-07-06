@@ -28,34 +28,9 @@
 
 namespace gs
 {
+
 	class Index;
-
 	extern Index* INDEX;
-
-	template<int Kind, uint16 Capacity>
-	class ResourceIndexTable {
-	public:
-
-		void reset() {
-			clearMemoryNonAllocated(_diskOrRoomNum, sizeof(_diskOrRoomNum));
-			clearMemoryNonAllocated(_offset, sizeof(_offset));
-		}
-
-		const char* _name;
-		uint8  _diskOrRoomNum[Capacity];
-		uint32 _offset[Capacity];
-	};
-
-
-	struct ObjectLocation
-	{
-		String  _name;
-		byte   _state;
-		byte   _roomNum;
-		byte   _owner;
-		byte   _padding;
-		uint32 _class;
-	};
 
 	class Index
 	{
@@ -73,59 +48,57 @@ namespace gs
 				return false;
 			}
 
-			diskNum = _roomsResources._diskOrRoomNum[roomNum];
-			offset = _roomsResources._offset[roomNum];
+			diskNum = _roomDisks[roomNum];
+			offset = _roomOffsets[roomNum];
 
 			return true;
 		}
 
-		bool getScript(uint16 num, uint8& roomNum, uint32& offset) {
+		bool getScript(uint16 scriptNum, uint8& roomNum, uint32& offset) {
 
-			if (num >= NUM_SCRIPTS) {
-				error(GS_THIS, "Attempted to load script out of bounds! %ld", (uint32)num);
+			if (scriptNum >= NUM_SCRIPTS) {
+				error(GS_THIS, "Attempted to load script out of bounds! %ld", (uint32) scriptNum);
 				return false;
 			}
 
-			roomNum = _scriptsResources._diskOrRoomNum[num];
-			offset = _scriptsResources._offset[num];
+			roomNum = _scriptRoom[scriptNum];
+			offset = _scriptOffset[scriptNum];
 
 			return true;
 		}
 
 		String getRoomName(uint8 idx) const {
-			if (idx >= NUM_ROOMS) {
-				return String();
-			}
-			else {
-				return _roomNames[idx];
-			}
+			return String();
 		}
 
 		uint16 findObjectNumFromHash(uint32 hash);
 
 		bool getObject(uint16 objectNum, uint16& roomNum, uint8& diskNum) {
-			
+
 			if (objectNum >= NUM_OBJECT_GLOBALS) {
 				error(GS_THIS, "Attempted to load object out of bounds! %ld", (uint32)objectNum);
 				return false;
 			}
 
-			roomNum = _objects[objectNum]._roomNum;
-			diskNum = _roomsResources._diskOrRoomNum[roomNum];
+			roomNum = _objectRoomNum[objectNum];
+			diskNum = _roomDisks[roomNum];
 
 			return true;
 		}
 
 	private:
 
-		String					    _roomNames[NUM_ROOMS + 1];
-		ResourceIndexTable<RK_ROOM, NUM_ROOMS>		_roomsResources;
-		ResourceIndexTable<RK_SCRIPT, NUM_ROOMS>		_roomsScriptsResources;
-		ResourceIndexTable<RK_SCRIPT, NUM_SCRIPTS>	_scriptsResources;
-		ResourceIndexTable<RK_SOUND, NUM_SOUNDS>	_soundsResources;
-		ResourceIndexTable<RK_COSTUME, NUM_COSTUMES>	_costumesResources;
-		ResourceIndexTable<RK_CHARSET, NUM_CHARSETS>	_charsetResources;
-		ObjectLocation	_objects[NUM_OBJECT_GLOBALS];
+		uint8 _roomDisks[NUM_ROOMS];
+		uint32 _roomOffsets[NUM_ROOMS];
+		uint32 _roomScriptOffsets[NUM_ROOMS];
+		uint8  _scriptRoom[NUM_SCRIPTS];
+		uint32 _scriptOffset[NUM_SCRIPTS];
+		uint32 _objectNameHash[NUM_OBJECT_GLOBALS];
+		byte _objectState[NUM_OBJECT_GLOBALS];
+		byte _objectRoomNum[NUM_OBJECT_GLOBALS];
+		byte _objectOwner[NUM_OBJECT_GLOBALS];
+		uint32 _objectClass[NUM_OBJECT_GLOBALS];
+
 
 	};
 }
