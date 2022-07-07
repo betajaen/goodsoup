@@ -50,6 +50,10 @@ namespace gs
 		uint8 _talkVolume;
 		uint16 _walkScript;
 		uint16 _talkScript;
+		uint8 _moving;
+		uint8 _frame;
+		uint16 _costume;
+		uint8 _walkBox;
 		bool _needRedraw;
 
 		void setScale(int16 x, int16 y) {
