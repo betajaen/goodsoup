@@ -71,11 +71,25 @@ namespace gs
 				GS_UNHANDLED_OP;
 			return;
 			case OP_pushWord: {
-				_stack.push(_readUnsignedWord());
+				int32 value = _readSignedWord();
+
+#if DEBUG_OPCODES == 1
+				debug(GS_THIS, "   PUSH WORD %ld", value);
+#endif
+				_stack.push(value);
 			}
 			return;
-			case OP_pushWordVar:
-				_stack.push(getVar(_readUnsignedWord()));
+			case OP_pushWordVar: {
+
+				uint32 varName = _readUnsignedWord();
+				int32 varValue = getVar(varName);
+
+#if DEBUG_OPCODES == 1
+				debug(GS_THIS, "   PUSH WORD_VAR %ld %ld ", varName, varValue);
+#endif
+
+				_stack.push(varValue);
+			}
 			return;
 			case OP_wordArrayRead: {
 				uint32 base = _stack.pop();
@@ -1760,22 +1774,40 @@ namespace gs
 				}
 			}
 			return;
-			case OP_getActorWalkBox: {
-				_stack.pop();
-				NO_FEATURE(GS_THIS, "Not implemented OP_getActorWalkBox");
-				_stack.push(0);
+			case OP_getActorWalkBox:  {
+				uint16 actorNum = _stack.pop();
+				ActorData* actor = ACTORS->getActor(actorNum);
+
+				if (actor != NULL) {
+					_stack.push(actor->_bIgnoreBoxes ? 0 : actor->_walkBox);
+				}
+				else {
+					_stack.push(0);
+				}
 			}
 			return;
 			case OP_getActorMoving: {
-				_stack.pop();
-				NO_FEATURE(GS_THIS, "Not implemented OP_getActorMoving");
-				_stack.push(0);
+				uint16 actorNum = _stack.pop();
+				ActorData* actor = ACTORS->getActor(actorNum);
+
+				if (actor != NULL) {
+					_stack.push(actor->_moving);
+				}
+				else {
+					_stack.push(0);
+				}
 			}
 			return;
 			case OP_getActorCostume: {
-				_stack.pop();
-				NO_FEATURE(GS_THIS, "Not implemented OP_getActorCostume");
-				_stack.push(0);
+				uint16 actorNum = _stack.pop();
+				ActorData* actor = ACTORS->getActor(actorNum);
+
+				if (actor != NULL) {
+					_stack.push(actor->_costume);
+				}
+				else {
+					_stack.push(0);
+				}
 			}
 			return;
 			case OP_getActorScaleX:
@@ -1802,10 +1834,16 @@ namespace gs
 			case OP_getObjectY:
 				GS_UNHANDLED_OP;
 			return;
-			case OP_getActorChore:{
-				_stack.pop();
-				NO_FEATURE(GS_THIS, "Not implemented OP_getActorChore");
-				_stack.push(0);
+			case OP_getActorChore: {
+				uint16 actorNum = _stack.pop();
+				ActorData* actor = ACTORS->getActor(actorNum);
+
+				if (actor != NULL) {
+					_stack.push(actor->_frame);
+				}
+				else {
+					_stack.push(0);
+				}
 			}
 			return;
 			case OP_distObjectObject:

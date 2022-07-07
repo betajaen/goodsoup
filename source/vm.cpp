@@ -881,6 +881,14 @@ namespace gs
 		_pc += 4;
 		return value;
 	}
+
+	int32 VirtualMachine::_readSignedWord() {
+
+		int32 value = *((int32*) _script.ptr(_pc));
+		value = FROM_LE_32(value);
+		_pc += 4;
+		return value;
+	}
 	
 	void VirtualMachine::_readStringLength(uint16& from, uint16& len) {
 		len = 0;

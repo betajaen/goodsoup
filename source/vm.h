@@ -176,6 +176,7 @@ namespace gs
 		byte _readByte();
 		int32  _readWord();
 		uint32  _readUnsignedWord();
+		int32  _readSignedWord();
 		void _readStringLength(uint16& from, uint16& length);
 		void _decodeParseString(uint8 m, uint8 n);
 
