@@ -108,6 +108,46 @@ namespace gs
 		}
 
 	};
+
+	template<typename T, typename Index = uint16>
+	class AllocatedPool {
+		Array<T*, Index> _free;
+	public:
+
+		AllocatedPool() {
+		}
+
+		~AllocatedPool() {
+			_free.clear();
+		}
+
+		T* acquire() {
+			if (_free.size()) {
+				T* item = _free.popItem();
+				return item;
+			}
+
+			T* item = newObject<T>();
+			return item;
+		}
+
+		void release(T* item) {
+			for (uint16 i = 0; i < _free.size(); i++) {
+				T* test = _free.get_unchecked(i);
+				if (test == item) {
+					return;
+				}
+			}
+
+			_free.push(item);
+		}
+
+		void release_unchecked(T* item) {
+			_free.push(item);
+		}
+
+	};
+
 }
 
 #endif
