@@ -86,6 +86,19 @@ namespace gs
 			return true;
 		}
 
+		uint32 getObjectClass(uint16 objectNum) const {
+			if (objectNum >= NUM_OBJECT_GLOBALS) {
+				error(GS_THIS, "Attempted to load object out of bounds! %ld", (uint32)objectNum);
+				return false;
+			}
+
+			return _objectClass[objectNum];
+		}
+
+		uint32 getObjectClass_unchecked(uint16 objectNum) const {
+			return _objectClass[objectNum];
+		}
+
 	private:
 
 		uint8 _roomDisks[NUM_ROOMS];
