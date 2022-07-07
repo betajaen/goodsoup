@@ -118,6 +118,10 @@ namespace gs
 						else if (PAUSED && event.key.keysym.sym == SDLK_s) {
 							step = true;
 						}
+
+						if (event.key.keysym.sym == SDLK_m) {
+							MOUSE_LMB_STATE = 1;
+						}
 					}
 					break;
 					case SDL_MOUSEMOTION: {
@@ -131,13 +135,13 @@ namespace gs
 						MOUSE_Y = event.button.y;
 
 						if (event.button.button == 0 && event.motion.state == 0) {
-							MOUSE_LMB_STATE = -1;
+							MOUSE_LMB_STATE = 0;
 						}
 						else if (event.button.button == 0 && event.motion.state == 1) {
 							MOUSE_LMB_STATE = 1;
 						}
 						else if (event.button.button == 0 && event.motion.state == 0) {
-							MOUSE_RMB_STATE = -1;
+							MOUSE_RMB_STATE = 0;
 						}
 						else if (event.button.button == 0 && event.motion.state == 1) {
 							MOUSE_RMB_STATE = 1;

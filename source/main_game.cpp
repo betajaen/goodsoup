@@ -129,8 +129,10 @@ namespace gs
 	void runFrame() {
 		FRAME_NUM++;
 
+
 		INTS->mouseX = MOUSE_X;
 		INTS->mouseY = MOUSE_Y;
+		INTS->leftbtnDown = MOUSE_LMB_STATE ? 1 : 0;
 
 		drawBox(col++, 10, 10, 10, 10);
 		VM->runAllScripts();
