@@ -24,4 +24,21 @@
 #include "sdl/types_sdl.h"
 #endif
 
+namespace gs {
+
+	template<typename T1, typename T2>
+	struct Pair {
+		T1 _first;
+		T2 _second;
+
+		Pair() {}
+
+		Pair(T1 first, T2 second)
+			: _first(first), _second(second) {
+		}
+
+	};
+
+}
+
 #endif
