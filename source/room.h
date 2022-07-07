@@ -174,7 +174,6 @@ namespace gs
 
 		RoomScriptData* scriptData;
 		RoomGraphicsData* graphicsData;
-		Array<ObjectData*> objects;
 
 		uint16 width, height, numObjects, numZBuffers;
 		

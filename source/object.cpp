@@ -29,6 +29,7 @@ namespace gs
 	Array<ObjectData*, uint8> DRAWING_OBJECTS;
 
 	ObjectState::ObjectState() {
+		_roomObjects.reserve(50);
 	}
 
 	ObjectState::~ObjectState() {
@@ -139,6 +140,13 @@ namespace gs
 					object->_parent = reader.readByte();
 					object->_parentState = reader.readByte();
 					object->_flags = OF_AllowMaskOr;
+
+					debug(GS_THIS, "+Object %ld, Parent = %ld, ParentState = %ld",
+						  (uint32) object->_num,
+						  (uint32) object->_parent,
+						  (uint32) object->_parentState
+						  );
+
 					break;
 				}
 			}
@@ -215,55 +223,106 @@ namespace gs
 
 	ObjectData* ObjectState::_acquireByNum(uint16 num, bool& out_isNew) {
 		if (num != 0) {
-			for(uint8 i=0;i < _objects.getSize();i++) {
-				ObjectData* object = _objects.get_unchecked(i);
+
+			for(uint16 i=0; i < _roomObjects.size(); i++) {
+				ObjectData* object = _roomObjects.get_unchecked(i);
 				if (object->_num == num) {
 					out_isNew = false;
 					return object;
 				}
 			}
+
+			for(uint16 i=0;i < _globalObjects.size();i++) {
+				ObjectData* object= _globalObjects.get_unchecked(i);
+				if (object->_num == num) {
+					out_isNew = false;
+					return object;
+				}
+			}
+
 		}
 
-		ObjectData* object = _objects.acquire();
+		ObjectData* object = _pool.acquire();
 		object->_num = num;
+		object->_class = INDEX->getObjectClass(num);
 		out_isNew = true;
 		return object;
 	}
 
 	void ObjectState::clearAll() {
-		for(uint8 i=0;i < _objects.getSize();i++) {
-			ObjectData* object = _objects.get_unchecked(i);
+		for(uint16 i=0; i < _roomObjects.size(); i++) {
+			ObjectData* object = _roomObjects.get_unchecked(i);
 			object->clear();
+			_pool.release_unchecked(object);
 		}
 
-		_objects.clear();
+		for (uint16 i=0;i < _globalObjects.size();i++) {
+			ObjectData* object = _globalObjects.get_unchecked(i);
+			object->clear();
+			_pool.release_unchecked(object);
+		}
+
+		_pool.clear();
 	}
 
-	void ObjectState::clearForNewRoom() {
+	void ObjectState::moveRoomObjectsToGlobals() {
 
-		static Array<ObjectData*> objectsToClear;
+		// Delete old room/not-floating objects
+		while(true) {
+			bool didDelete = false;
 
-		for(uint8 i=0;i < _objects.getSize(); i++) {
+			for(uint16 i=0;i < _globalObjects.size();i++) {
+				ObjectData* object = _globalObjects.get_unchecked(i);
 
-			ObjectData* object = _objects.get_unchecked(i);
+				if (object->isFloating() == false) {
+					object->clear();
+					_globalObjects.erase(i);
+					didDelete = true;
+					break;
+				}
+			}
+
+			if (!didDelete)
+				break;
+		}
+
+		// Merge in new ones.
+		for(uint16 i=0; i < _roomObjects.size();i++) {
+			ObjectData* object = _roomObjects.get_unchecked(i);
+			_globalObjects.push(object);
+		}
+
+		_roomObjects.clear();
+
+	}
+
+	void ObjectState::clearRoomObjectsForNewRoom() {
+
+		static Array< Pair<uint16, ObjectData*> > objectsToClear;
+
+		for(uint16 i=0; i < _globalObjects.size(); i++) {
+
+			ObjectData* object = _globalObjects.get_unchecked(i);
 
 			if (object->isFloating() == false) {
 				object->clear();
-				objectsToClear.push(object);
+				objectsToClear.push(Pair<uint16, ObjectData*>(i, object));
 				continue;
 			}
-
-			if (object->isFloating() == true && object->isLocked() == false) {
-				object->clear();
-				objectsToClear.push(object);
-				continue;
+			else {
+				if (object->isLocked() == false) {
+					object->clear();
+					objectsToClear.push(Pair<uint16, ObjectData *>(i, object));
+					continue;
+				}
 			}
 		}
 
 		if (objectsToClear.size()) {
 			for (uint16 i = 0; i < objectsToClear.size(); i++) {
-				ObjectData* object = objectsToClear.get_unchecked(i);
-				_objects.release_unchecked(object);
+				Pair<uint16, ObjectData*> idxObject = objectsToClear.get_unchecked(i);
+				_pool.release_unchecked(idxObject._second);
+				_globalObjects.erase(idxObject._first);
 			}
 
 			objectsToClear.release();
@@ -271,7 +330,7 @@ namespace gs
 
 	}
 
-	ObjectData* ObjectState::loadFromFloatingObject(uint16 objectNum) {
+	bool ObjectState::loadFromFloatingObject(uint16 objectNum) {
 
 		ObjectData* object;
 
@@ -300,64 +359,118 @@ namespace gs
 
 		if (object) {
 			object->setFloating(true);
+			_globalObjects.push(object);	// Is this correct?
 		}
 
 		return object;
 	}
 
-	ObjectData* ObjectState::loadFromRoomLoad(DiskReader& reader, const TagPair& tag, bool& out_isNew) {
-		return _readIntoObject(reader, tag, out_isNew);
+	bool ObjectState::loadFromRoomLoad(DiskReader& reader, const TagPair& tag) {
+		bool isNew = false;
+		ObjectData* object = _readIntoObject(reader, tag, isNew);
+		if (object == NULL)
+			return false;
+
+		if (isNew) {
+			_roomObjects.push(object);
+		}
+
+		return true;
 	}
 
 	bool ObjectState::unload(uint16 objectNum) {
 
-		ObjectData* object = findObject(objectNum);
-
-		if (object != NULL) {
-			object->clear();
-			_objects.release_unchecked(object);
-
-			return true;
+		if (objectNum == 0) {
+			return false;
 		}
 
-		return false;
-	}
-
-	bool ObjectState::hasObject(uint16 num) const {
-		for(uint8 i=0;i < _objects.getSize();i++) {
-			const ObjectData* object = _objects.get_unchecked(i);
-			if (object->_num == num) {
+		for(uint16 i=0;i < _roomObjects.size();i++) {
+			ObjectData* data = _roomObjects.get_unchecked(i);
+			if (data->_num == objectNum) {
+				_roomObjects.erase(i);
+				_pool.release_unchecked(data);
 				return true;
 			}
 		}
+
+		for (uint16 i=0;i < _globalObjects.size();i++) {
+			ObjectData* data = _globalObjects.get_unchecked(i);
+			if (data->_num == objectNum) {
+				_globalObjects.erase(i);
+				_pool.release_unchecked(data);
+				return true;
+			}
+		}
+
 		return false;
 	}
 
-	ObjectData* ObjectState::findObject(uint16 num)  {
-		for(uint8 i=0;i < _objects.getSize();i++) {
-			ObjectData* object = _objects.get_unchecked(i);
-			if (object->_num == num) {
-				return object;
+	ObjectData* ObjectState::findGlobalObject(uint16 objectNum)  {
+		for(uint16 i=0; i < _globalObjects.size(); i++) {
+			const ObjectData* object = _globalObjects.get_unchecked(i);
+			if (object->_num == objectNum) {
+				return (ObjectData*) object;
 			}
 		}
 		return NULL;
 	}
 
-	void ObjectState::dumpObjects() {
-		for(uint8 i=0;i < _objects.getSize();i++) {
-			ObjectData* object = _objects.get_unchecked(i);
-			debug(GS_THIS, "Object Idx=%ld Num=%ld Flags=%ld", (uint32) i, (uint32) object->_num, (uint32) object->_flags );
+	ObjectData* ObjectState::findRoomObject(uint16 objectNum)  {
+		for(uint16 i=0; i < _roomObjects.size(); i++) {
+			const ObjectData* object = _roomObjects.get_unchecked(i);
+			if (object->_num == objectNum) {
+				return (ObjectData*) object;
+			}
+		}
+		return NULL;
+	}
+
+	void ObjectState::dumpObjects() const {
+		for(uint16 i=0; i < _roomObjects.size(); i++) {
+			const ObjectData* object = _roomObjects.get_unchecked(i);
+			debug(GS_THIS, "R Idx=%ld Num=%ld Flags=%ld Parent=%ld ParentState=%ld",
+				  (uint32) i,
+				  (uint32) object->_num,
+				  (uint32) object->_flags,
+				  (uint32) object->_parent,
+				  (uint32) object->_parentState
+				  );
+		}
+		for(uint16 i=0; i < _globalObjects.size(); i++) {
+			const ObjectData* object = _globalObjects.get_unchecked(i);
+			debug(GS_THIS, "G Idx=%ld Num=%ld Flags=%ld Parent=%ld ParentState=%ld",
+				  (uint32) i,
+				  (uint32) object->_num,
+				  (uint32) object->_flags,
+				  (uint32) object->_parent,
+				  (uint32) object->_parentState
+			);
 		}
 	}
 
-	uint16 ObjectState::findObjectNumFromXY(int16 x, int16 y) {
-		NO_FEATURE(GS_THIS, "Not implemented ObjectState::findObjectNumFromXY (%ld, %ld)", x, y);
+	uint16 ObjectState::findRoomObjectNumFromXY(int16 x, int16 y)  {
 
-		for(uint8 i=0;i < _objects.getSize();i++) {
-			ObjectData* object = _objects.get_unchecked(i);
-			/*TODO*/
+		bool inBounds;
+		uint8 otherState, thisState;
+		uint16 otherNum;
 
-			//debug(GS_THIS, "Object num=%ld x=%ld y=%ld w=%ld h=%ld", (uint32) object->_num, object->_x, object->_y, object->_width, object->_height);
+		for(uint8 i=0;i < _globalObjects.size();i++) {
+
+			const ObjectData* object = _globalObjects.get_unchecked(i);
+
+			if (object->isKind(OK_Untouchable))
+				continue;
+
+			bool inBounds = object->inBounds(x, y);
+
+			if (inBounds == false)
+				continue;
+
+			thisState = object->_parentState;
+			otherNum = object->_num;
+
+			debug(GS_THIS, "Under object %ld x %ld %ld", (uint32) object->_num, (int32) x, (int32) y);
+			return true;
 		}
 
 		return 0;
@@ -375,6 +488,13 @@ namespace gs
 		_width = 0;
 		_height = 0;
 		_script.gcForget();
+		_bIsLocked = false;
+		_bIsFloating = false;
+	}
+
+	bool ObjectData::isKind(uint8 objectKind) const {
+		const uint32 shift = 1 << ((uint32) (objectKind - 1));
+		return (_class & shift) != 0;
 	}
 
 }

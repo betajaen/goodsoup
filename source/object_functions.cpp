@@ -25,9 +25,7 @@ namespace gs
 {
 	
 	bool loadFloatingObject(uint16 objectNum) {
-		ObjectData* object = OBJECTS->loadFromFloatingObject(objectNum);
-
-		return object != NULL;
+		return OBJECTS->loadFromFloatingObject(objectNum);
 	}
 
 	int16 getObjectX(uint16 objectNum) {

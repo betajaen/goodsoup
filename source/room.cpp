@@ -220,7 +220,6 @@ namespace gs
 		}
 
 
-
 		RoomData* roomData = NULL;
 
 		/* TODO: Stop Dialogue */
@@ -230,8 +229,11 @@ namespace gs
 		/* TODO: Shadow Palette Handling */
 		/* TODO: Graphics cleaning flags */
 		
-		OBJECTS->clearForNewRoom();
+		OBJECTS->clearRoomObjectsForNewRoom();
 		DRAWING_OBJECTS.clear();
+
+		debug(GS_THIS,  "NewRoom");
+		OBJECTS->dumpObjects();
 
 		INTS->room = roomNum;
 
@@ -240,6 +242,8 @@ namespace gs
 		}
 
 		sCurrentRoom = roomData;
+
+		OBJECTS->moveRoomObjectsToGlobals();
 
 		/* TODO: Apply first palette */
 		/* TODO: Apply Room Vars */

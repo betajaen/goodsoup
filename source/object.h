@@ -36,13 +36,6 @@ namespace gs
 	
 	struct RoomObjectData;
 
-	enum ObjectKind {
-		OK_None = 0,
-		OK_RoomObject = 1,
-		OK_Actor = 2,
-		OK_Inventory = 3
-	};
-	
 	enum RoomObjectFlags {
 		OF_None = 0,
 		OF_AllowMaskOr = 1,
@@ -50,10 +43,14 @@ namespace gs
 		OF_ObjectMode = 8
 	};
 
-	enum ObjectVariantFlags {
-		OVF_None = 0,
-		OVF_Locked = 1,
-		OVF_Floating = 2
+	enum ObjectKind {
+		OK_NeverClip = 20,
+		OK_AlwaysClip = 21,
+		OK_IgnoreBoxes = 22,
+		OK_YFlip = 29,
+		OK_XFlip = 30,
+		OK_Player = 31,
+		OK_Untouchable = 32
 	};
 
 	struct ObjectData {
@@ -62,42 +59,41 @@ namespace gs
 		uint8 _parentState;
 		uint8 _state;
 		uint8 _flags;
-		uint8 _class;
+		uint32 _class;
 		int16 _x, _y;
 		uint16 _width, _height;
+		uint8 _bIsFloating;
+		uint8 _bIsLocked;
+
 		ScriptDataReference _script;
 
+		bool isKind(uint8 objectKind) const;
+
+		bool inBounds(int16 x, int16 y) const {
+			return (_x <= x) && (_y <= y) && ( (_x + _width) >= x ) && ( (_y + _height) >= y );
+		}
+
 		bool isLocked() const {
-			return (_flags & OVF_Locked) == 0;
+			return _bIsLocked;
 		}
 
 		void setLocked(bool isLocked) {
-			if (isLocked) {
-				_flags |= OVF_Locked;
-			}
-			else {
-				_flags &= ~OVF_Locked;
-			}
+			_bIsLocked = isLocked;
 		}
 
 		bool isFloating() const {
-			return (_flags & OVF_Floating) == 0;
+			return _bIsFloating;
 		}
 
 		void setFloating(bool isFloating) {
-			if (isFloating) {
-				_flags |= OVF_Floating;
-			}
-			else {
-				_flags &= ~OVF_Floating;
-			}
+			_bIsFloating = isFloating;
 		}
 
 		void clear();
 	};
 
 	class ObjectState {
-		ArrayPool<ObjectData, uint8> _objects;
+		AllocatedPool<ObjectData, uint16> _pool;
 
 		DiskReader _seekToObject(uint16 objectNum, TagPair& out_tag);
 		ObjectData* _readIntoObject(DiskReader& reader, const TagPair& parentTag, bool& out_isNew);
@@ -109,21 +105,69 @@ namespace gs
 		ObjectState();
 		~ObjectState();
 
-		uint16 getCount() const {
-			return _objects.getSize();
-		}
-		void dumpObjects();
-		void clearAll();
-		void clearForNewRoom();
 
-		ObjectData* loadFromFloatingObject(uint16 objectNum);
-		ObjectData* loadFromRoomLoad(DiskReader& reader, const TagPair& tag, bool& out_isNew);
+		Array<ObjectData*, uint16> _globalObjects;
+		Array<ObjectData*, uint16> _roomObjects;
+
+		uint16 getCount() const {
+			return _globalObjects.size() + _roomObjects.size();
+		}
+
+		void dumpObjects() const;
+		void clearAll();
+		void moveRoomObjectsToGlobals();
+		void clearRoomObjectsForNewRoom();
+
+		bool loadFromFloatingObject(uint16 objectNum);
+		bool loadFromRoomLoad(DiskReader& reader, const TagPair& tag);
 		bool unload(uint16 objectNum);
 
-		bool hasObject(uint16 objectNum) const;
-		ObjectData* findObject(uint16 objectNum);
 
-		uint16 findObjectNumFromXY(int16 x, int16 y);
+		bool hasGlobalObject(uint16 objectNum) const;
+		bool hasRoomObject(uint16 objectNum) const;
+
+		inline bool hasObject(uint16 objectNum) {
+
+			if (objectNum == 0) {
+				return false;
+			}
+
+			if (hasRoomObject(objectNum)) {
+				return true;
+			}
+
+			if (hasGlobalObject(objectNum)) {
+				return true;
+			}
+
+			return false;
+		}
+
+		ObjectData* findGlobalObject(uint16 objectNum);
+		ObjectData* findRoomObject(uint16 objectNum);
+
+		ObjectData* findObject(uint16 objectNum) {
+
+			if (objectNum == 0) {
+				return NULL;
+			}
+
+			ObjectData* objectData = findRoomObject(objectNum);
+
+			if (objectData != NULL) {
+				return objectData;
+			}
+
+			objectData = findGlobalObject(objectNum);
+
+			if (objectData != NULL) {
+				return objectData;
+			}
+
+			return NULL;
+		}
+
+		uint16 findRoomObjectNumFromXY(int16 x, int16 y);
 
 	};
 

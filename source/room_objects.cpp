@@ -28,8 +28,6 @@ namespace gs
 
 	bool RoomData::_readObjects(DiskReader& reader, const TagPair& lflf) {
 
-		objects.clear();
-
 		reader.seek(lflf);
 
 		while (reader.pos() < lflf.end()) {
@@ -41,14 +39,8 @@ namespace gs
 					TagPair rmscPair = reader.readTagPair();
 
 					if (rmscPair.isTag(GS_MAKE_ID('O', 'B', 'C', 'D'))) {
-
-						bool isNew = false;
-						ObjectData* object = OBJECTS->loadFromRoomLoad(reader, rmscPair, isNew);
-
-						if (isNew) {
-							objects.push(object);
-						}
-
+						if (OBJECTS->loadFromRoomLoad(reader, rmscPair) == false)
+							return false;
 						reader.seekEndOf(rmscPair);
 						continue;
 					}
@@ -68,12 +60,8 @@ namespace gs
 					if (room.isTag(GS_MAKE_ID('O', 'B', 'I', 'M'))) {
 						TagPair obim = reader.readTagPair();
 
-						bool isNew = false;
-						ObjectData* object = OBJECTS->loadFromRoomLoad(reader, obim, isNew);
-
-						if (isNew) {
-							objects.push(object);
-						}
+						if (OBJECTS->loadFromRoomLoad(reader, obim) == false)
+							return false;
 
 						reader.seekEndOf(obim);
 						continue;

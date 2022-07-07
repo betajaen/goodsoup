@@ -1731,7 +1731,7 @@ namespace gs
 			case OP_findObjectFromXY: {
 				int32 y = _stack.pop();
 				int32 x = _stack.pop();
-				_stack.push(OBJECTS->findObjectNumFromXY(x, y));
+				_stack.push(OBJECTS->findRoomObjectNumFromXY(x, y));
 			}
 			return;
 			case OP_getVerbFromXY: {
