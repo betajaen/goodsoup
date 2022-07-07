@@ -129,22 +129,27 @@ namespace gs
 						MOUSE_Y = event.motion.y;
 					}
 					break;
-					case SDL_MOUSEBUTTONUP: 
+					case SDL_MOUSEBUTTONUP: {
+						MOUSE_X = event.button.x;
+						MOUSE_Y = event.button.y;
+
+						if (event.button.button == SDL_BUTTON_LEFT ) {
+							MOUSE_LMB_EVENT = -1;
+						}
+						else if (event.button.button == SDL_BUTTON_RIGHT) {
+							MOUSE_RMB_EVENT = -1;
+						}
+					}
+					break;
 					case SDL_MOUSEBUTTONDOWN: {
 						MOUSE_X = event.button.x;
 						MOUSE_Y = event.button.y;
 
-						if (event.button.button == 0 && event.motion.state == 0) {
-							MOUSE_LMB_STATE = 0;
+						if (event.button.button == SDL_BUTTON_LEFT ) {
+							MOUSE_LMB_EVENT = 1;
 						}
-						else if (event.button.button == 0 && event.motion.state == 1) {
-							MOUSE_LMB_STATE = 1;
-						}
-						else if (event.button.button == 0 && event.motion.state == 0) {
-							MOUSE_RMB_STATE = 0;
-						}
-						else if (event.button.button == 0 && event.motion.state == 1) {
-							MOUSE_RMB_STATE = 1;
+						else if (event.button.button == SDL_BUTTON_RIGHT) {
+							MOUSE_RMB_EVENT = 1;
 						}
 					}
 					break;

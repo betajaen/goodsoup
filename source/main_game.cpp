@@ -54,6 +54,8 @@ namespace gs
 	uint32 FRAME_NUM = 0;
 	int32 MOUSE_X;
 	int32 MOUSE_Y;
+	int32 MOUSE_LMB_EVENT;
+	int32 MOUSE_RMB_EVENT;
 	int32 MOUSE_LMB_STATE;
 	int32 MOUSE_RMB_STATE;
 
@@ -129,16 +131,34 @@ namespace gs
 	void runFrame() {
 		FRAME_NUM++;
 
+		if (MOUSE_LMB_EVENT == 1) {
+			MOUSE_LMB_STATE = 1;
+			MOUSE_LMB_EVENT = 0;
+
+			INTS->leftbtnDown = 1;
+
+			debug(GS_THIS, "DOWN");
+		}
+		else if (MOUSE_LMB_EVENT == -1) {
+			MOUSE_LMB_STATE = 0;
+			MOUSE_LMB_EVENT = 0;
+
+			INTS->leftbtnDown = 0;
+
+			debug(GS_THIS, "UP");
+		}
+		else {
+			INTS->leftbtnDown = 0;
+		}
 
 		INTS->mouseX = MOUSE_X;
 		INTS->mouseY = MOUSE_Y;
-		INTS->leftbtnDown = MOUSE_LMB_STATE ? 1 : 0;
+		INTS->virtMouseX = MOUSE_X;
+		INTS->virtMouseY = MOUSE_Y;
+		INTS->leftbtnHold = MOUSE_LMB_STATE;
 
 		drawBox(col++, 10, 10, 10, 10);
 		VM->runAllScripts();
-
-		MOUSE_LMB_STATE = 0;
-		MOUSE_RMB_STATE = 0;
 
 		if (SHOW_OSD) {
 			runOSD();

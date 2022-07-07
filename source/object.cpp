@@ -22,6 +22,7 @@
 #include "room.h"
 #include "index.h"
 #include "resource.h"
+#include "vm_vars.h"
 
 namespace gs
 {
@@ -469,7 +470,12 @@ namespace gs
 			thisState = object->_parentState;
 			otherNum = object->_num;
 
-			debug(GS_THIS, "Under object %ld x %ld %ld", (uint32) object->_num, (int32) x, (int32) y);
+			/* TODO: Parents */
+
+			if (INTS->leftbtnDown) {
+				debug(GS_THIS, "Under object %ld x %ld %ld", (uint32) object->_num, (int32) x, (int32) y);
+			}
+
 			return true;
 		}
 

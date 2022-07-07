@@ -46,6 +46,8 @@ namespace gs
 	extern uint32 FRAME_NUM;
 	extern int32 MOUSE_X;
 	extern int32 MOUSE_Y;
+	extern int32 MOUSE_LMB_EVENT;
+	extern int32 MOUSE_RMB_EVENT;
 	extern int32 MOUSE_LMB_STATE;
 	extern int32 MOUSE_RMB_STATE;
 
