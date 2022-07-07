@@ -118,6 +118,13 @@ namespace gs
 		}
 
 		~AllocatedPool() {
+			clear();
+		}
+
+		void clear() {
+			for(Index i=0;i < _free.size();i++) {
+				deleteObject_unchecked(_free.get_unchecked(i));
+			}
 			_free.clear();
 		}
 
