@@ -482,6 +482,27 @@ namespace gs
 		return 0;
 	}
 
+	byte ObjectState::getState(uint16 objectNum) {
+		ObjectData* object = findObject(objectNum);
+		if (object) {
+			return object->_state;
+		}
+		else {
+			warn(GS_THIS, "getState %ld returned a null object", (uint32) objectNum);
+			return 0;
+		}
+	}
+
+	void ObjectState::setState(uint16 objectNum, byte newState) {
+		ObjectData* object = findObject(objectNum);
+		if (object) {
+			object->_state = newState;
+		}
+		else {
+			warn(GS_THIS, "setState %ld returned a null object", (uint32) objectNum);
+		}
+	}
+
 	void ObjectData::clear() {
 		_num = 0;
 		_state = 0;
@@ -502,5 +523,6 @@ namespace gs
 		const uint32 shift = 1 << ((uint32) (objectKind - 1));
 		return (_class & shift) != 0;
 	}
+
 
 }

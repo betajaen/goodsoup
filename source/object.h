@@ -167,6 +167,12 @@ namespace gs
 			return NULL;
 		}
 
+		void putClass(uint16 objectNum, uint32 classKind, bool isEnabled);
+
+		byte getState(uint16 objectNum);
+
+		void setState(uint16 objectNum, byte newState);
+
 		uint16 findRoomObjectNumFromXY(int16 x, int16 y);
 
 	};
