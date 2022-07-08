@@ -34,6 +34,7 @@
 #include "script.h"
 #include "verb.h"
 #include "actor.h"
+#include "input.h"
 
 extern const char GOODSOUP_VERSION_STR[] = "$VER: goodsoup 0.5 (" __AMIGADATE__ ")";
 
@@ -58,6 +59,7 @@ namespace gs
 	int32 MOUSE_RMB_EVENT;
 	int32 MOUSE_LMB_STATE;
 	int32 MOUSE_RMB_STATE;
+	uint8 KEY_EVENT;
 
 	void cleanup() {
 		deleteObject(ACTORS);
@@ -130,6 +132,7 @@ namespace gs
 
 	bool DEBUG_STOP_AFTER_FRAMES = false;
 	int32 DEBUG_STOP_AFTER_FRAMES_COUNT = 0;
+	int test = 0;
 
 	void runFrame() {
 
@@ -149,19 +152,25 @@ namespace gs
 
 			INTS->leftbtnDown = 1;
 
-			debug(GS_THIS, "DOWN");
 		}
 		else if (MOUSE_LMB_EVENT == -1) {
 			MOUSE_LMB_STATE = 0;
 			MOUSE_LMB_EVENT = 0;
 
 			INTS->leftbtnDown = 0;
-
-			debug(GS_THIS, "UP");
 		}
 		else {
 			INTS->leftbtnDown = 0;
 		}
+
+		if (KEY_EVENT == KE_DebugDumpStack) {
+			VM->dumpStack();
+		}
+		else if (KEY_EVENT == KE_DebugDumpVerbs) {
+			VERBS->dumpVerbs();
+		}
+
+		KEY_EVENT = 0;
 
 		INTS->mouseX = MOUSE_X;
 		INTS->mouseY = MOUSE_Y;
@@ -171,6 +180,13 @@ namespace gs
 
 		drawBox(col++, 10, 10, 10, 10);
 		VM->runAllScripts();
+
+/*
+		if (INTS->leftbtnDown == 1 && INTS->room == 87 && test == 0) {
+			test = 1;
+			VM->runInputScript(2005, 2, 0, 1);
+		}
+*/
 
 		if (SHOW_OSD) {
 			runOSD();
