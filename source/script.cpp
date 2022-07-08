@@ -233,4 +233,41 @@ namespace gs
 		return true;
 	}
 
+	ScriptDataReference ScriptState::getObjectVerbScript(uint16 objectNum, uint8 verbNum) {
+
+		for(uint16 i=0;i < _objectVerbs.getSize();i++) {
+			ScriptData* script = _objectVerbs.get_unchecked(i);
+
+			if (script->_id != objectNum)
+				continue;
+
+			if (script->hasData(verbNum) == true) {
+				return ScriptDataReference(script);
+			}
+
+			script->debugTables();
+			error(GS_THIS, "Could not find verbNum %ld associated with object %ld", (uint32) verbNum,(uint32)  objectNum);
+			abort_quit_stop();
+			return ScriptDataReference();
+		}
+
+
+		for(uint16 i=0;i < _objectVerbs.getSize();i++) {
+			ScriptData* script = _objectVerbs.get_unchecked(i);
+
+			debug(GS_THIS, "Loaded ObjectVerb %ld", script->_id);
+		}
+
+		error(GS_THIS, "Could not find ObjectVerbScript associated with object %ld", (uint32)  objectNum);
+		abort_quit_stop();
+		return ScriptDataReference();
+	}
+
+	void ScriptData::debugTables() {
+		debug(GS_THIS, "ScriptData, NumOffsets=%ld", _numOffsets);
+		for(uint8 i=0;i < _numOffsets;i++) {
+			debug(GS_THIS, "[%ld] => %ld", (uint32) _offsetkeys[i], (uint32) _offsetValues[i]);
+		}
+	}
+
 }

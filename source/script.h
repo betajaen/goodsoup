@@ -83,6 +83,22 @@ namespace gs
 			return _script.getReadSpan<uint16>();
 		}
 
+		void debugTables();
+
+		bool hasData(uint8 key) {
+			if (_numOffsets != 0) {
+				for (uint8 i = 0; i < _numOffsets; i++) {
+					if (_offsetkeys[i] == key) {
+						return true;
+					}
+				}
+				return false;
+			}
+			else {
+				return true;
+			}
+		}
+
 		bool getData(uint8 key, OpcodeSpan& out_span) const {
 
 			if (_numOffsets != 0) {
@@ -280,6 +296,7 @@ namespace gs
 
 		bool readObjectVerbScript(uint16 objectNum, const TagPair& tag, DiskReader& reader);
 
+		ScriptDataReference getObjectVerbScript(uint16 objectNum, uint8 verbNum);
 	};
 
 	extern ScriptState* SCRIPTS;
