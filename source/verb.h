@@ -43,6 +43,8 @@ namespace gs
 
 		void clear();
 
+		void dumpVerbs();
+
 		Verb* getOrNew(uint16 num);
 
 		Verb* getLastVerbUsed() {
@@ -50,6 +52,8 @@ namespace gs
 		}
 
 		Verb* getVerb(uint8 verbNum);
+
+		Verb* findVerbAtXY(int16 x, int16 y);
 
 	};
 

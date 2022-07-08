@@ -78,10 +78,24 @@ namespace gs
 		_lastVerbIdx = 0;
 	}
 
+	void VerbState::dumpVerbs() {
+		debug(GS_THIS, "Verbs **END");
+		for(uint16 i=0;i < NUM_VERBS;i++) {
+			Verb &verb = _verbs[i];
+
+			if (verb._num != 0) {
+				debug(GS_THIS, "Verb [%i] %i", i, verb._num);
+			}
+
+		}
+		debug(GS_THIS, "Verbs **END");
+	}
+
 	void Verb::clear() {
 		_num = 0;
 		_mode = 0;
 		_lineSpacing = 0;
 	}
+
 
 }
