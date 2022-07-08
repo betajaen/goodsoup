@@ -24,6 +24,7 @@
 #include "../globals.h"
 #include "../functions.h"
 #include "../room.h"
+#include "../input.h"
 
 #include <SDL2/SDL.h>
 
@@ -121,6 +122,14 @@ namespace gs
 
 						if (event.key.keysym.sym == SDLK_m) {
 							MOUSE_LMB_STATE = 1;
+						}
+
+						if (event.key.keysym.sym == SDLK_p) {
+							KEY_EVENT = KE_DebugDumpStack;
+						}
+
+						if (event.key.keysym.sym == SDLK_o) {
+							KEY_EVENT = KE_DebugDumpVerbs;
 						}
 					}
 					break;
