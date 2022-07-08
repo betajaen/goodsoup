@@ -30,6 +30,7 @@
 #include "object.h"
 #include "verb.h"
 #include "actor.h"
+#include "index.h"
 
 #define DEBUG_OPCODES 0
 
@@ -749,14 +750,24 @@ namespace gs
 			case OP_stopObjectScript:
 				GS_UNHANDLED_OP;
 			return;
-			case OP_cutscene:
-				GS_UNHANDLED_OP;
+			case OP_cutscene: {
+				uint16 num = _stack.readList(25);
+				_beginCutscene(num);
+			}
 			return;
 			case OP_endCutscene:
 				GS_UNHANDLED_OP;
 			return;
-			case OP_freezeUnfreeze:
-				GS_UNHANDLED_OP;
+			case OP_freezeUnfreeze: {
+				int32 subOp = _stack.pop();
+
+				if (subOp) {
+					freezeAll();
+				}
+				else {
+					unfreezeAll();
+				}
+			}
 			return;
 			case OP_beginOverride:
 				GS_UNHANDLED_OP;
@@ -780,11 +791,27 @@ namespace gs
 				int16 num = _stack.readList(16);
 				int32 obj = _stack.pop();
 
-				NO_FEATURE(GS_THIS, "Not implemented OP_setClass (%ld, %ld)", num, obj);
+				for(int16 i=(num-1);i > -1;i--) {
+
+					int32 classNum = _stack.getListItem(i);
+
+					if (classNum == 0) {
+						INDEX->setObjectClass(num, 0);	// Possible memory overwrite crash?
+					}
+					else if ((classNum & 0x80) != 0) {
+						INDEX->putObjectClass(obj, classNum, true);
+					}
+					else {
+						INDEX->putObjectClass(obj, classNum, false);
+					}
+				}
 			}
 			return;
-			case OP_setState:
-				GS_UNHANDLED_OP;
+			case OP_setState: {
+				int32 state = _stack.pop();
+				int32 obj = _stack.pop();
+				OBJECTS->setState(obj,state);
+			}
 			return;
 			case OP_setOwner:
 				GS_UNHANDLED_OP;
@@ -872,7 +899,7 @@ namespace gs
 					case CursorCommandOp_CursorImage:
 						_stack.pop();
 						_stack.pop();
-						NO_FEATURE(GS_THIS, "Not implemented OP_cursorCommand CursorCommandOp_CursorImage");
+						//// NO_FEATURE(GS_THIS, "Not implemented OP_cursorCommand CursorCommandOp_CursorImage");
 					return;
 					case CursorCommandOp_HotSpot:
 						_stack.pop();
@@ -1595,8 +1622,10 @@ namespace gs
 				NO_FEATURE(GS_THIS, "Not implemented OP_ifClassOfIs");
 			}
 			return;
-			case OP_getState:
-				GS_UNHANDLED_OP;
+			case OP_getState: {
+				int32 obj = _stack.pop();
+				_stack.push(OBJECTS->getState(obj));
+			}
 			return;
 			case OP_getOwner:
 				GS_UNHANDLED_OP;
@@ -1744,8 +1773,30 @@ namespace gs
 			case OP_de:
 				GS_UNHANDLED_OP;
 			return;
-			case OP_findInventory:
-				GS_UNHANDLED_OP;
+			/*
+			 protected int FindInventoryCore(int owner, int idx)
+        {
+            int count = 1, i, obj;
+            for (i = 0; i < _resManager.NumInventory; i++)
+            {
+                obj = _inventory[i];
+                if (obj != 0 && GetOwnerCore(obj) == owner && count++ == idx)
+                    return obj;
+            }
+            return 0;
+        }
+
+			 */
+			case OP_findInventory: {
+				int32 idx = _stack.pop();
+				int32 owner = _stack.pop();
+
+				debug(GS_THIS, "Idx = %ld, Owner = %ld", (uint32) idx, (uint32) owner);
+
+				NO_FEATURE(GS_THIS, "Not implemented OP_findInventory");
+
+				_stack.push(0);
+			}
 			return;
 			case OP_getInventoryCount: {
 				_stack.pop();
@@ -1824,7 +1875,7 @@ namespace gs
 			return;
 			case OP_getObjectNewDir: {
 				_stack.pop();
-				NO_FEATURE(GS_THIS, "Not implemented OP_getObjectNewDir");
+				/// NO_FEATURE(GS_THIS, "Not implemented OP_getObjectNewDir");
 				_stack.push(0);
 			}
 			return;

@@ -28,6 +28,8 @@
 
 namespace gs
 {
+#define MAX_CUTSCENES_STACK 5
+
 	class VirtualMachine;
 
 	extern VirtualMachine* VM;
@@ -49,10 +51,12 @@ namespace gs
 		OW_Room = 3,
 		OW_Global = 4,
 		OW_Local = 5,
-		OW_FLObject = 6
+		OW_FLObject = 6,
+		OW_ObjectVerb = 7
 	};
 	
 	const char* ObjectWhereToString(uint8 where);
+	const char* ObjectStateToString(uint8 state);
 
 	struct ScriptContext
 	{
@@ -94,6 +98,7 @@ namespace gs
 		}
 
 		uint16 _scriptNum;
+		uint8  _verb;
 		uint32 _lastPC;
 		int32  _delay;
 		uint16 _delayFrameCount;
@@ -136,6 +141,23 @@ namespace gs
 
 	};
 
+
+	struct CutsceneScriptStackItem {
+		uint32 _pointer;
+		uint32 _data;
+		uint8  _script;
+	};
+
+	struct CutsceneScriptState {
+
+		CutsceneScriptStackItem _items[MAX_CUTSCENES_STACK];
+		uint8 _stackSize;
+		uint32 _index;
+		uint8 _contextIndex;
+
+		CutsceneScriptState();
+	};
+
 	class VirtualMachine
 	{
 	private:
@@ -151,6 +173,7 @@ namespace gs
 		Buffer<byte>					_boolGlobals;
 		ScriptContext					_context[MAX_SCRIPT_CONTEXTS];
 		ScriptStackItem					_contextStack[NUM_STACK_SCRIPTS];
+		CutsceneScriptState				_cutscenes;
 		uint16							_contextStackSize;
 		uint32							_pc, _pcAfter, _pcOpcode;
 		ScriptDataReference			_scriptReference;
@@ -189,6 +212,8 @@ namespace gs
 
 		const char* _getOpcodeName(uint8 opcode) const;
 
+		void _beginCutscene(uint16 stackListCount);
+
 	public:
 
 		VirtualMachine();
@@ -200,17 +225,23 @@ namespace gs
 
 		void runCurrentScript();
 		void runScript(uint16 scriptNum, bool freezeResistant, bool recursive, int32* data = NULL, uint8 dataCount = 0);
-		void runObjectScript(uint16 objectNum, uint16 entryPc, bool freezeResistant, bool recursive, int32* data = NULL, uint8 dataCount = 0);
+		void runObjectScript(uint16 objectNum, uint8 verb, bool freezeResistant, bool recursive, int32* data = NULL, uint8 dataCount = 0);
 		void runRoomScript(uint16 scriptNum);
 		void runAllScripts();
+		void runInputScript(uint16 scriptNum, int32 clickArea, int32 code, int32 mode);
 
 		bool isScriptRunning(uint16 scriptNum);
 		bool isRoomScriptRunning(uint16 scriptNum);
+
+		void freezeAll();
+		void unfreezeAll();
 
 		void abort() {
 			_dumpState();
 			_forceQuit();
 		}
+
+		void dumpStack();
 
 
 	};

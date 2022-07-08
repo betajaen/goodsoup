@@ -312,6 +312,26 @@ namespace gs
 				return "Local";
 			case OW_FLObject:
 				return "FLObject";
+			case OW_ObjectVerb:
+				return "ObjectVerb";
+		}
+	}
+	const char* ObjectStateToString(uint8 state) {
+		switch(state) {
+			default:
+				return "Unknown";
+			case 0:
+				return "Dead";
+			case 1:
+				return "Paused";
+			case 2:
+				return "Running";
+			case 0x80:
+				return "Frozen+Dead";
+			case 0x81:
+				return "Frozen+Paused";
+			case 0x82:
+				return "Frozen+Running";
 		}
 	}
 
@@ -439,16 +459,17 @@ namespace gs
 		LOCALS->clear(contextNum);
 
 		if (_updateScriptData(context)) {
+			LOCALS->clear(contextNum);
 			LOCALS->copyInto(contextNum, data, dataCount);
 			_pushAndRunScript(contextNum);
 		}
 	}
 
-	
-	void VirtualMachine::runObjectScript(uint16 objectNum, uint16 entryPc, bool freezeResistant, bool recursive, int32* data, uint8 dataCount) {
+
+	void VirtualMachine::runObjectScript(uint16 objectNum, uint8 verb, bool freezeResistant, bool recursive, int32* data, uint8 dataCount) {
+
 		if (objectNum == 0) {
-			error(GS_THIS, "Could not run a NULL object script %ld", (uint32) objectNum);
-			abort_quit_stop();
+			warn(GS_THIS, "Could not run a NULL object script %ld", (uint32) objectNum);
 			return;
 		}
 
@@ -456,8 +477,28 @@ namespace gs
 			_stopObjectScript(objectNum);
 		}
 
-		error(GS_THIS, "Feature not implemented (%ld)", (uint32) objectNum);
-		abort_quit_stop();
+		uint8 contextNum;
+
+		if (_findFreeContext(contextNum) == false) {
+			error(GS_THIS, "Could not find free ScriptContext for %ld : %ld", (uint32) objectNum, (uint32) verb);
+			abort_quit_stop();
+			return;
+		}
+
+		ScriptContext& context = _context[contextNum];
+		context.reset();
+		context._scriptNum = objectNum;
+		context._verb = verb;
+		context._state = SCS_Running;
+		context._bFreezeResistant = false;
+		context._bRecursive = false;
+		context._scriptWhere = OW_ObjectVerb;
+
+		if (_updateScriptData(context)) {
+			LOCALS->clear(contextNum);
+			LOCALS->copyInto(contextNum, data, dataCount);
+			_pushAndRunScript(contextNum);
+		}
 	}
 	
 	void VirtualMachine::runRoomScript(uint16 scriptNum) {
@@ -489,6 +530,43 @@ namespace gs
 #endif
 
 		if (_updateScriptData(context)) {
+			LOCALS->clear(contextNum);
+			_pushAndRunScript(contextNum);
+		}
+	}
+
+	void VirtualMachine::runInputScript(uint16 scriptNum, int32 clickArea, int32 code, int32 mode) {
+		if (scriptNum == 0) {
+			error(GS_THIS, "Could not run a NULL room script %ld", (uint32) scriptNum);
+			abort_quit_stop();
+			return;
+		}
+
+		uint8 contextNum;
+
+		if (_findFreeContext(contextNum) == false) {
+			error(GS_THIS, "Could not find free ScriptContext for %ld", (uint32)scriptNum);
+			abort_quit_stop();
+			return;
+		}
+
+
+		ScriptContext& context = _context[contextNum];
+		context.reset();
+		context._scriptNum = scriptNum;
+		context._state = SCS_Running;
+		context._bFreezeResistant = false;
+		context._bRecursive = false;
+		context._scriptWhere = OW_Room;
+
+
+		if (_updateScriptData(context)) {
+
+			LOCALS->clear(contextNum);
+			LOCALS->set_unchecked(contextNum, 0, clickArea);
+			LOCALS->set_unchecked(contextNum, 1, code);
+			LOCALS->set_unchecked(contextNum, 2, mode);
+
 			_pushAndRunScript(contextNum);
 		}
 	}
@@ -625,7 +703,45 @@ namespace gs
 			}
 		}
 	}
-	
+
+	void VirtualMachine::freezeAll() {
+		for (uint8 i = 0; i < MAX_SCRIPT_CONTEXTS; i++) {
+			ScriptContext& context = _context[i];
+
+			if (i == CURRENT_CONTEXT)
+				continue;
+
+			if (context.isDead())
+				continue;
+
+			if (context._bFreezeResistant)
+				continue;
+
+			context.freeze();
+		}
+
+		/* TODO: Sentence Scripts */
+
+		/* TODO: Cutscenes */
+	}
+
+	void VirtualMachine::unfreezeAll() {
+		for (uint8 i = 0; i < MAX_SCRIPT_CONTEXTS; i++) {
+			ScriptContext& context = _context[i];
+
+			if (i == CURRENT_CONTEXT)
+				continue;
+
+			if (context.isDead())
+				continue;
+
+			if (context._bFreezeResistant)
+				continue;
+
+			context.unfreeze();
+		}
+	}
+
 	bool VirtualMachine::isScriptRunning(uint16 scriptNum) {
 		
 		for (uint8 i = 0; i < MAX_SCRIPT_CONTEXTS; i++) {
@@ -727,6 +843,22 @@ namespace gs
 					return true;
 				}
 			}
+		}
+		else if (where == OW_ObjectVerb) {
+
+			_scriptReference = SCRIPTS->getObjectVerbScript(context._scriptNum, context._verb);
+
+			if (_scriptReference.isNull()) {
+				error(GS_THIS, "Unhandled ObjectVerb Script Data! Num=%ld, Verb=%ld Where=%s", (uint32) num, (uint32) context._verb, ObjectWhereToString(where));
+				return false;
+			}
+
+			if (_scriptReference.getData(context._verb, _script) == false) {
+				error(GS_THIS, "Unhandled ObjectVerb Script Verb Table Data! Num=%ld, Verb=%ld Where=%s", (uint32) num, (uint32) context._verb, ObjectWhereToString(where));
+				return false;
+			}
+
+			return true;
 		}
 
 		error(GS_THIS, "Unhandled Script Data! Num=%ld, Where=%s", (uint32) num, ObjectWhereToString(where));
@@ -845,6 +977,42 @@ namespace gs
 			_break();
 		}
 	}
+/*
+  var scr = CurrentScript;
+            _slots[scr].CutSceneOverride++;
+
+            ++cutScene.StackPointer;
+
+            cutScene.Data[cutScene.StackPointer].Data = args.Length > 0 ? args[0] : 0;
+            cutScene.Data[cutScene.StackPointer].Script = 0;
+            cutScene.Data[cutScene.StackPointer].Pointer = 0;
+
+            cutScene.ScriptIndex = scr;
+
+            if (_variables[VariableCutSceneStartScript.Value] != 0)
+                RunScript(_variables[VariableCutSceneStartScript.Value], false, false, args);
+
+            cutScene.ScriptIndex = 0xFF;
+ */
+	void VirtualMachine::_beginCutscene(uint16 stackListCount) {
+		uint8 contextIdx = CURRENT_CONTEXT;
+		ScriptContext& context = _context[CURRENT_CONTEXT];
+		context._cutsceneOverride++;
+		_cutscenes._stackSize++;
+
+		CutsceneScriptStackItem& cutsceneItem = _cutscenes._items[_cutscenes._stackSize];
+		cutsceneItem._data = stackListCount > 0 ? _stack.getListItem(0) : 0;
+		cutsceneItem._script = 0;
+		cutsceneItem._pointer = 0;
+
+		_cutscenes._contextIndex = contextIdx;
+
+		if (INTS->cutsceneStartScript != 0) {
+			runScript(INTS->cutsceneStartScript, false, false, _stack.getList(), stackListCount);
+		}
+
+		_cutscenes._contextIndex = NO_CONTEXT;
+	}
 
 	void VirtualMachine::_break() {
 		if (CURRENT_CONTEXT != NO_CONTEXT) {
@@ -861,6 +1029,9 @@ namespace gs
 			CURRENT_CONTEXT = NO_CONTEXT;
 		}
 	}
+
+
+
 
 	byte VirtualMachine::_readByte() {
 		byte value = _script.get_unchecked(_pc++);
@@ -954,7 +1125,9 @@ namespace gs
 	}
 
 	void VirtualMachine::_dumpState() {
-		
+
+		dumpStack();
+
 		debug_write(DC_Debug, GS_FILE_NAME, __FILE__, __FUNCTION__, __LINE__, "VM State as follows:");
 		
 		uint8 lastContext = CURRENT_CONTEXT;
@@ -1065,6 +1238,20 @@ namespace gs
 
 	}
 
+	void VirtualMachine::dumpStack() {
+
+		debug(GS_THIS, "VMContext **START");
+		for(uint8 i=0;i < MAX_SCRIPT_CONTEXTS;i++) {
+			ScriptContext& context = _context[i];
+
+			if (context._scriptNum == 0)
+				continue;
+
+			debug(GS_THIS, "VMContext [%d] %d %s %s", i, context._scriptNum, ObjectWhereToString(context._scriptWhere), ObjectStateToString(context._state));
+		}
+		debug(GS_THIS, "VMContext **END");
+	}
+
 	void VirtualMachine::_forceQuit() {
 		QUIT_NOW = true;
 		CURRENT_CONTEXT = NO_CONTEXT;
@@ -1096,6 +1283,7 @@ namespace gs
 		uint8 i = 0;
 
 		_scriptNum = 0;
+		_verb = 0;
 		_scriptWhere = OW_NotFound;
 		_lastPC = 0;
 		_delay = 0;
@@ -1113,6 +1301,15 @@ namespace gs
 		_scriptNum = 0xFF;
 		_scriptWhere = OW_NotFound;
 		_contextNum = 0;
+	}
+
+	CutsceneScriptState::CutsceneScriptState() {
+		for(uint8 i=0; i < MAX_CUTSCENES_STACK; i++) {
+			CutsceneScriptStackItem& item = _items[i];
+			item._script = 0;
+			item._data = 0;
+			item._pointer = 0;
+		}
 	}
 
 
