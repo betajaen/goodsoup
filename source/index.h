@@ -95,6 +95,35 @@ namespace gs
 			return _objectClass[objectNum];
 		}
 
+		void setObjectClass(uint16 objectNum, uint32 classValue) {
+			if (objectNum >= NUM_OBJECT_GLOBALS) {
+				error(GS_THIS, "Attempted to load object out of bounds! %ld", (uint32)objectNum);
+				return;
+			}
+
+			_objectClass[objectNum] = classValue;
+		}
+
+		void putObjectClass(uint16 objectNum, uint32 classKind, bool isEnabled) {
+
+			if (objectNum >= NUM_OBJECT_GLOBALS) {
+				error(GS_THIS, "Attempted to load object out of bounds! %ld", (uint32)objectNum);
+				return;
+			}
+
+			classKind = (classKind & 0x7F);
+			classKind = 1 << (classKind - 1);
+
+			if (isEnabled) {
+				_objectClass[objectNum] |= classKind;
+			}
+			else {
+				_objectClass[objectNum] &= ~classKind;
+			}
+
+		}
+
+
 		uint32 getObjectClass_unchecked(uint16 objectNum) const {
 			return _objectClass[objectNum];
 		}
