@@ -476,7 +476,7 @@ namespace gs
 				debug(GS_THIS, "Under object %ld x %ld %ld", (uint32) object->_num, (int32) x, (int32) y);
 			}
 
-			return true;
+			return object->_num;
 		}
 
 		return 0;
