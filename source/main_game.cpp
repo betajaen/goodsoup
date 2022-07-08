@@ -128,7 +128,19 @@ namespace gs
 
 	uint8 col = 0;
 
+	bool DEBUG_STOP_AFTER_FRAMES = false;
+	int32 DEBUG_STOP_AFTER_FRAMES_COUNT = 0;
+
 	void runFrame() {
+
+		if (DEBUG_STOP_AFTER_FRAMES) {
+			DEBUG_STOP_AFTER_FRAMES_COUNT--;
+			if (DEBUG_STOP_AFTER_FRAMES_COUNT <= 0) {
+				QUIT_NOW = true;
+				return;
+			}
+		}
+
 		FRAME_NUM++;
 
 		if (MOUSE_LMB_EVENT == 1) {

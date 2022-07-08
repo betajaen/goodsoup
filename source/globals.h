@@ -52,6 +52,9 @@ namespace gs
 	extern int32 MOUSE_RMB_STATE;
 
 	extern uint8 CURRENT_ACTOR;
+
+	extern bool DEBUG_STOP_AFTER_FRAMES;
+	extern int32 DEBUG_STOP_AFTER_FRAMES_COUNT;
 }
 
 #endif
