@@ -792,37 +792,6 @@ namespace gs
 		return false;
 	}
 
-	VmArray* VirtualMachine::newArray(uint32 arrayNum, uint8 kind, uint16 y, uint16 x) {
-		
-		VmArray* array = ARRAYS->allocate(arrayNum, x, y, kind);
-
-		if (array == NULL) {
-			return array;
-		}
-
-		INTS->set(arrayNum, array->_idx);
-
-		return array;
-	}
-
-	void VirtualMachine::deleteArray(uint32 arrayNum) {
-		
-		uint32 arrayIndex = INTS->get(arrayNum);
-
-		if (arrayIndex >= NUM_ARRAY) {
-			error(GS_THIS, "Tried to delete an array out of bounds!");
-			_forceQuit();
-			return;
-		}
-
-		VmArray* arrayHeader = ARRAYS->getFromIndex(arrayIndex);
-
-		if (arrayHeader != NULL) {
-			ARRAYS->deallocateFromArray(arrayHeader);
-			INTS->set(arrayNum, 0);
-		}
-	}
-	
 	bool VirtualMachine::_updateScriptData(ScriptContext& context) {
 		
 		const uint16 num = context._scriptNum;

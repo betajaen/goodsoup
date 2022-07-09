@@ -224,8 +224,7 @@ namespace gs
 		~VirtualMachine();
 
 		void   reset();
-		VmArray* newArray(uint32 num, uint8 kind, uint16 y, uint16 x);
-		void deleteArray(uint32 num);
+
 
 		void runCurrentScript();
 		void runScript(uint16 scriptNum, bool freezeResistant, bool recursive, int32* data = NULL, uint8 dataCount = 0);

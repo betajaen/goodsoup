@@ -20,6 +20,7 @@
 #include "vm_array.h"
 
 #include "memory.h"
+#include "vm_vars.h"
 
 namespace gs
 {
@@ -32,33 +33,21 @@ namespace gs
 		for (uint8 i = 0; i < NUM_ARRAY; i++) {
 			_slots[i] = NULL;
 		}
-
-		reset();
 	}
 
 	VmArrayAllocator::~VmArrayAllocator() {
-		for (uint8 i = 0; i < NUM_ARRAY; i++) {
-			VmArray* array = _slots[i];
-			if (array) {
-				releaseMemory(array);
-				_slots[i] = NULL;
-			}
-		}
+		reset();
 	}
-	
 
 	void VmArrayAllocator::reset() {
 
 		for (uint8 i = 0; i < NUM_ARRAY; i++) {
 			VmArray* array = _slots[i];
 			if (array) {
+				INTS->set(array->_num, 0);
 				releaseMemory(array);
 				_slots[i] = NULL;
 			}
-		}
-
-		for (uint8 i = 0; i < NUM_ARRAY; i++) {
-			_nums[i] = NO_ARRAY;
 		}
 
 		_lastUsed = NULL;
@@ -67,7 +56,7 @@ namespace gs
 	
 	uint8 VmArrayAllocator::_getFreeIndex() {
 		for (uint8 i = 1; i < NUM_ARRAY; i++) {
-			if (_nums[i] == NO_ARRAY) {
+			if (_slots[i] == NULL) {
 				return i;
 			}
 		}
@@ -75,6 +64,12 @@ namespace gs
 	}
 
 	VmArray* VmArrayAllocator::allocate(uint16 arrayNum, uint16 xSize, uint16 ySize, uint8 kind) {
+
+		VmArray* array = findFromNum(arrayNum);
+
+		if (array != NULL) {
+			deallocateFromArray(array);
+		}
 
 		uint8 arrayIdx = _getFreeIndex();
 
@@ -84,11 +79,6 @@ namespace gs
 		}
 
 		uint32 allocSize = 4;
-
-		VmArray* array = findFromNum(arrayNum);
-		if (array != NULL) {
-			deallocateFromArray(array);
-		}
 
 		if (kind != VAK_Integer) {
 			allocSize = 1;
@@ -111,7 +101,7 @@ namespace gs
 		array->_num = arrayNum;
 		array->_idx = arrayIdx;
 
-		_nums[arrayIdx] = arrayNum;
+		INTS->set(arrayNum, arrayIdx);
 		_slots[arrayIdx] = array;
 
 		_lastUsed = array;
@@ -129,7 +119,7 @@ namespace gs
 		uint8 index = array->_idx;
 
 		_slots[index] = NULL;
-		_nums[index] = NO_ARRAY;
+		INTS->set(array->_num, 0);
 
 		if (_lastUsed == array) {
 			_lastUsed = NULL;
@@ -138,31 +128,20 @@ namespace gs
 		releaseMemory(array);
 	}
 
-	VmArray*  VmArrayAllocator::getFromIndex(uint8 index) {
-		if (index >= NUM_ARRAY) {
-			error(GS_THIS, "VmArray index %ld out of bounds!", (uint32) index);
-			return NULL;
-		}
+	VmArray* VmArrayAllocator::findFromNum(uint16 arrayNum) {
 
-		_lastUsed = _slots[index];
-
-		return _lastUsed;
-	}
-
-	VmArray* VmArrayAllocator::findFromNum(uint16 num) {
-
-		if (_lastUsed != NULL && _lastUsed->_num == num) {
+		if (_lastUsed != NULL && _lastUsed->_num == arrayNum) {
 			return _lastUsed;
 		}
 
-		for (uint8 i = 0; i < NUM_ARRAY; i++) {
-			if (_nums[i] == num) {
-				_lastUsed = _slots[i];
-				return _lastUsed;
-			}
+		uint16 idx = INTS->get(arrayNum);
+
+		if (idx > 0 && idx < NUM_ARRAY) {
+			_lastUsed = _slots[idx];
+			return _lastUsed;
 		}
 
 		return NULL;
 	}
-	
+
 }

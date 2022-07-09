@@ -554,14 +554,14 @@ namespace gs
 				switch (subOp) {
 					case DimArrayOp_NewInt:
 						size = _stack.pop();
-						newArray(arrayNum, VAK_Integer, size, 0);
+						ARRAYS->allocate(arrayNum, 0, size, VAK_Integer);
 					return;
 					case DimArrayOp_NewString:
 						size = _stack.pop();
-						newArray(arrayNum, VAK_String, size, 0);
+						ARRAYS->allocate(arrayNum, 0, size, VAK_String);
 					return;
 					case DimArrayOp_Delete:
-						deleteArray(arrayNum);
+						ARRAYS->deallocateFromArray(ARRAYS->findFromNum(arrayNum));
 					return;
 				}
 				
@@ -598,17 +598,17 @@ namespace gs
 					case Dim2DimOp_Int: {
 						uint16 y = _stack.pop();
 						uint16 x = _stack.pop();
-						newArray(arrayNum, VAK_Integer, y, x);
+						ARRAYS->allocate(arrayNum, x, y, VAK_Integer);
 					}
 					return;
 					case Dim2DimOp_String: {
 						uint16 y = _stack.pop();
 						uint16 x = _stack.pop();
-						newArray(arrayNum, VAK_String, y, x);
+						ARRAYS->allocate(arrayNum, x, y,VAK_String);
 					}
 					return;
 					case Dim2DimOp_Delete: {
-						deleteArray(arrayNum);
+						ARRAYS->deallocateFromArray(ARRAYS->findFromNum(arrayNum));
 					}
 					return;
 				}
@@ -641,36 +641,16 @@ namespace gs
 				VmArray* array;
 				switch (subOp) {
 					case ArrayOps_AssignString: {
-#if 1
 						uint16 offset = _stack.pop();
 						_readBytesForArray();
 						uint16 len = _arrayTemp.size();
 
-						array = newArray(arrayNum, VAK_String, len + 1, 0);
+						array = ARRAYS->allocate(arrayNum, 0, len + 1, VAK_String);
 
 						for(uint16 i=0;i < len;i++) {
 							array->_data[offset + i] = _arrayTemp.get_unchecked(i);
 						}
 
-#if defined(GS_VM_DEBUG) && GS_VM_DEBUG==1
-						vmDebugResult(subOp, arrayNum, offset, len);
-#endif
-
-#else
-						uint16 offset = _stack.pop();
-						uint16 from, len;
-
-						_readStringLength(from, len);
-						array = newArray(arrayNum, VAK_String, len + 1, 0);
-						array->writeBytes(
-							_script.ptr(from),
-							offset,
-							len
-						);
-#if defined(GS_VM_DEBUG) && GS_VM_DEBUG==1
-						vmDebugResult(subOp, arrayNum, offset, len);
-#endif
-#endif
 					}
 					return;
 					case ArrayOps_AssignScummVarList: {

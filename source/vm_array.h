@@ -137,10 +137,10 @@ namespace gs
 	class VmArrayAllocator {
 	private:
 		VmArray*          _slots[NUM_ARRAY];
-		uint16            _nums[NUM_ARRAY];
 		VmArray*          _lastUsed;
 
 		uint8 _getFreeIndex();
+		uint8 _findArrayIndex(uint16 num);
 
 	public:
 		VmArrayAllocator();
@@ -149,9 +149,6 @@ namespace gs
 		void reset();
 
 		VmArray* allocate(uint16 arrayNum, uint16 xSize, uint16 ySize, uint8 kind);
-		void deallocateFromNum(uint16 arrayNum) {
-			deallocateFromArray(findFromNum(arrayNum));
-		}
 		void deallocateFromArray(VmArray* array);
 
 		VmArray* getFromIndex(uint8 index);
