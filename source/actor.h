@@ -27,14 +27,28 @@
 namespace gs
 {
 
+#define MAX_ACTOR_VARS 27
+
 	extern uint8 CURRENT_ACTOR;
+
+	enum ActorMoveFlags {
+		AMF_None = 0,
+		AMF_NewLeg = 1,
+		AMF_InLeg = 2,
+		AMF_Turn = 4,
+		AMF_LastLeg = 8,
+		AMF_Frozen = 0x80
+	};
 
 	struct ActorData {
 
 		uint16 _num;
 		uint16 _roomNum;
+		uint16 _costumeNum;
 		int16 _x, _y, _w, _h, _elevation;
+		int16 _layer;
 		int16 _talkX, _talkY;
+		uint8 _walkSpeedX, _walkSpeedY;
 		uint8 _talkColour;
 		uint8 _bIsVisible;
 		uint16 _boxScaleX, _boxScaleY, _scaleX, _scaleY;
@@ -55,6 +69,15 @@ namespace gs
 		uint16 _costume;
 		uint8 _walkBox;
 		bool _needRedraw;
+		byte _initFrame;
+		byte _walkFrame;
+		byte _standFrame;
+		byte _talkStartFrame;
+		byte _talkStopFrame;
+		byte _animationSpeed;
+		byte _animationProgress;
+		uint8 _shadowMode;
+		int32 _vars[MAX_ACTOR_VARS];
 
 		void setScale(int16 x, int16 y) {
 			if (x != -1) {
@@ -68,6 +91,26 @@ namespace gs
 
 		void initialiseDefault();
 		void clear();
+		void setCostume(uint16 costumeNum);
+		void setWalkSpeed(int32 x, int32 y);
+		void setAnimationDefault();
+		void setAnimationSpeed(uint8 speed);
+		void setElevation(int16 elevation);
+
+		void setPalette(uint8 paletteIdx, uint16 paletteNum);
+
+		void setVar(uint8 idx, int32 value);
+		int32 getVar(uint8 idx);
+
+		void newDefault();
+
+		void stopMoving();
+
+		void startAnimation(uint8 frame);
+
+		void setDirection(int16 angle);
+
+		void turnToDirection(int16 angle);
 	};
 
 

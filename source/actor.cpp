@@ -88,12 +88,19 @@ namespace gs
 		/* TODO: Class Data */
 	}
 
+	void ActorData::newDefault() {
+		/* TODO */
+	}
+
 	void ActorData::clear() {
 		_x = 0;
 		_y = 0;
 		_w = 0;
 		_h = 0;
+		_walkSpeedX = 0;
+		_walkSpeedY = 0;
 		_roomNum = 0;
+		_costumeNum = 0;
 		_bIsVisible = false;
 		_elevation = 0;
 		_talkColour = 0;
@@ -118,6 +125,76 @@ namespace gs
 		_talkVolume = 0;
 		_walkScript = 0;
 		_talkScript = 0;
+	}
+
+	void ActorData::setCostume(uint16 costumeNum) {
+		_costumeNum = costumeNum;
+		/* TODO */
+	}
+
+	void ActorData::setWalkSpeed(int32 x, int32 y) {
+		_walkSpeedX = x;
+		_walkSpeedY = y;
+		/* TODO */
+	}
+
+	void ActorData::setAnimationDefault() {
+		_initFrame = 1;
+		_walkFrame = 2;
+		_standFrame = 3;
+		_talkStartFrame = 4;
+		_talkStopFrame = 5;
+	}
+
+	void ActorData::setAnimationSpeed(uint8 speed) {
+		_animationSpeed = 0;
+		_animationProgress = 0;
+	}
+
+	void ActorData::setElevation(int16 elevation) {
+		_elevation = elevation;
+		_needRedraw = true;
+	}
+
+	void ActorData::setPalette(uint8 paletteIdx, uint16 paletteNum) {
+		/* TODO */
+		_needRedraw = true;
+	}
+
+	void ActorData::setVar(uint8 idx, int32 value) {
+		if (idx >= MAX_ACTOR_VARS) {
+			error(GS_THIS, "Var index is out of range %ld", idx);
+			abort_quit_stop();
+			return;
+		}
+
+		_vars[idx] = value;
+	}
+
+	int32 ActorData::getVar(uint8 idx) {
+		if (idx >= MAX_ACTOR_VARS) {
+			error(GS_THIS, "Var index is out of range %ld", idx);
+			abort_quit_stop();
+			return 0;
+		}
+
+		return _vars[idx];
+	}
+
+	void ActorData::stopMoving() {
+		/* TODO */
+	}
+
+	void ActorData::startAnimation(uint8 frame) {
+		/* TODO */
+	}
+
+	void ActorData::setDirection(int16 angle) {
+		/* TODO */
+	}
+
+	void ActorData::turnToDirection(int16 angle) {
+		/* TODO */
 	}
 
 }
