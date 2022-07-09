@@ -43,7 +43,11 @@ namespace gs
 		VmStack() {
 			clearMemoryNonAllocated(&_items[0], sizeof(_items));
 			clearMemoryNonAllocated(&_tempItems[0], sizeof(_tempItems));
-		}	
+		}
+
+        int32* items() {
+            return &_items[0];
+        }
 
 		void reset() {
 			_size = 0;

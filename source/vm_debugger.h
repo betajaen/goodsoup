@@ -34,6 +34,8 @@ namespace gs
 
     void vmDebugRemark(const char* comment);
     void vmDebugScript(uint8 context, uint16 scriptNum, uint8 scriptType, uint8 verb, uint32 checkSum);
+    void vmDebugLocals(uint8 count, int32* values);
+    void vmDebugStack(uint8 count, int32* values);
     void vmDebugOpcode(uint16 pc, uint8 opcode);
     void vmDebugResult(int32 v0);
     void vmDebugResult(int32 v0, int32 v1);
@@ -46,6 +48,8 @@ namespace gs
     inline void vmDebugStop() {}
     inline void vmDebugRemark(const char* comment) {}
     inline void vmDebugScript(uint8 context, uint16 scriptNum, uint8 scriptType, uint8 verb, uint32 checkSum) {}
+    inline void vmDebugLocals(uint8 count, int32* values) {}
+    inline void vmDebugStack(uint8 count, int32* values) {}
     inline void vmDebugOpcode(uint16 pc, uint8 opcode) {}
     inline void vmDebugResult(int32 v0) {}
     inline void vmDebugResult(int32 v0, int32 v1) {}

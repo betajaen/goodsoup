@@ -80,6 +80,22 @@ namespace gs
         }
     }
 
+    void vmDebugLocals(uint8 count, int32* values) {
+        if (sPaused == false) {
+            for(uint8 i = 0;i < count;i++) {
+                sDebugFile.writeFormat("L %02x %08x\n", i, values[i]);
+            }
+        }
+    }
+
+    void vmDebugStack(uint8 count, int32* values) {
+         if (sPaused == false) {
+            for(uint8 i = 0;i < count;i++) {
+                sDebugFile.writeFormat("S %02x %08x\n", i, values[i]);
+            }
+        }
+    }
+
     void vmDebugOpcode(uint16 pc, uint8 opcode) {
         if (sPaused == false) {
             sDebugFile.writeFormat("> %04lx %02lx \"%s\"\n", pc, opcode, OpcodeToString(opcode));
