@@ -145,6 +145,8 @@ namespace gs
 
 	GS_STATIC_ASSERT(sizeof(String) == STRING_SMALL_SIZE, String_must_be_STRING_SMALL_SIZE);
 
+    uint16 stringLength(const char* str);
+    uint16 stringFormatInto(char* dst, uint16 length, const char* fmt, ...);
 }
 
 #endif
