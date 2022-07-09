@@ -48,18 +48,6 @@ namespace gs
 	
 
 	void VmArrayAllocator::reset() {
-		
-		if (_free.capacity() != NUM_ARRAY) {
-			_free.reserve(NUM_ARRAY);
-		}
-		else {
-			_free.clear();
-		}
-		
-		uint8 num = NUM_ARRAY-1;
-		for (uint8 i = 0; i < NUM_ARRAY; i++) {
-			_free.push(num--);
-		}
 
 		for (uint8 i = 0; i < NUM_ARRAY; i++) {
 			VmArray* array = _slots[i];
@@ -78,8 +66,10 @@ namespace gs
 	}
 	
 	uint8 VmArrayAllocator::_getFreeIndex() {
-		if (_free.size()) {
-			return _free.popItem();
+		for (uint8 i = 1; i < NUM_ARRAY; i++) {
+			if (_nums[i] == NO_ARRAY) {
+				return i;
+			}
 		}
 		return NUM_ARRAY;
 	}
@@ -139,7 +129,6 @@ namespace gs
 		uint8 index = array->_idx;
 
 		_slots[index] = NULL;
-		_free.push(index);
 		_nums[index] = NO_ARRAY;
 
 		if (_lastUsed == array) {

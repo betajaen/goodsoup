@@ -138,7 +138,6 @@ namespace gs
 	private:
 		VmArray*          _slots[NUM_ARRAY];
 		uint16            _nums[NUM_ARRAY];
-		Array<byte, byte> _free;
 		VmArray*          _lastUsed;
 
 		uint8 _getFreeIndex();
