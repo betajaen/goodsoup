@@ -24,11 +24,6 @@
 
 namespace gs
 {
-	static const uint32 PutChar = 0x16c04e75;
-	static const uint32 LenChar = 0x52934e75;
-	static char BufChar[1024] = { 0 };
-
-
 	String String::format(const char* fmt, ...) {
 		int32 length = 0;
 		va_list arg;
