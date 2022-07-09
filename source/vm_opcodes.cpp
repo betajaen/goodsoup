@@ -73,12 +73,14 @@ namespace gs
 				GS_UNHANDLED_OP;
 			return;
 			case OP_pushWord: {
-				int32 value = _readSignedWord();
+				uint32 value = _readWord();
+
+				_stack.push(value);
 
 #if defined(GS_VM_DEBUG) && GS_VM_DEBUG==1
-                vmDebugResult(value);
+                vmDebugResult(_stack.getSize(), value);
 #endif
-				_stack.push(value);
+
 			}
 			return;
 			case OP_pushWordVar: {
@@ -87,11 +89,12 @@ namespace gs
 				int32 varValue = getVar(varName);
 
 
-#if defined(GS_VM_DEBUG) && GS_VM_DEBUG==1
-                vmDebugResult(varName, varValue);
-#endif
 
 				_stack.push(varValue);
+
+#if defined(GS_VM_DEBUG) && GS_VM_DEBUG==1
+                vmDebugResult(_stack.getSize(), varName, varValue);
+#endif
 			}
 			return;
 			case OP_wordArrayRead: {
@@ -104,9 +107,8 @@ namespace gs
 					_stack.push(value);
 				}
 				else {
-					NO_FEATURE(GS_THIS, "NULL VmArray (%ld) used with OP_wordArrayRead", (uint32) arrayNum);
-					_dumpState();
-					_forceQuit();
+					error(GS_THIS, "NULL VmArray (%ld) used with OP_wordArrayRead", (uint32) arrayNum);
+					abort_quit_stop();
 				}
 			}
 			return;
@@ -121,9 +123,8 @@ namespace gs
 					_stack.push(value);
 				}
 				else {
-					NO_FEATURE(GS_THIS, "NULL VmArray (%ld) used with OP_wordArrayRead", (uint32) arrayNum);
-					_dumpState();
-					_forceQuit();
+					error(GS_THIS, "NULL VmArray (%ld) used with OP_wordArrayIndexedRead", (uint32) arrayNum);
+					abort_quit_stop();
 				}
 			}
 			return;
@@ -564,9 +565,8 @@ namespace gs
 					return;
 				}
 				
-				NO_FEATURE(GS_THIS, "Not implemented OP_dimArray(%ld,%ld)", (uint32) subOp, (uint32) arrayNum);
-				_dumpState();
-				_forceQuit();
+				error(GS_THIS, "Not implemented OP_dimArray(%ld,%ld)", (uint32) subOp, (uint32) arrayNum);
+				abort_quit_stop();
 			}
 			return;
 			case OP_wordArrayWrite: {
@@ -579,9 +579,8 @@ namespace gs
 					array->write(value, 0, base);
 				}
 				else {
-					NO_FEATURE(GS_THIS, "NULL VmArray (%ld) used with OP_wordArrayWrite", (uint32) arrayNum);
-					_dumpState();
-					_forceQuit();
+					error(GS_THIS, "NULL VmArray (%ld) used with OP_wordArrayWrite", (uint32) arrayNum);
+					abort_quit_stop();
 				}
 			}
 			return;
@@ -614,9 +613,8 @@ namespace gs
 					return;
 				}
 
-				NO_FEATURE(GS_THIS, "Not implemented OP_dim2dimArray(%ld,%ld)", (uint32) subOp, (uint32) arrayNum);
-				_dumpState();
-				_forceQuit();
+				error(GS_THIS, "Not implemented OP_dim2dimArray(%ld,%ld)", (uint32) subOp, (uint32) arrayNum);
+				abort_quit_stop();
 			}
 			return;
 			case OP_wordArrayIndexedWrite: {
@@ -631,9 +629,8 @@ namespace gs
 					array->write(value, index, base);
 				}
 				else {
-					NO_FEATURE(GS_THIS, "NULL VmArray (%ld) used with OP_wordArrayIndexedWrite", (uint32) arrayNum);
-					_dumpState();
-					_forceQuit();
+					error(GS_THIS, "NULL VmArray (%ld) used with OP_wordArrayIndexedWrite", (uint32) arrayNum);
+					abort_quit_stop();
 				}
 
 			}
@@ -644,15 +641,36 @@ namespace gs
 				VmArray* array;
 				switch (subOp) {
 					case ArrayOps_AssignString: {
+#if 1
+						uint16 offset = _stack.pop();
+						_readBytesForArray();
+						uint16 len = _arrayTemp.size();
+
+						array = newArray(arrayNum, VAK_String, len + 1, 0);
+
+						for(uint16 i=0;i < len;i++) {
+							array->_data[offset + i] = _arrayTemp.get_unchecked(i);
+						}
+
+#if defined(GS_VM_DEBUG) && GS_VM_DEBUG==1
+						vmDebugResult(subOp, arrayNum, offset, len);
+#endif
+
+#else
 						uint16 offset = _stack.pop();
 						uint16 from, len;
+
 						_readStringLength(from, len);
-						array = newArray(arrayNum, VAK_String, len, 0);
+						array = newArray(arrayNum, VAK_String, len + 1, 0);
 						array->writeBytes(
 							_script.ptr(from),
 							offset,
 							len
 						);
+#if defined(GS_VM_DEBUG) && GS_VM_DEBUG==1
+						vmDebugResult(subOp, arrayNum, offset, len);
+#endif
+#endif
 					}
 					return;
 					case ArrayOps_AssignScummVarList: {
@@ -666,10 +684,13 @@ namespace gs
 						}
 						else {
 							error(GS_THIS, "NULL VmArray (%ld) used with OP_arrayOps ArrayOps_AssignScummVarList", (uint32) arrayNum);
-							_dumpState();
-							_forceQuit();
+							abort_quit_stop();
+							return;
 						}
 
+#if defined(GS_VM_DEBUG) && GS_VM_DEBUG==1
+						vmDebugResult(subOp, arrayNum, offset, num);
+#endif
 					}
 					return;
 					case ArrayOps_Assign2DimList: {
@@ -683,19 +704,23 @@ namespace gs
 							for(uint16 i=0;i < len;i++) {
 								array->write(list[i], index, offset + i);
 							}
+
+#if defined(GS_VM_DEBUG) && GS_VM_DEBUG==1
+							vmDebugResult(subOp, arrayNum, offset, index, len);
+#endif
 						}
 						else {
 							error(GS_THIS, "NULL VmArray (%ld) used with OP_arrayOps ArrayOps_AssignScummVarList", (uint32) arrayNum);
-							_dumpState();
-							_forceQuit();
+							abort_quit_stop();
+							return;
 						}
+
 					}
 					return;
 				}
 
-				NO_FEATURE(GS_THIS, "Not implemented OP_arrayOps (%ld, %ld)", (uint32) subOp, (uint32) arrayNum);
-				_dumpState();
-				_forceQuit();
+				error(GS_THIS, "Not implemented OP_arrayOps (%ld, %ld)", (uint32) subOp, (uint32) arrayNum);
+				abort_quit_stop();
 			}
 			return;
 			case OP_77:
@@ -1117,29 +1142,71 @@ namespace gs
 			case OP_actorOps: {
 				byte subOp = _readByte();
 				switch(subOp) {
-					case ActorOp_SetCostume:
-						NO_FEATURE(GS_THIS, "Not implemented OP_actorOps ActorOp_SetCostume");
+					case ActorOp_SetCostume: {
+                        ActorData* actor = ACTORS->getActor();
+                        uint16 costumeNum = _stack.pop();
+                        if (actor) {
+                            actor->setCostume(costumeNum);
+                        }
+                    }
 					return;
-					case ActorOp_SetWalkSpeed:
-						NO_FEATURE(GS_THIS, "Not implemented OP_actorOps ActorOp_SetWalkSpeed");
+					case ActorOp_SetWalkSpeed: {
+                        int32 x = _stack.pop();   // y speed
+                        int32 y = _stack.pop();   // x speed
+						ActorData* actor = ACTORS->getActor();
+                        if (actor) {
+                            actor->setWalkSpeed(x, y);
+                        }
+                    }
 					return;
-					case ActorOp_SetAnimationDefault:
-						NO_FEATURE(GS_THIS, "Not implemented OP_actorOps ActorOp_SetAnimationDefault");
+					case ActorOp_SetAnimationDefault: {
+						ActorData* actor = ACTORS->getActor();
+                        if (actor) {
+                            actor->setAnimationDefault();
+                        }
+                    }
 					return;
-					case ActorOp_InitAnimation:
-						NO_FEATURE(GS_THIS, "Not implemented OP_actorOps ActorOp_InitAnimation");
+					case ActorOp_InitAnimation: {
+                        uint8 frame = _stack.pop();
+						ActorData* actor = ACTORS->getActor();
+                        if (actor) {
+                            actor->_initFrame = frame;
+                        }
+                    }
 					return;
-					case ActorOp_SetAnimationTalk:
-						NO_FEATURE(GS_THIS, "Not implemented OP_actorOps ActorOp_SetAnimationTalk");
+					case ActorOp_SetAnimationTalk: {
+                        uint8 stopFrame = _stack.pop();
+                        uint8 startFrame = _stack.pop();
+						ActorData* actor = ACTORS->getActor();
+                        if (actor) {
+                            actor->_talkStopFrame = stopFrame;
+                            actor->_talkStartFrame = startFrame;
+                        }
+                    }
 					return;
-					case ActorOp_SetAnimationWalk:
-						NO_FEATURE(GS_THIS, "Not implemented OP_actorOps ActorOp_SetAnimationWalk");
+					case ActorOp_SetAnimationWalk:  {
+                        uint8 walkFrame = _stack.pop();
+						ActorData* actor = ACTORS->getActor();
+                        if (actor) {
+                            actor->_walkFrame = walkFrame;
+                        }
+                    }
 					return;
-					case ActorOp_SetAnimationStand:
-						NO_FEATURE(GS_THIS, "Not implemented OP_actorOps ActorOp_SetAnimationStand");
+					case ActorOp_SetAnimationStand:  {
+                        uint8 standFrame = _stack.pop();
+						ActorData* actor = ACTORS->getActor();
+                        if (actor) {
+                            actor->_standFrame = standFrame;
+                        }
+                    }
 					return;
-					case ActorOp_SetAnimationSpeed:
-						NO_FEATURE(GS_THIS, "Not implemented OP_actorOps ActorOp_SetAnimationSpeed");
+					case ActorOp_SetAnimationSpeed: {
+						uint8 speed = _stack.pop();
+						ActorData* actor = ACTORS->getActor();
+						if (actor) {
+							actor->setAnimationSpeed(speed);
+						}
+                    }
 					return;
 					case ActorOp_Default: {
 						ActorData* actor = ACTORS->getActor();
@@ -1148,11 +1215,22 @@ namespace gs
 						}
 					}
 					return;
-					case ActorOp_SetElevation:
-						NO_FEATURE(GS_THIS, "Not implemented OP_actorOps ActorOp_SetElevation");
+					case ActorOp_SetElevation: {
+						int16 elevation = _stack.pop();
+						ActorData* actor = ACTORS->getActor();
+						if (actor) {
+							actor->setElevation(elevation);
+						}
+					}
 					return;
-					case ActorOp_SetPalette:
-						NO_FEATURE(GS_THIS, "Not implemented OP_actorOps ActorOp_SetPalette");
+					case ActorOp_SetPalette: {
+						uint16 paletteNum = _stack.pop();
+						uint8 idx = _stack.pop();
+						ActorData* actor = ACTORS->getActor();
+						if (actor) {
+							actor->setPalette(idx, paletteNum);
+						}
+					}
 					return;
 					case ActorOp_SetTalkColour: {
 						int32 colour = _stack.pop();
@@ -1162,8 +1240,11 @@ namespace gs
 						}
 					}
 					return;
-					case ActorOp_SetActorName:
-						NO_FEATURE(GS_THIS, "Not implemented OP_actorOps ActorOp_SetActorName");
+					case ActorOp_SetActorName: {
+						uint16 from, length;
+						_readStringLength(from, length);
+						/* TODO */
+					}
 					return;
 					case ActorOp_SetActorWidth: {
 						int32 width = _stack.pop();
@@ -1216,8 +1297,13 @@ namespace gs
 						}
 					}
 					return;
-					case ActorOp_SetSpecialDraw:
-						NO_FEATURE(GS_THIS, "Not implemented OP_actorOps ActorOp_SetSpecialDraw");
+					case ActorOp_SetSpecialDraw: {
+						uint8 shadowMode = _stack.pop();
+						ActorData *actor = ACTORS->getActor();
+						if (actor) {
+							actor->_shadowMode = shadowMode;
+						}
+					}
 					return;
 					case ActorOp_SetTextOffset: {
 						int32 y = _stack.pop();
@@ -1240,41 +1326,98 @@ namespace gs
 						}
 					}
 					return;
-					case ActorOp_SetActorVariable:
-						NO_FEATURE(GS_THIS, "Not implemented OP_actorOps ActorOp_SetActorVariable");
+					case ActorOp_SetActorVariable: {
+						int32 value = _stack.pop();
+						uint8 idx = _stack.pop();
+						ActorData* actor = ACTORS->getActor();
+						if (actor) {
+							actor->setVar(idx, value);
+						}
+					}
 					return;
-					case ActorOp_SetIgnoreTurnsOn:
-						NO_FEATURE(GS_THIS, "Not implemented OP_actorOps ActorOp_SetIgnoreTurnsOn");
+					case ActorOp_SetIgnoreTurnsOn: {
+						ActorData* actor = ACTORS->getActor();
+						if (actor) {
+							actor->_bIgnoreTurns = true;
+						}
+					}
 					return;
-					case ActorOp_SetIgnoreTurnsOff:
-						NO_FEATURE(GS_THIS, "Not implemented OP_actorOps ActorOp_SetIgnoreTurnsOff");
+					case ActorOp_SetIgnoreTurnsOff: {
+						ActorData* actor = ACTORS->getActor();
+						if (actor) {
+							actor->_bIgnoreTurns = false;
+						}
+					}
 					return;
-					case ActorOp_ActorNew:
-						NO_FEATURE(GS_THIS, "Not implemented OP_actorOps ActorOp_ActorNew");
+					case ActorOp_ActorNew: {
+						ActorData* actor = ACTORS->getActor();
+						if (actor) {
+							actor->newDefault();
+						}
+					}
 					return;
-					case ActorOp_SetActorZ:
-						NO_FEATURE(GS_THIS, "Not implemented OP_actorOps ActorOp_SetActorZ");
+					case ActorOp_SetActorZ: {
+						int16 layer = _stack.pop();
+						ActorData* actor = ACTORS->getActor();
+						if (actor) {
+							actor->_layer = layer;
+						}
+					}
 					return;
-					case ActorOp_ActorStop:
-						NO_FEATURE(GS_THIS, "Not implemented OP_actorOps ActorOp_ActorStop");
+					case ActorOp_ActorStop: {
+						ActorData* actor = ACTORS->getActor();
+						if (actor) {
+							actor->stopMoving();
+							actor->startAnimation(actor->_standFrame);
+						}
+					}
 					return;
-					case ActorOp_SetAngle:
-						NO_FEATURE(GS_THIS, "Not implemented OP_actorOps ActorOp_SetAngle");
+					case ActorOp_SetAngle: {
+						int16 angle = _stack.pop();
+						ActorData* actor = ACTORS->getActor();
+						if (actor) {
+							actor->_moving &= ~AMF_Turn;
+							actor->setDirection(angle);
+						}
+					}
 					return;
-					case ActorOp_TurnAngle:
-						NO_FEATURE(GS_THIS, "Not implemented OP_actorOps ActorOp_TurnAngle");
+					case ActorOp_TurnAngle: {
+						int16 angle = _stack.pop();
+						ActorData *actor = ACTORS->getActor();
+						if (actor) {
+							actor->turnToDirection(angle);
+						}
+					}
 					return;
-					case ActorOp_SetWalkScript:
-						NO_FEATURE(GS_THIS, "Not implemented OP_actorOps ActorOp_SetWalkScript");
+					case ActorOp_SetWalkScript: {
+						uint16 walkScript = _stack.pop();
+						ActorData* actor = ACTORS->getActor();
+						if (actor) {
+							actor->_walkScript = walkScript;
+						}
+					}
 					return;
-					case ActorOp_SetTalkScript:
-						NO_FEATURE(GS_THIS, "Not implemented OP_actorOps ActorOp_SetTalkScript");
+					case ActorOp_SetTalkScript:{
+						uint16 talkScript = _stack.pop();
+						ActorData* actor = ACTORS->getActor();
+						if (actor) {
+							actor->_talkScript = talkScript;
+						}
+					}
 					return;
-					case ActorOp_WalkPause:
-						NO_FEATURE(GS_THIS, "Not implemented OP_actorOps ActorOp_WalkPause");
+					case ActorOp_WalkPause: {
+						ActorData* actor = ACTORS->getActor();
+						if (actor) {
+							actor->_moving |= AMF_Frozen;
+						}
+					}
 					return;
-					case ActorOp_WalkResume:
-						NO_FEATURE(GS_THIS, "Not implemented OP_actorOps ActorOp_WalkResume");
+					case ActorOp_WalkResume:{
+						ActorData* actor = ACTORS->getActor();
+						if (actor) {
+							actor->_moving &= ~AMF_Frozen;
+						}
+					}
 					return;
 					case ActorOp_SetTalkVolume: {
 						int32 volume = _stack.pop();
@@ -1816,22 +1959,26 @@ namespace gs
 				uint16 actorNum = _stack.pop();
 
 				if (actorNum == 0 || actorNum == 255) {
-                    vmDebugRemark("Case 1+2");
-                    vmDebugResult(actorNum, 0);
 					_stack.push(0);
+#if defined(GS_VM_DEBUG) && GS_VM_DEBUG==1
+                    vmDebugResult(_stack.getSize(), actorNum, 0);
+#endif
 					return;
 				}
 
 				ActorData* actor = ACTORS->getActor(actorNum);
 				if (actor) {
-                    vmDebugResult(actorNum, actor->_roomNum);
 					_stack.push(actor->_roomNum);
+#if defined(GS_VM_DEBUG) && GS_VM_DEBUG==1
+                    vmDebugResult(_stack.getSize(), actorNum, actor->_roomNum);
+#endif
 				}
 				else {
 					warn(GS_THIS, "Unknown actor %ld to get room from", (uint16) actorNum);
-                    vmDebugRemark("Case 3");
-                    vmDebugResult(actorNum, 0);
 					_stack.push(0);
+#if defined(GS_VM_DEBUG) && GS_VM_DEBUG==1
+                    vmDebugResult(_stack.getSize(), 0);
+#endif
 				}
 			}
 			return;

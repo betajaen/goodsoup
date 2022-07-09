@@ -126,5 +126,10 @@ namespace gs
         }
     }
 
+    void vmDebugResult(int32 v0, int32 v1, int32 v2, int32 v3, int32 v4) {
+        if (sPaused == false) {
+            sDebugFile.writeFormat(". %08lx %08lx %08lx %08lx %08lx\n", v0, v1, v2, v3, v4);
+        }
+    }
 #endif
 }

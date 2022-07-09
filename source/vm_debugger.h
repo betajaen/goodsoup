@@ -39,8 +39,9 @@ namespace gs
     void vmDebugOpcode(uint16 pc, uint8 opcode);
     void vmDebugResult(int32 v0);
     void vmDebugResult(int32 v0, int32 v1);
-    void vmDebugResult(int32 v0, int32 v1, int32 v3);
-    void vmDebugResult(int32 v0, int32 v1, int32 v3, int32 v4);
+    void vmDebugResult(int32 v0, int32 v1, int32 v2);
+    void vmDebugResult(int32 v0, int32 v1, int32 v2, int32 v3);
+    void vmDebugResult(int32 v0, int32 v1, int32 v2, int32 v3, int32 v4);
 
 #else
 
@@ -53,8 +54,9 @@ namespace gs
     inline void vmDebugOpcode(uint16 pc, uint8 opcode) {}
     inline void vmDebugResult(int32 v0) {}
     inline void vmDebugResult(int32 v0, int32 v1) {}
-    inline void vmDebugResult(int32 v0, int32 v1, int32 v3) {}
-    inline void vmDebugResult(int32 v0, int32 v1, int32 v3, int32 v4) {}
+    inline void vmDebugResult(int32 v0, int32 v1, int32 v2) {}
+    inline void vmDebugResult(int32 v0, int32 v1, int32 v2, int32 v3) {}
+	inline void vmDebugResult(int32 v0, int32 v1, int32 v2, int32 v3, int32 v4) {}
 #endif
 }
 

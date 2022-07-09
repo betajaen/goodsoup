@@ -408,6 +408,20 @@ namespace gs
 		KernelGetOp_IsPointInBox = 0x74
 	};
 
+    enum ParseStringOp {
+        ParseStringOp_Load = 0xC8,
+        ParseStringOp_Save = 0xC9,
+        ParseStringOp_SetPos = 0xCA,
+        ParseStringOp_SetColour = 0xCB,
+        ParseStringOp_SetCenter = 0xCC,
+        ParseStringOp_SetCharset = 0xCD,
+        ParseStringOp_SetLeft = 0xCE,
+        ParseStringOp_SetOverhead = 0xCF,
+        ParseStringOp_SetMumble = 0xD0,
+        ParseStringOp_PrintString = 0xD1,
+        ParseStringOp_SetWrap = 0xD2
+    };
+
 	enum RoomOp {
 		RoomOp_SetColour = 0x52,
 		RoomOp_FadePalette = 0x57,
