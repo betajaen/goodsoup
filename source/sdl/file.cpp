@@ -22,6 +22,7 @@
 #include "../debug.h"
 #include "../endian.h"
 #include "../hash.h"
+#include "../string.h"
 
 namespace gs
 {
@@ -193,5 +194,70 @@ namespace gs
 
 		return false;
 	}
+
+
+
+    StringAppendFile::StringAppendFile()
+        : _file(NULL) {
+    }
+
+    StringAppendFile::~StringAppendFile() {
+        close();
+    }
+
+    void StringAppendFile::open(const char* path) {
+        if (isOpen()) {
+            close();
+        }
+
+        _file = SDL_RWFromFile(path, "wb");
+    }
+
+    void StringAppendFile::close() {
+        if (_file) {
+            SDL_RWclose(_file);
+            _file = NULL;
+        }
+    }
+
+    bool StringAppendFile::isOpen() const {
+        return _file != NULL;
+    }
+
+    void StringAppendFile::writeChar(char ch) {
+        writeBytes(&ch, 1);
+    }
+
+    void StringAppendFile::writeString(const char* str) {
+        uint16 length = stringLength(str);
+        writeBytes(str, length);
+    }
+
+    void StringAppendFile::writeFormat(const char* fmt, ...) {
+        static char buffer[512];
+
+        uint16 length = 0;
+        va_list arg;
+        va_start(arg, fmt);
+
+        length = SDL_vsnprintf(NULL, 0, fmt, arg);
+
+        if (length >= sizeof(buffer)) {
+            error(GS_THIS, "String is to large %ld to fit into temporary buffer", length);
+            return;
+        }
+
+        SDL_vsnprintf(buffer, length + 1 , fmt, arg);
+
+        writeBytes(&buffer[0], length);
+
+        va_end(arg);
+    }
+
+    void StringAppendFile::writeBytes(const void* buffer, uint16 length) {
+        SDL_RWwrite(_file, buffer, length, 1);
+    }
+
+
 
 }

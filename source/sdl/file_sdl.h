@@ -64,4 +64,26 @@ namespace gs
 	};
 
 	bool fileExists(const char* path);
+
+    class StringAppendFile {
+
+    public:
+
+        StringAppendFile();
+        ~StringAppendFile();
+
+        void open(const char* path);
+        void close();
+
+        bool isOpen() const;
+        bool isEof() const;
+
+        void writeChar(char ch);
+        void writeString(const char* str);
+        void writeFormat(const char* fmt, ...);
+        void writeBytes(const void* dst, uint16 length);
+
+    protected:
+        SDL_RWops* _file;
+    };
 }
