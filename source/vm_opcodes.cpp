@@ -499,7 +499,7 @@ namespace gs
 				else {
 					context._delayFrameCount--;
 				}
-				if (context._delayFrameCount) {
+				if (context._delayFrameCount != 0) {
 					_pc--;
 					_break();
 				}
@@ -743,8 +743,13 @@ namespace gs
 				}
 			}
 			return;
-			case OP_jumpToScript:
-				GS_UNHANDLED_OP;
+			case OP_jumpToScript: {
+				uint16 num = _stack.readList(25);
+				uint16 scriptNum = _stack.pop();
+				uint16 flags = _stack.pop();
+				_stopObjectCode();
+				runScript(scriptNum, (flags & 1) !=0, (flags & 2) !=0, _stack.getList(), num);
+			}
 			return;
 			case OP_dummy:
 				GS_UNHANDLED_OP;
@@ -766,8 +771,9 @@ namespace gs
 				_beginCutscene(num);
 			}
 			return;
-			case OP_endCutscene:
-				GS_UNHANDLED_OP;
+			case OP_endCutscene: {
+				_endCutscene();
+			}
 			return;
 			case OP_freezeUnfreeze: {
 				int32 script = _stack.pop();
@@ -786,7 +792,7 @@ namespace gs
 				_beginOverride();
 			return;
 			case OP_endOverride:
-				GS_UNHANDLED_OP;
+				_endOverride();
 			return;
 			case OP_stopSentence: {
 				SENTENCE_NUM = 0;
@@ -976,17 +982,23 @@ namespace gs
 				GS_UNHANDLED_OP;
 			return;
 			case OP_animateActor: {
-				uint16 animationNum = _stack.pop();
+				uint32 animation = _stack.pop();
 				uint16 actorNum = _stack.pop();
-				
-				NO_FEATURE(GS_THIS, "Not implemented OP_animateActor (%ld, %ld)", (uint32) animationNum, (uint32) actorNum);
+
+				ActorData* actor = ACTORS->getActor(actorNum);
+
+				if (actor) {
+					actor->animate(animation);
+				}
+
 			}
 			return;
 			case OP_doSentence:
 				GS_UNHANDLED_OP;
 			return;
-			case OP_pickupObject:
-				GS_UNHANDLED_OP;
+			case OP_pickupObject: {
+				NO_FEATURE(GS_THIS, "Not implemented OP_pickupObject");
+			}
 			return;
 			case OP_setBoxFlags:
 				GS_UNHANDLED_OP;
@@ -1510,8 +1522,10 @@ namespace gs
 				_forceQuit();
 			}
 			return;
-			case OP_startSound:
-				GS_UNHANDLED_OP;
+			case OP_startSound: {
+				uint32 soundNum = _stack.pop();
+				warn(GS_THIS, "No audio support for audio %lx", soundNum);
+			}
 			return;
 			case OP_startMusic:
 				GS_UNHANDLED_OP;

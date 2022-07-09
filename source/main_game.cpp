@@ -131,7 +131,6 @@ namespace gs
         vmDebugRemark("Loop");
 
 		info(GS_THIS, "=========Starting Main Loop===========");
-        PAUSED=1;
 		screenLoop();
 
 		cleanup();
@@ -196,6 +195,8 @@ namespace gs
 		INTS->leftbtnHold = MOUSE_LMB_STATE;
 
 		drawBox(col++, 10, 10, 10, 10);
+
+		VM->processScriptDelays(1);
 
 #if defined(GS_VM_DEBUG) && GS_VM_DEBUG==1
         vmDebugRemark("scripts");

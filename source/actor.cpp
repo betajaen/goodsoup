@@ -197,4 +197,9 @@ namespace gs
 		/* TODO */
 	}
 
+	void ActorData::animate(uint32 animation) {
+		/* TODO */
+		warn(GS_THIS, "No support for Actor %ld Animation %ld", (uint32) _num, (uint32) animation);
+	}
+
 }

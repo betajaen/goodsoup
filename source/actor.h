@@ -111,6 +111,8 @@ namespace gs
 		void setDirection(int16 angle);
 
 		void turnToDirection(int16 angle);
+
+		void animate(uint32 animation);
 	};
 
 

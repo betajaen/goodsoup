@@ -1024,6 +1024,41 @@ namespace gs
 		}
 
 		_cutscenes._contextIndex = NO_CONTEXT;
+
+
+		debug(GS_THIS, "Start Cutscene");
+	}
+
+	void VirtualMachine::_endCutscene() {
+		uint8 contextIdx = CURRENT_CONTEXT;
+		ScriptContext& context = _context[CURRENT_CONTEXT];
+
+		if (context._cutsceneOverride > 0) {
+			context._cutsceneOverride--;
+		}
+
+		CutsceneScriptStackItem& cutsceneItem = _cutscenes._items[_cutscenes._stackSize];
+
+		int32 arg = cutsceneItem._data;
+
+		INTS->override_ = 0;
+
+		if (cutsceneItem._pc !=0 && cutsceneItem._context != 0) {
+			context._cutsceneOverride--;
+		}
+
+		cutsceneItem._context = 0;
+		cutsceneItem._pc = 0;
+		cutsceneItem._data = 0;
+
+		_cutscenes._stackSize--;
+
+		if (INTS->cutsceneEndScript != 0) {
+			runScript(INTS->cutsceneEndScript, false, false, &arg, 1);
+		}
+
+		debug(GS_THIS, "End Cutscene");
+
 	}
 
 	void VirtualMachine::_beginOverride() {
@@ -1033,6 +1068,14 @@ namespace gs
 
 		_readByte();
 		_readWord();
+
+		INTS->override_ = 0;
+	}
+
+	void VirtualMachine::_endOverride() {
+		CutsceneScriptStackItem& cutsceneItem = _cutscenes._items[_cutscenes._stackSize];
+		cutsceneItem._context = 0;
+		cutsceneItem._pc = 0;
 
 		INTS->override_ = 0;
 	}
@@ -1054,6 +1097,24 @@ namespace gs
 	}
 
 
+	void VirtualMachine::processScriptDelays(uint32 delta) {
+		/* TODO: Talk Delay */
+
+		for (uint8 i = 0; i < MAX_SCRIPT_CONTEXTS; i++) {
+			ScriptContext &context = _context[i];
+
+			if (context._state == SCS_Paused) {
+				context._delay -= delta;
+
+				if (context._delay <= 0) {
+					context._state = SCS_Running;
+					context._delay = 0;
+				}
+
+			}
+
+		}
+	}
 
 
 	byte VirtualMachine::_readByte() {
