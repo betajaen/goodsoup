@@ -145,9 +145,9 @@ namespace gs
 
 
 	struct CutsceneScriptStackItem {
-		uint32 _pointer;
 		uint32 _data;
-		uint8  _script;
+		uint32 _pc;
+		uint8  _context;
 	};
 
 	struct CutsceneScriptState {
@@ -216,6 +216,7 @@ namespace gs
 		const char* _getOpcodeName(uint8 opcode) const;
 
 		void _beginCutscene(uint16 stackListCount);
+		void _beginOverride();
 
 		void _readBytesForArray();
 	public:

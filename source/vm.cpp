@@ -1014,8 +1014,8 @@ namespace gs
 
 		CutsceneScriptStackItem& cutsceneItem = _cutscenes._items[_cutscenes._stackSize];
 		cutsceneItem._data = stackListCount > 0 ? _stack.getListItem(0) : 0;
-		cutsceneItem._script = 0;
-		cutsceneItem._pointer = 0;
+		cutsceneItem._context = 0;
+		cutsceneItem._pc = 0;
 
 		_cutscenes._contextIndex = contextIdx;
 
@@ -1024,6 +1024,17 @@ namespace gs
 		}
 
 		_cutscenes._contextIndex = NO_CONTEXT;
+	}
+
+	void VirtualMachine::_beginOverride() {
+		CutsceneScriptStackItem& cutsceneItem = _cutscenes._items[_cutscenes._stackSize];
+		cutsceneItem._context = CURRENT_CONTEXT;
+		cutsceneItem._pc = _pc;
+
+		_readByte();
+		_readWord();
+
+		INTS->override_ = 0;
 	}
 
 	void VirtualMachine::_break() {
@@ -1355,9 +1366,9 @@ namespace gs
 	CutsceneScriptState::CutsceneScriptState() {
 		for(uint8 i=0; i < MAX_CUTSCENES_STACK; i++) {
 			CutsceneScriptStackItem& item = _items[i];
-			item._script = 0;
+			item._context = 0;
 			item._data = 0;
-			item._pointer = 0;
+			item._pc = 0;
 		}
 	}
 

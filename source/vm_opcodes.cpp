@@ -783,7 +783,7 @@ namespace gs
 			}
 			return;
 			case OP_beginOverride:
-				GS_UNHANDLED_OP;
+				_beginOverride();
 			return;
 			case OP_endOverride:
 				GS_UNHANDLED_OP;
