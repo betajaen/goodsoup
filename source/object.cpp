@@ -23,6 +23,7 @@
 #include "index.h"
 #include "resource.h"
 #include "vm_vars.h"
+#include "vm_debugger.h"
 
 namespace gs
 {
@@ -471,10 +472,13 @@ namespace gs
 			otherNum = object->_num;
 
 			/* TODO: Parents */
-
+#if defined(GS_VM_DEBUG) && GS_VM_DEBUG==1
 			if (INTS->leftbtnDown) {
-				debug(GS_THIS, "Under object %ld x %ld %ld", (uint32) object->_num, (int32) x, (int32) y);
+                vmDebugRemark("object xy click");
+                vmDebugResult(object->_num, x, y);
+				//debug(GS_THIS, "Under object %ld x %ld %ld", (uint32) object->_num, (int32) x, (int32) y);
 			}
+#endif
 
 			return object->_num;
 		}

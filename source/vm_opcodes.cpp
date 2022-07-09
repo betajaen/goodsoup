@@ -31,6 +31,7 @@
 #include "verb.h"
 #include "actor.h"
 #include "index.h"
+#include "vm_debugger.h"
 
 #define DEBUG_OPCODES 0
 
@@ -61,10 +62,10 @@ namespace gs
 		_pcOpcode = _pc;
 		_opcode = _readByte();	
 		_pcState.opcode = _opcode;
-		
-#if DEBUG_OPCODES == 1
-		ScriptContext& ctx = _context[CURRENT_CONTEXT];
-		debug(GS_THIS, "CTX=%ld:%ld(%s) PC=%ld OP=%2lx %s", CURRENT_CONTEXT + 1, ctx._scriptNum, ObjectWhereToString(_context->_scriptWhere), _pc - 1, (uint32)_opcode, _getOpcodeName(_opcode));
+
+#if defined(GS_VM_DEBUG) && GS_VM_DEBUG==1
+        ScriptContext& ctx = _context[CURRENT_CONTEXT];
+        vmDebugOpcode(_pc - 1, _opcode);
 #endif
 
 		switch (_opcode) {
@@ -74,8 +75,8 @@ namespace gs
 			case OP_pushWord: {
 				int32 value = _readSignedWord();
 
-#if DEBUG_OPCODES == 1
-				debug(GS_THIS, "   PUSH WORD %ld", value);
+#if defined(GS_VM_DEBUG) && GS_VM_DEBUG==1
+                vmDebugResult(value);
 #endif
 				_stack.push(value);
 			}
@@ -85,8 +86,9 @@ namespace gs
 				uint32 varName = _readUnsignedWord();
 				int32 varValue = getVar(varName);
 
-#if DEBUG_OPCODES == 1
-				debug(GS_THIS, "   PUSH WORD_VAR %ld %ld ", varName, varValue);
+
+#if defined(GS_VM_DEBUG) && GS_VM_DEBUG==1
+                vmDebugResult(varName, varValue);
 #endif
 
 				_stack.push(varValue);
@@ -523,6 +525,9 @@ namespace gs
 			case OP_writeWordVar: {
 				uint32 varWhere = _readUnsignedWord();
 				int32 value = _stack.pop();
+#if defined(GS_VM_DEBUG) && GS_VM_DEBUG==1
+                vmDebugResult(varWhere, value);
+#endif
 				setVar(varWhere, value);
 			}
 			return;

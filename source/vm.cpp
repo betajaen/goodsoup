@@ -26,8 +26,8 @@
 #include "vm_opcodes.h"
 #include "vm_vars.h"
 #include "room.h"
-
 #include "endian.h"
+#include "vm_debugger.h"
 
 #define DEBUG_CONTEXT_STACK 0
 
@@ -294,6 +294,15 @@ namespace gs
 		"fe",
 		"ff",
 	};
+
+    const char* OpcodeToString(uint8 opcode) {
+        return OPCODE_NAME[opcode];
+    }
+#else
+
+    const char* OpcodeToString(uint8 opcode) {
+        return "?";
+    }
 #endif
 
 	const char* ObjectWhereToString(uint8 where) {
@@ -819,6 +828,7 @@ namespace gs
 		_scriptReference.gcForget();
 		_script = _nullScript;
 
+        vmDebugScript(CURRENT_CONTEXT, num, context._verb, where, 0);
 
 		if (num < NUM_GLOBAL_SCRIPTS && where == OW_Global) {
 			// SCRP (<2000)

@@ -35,6 +35,7 @@
 #include "verb.h"
 #include "actor.h"
 #include "input.h"
+#include "vm_debugger.h"
 
 extern const char GOODSOUP_VERSION_STR[] = "$VER: goodsoup 0.5 (" __AMIGADATE__ ")";
 
@@ -73,10 +74,17 @@ namespace gs
 		deleteObject(ARRAYS);
 		deleteObject(INDEX);
 		deleteObject(RESOURCES);
+        vmDebugStop();
 	}
 
 	int main(int param) {
-		
+
+        if (vmDebugStart() == false) {
+            error(GS_THIS, "Cannot Start VMD Debugger!");
+            cleanup();
+            return 1;
+        }
+
 		debug_write_str(GOODSOUP_VERSION_STR);
 		debug_write_char('\n');
 
@@ -116,9 +124,14 @@ namespace gs
 
 		VM = newObject<VirtualMachine>();
 		VM->reset();
+        vmDebugRemark("Boot");
+        vmDebugPause();
 		VM->runScript(1, false, false);
+        vmDebugResume();
+        vmDebugRemark("Loop");
 
 		info(GS_THIS, "=========Starting Main Loop===========");
+        PAUSED=1;
 		screenLoop();
 
 		cleanup();
@@ -135,6 +148,10 @@ namespace gs
 	int test = 0;
 
 	void runFrame() {
+
+#if defined(GS_VM_DEBUG) && GS_VM_DEBUG==1
+        vmDebugRemark("frame");
+#endif
 
 		if (DEBUG_STOP_AFTER_FRAMES) {
 			DEBUG_STOP_AFTER_FRAMES_COUNT--;
@@ -179,14 +196,21 @@ namespace gs
 		INTS->leftbtnHold = MOUSE_LMB_STATE;
 
 		drawBox(col++, 10, 10, 10, 10);
+
+#if defined(GS_VM_DEBUG) && GS_VM_DEBUG==1
+        vmDebugRemark("scripts");
+#endif
 		VM->runAllScripts();
 
-/*
+#if defined(GS_VM_DEBUG) && GS_VM_DEBUG==1
+        vmDebugRemark("input");
+#endif
+
 		if (INTS->leftbtnDown == 1 && INTS->room == 87 && test == 0) {
 			test = 1;
 			VM->runInputScript(2005, 2, 0, 1);
 		}
-*/
+
 
 		if (SHOW_OSD) {
 			runOSD();

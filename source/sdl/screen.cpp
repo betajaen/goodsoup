@@ -36,6 +36,7 @@ namespace gs
 	bool sSurfaceDirty = false;
 	bool sPaletteDirty = false;
 	SDL_Color sPalette[256];
+    bool quitNextFrame;
 
 	bool closeScreen();
 
@@ -101,6 +102,7 @@ namespace gs
 	
 	void screenLoop() {
 		SDL_Event event;
+        quitNextFrame = false;
 
 		while (QUIT_NOW == false) {
 			
@@ -109,7 +111,12 @@ namespace gs
 			while (SDL_PollEvent(&event)) {
 				switch(event.type) {
 					case SDL_QUIT: {
-						QUIT_NOW = true;
+                        if (!PAUSED) {
+                            quitNextFrame = true;
+                        }
+                        else {
+                            QUIT_NOW = true;
+                        }
 					}
 					break;
 					case SDL_KEYUP: {
@@ -189,6 +196,10 @@ namespace gs
 			}
 
 			SDL_UpdateWindowSurface(sWindow);
+
+            if (quitNextFrame) {
+                QUIT_NOW = true;
+            }
 		}
 	}
 	

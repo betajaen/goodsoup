@@ -57,6 +57,7 @@ namespace gs
 	
 	const char* ObjectWhereToString(uint8 where);
 	const char* ObjectStateToString(uint8 state);
+    const char* OpcodeToString(uint8 opcode);
 
 	struct ScriptContext
 	{

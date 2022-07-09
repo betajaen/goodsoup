@@ -6,6 +6,7 @@ DATESTR  = $(shell date +"%-d.%-m.%Y")
 GAME_PATH = "COMI:"
 IGNORE_NO_FEATURE = 0
 ONE_FRAME = 0
+VM_DEBUG = 0
 
 CFLAGS = -Isource -D__AMIGADATE__="\"$(DATESTR)\""
 
@@ -24,9 +25,9 @@ ifeq ($(PLATFORM), amiga)
 	DELETE	= rm
 	CFLAGS	+= -Isource/amiga -DGS_AMIGA -DGS_BIG -noixemul -fno-exceptions -fno-rtti -fno-threadsafe-statics -m68020
 ifeq ($(RELEASE), 1)
-	CFLAGS	+= -O2 -fno-builtin -DGS_RELEASE -DGS_DEBUG_LEVEL=4 -DGS_PROTECT_MEMORY=0 -DGS_ONE_FRAME=$(ONE_FRAME) -s
+	CFLAGS	+= -O2 -fno-builtin -DGS_RELEASE -DGS_DEBUG_LEVEL=4 -DGS_PROTECT_MEMORY=0 -s
 else
-	CFLAGS	+= -O0 -DGS_DEBUG -DGS_DEBUG_LEVEL=$(DEBUG_LEVEL) -DGS_PROTECT_MEMORY=1 -DGS_ONE_FRAME=$(ONE_FRAME)
+	CFLAGS	+= -O0 -DGS_DEBUG -DGS_DEBUG_LEVEL=$(DEBUG_LEVEL) -DGS_PROTECT_MEMORY=1
 endif
 endif
 
@@ -42,14 +43,16 @@ ifeq ($(PLATFORM), sdl)
 	DELETE	= rm
 	CFLAGS	+= -m32 -std=c++98 -Wpedantic -Isource/sdl -DGS_SDL -DGS_LITTLE -lSDL2 -lstdc++
 ifeq ($(RELEASE), 1)
-	CFLAGS	+= -O3 -DGS_RELEASE -DGS_DEBUG_LEVEL=4 -DGS_PROTECT_MEMORY=0 -DGS_ONE_FRAME=$(ONE_FRAME) -s
+	CFLAGS	+= -O3 -DGS_RELEASE -DGS_DEBUG_LEVEL=4 -DGS_PROTECT_MEMORY=0 -s
 else
-	CFLAGS	+= -O0 -g -DGS_DEBUG -DGS_DEBUG_LEVEL=$(DEBUG_LEVEL) -DGS_PROTECT_MEMORY=1 -DGS_ONE_FRAME=$(ONE_FRAME)
+	CFLAGS	+= -O0 -g -DGS_DEBUG -DGS_DEBUG_LEVEL=$(DEBUG_LEVEL) -DGS_PROTECT_MEMORY=1
 endif
 endif
 
 CFLAGS += -DGS_GAME_PATH="\"$(GAME_PATH)\""
 CFLAGS += -DGS_TEST=$(TEST)
+CFLAGS += -DGS_VM_DEBUG=$(VM_DEBUG)
+CFLAGS += -DGS_ONE_FRAME=$(ONE_FRAME)
 
 ifeq ($(IGNORE_NO_FEATURE), 1)
 CFLAGS += -DGS_IGNORE_NO_FEATURE
@@ -69,6 +72,7 @@ OBJ +=	source/main_game.o\
 		source/vm_array.o\
 		source/vm_opcodes.o\
 		source/vm_vars.o\
+		source/vm_debugger.o\
 		source/script.o\
 		source/room.o\
 		source/room_scripts.o\
