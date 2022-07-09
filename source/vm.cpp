@@ -810,9 +810,10 @@ namespace gs
 			}
 
 			_script = _scriptReference.getData();
+			context._scriptWhere = OW_Global;
 
 #if defined(GS_VM_DEBUG) && GS_VM_DEBUG==1
-		vmDebugScript(context._indexNum, num, OW_Global, context._verb, _script.getSize());
+		vmDebugScript(context._indexNum, num, context._scriptWhere, context._verb, _script.getSize());
         vmDebugLocals(26, &LOCALS->_locals[context._indexNum][0]);
         vmDebugStack(_stack.getSize(), _stack.items());
 #endif
@@ -826,9 +827,10 @@ namespace gs
 			if (room) {
 				if (room->getLocalScript(num, _scriptReference)) {
 					_script = _scriptReference.getData();
+					context._scriptWhere = num < HSN_RoomExit ? OW_Local : OW_Room;
 
 #if defined(GS_VM_DEBUG) && GS_VM_DEBUG==1
-		vmDebugScript(context._indexNum, num, OW_Room, context._verb, _script.getSize());
+		vmDebugScript(context._indexNum, num, context._scriptWhere, context._verb, _script.getSize());
         vmDebugLocals(26, &LOCALS->_locals[context._indexNum][0]);
         vmDebugStack(_stack.getSize(), _stack.items());
 #endif
@@ -850,7 +852,7 @@ namespace gs
 				return false;
 			}
 #if defined(GS_VM_DEBUG) && GS_VM_DEBUG==1
-		vmDebugScript(context._indexNum, num, OW_ObjectVerb, context._verb, _script.getSize());
+		vmDebugScript(context._indexNum, num, context._scriptWhere, context._verb, _script.getSize());
         vmDebugLocals(26, &LOCALS->_locals[context._indexNum][0]);
         vmDebugStack(_stack.getSize(), _stack.items());
 #endif
