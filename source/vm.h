@@ -186,6 +186,7 @@ namespace gs
 		PcState							_pcState;
 		bool							_pushPcState;
 		VmStack<256>					_stack;
+		Array<byte, uint16>				_arrayTemp;
 
 
 		bool _findFreeContext(uint8& num);
@@ -216,6 +217,7 @@ namespace gs
 
 		void _beginCutscene(uint16 stackListCount);
 
+		void _readBytesForArray();
 	public:
 
 		VirtualMachine();

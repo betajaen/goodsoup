@@ -356,6 +356,7 @@ namespace gs
 		_contextStackSize(0)
 	{
 		_nullScript = ReadSpan<byte, uint16>(&kNullScript[0], 4);
+		_arrayTemp.reserve(256);
 		
 		for (uint8 i = 0; i < MAX_SCRIPT_CONTEXTS; i++) {
 			_context[i].reset();
@@ -462,7 +463,7 @@ namespace gs
 		context._bFreezeResistant = freezeResistant;
 		context._bRecursive = recursive;
 		context._scriptWhere = (scriptNum < NUM_SCRIPTS) ? OW_Global : OW_Local;
-		
+
 #if DEBUG_CONTEXT_STACK == 1
 		debug(GS_THIS, "Attached Script %ld:%ld (%s) ", (uint32) contextNum, (uint32) scriptNum, ObjectWhereToString(context._scriptWhere));
 #endif
@@ -830,12 +831,6 @@ namespace gs
 		_scriptReference.gcForget();
 		_script = _nullScript;
 
-#if defined(GS_VM_DEBUG) && GS_VM_DEBUG==1
-        vmDebugScript(CURRENT_CONTEXT, num, context._verb, where, 0);
-        vmDebugLocals(26, &LOCALS->_locals[CURRENT_CONTEXT][0]);
-        vmDebugStack(_stack.getSize(), _stack.items());
-#endif
-
 		if (num < NUM_GLOBAL_SCRIPTS && where == OW_Global) {
 			// SCRP (<2000)
 			_scriptReference = SCRIPTS->getOrLoadGlobalScript(context._scriptNum);
@@ -847,6 +842,12 @@ namespace gs
 
 			_script = _scriptReference.getData();
 
+#if defined(GS_VM_DEBUG) && GS_VM_DEBUG==1
+		vmDebugScript(context._indexNum, num, OW_Global, context._verb, _script.getSize());
+        vmDebugLocals(26, &LOCALS->_locals[context._indexNum][0]);
+        vmDebugStack(_stack.getSize(), _stack.items());
+#endif
+
 			return true;
 		}
 		else if (num >= NUM_GLOBAL_SCRIPTS) {
@@ -856,6 +857,12 @@ namespace gs
 			if (room) {
 				if (room->getLocalScript(num, _scriptReference)) {
 					_script = _scriptReference.getData();
+
+#if defined(GS_VM_DEBUG) && GS_VM_DEBUG==1
+		vmDebugScript(context._indexNum, num, OW_Room, context._verb, _script.getSize());
+        vmDebugLocals(26, &LOCALS->_locals[context._indexNum][0]);
+        vmDebugStack(_stack.getSize(), _stack.items());
+#endif
 					return true;
 				}
 			}
@@ -873,6 +880,11 @@ namespace gs
 				error(GS_THIS, "Unhandled ObjectVerb Script Verb Table Data! Num=%ld, Verb=%ld Where=%s", (uint32) num, (uint32) context._verb, ObjectWhereToString(where));
 				return false;
 			}
+#if defined(GS_VM_DEBUG) && GS_VM_DEBUG==1
+		vmDebugScript(context._indexNum, num, OW_ObjectVerb, context._verb, _script.getSize());
+        vmDebugLocals(26, &LOCALS->_locals[context._indexNum][0]);
+        vmDebugStack(_stack.getSize(), _stack.items());
+#endif
 
 			return true;
 		}
@@ -1101,47 +1113,84 @@ namespace gs
 		}
 	}
 
-	void VirtualMachine::_decodeParseString(uint8 m, uint8 n) {
-		byte b = _readByte();
+	void VirtualMachine::_readBytesForArray() {
+		_arrayTemp.clear();
 
-		NO_FEATURE(GS_THIS, "Not properly implemented");
+		byte ch = _readByte();
+		while(ch != 0) {
+			_arrayTemp.push(ch);
+			if (ch == 0xFF) {
+				ch = _readByte();
+				_arrayTemp.push(ch);
 
-		switch (b) {
-			case 0xC8: {	// Print BaseOP
-				// ...
-				if (n != 0) {
-					_stack.pop();
+				if (ch != 1 && ch != 2 && ch != 3 && ch != 8) {
+					_arrayTemp.push(_readByte());
+					_arrayTemp.push(_readByte());
+					_arrayTemp.push(_readByte());
+					_arrayTemp.push(_readByte());
 				}
+
 			}
-			break;
-			case 0xC9:		// Print End
-			break;
-			case 0xCA:		// Print At
-				_stack.pop();
-				_stack.pop();
-			break;
-			case 0xCB:		// Print Colour
-			break;
-			case 0xCC:		// Print Center
-			break;
-			case 0xCD:		// Print Charset
-				_stack.pop();
-			break;
-			case 0xCE:		// Print Left
-			break;
-			case 0xCF:		// Print Overhead
-			break;
-			case 0xD0:		// Print Mumble
-			break;
-			case 0xD1:		// Print String
-			{
-				uint16 from, length;
-				_readStringLength(from, length);	/* Not Implemented */
-			}
-			break;
-			case 0xD2:
-			break;
+			ch = _readByte();
 		}
+
+	}
+
+	void VirtualMachine::_decodeParseString(uint8 m, uint8 n) {
+		byte subOp = _readByte();
+
+        /* TODO */
+
+        switch(subOp) {
+            default:
+                error(GS_THIS, "Unhandled subop %02lx", (uint32) subOp);
+                abort_quit_stop();
+            return;
+
+            case ParseStringOp_Load: {
+                if (n != 0) {
+                    _stack.pop(); // actor to print
+                }
+            }
+            break;
+            case ParseStringOp_Save: {
+            }
+            break;
+            case ParseStringOp_SetPos: {
+                _stack.pop(); // y
+                _stack.pop(); // x
+            }
+            break;
+            case ParseStringOp_SetColour: {
+                    _stack.pop(); // colour
+            }
+            break;
+            case ParseStringOp_SetCenter: {
+            }
+            break;
+            case ParseStringOp_SetCharset: {
+                _stack.pop(); // charset
+            }
+            break;
+            case ParseStringOp_SetLeft: {
+            }
+            break;
+            case ParseStringOp_SetOverhead: {
+            }
+            break;
+            case ParseStringOp_SetMumble: {
+            }
+            break;
+            case ParseStringOp_PrintString: {
+                uint16 from, length;
+                _readStringLength(from, length);	/* Not Implemented */
+            }
+            break;
+            case ParseStringOp_SetWrap: {
+            }
+            break;
+        }
+
 	}
 
 	void VirtualMachine::_dumpState() {
