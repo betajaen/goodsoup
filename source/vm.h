@@ -236,6 +236,7 @@ namespace gs
 		bool isScriptRunning(uint16 scriptNum);
 		bool isRoomScriptRunning(uint16 scriptNum);
 
+		void freezeScripts(uint16 flag);
 		void freezeAll();
 		void unfreezeAll();
 

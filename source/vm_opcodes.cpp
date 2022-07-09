@@ -770,10 +770,12 @@ namespace gs
 				GS_UNHANDLED_OP;
 			return;
 			case OP_freezeUnfreeze: {
-				int32 subOp = _stack.pop();
+				int32 script = _stack.pop();
 
-				if (subOp) {
-					freezeAll();
+				vmDebugResult(script);
+
+				if (script) {
+					freezeScripts(script);
 				}
 				else {
 					unfreezeAll();

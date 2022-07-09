@@ -598,20 +598,10 @@ namespace gs
 		
 		ScriptContext& context = _context[CURRENT_CONTEXT];
 
-		if (context._cutsceneOverride == 255) {
-			context._cutsceneOverride = 0;
-		}
-
-
-		if (context._scriptWhere != OW_Global && context._scriptWhere != OW_Local) {
-			if (context._cutsceneOverride) {
-				context._cutsceneOverride = 0;
-			}
-		}
-		else {
-			if (context._cutsceneOverride) {
-				context._cutsceneOverride = 0;
-			}
+		if (context._cutsceneOverride) {
+			error(GS_THIS, "Ending with active cutscene");
+			abort_quit_stop();
+			return;
 		}
 
 		context._scriptNum = 0;
@@ -716,6 +706,23 @@ namespace gs
 		}
 	}
 
+	void VirtualMachine::freezeScripts(uint16 flags) {
+		for (uint8 i = 0; i < MAX_SCRIPT_CONTEXTS; i++) {
+			ScriptContext& context = _context[i];
+
+			if (CURRENT_CONTEXT != i && context.isDead() == false && (!context._bFreezeResistant  || flags >= 0x80)) {
+				context.freeze();
+			}
+		}
+
+		/* TODO: Sentence Scripts */
+
+
+		if (_cutscenes._contextIndex != 0xFF) {
+			_context[_cutscenes._contextIndex].unfreezeAll();
+		}
+	}
+
 	void VirtualMachine::freezeAll() {
 		for (uint8 i = 0; i < MAX_SCRIPT_CONTEXTS; i++) {
 			ScriptContext& context = _context[i];
@@ -734,7 +741,9 @@ namespace gs
 
 		/* TODO: Sentence Scripts */
 
-		/* TODO: Cutscenes */
+		if (_cutscenes._contextIndex != 0xFF) {
+			_context[_cutscenes._contextIndex].unfreezeAll();
+		}
 	}
 
 	void VirtualMachine::unfreezeAll() {
