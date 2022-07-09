@@ -66,12 +66,12 @@ namespace gs
 		deleteObject(ACTORS);
 		deleteObject(VERBS);
 		deleteObject(SCRIPTS);
+		deleteObject(ARRAYS);
 		deleteObject(OBJECTS);
 		deleteObject(VM);
 		deleteObject(INTS);
 		deleteObject(BOOLS);
 		deleteObject(LOCALS);
-		deleteObject(ARRAYS);
 		deleteObject(INDEX);
 		deleteObject(RESOURCES);
         vmDebugStop();
@@ -125,9 +125,9 @@ namespace gs
 		VM = newObject<VirtualMachine>();
 		VM->reset();
         vmDebugRemark("Boot");
-        vmDebugPause();
+        //vmDebugPause();
 		VM->runScript(1, false, false);
-        vmDebugResume();
+        //vmDebugResume();
         vmDebugRemark("Loop");
 
 		info(GS_THIS, "=========Starting Main Loop===========");

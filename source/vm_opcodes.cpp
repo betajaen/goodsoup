@@ -651,25 +651,26 @@ namespace gs
 							array->_data[offset + i] = _arrayTemp.get_unchecked(i);
 						}
 
+#if defined(GS_VM_DEBUG) && GS_VM_DEBUG==1
+						vmDebugResult(subOp, arrayNum, offset, len);
+#endif
 					}
 					return;
 					case ArrayOps_AssignScummVarList: {
 						/* TODO */
 						uint16 offset = _stack.pop();
-						uint16 num = _stack.readList(128);
+						uint16 len = _stack.readList(128);
 						VmArray* array = ARRAYS->findFromNum(arrayNum);
-						
-						if (array) {
-							array->writeFromCArray(0, offset, _stack.getList(), num);
-						}
-						else {
-							error(GS_THIS, "NULL VmArray (%ld) used with OP_arrayOps ArrayOps_AssignScummVarList", (uint32) arrayNum);
-							abort_quit_stop();
-							return;
+
+						if (array == NULL) {
+							array = ARRAYS->allocate(arrayNum, 0, offset + len, VAK_Integer);
 						}
 
+						array->writeFromCArray(0, offset, _stack.getList(), len);
+
+
 #if defined(GS_VM_DEBUG) && GS_VM_DEBUG==1
-						vmDebugResult(subOp, arrayNum, offset, num);
+						vmDebugResult(subOp, arrayNum, offset, len);
 #endif
 					}
 					return;
