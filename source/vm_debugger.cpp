@@ -47,15 +47,13 @@ namespace gs
             return false;
         }
 
-        sDebugFile.writeString("REM \"Active\"\n");
-        sDebugFile.writeFormat("REM \"version\" \"%s\"\n", &GOODSOUP_VERSION_STR[6]);
         sPaused = false;
 
         return true;
     }
 
     void vmDebugStop() {
-        sDebugFile.writeString("REM \"Ending\"\n");
+        sDebugFile.writeString("REM \"Stop\"\n");
         sDebugFile.close();
         debug(GS_THIS, "Closing VMD");
     }
@@ -83,7 +81,9 @@ namespace gs
     void vmDebugLocals(uint8 count, int32* values) {
         if (sPaused == false) {
             for(uint8 i = 0;i < count;i++) {
-                sDebugFile.writeFormat("L %02x %08x\n", i, values[i]);
+				if (values[i] != 0) {
+                	sDebugFile.writeFormat("L %02x %08x\n", i, values[i]);
+				}
             }
         }
     }
