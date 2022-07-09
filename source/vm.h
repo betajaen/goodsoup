@@ -100,6 +100,7 @@ namespace gs
 
 		uint16 _scriptNum;
 		uint8  _verb;
+        uint8  _indexNum;
 		uint32 _lastPC;
 		int32  _delay;
 		uint16 _delayFrameCount;

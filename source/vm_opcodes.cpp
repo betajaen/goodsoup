@@ -1816,16 +1816,21 @@ namespace gs
 				uint16 actorNum = _stack.pop();
 
 				if (actorNum == 0 || actorNum == 255) {
+                    vmDebugRemark("Case 1+2");
+                    vmDebugResult(actorNum, 0);
 					_stack.push(0);
 					return;
 				}
 
 				ActorData* actor = ACTORS->getActor(actorNum);
 				if (actor) {
+                    vmDebugResult(actorNum, actor->_roomNum);
 					_stack.push(actor->_roomNum);
 				}
 				else {
 					warn(GS_THIS, "Unknown actor %ld to get room from", (uint16) actorNum);
+                    vmDebugRemark("Case 3");
+                    vmDebugResult(actorNum, 0);
 					_stack.push(0);
 				}
 			}

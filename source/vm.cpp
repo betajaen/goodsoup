@@ -359,6 +359,7 @@ namespace gs
 		
 		for (uint8 i = 0; i < MAX_SCRIPT_CONTEXTS; i++) {
 			_context[i].reset();
+            _context[i]._indexNum = i;
 			LOCALS->clear(i);
 		}
 
@@ -470,6 +471,7 @@ namespace gs
 		if (_updateScriptData(context)) {
 			LOCALS->clear(contextNum);
 			LOCALS->copyInto(contextNum, data, dataCount);
+
 			_pushAndRunScript(contextNum);
 		}
 	}
@@ -828,7 +830,11 @@ namespace gs
 		_scriptReference.gcForget();
 		_script = _nullScript;
 
+#if defined(GS_VM_DEBUG) && GS_VM_DEBUG==1
         vmDebugScript(CURRENT_CONTEXT, num, context._verb, where, 0);
+        vmDebugLocals(26, &LOCALS->_locals[CURRENT_CONTEXT][0]);
+        vmDebugStack(_stack.getSize(), _stack.items());
+#endif
 
 		if (num < NUM_GLOBAL_SCRIPTS && where == OW_Global) {
 			// SCRP (<2000)
@@ -967,9 +973,13 @@ namespace gs
 
 	void VirtualMachine::runCurrentScript() {
 		while (CURRENT_CONTEXT != NO_CONTEXT) {
+            ScriptContext& context = _context[CURRENT_CONTEXT];
+            context._bIsExecuted = true;
+
 			_pushPcState = true;
 			_pcState.pc = _pc;
 			_pcState.context = CURRENT_CONTEXT;
+
 			_step();
 			if (_pushPcState) {
 				_pcState.pcAfter = _pc;
