@@ -253,6 +253,7 @@ namespace gs
 		void processScriptDelays(uint32 delta);
 
 
+		void _actorSay(uint16 actorNum, uint16 length, uint16 offset);
 	};
 }
 

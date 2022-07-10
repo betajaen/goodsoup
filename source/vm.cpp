@@ -1400,6 +1400,10 @@ namespace gs
 		/* TODO: Delete New Names */
 	}
 
+	void VirtualMachine::_actorSay(uint16 actorNum, uint16 length, uint16 offset) {
+		info(GS_THIS, "%s", _script.ptr(offset));
+	}
+
 	void ScriptContext::reset() {
 		uint8 i = 0;
 

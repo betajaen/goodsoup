@@ -902,8 +902,12 @@ namespace gs
 				_stack.push(INTS->ego);
 				_decodeParseString(0, 1);
 			return;
-			case OP_talkActor:
-				GS_UNHANDLED_OP;
+			case OP_talkActor: {
+				uint16 actorNum = _stack.pop();
+				uint16 offset, length;
+				_readStringLength(offset, length);
+				_actorSay(actorNum, length, offset);
+			}
 			return;
 			case OP_talkEgo:
 				GS_UNHANDLED_OP;
@@ -1005,8 +1009,13 @@ namespace gs
 			case OP_loadRoomWithEgo:
 				GS_UNHANDLED_OP;
 			return;
-			case OP_walkActorToObj:
-				GS_UNHANDLED_OP;
+			case OP_walkActorToObj: {
+				_stack.pop(); // distance
+				_stack.pop(); // object;
+				_stack.pop(); // actor
+
+				NO_FEATURE(GS_THIS, "Not implemented OP_walkActorToObj");
+			}
 			return;
 			case OP_walkActorTo:
 				GS_UNHANDLED_OP;
