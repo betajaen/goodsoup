@@ -1598,8 +1598,11 @@ namespace gs
 			case OP_b8:
 				GS_UNHANDLED_OP;
 			return;
-			case OP_startVideo:
-				GS_UNHANDLED_OP;
+			case OP_startVideo: {
+				uint16 from, length;
+				_readStringLength(from, length);
+				warn(GS_THIS, "Video Cutscenes not currently supported!");
+			}
 			return;
 			case OP_kernelSetFunctions: {
 
