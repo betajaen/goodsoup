@@ -475,6 +475,15 @@ namespace gs
 		VerbOp_SetLineSpacing = 0xA7
 	};
 
+	enum WaitOp {
+		WaitOp_WaitActor = 0x1E,
+		WaitOp_WaitMessage = 0x1F,
+		WaitOp_WaitCamera = 0x20,
+		WaitOp_WaitSentence = 0x21,
+		WaitOp_WaitAnimation = 0x22,
+		WaitOp_WaitTurn = 0x23
+	};
+
 }
 
 #endif

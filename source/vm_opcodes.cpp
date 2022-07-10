@@ -505,8 +505,48 @@ namespace gs
 				}
 			}
 			return;
-			case OP_wait:
-				GS_UNHANDLED_OP;
+			case OP_wait: {
+				byte subOp = _readByte();
+				int32 offset = -2;
+
+				switch (subOp) {
+					case WaitOp_WaitActor: {
+						offset = _readSignedWord();
+						_stack.pop();
+						NO_FEATURE(GS_THIS, "Not implemented OP_cursorCommand WaitOp_WaitActor");
+					}
+					break;
+					case WaitOp_WaitMessage: {
+						NO_FEATURE(GS_THIS, "Not implemented OP_cursorCommand WaitOp_WaitMessage");
+					}
+					break;
+					case WaitOp_WaitCamera: {
+						NO_FEATURE(GS_THIS, "Not implemented OP_cursorCommand WaitOp_WaitCamera");
+					}
+					break;
+					case WaitOp_WaitSentence: {
+						NO_FEATURE(GS_THIS, "Not implemented OP_cursorCommand WaitOp_WaitSentence");
+					}
+					break;
+					case WaitOp_WaitAnimation: {
+						offset = _readSignedWord();
+						_stack.pop();
+						NO_FEATURE(GS_THIS, "Not implemented OP_cursorCommand WaitOp_WaitAnimation");
+					}
+					break;
+					case WaitOp_WaitTurn: {
+						offset = _readSignedWord();
+						_stack.pop();
+						NO_FEATURE(GS_THIS, "Not implemented OP_cursorCommand WaitOp_WaitTurn");
+					}
+					break;
+				}
+#if 0
+				/* TODO: The subOps decide when the wait is over, and returns early preventing the break here */
+				_pc += offset;
+				_break();
+#endif
+			}
 			return;
 			case OP_delay: {
 				int32 time = _stack.pop();
