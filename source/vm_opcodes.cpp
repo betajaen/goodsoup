@@ -792,7 +792,6 @@ namespace gs
 			}
 			return;
 			case OP_dummy:
-				GS_UNHANDLED_OP;
 			return;
 			case OP_startObject: {
 				uint16 num = _stack.readList(25);
@@ -1392,7 +1391,6 @@ namespace gs
 						}
 						else {
 							CURRENT_ACTOR = (uint8) currentActor;
-							debug(GS_THIS, "Current Actor = %ld", currentActor);
 						}
 					}
 					return;
@@ -1798,8 +1796,11 @@ namespace gs
 			case OP_c7:
 				GS_UNHANDLED_OP;
 			return;
-			case OP_startScriptQuick2:
-				GS_UNHANDLED_OP;
+			case OP_startScriptQuick2: {
+				uint8 num = _stack.readList(25);
+				uint16 scriptNum = _stack.pop();
+				runScript(scriptNum, false, true, _stack.getList(), num);
+			}
 			return;
 			case OP_startObjectQuick:
 				GS_UNHANDLED_OP;
@@ -1873,8 +1874,12 @@ namespace gs
 				warn(GS_THIS, "No Sound Support for OP_isSoundRunning %ld", (uint32) soundNum);
 			}
 			return;
-			case OP_abs:
-				GS_UNHANDLED_OP;
+			case OP_abs: {
+				int32 v = _stack.pop();
+				if (!(v >= 0))
+					v = -v;
+				_stack.push(v);
+			}
 			return;
 			case OP_d7:
 				GS_UNHANDLED_OP;
