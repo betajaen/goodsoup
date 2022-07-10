@@ -1018,11 +1018,14 @@ namespace gs
 				}
 			}
 			return;
-			case OP_setBoxFlags:
-				GS_UNHANDLED_OP;
+			case OP_setBoxFlags: {
+				_stack.pop();
+				_stack.readList(65);
+			}
 			return;
-			case OP_createBoxMatrix:
-				GS_UNHANDLED_OP;
+			case OP_createBoxMatrix: {
+				warn(GS_THIS, "createBoxMatrix not implemented");
+			}
 			return;
 			case OP_a9:
 				GS_UNHANDLED_OP;
@@ -1811,8 +1814,11 @@ namespace gs
 			case OP_d4:
 				GS_UNHANDLED_OP;
 			return;
-			case OP_isSoundRunning:
-				GS_UNHANDLED_OP;
+			case OP_isSoundRunning: {
+				uint16 soundNum = _stack.pop();
+				_stack.push(0);
+				warn(GS_THIS, "No Sound Support for OP_isSoundRunning %ld", (uint32) soundNum);
+			}
 			return;
 			case OP_abs:
 				GS_UNHANDLED_OP;
@@ -1916,8 +1922,12 @@ namespace gs
 				NO_FEATURE(GS_THIS, "Not implemented OP_kernelGetFunctions(%ld)", (uint32) opcode);
 			}
 			return;
-			case OP_isActorInBox:
-				GS_UNHANDLED_OP;
+			case OP_isActorInBox: {
+				_stack.pop();
+				_stack.pop();
+				_stack.push(0);
+				NO_FEATURE(GS_THIS, "Not implemented OP_isActorInBox");
+			}
 			return;
 			case OP_getVerbEntrypoint:
 				GS_UNHANDLED_OP;
@@ -1976,8 +1986,17 @@ namespace gs
 				_stack.push(0);
 			}
 			return;
-			case OP_getAnimateVariable:
-				GS_UNHANDLED_OP;
+			case OP_getAnimateVariable: {
+				uint8 varNum = _stack.pop();
+				uint8 actorNum = _stack.pop();
+				ActorData* actor = ACTORS->getActor(actorNum);
+				if (actor) {
+					_stack.push(actor->getVar(varNum));
+				}
+				else {
+					_stack.push(0);
+				}
+			}
 			return;
 			case OP_getActorRoom: {
 				uint16 actorNum = _stack.pop();
@@ -2060,11 +2079,29 @@ namespace gs
 				_stack.push(0);
 			}
 			return;
-			case OP_getObjectX:
-				GS_UNHANDLED_OP;
+			case OP_getObjectX: {
+				uint16 objectNum = _stack.pop();
+				/* TODO - Actors - I assume the ID < NUM_ACTORS */
+				ObjectData* object = OBJECTS->findObject(objectNum);
+				if (object != NULL) {
+					_stack.push(object->_x);
+				}
+				else {
+					_stack.push(0);
+				}
+			}
 			return;
-			case OP_getObjectY:
-				GS_UNHANDLED_OP;
+			case OP_getObjectY: {
+				uint16 objectNum = _stack.pop();
+				/* TODO - Actors - I assume the ID < NUM_ACTORS */
+				ObjectData* object = OBJECTS->findObject(objectNum);
+				if (object != NULL) {
+					_stack.push(object->_y);
+				}
+				else {
+					_stack.push(0);
+				}
+			}
 			return;
 			case OP_getActorChore: {
 				uint16 actorNum = _stack.pop();
