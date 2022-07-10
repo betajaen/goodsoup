@@ -23,10 +23,6 @@
 
 namespace gs
 {
-	
-	bool loadFloatingObject(uint16 objectNum) {
-		return OBJECTS->loadFloatingObject(objectNum);
-	}
 
 	int16 getObjectX(uint16 objectNum) {
 		const ObjectData* object = OBJECTS->findObject(objectNum);

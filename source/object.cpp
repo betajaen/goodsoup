@@ -43,7 +43,7 @@ namespace gs
 		uint16 roomNum;
 		uint8 diskNum;
 
-		if (INDEX->getObject(objectNum, roomNum, diskNum) == false) {
+		if (INDEX->getObjectPrototypeRoomAndDisk(objectNum, roomNum, diskNum) == false) {
 			error(GS_THIS, "Could not read Floating Object %ld as it does not exist", (uint32) objectNum);
 			abort_quit_stop();
 			return DiskReader::Null();
@@ -246,7 +246,8 @@ namespace gs
 
 		ObjectData* object = _pool.acquire();
 		object->_num = num;
-		object->_class = INDEX->getObjectClass(num);
+		object->_class = INDEX->getObjectPrototypeClass(num);
+		object->_owner = INDEX->getObjectPrototypeOwner(num);
 		out_isNew = true;
 		return object;
 	}
@@ -332,7 +333,7 @@ namespace gs
 
 	}
 
-	bool ObjectState::loadAndMoveInto(uint16 objectNum, uint16 targetNum, bool failIfAlreadyLoaded, bool makeFloatingIfGlobal)
+	bool ObjectState::loadAndMoveInto(uint16 objectNum, uint16 targetNum, ObjectData*& out_object, bool failIfAlreadyLoaded)
 	{
 
 		ObjectData* object;
@@ -344,11 +345,12 @@ namespace gs
 			if (failIfAlreadyLoaded)
 				return false;
 
-			if (targetNum == OCI_Global && makeFloatingIfGlobal) {
-				object->setFloating(true);
+			if (_moveObject(object, targetNum) == false) {
+				return false;
 			}
 
-			return _moveObject(object, targetNum);
+			out_object = object;
+			return true;
 		}
 
 
@@ -357,7 +359,7 @@ namespace gs
 		if (reader.isNull()) {
 			error(GS_THIS, "Could not find (Floating) Object %ld", (uint32) objectNum);
 			abort_quit_stop();
-			return NULL;
+			return false;
 		}
 
 		bool isNew;
@@ -366,21 +368,16 @@ namespace gs
 			object->_containerNum = OCI_None;
 		}
 
-		if (targetNum == OCI_Global && makeFloatingIfGlobal) {
-			object->setFloating(true);
-		}
-
 		_moveObject(object, targetNum);
 
-		if (object) {
-			object->setFloating(true);
-			_globalObjects.push(object);	// Is this correct?
-		}
+		out_object = object;
 
-		return object;
+		return true;
 	}
 
 	bool ObjectState::loadRoomObject(uint16 roomNum, DiskReader& reader, const TagPair& tag) {
+		debug(GS_THIS, "Load Froom Object %ld", roomNum);
+
 		bool isNew = false;
 		ObjectData* object = _readIntoObject(reader, tag, isNew);
 		if (object == NULL)
@@ -494,6 +491,9 @@ namespace gs
 	}
 
 	void ObjectState::dumpObjects() const {
+
+		debug(GS_THIS, "Object Dump");
+
 		for(uint16 i=0; i < _roomObjects.size(); i++) {
 			const ObjectData* object = _roomObjects.get_unchecked(i);
 			debug(GS_THIS, "R Idx=%ld Num=%ld Flags=%ld Parent=%ld ParentState=%ld",
@@ -536,7 +536,7 @@ namespace gs
 
 			const ObjectData* object = _globalObjects.get_unchecked(i);
 
-			if (object->isKind(OK_Untouchable))
+			if (object->isKind(OCF_Untouchable))
 				continue;
 
 			bool inBounds = object->inBounds(x, y);
@@ -632,6 +632,7 @@ namespace gs
 			return false;
 		}
 
+		object->_containerNum = targetNum;
 
 		if (object->_containerNum <= NUM_ROOMS) {
 			// Note:
@@ -653,7 +654,6 @@ namespace gs
 			error(GS_THIS, "Object %ld was moved to a non-existing container %ld", object->_num, object->_containerNum);
 		}
 
-		object->_containerNum = targetNum;
 
 		return true;
 	}
@@ -687,6 +687,7 @@ namespace gs
 		_parentState = 0;
 		_flags = 0;
 		_class = 0;
+		_owner = 0;
 		_x = 0;
 		_y = 0;
 		_width = 0;
@@ -699,6 +700,32 @@ namespace gs
 	bool ObjectData::isKind(uint8 objectKind) const {
 		const uint32 shift = 1 << ((uint32) (objectKind - 1));
 		return (_class & shift) != 0;
+	}
+
+	void ObjectData::setOwner(uint8 owner) {
+		_owner = owner;
+	}
+
+	void ObjectData::setClass(uint32 objectClass) {
+		_class = objectClass;
+	}
+
+	void ObjectData::setClassFlags(uint8 objectClassFlags, bool enable) {
+
+		uint32 flags = (objectClassFlags & 0x7F);
+		flags = 1 << (flags - 1);
+
+		if (enable) {
+			_class |= flags;
+		}
+		else {
+			_class &= ~flags;
+		}
+
+	}
+
+	void ObjectData::setState(byte state) {
+		_state = state;
 	}
 
 

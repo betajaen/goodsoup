@@ -199,10 +199,10 @@ namespace gs
 
 				for(uint16 i=0;i < NUM_OBJECT_GLOBALS;i++) {
 					_objectNameHash[i] = reader.readFixedStringAsHash(40);
-					_objectState[i] = reader.readByte();
-					_objectRoomNum[i] = reader.readByte();
-					_objectClass[i] = reader.readUInt32LE();
-					_objectOwner[i] = 0xFF;
+					_objectPrototypeState[i] = reader.readByte();
+					_objectPrototypeRoomNum[i] = reader.readByte();
+					_objectPrototypeClass[i] = reader.readUInt32LE();
+					_objectPrototypeOwner[i] = 0xFF;
 				}
 
 				goto checkTag;

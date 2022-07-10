@@ -73,38 +73,39 @@ namespace gs
 
 		uint16 findObjectNumFromHash(uint32 hash);
 
-		bool getObject(uint16 objectNum, uint16& roomNum, uint8& diskNum) {
+		bool getObjectPrototypeRoomAndDisk(uint16 objectNum, uint16& roomNum, uint8& diskNum) {
 
 			if (objectNum >= NUM_OBJECT_GLOBALS) {
 				error(GS_THIS, "Attempted to load object out of bounds! %ld", (uint32)objectNum);
 				return false;
 			}
 
-			roomNum = _objectRoomNum[objectNum];
+			roomNum = _objectPrototypeRoomNum[objectNum];
 			diskNum = _roomDisks[roomNum];
 
 			return true;
 		}
 
-		uint32 getObjectClass(uint16 objectNum) const {
+		uint32 getObjectPrototypeClass(uint16 objectNum) const {
 			if (objectNum >= NUM_OBJECT_GLOBALS) {
 				error(GS_THIS, "Attempted to load object out of bounds! %ld", (uint32)objectNum);
 				return false;
 			}
 
-			return _objectClass[objectNum];
+			return _objectPrototypeClass[objectNum];
 		}
 
-		void setObjectClass(uint16 objectNum, uint32 classValue) {
+#if 0
+		void setObjectPrototypeClass(uint16 objectNum, uint32 classValue) {
 			if (objectNum >= NUM_OBJECT_GLOBALS) {
 				error(GS_THIS, "Attempted to load object out of bounds! %ld", (uint32)objectNum);
 				return;
 			}
 
-			_objectClass[objectNum] = classValue;
+			_objectPrototypeClass[objectNum] = classValue;
 		}
 
-		void putObjectClass(uint16 objectNum, uint32 classKind, bool isEnabled) {
+		void putObjectPrototypeClass(uint16 objectNum, uint32 classKind, bool isEnabled) {
 
 			if (objectNum >= NUM_OBJECT_GLOBALS) {
 				error(GS_THIS, "Attempted to load object out of bounds! %ld", (uint32)objectNum);
@@ -115,26 +116,35 @@ namespace gs
 			classKind = 1 << (classKind - 1);
 
 			if (isEnabled) {
-				_objectClass[objectNum] |= classKind;
+				_objectPrototypeClass[objectNum] |= classKind;
 			}
 			else {
-				_objectClass[objectNum] &= ~classKind;
+				_objectPrototypeClass[objectNum] &= ~classKind;
 			}
 
 		}
+#endif
 
-
-		uint32 getObjectClass_unchecked(uint16 objectNum) const {
-			return _objectClass[objectNum];
+		uint32 getObjectPrototypeClass_unchecked(uint16 objectNum) const {
+			return _objectPrototypeClass[objectNum];
 		}
 
-		uint16 getObjectRoom(uint16 objectNum) {
+		uint8 getObjectPrototypeRoom(uint16 objectNum) {
 			if (objectNum >= NUM_OBJECT_GLOBALS) {
 				error(GS_THIS, "Invalid object number %ld", (uint32) objectNum);
 				return 0;
 			}
 
-			return _objectRoomNum[objectNum];
+			return _objectPrototypeRoomNum[objectNum];
+		}
+
+		uint8 getObjectPrototypeOwner(uint16 objectNum) {
+			if (objectNum >= NUM_OBJECT_GLOBALS) {
+				error(GS_THIS, "Invalid object number %ld", (uint32) objectNum);
+				return 0;
+			}
+
+			return _objectPrototypeRoomNum[objectNum];
 		}
 
 	private:
@@ -145,10 +155,10 @@ namespace gs
 		uint8  _scriptRoom[NUM_SCRIPTS];
 		uint32 _scriptOffset[NUM_SCRIPTS];
 		uint32 _objectNameHash[NUM_OBJECT_GLOBALS];
-		byte _objectState[NUM_OBJECT_GLOBALS];
-		byte _objectRoomNum[NUM_OBJECT_GLOBALS];
-		byte _objectOwner[NUM_OBJECT_GLOBALS];
-		uint32 _objectClass[NUM_OBJECT_GLOBALS];
+		byte _objectPrototypeState[NUM_OBJECT_GLOBALS];
+		byte _objectPrototypeRoomNum[NUM_OBJECT_GLOBALS];
+		byte _objectPrototypeOwner[NUM_OBJECT_GLOBALS];
+		uint32 _objectPrototypeClass[NUM_OBJECT_GLOBALS];
 
 
 	};

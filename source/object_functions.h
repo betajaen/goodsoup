@@ -25,8 +25,6 @@ namespace gs
 {
 	class ObjectData;
 
-	ObjectData* loadFloatingObject(uint16 objectNum);
-
 	int16 getObjectX(uint16 objectNum);
 	int16 getObjectY(uint16 objectNum);
 	Point getObjectXY(uint16 objectNum);

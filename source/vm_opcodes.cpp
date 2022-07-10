@@ -815,13 +815,22 @@ namespace gs
 					int32 classNum = _stack.getListItem(i);
 
 					if (classNum == 0) {
-						INDEX->setObjectClass(num, 0);	// Possible memory overwrite crash?
+						ObjectData* object = OBJECTS->findObject(num);
+						if (object) { // Possible memory overwrite crash?
+							object->setClass(0);
+						}
 					}
 					else if ((classNum & 0x80) != 0) {
-						INDEX->putObjectClass(obj, classNum, true);
+						ObjectData* object = OBJECTS->findObject(num);
+						if (object) {
+							object->setClassFlags(classNum, true);
+						}
 					}
 					else {
-						INDEX->putObjectClass(obj, classNum, false);
+						ObjectData* object = OBJECTS->findObject(num);
+						if (object) {
+							object->setClassFlags(classNum, false);
+						}
 					}
 				}
 			}
@@ -997,7 +1006,16 @@ namespace gs
 				GS_UNHANDLED_OP;
 			return;
 			case OP_pickupObject: {
-				NO_FEATURE(GS_THIS, "Not implemented OP_pickupObject");
+				uint16 objectNum = _stack.pop();
+				ObjectData* object = NULL;
+				if (OBJECTS->loadInventoryObject(objectNum, object) && object) {
+					object->setOwner(INTS->ego);
+					object->setClassFlags(OCF_Untouchable, true);
+					object->setState(1);
+					/* TODO: Mark Object Rect as dirty */
+					/* TODO: Clear Object Draw Queue */
+					/* TODO: Run Inventory Script from VariableInventoryScript, if it exists. Pass in objectNum as the single argument for data */
+				}
 			}
 			return;
 			case OP_setBoxFlags:
@@ -1011,7 +1029,7 @@ namespace gs
 			return;
 			case OP_resourceRoutines: {
 				byte  subOp = _readByte();
-				int32 resId = _stack.pop();
+				int32 resourceNum = _stack.pop();
 
 				switch (subOp) {
 					case ResourceRoutineOp_Dummy:
@@ -1021,7 +1039,8 @@ namespace gs
 						NO_FEATURE(GS_THIS, "Not implemented OP_resourceRoutines ResourceRoutineOp_LoadCostume");
 					return;
 					case ResourceRoutineOp_LoadObject: {
-						loadFloatingObject(resId);
+						ObjectData* object = NULL;
+						OBJECTS->loadInventoryObject(resourceNum, object);
 					}
 					return;
 					case ResourceRoutineOp_LoadRoom:
@@ -1072,7 +1091,7 @@ namespace gs
 				}
 
 
-				NO_FEATURE(GS_THIS, "Not implemented OP_resourceRoutines(%ld,%ld)", (uint32) subOp, (uint32) resId);
+				NO_FEATURE(GS_THIS, "Not implemented OP_resourceRoutines(%ld,%ld)", (uint32) subOp, (uint32) resourceNum);
 				_dumpState();
 				_forceQuit();
 
@@ -1590,12 +1609,15 @@ namespace gs
 				switch(subOp) {
 
 					case KernelSetOp_LockObject: {
-						ObjectData* object = OBJECTS->findObject(_stack.getListItem(1));
+						uint16 objectNum = _stack.getListItem(1);
+
+						ObjectData* object = OBJECTS->findObject(objectNum);
 						if (object) {
 							object->setLocked(true);
 						}
 						else {
-							error(GS_THIS, "Object does not exist!");
+							error(GS_THIS, "Object %ld does not exist!", (uint32) objectNum);
+							OBJECTS->dumpObjects();
 							abort_quit_stop();
 						}
 					}

@@ -38,14 +38,14 @@ namespace gs
 		OF_ObjectMode = 8
 	};
 
-	enum ObjectKind {
-		OK_NeverClip = 20,
-		OK_AlwaysClip = 21,
-		OK_IgnoreBoxes = 22,
-		OK_YFlip = 29,
-		OK_XFlip = 30,
-		OK_Player = 31,
-		OK_Untouchable = 32
+	enum ObjectClassFlags {
+		OCF_NeverClip = 20,
+		OCF_AlwaysClip = 21,
+		OCF_IgnoreBoxes = 22,
+		OCF_YFlip = 29,
+		OCF_XFlip = 30,
+		OCF_Player = 31,
+		OCF_Untouchable = 32
 	};
 
 	enum ObjectContainerId {
@@ -65,6 +65,7 @@ namespace gs
 		uint8 _state;
 		uint8 _flags;
 		uint32 _class;
+		uint8 _owner;
 		int16 _x, _y;
 		uint16 _width, _height;
 		uint8 _bIsFloating;
@@ -95,6 +96,14 @@ namespace gs
 		}
 
 		void clear();
+
+		void setOwner(uint8 owner);
+
+		void setClass(uint32 objectClass);
+
+		void setClassFlags(uint8 objectClassFlags, bool enabled);
+
+		void setState(byte state);
 	};
 
 	class ObjectState {
@@ -126,14 +135,34 @@ namespace gs
 		void moveRoomObjectsToGlobals();
 		void clearRoomObjectsForNewRoom();
 
-		bool loadAndMoveInto(uint16 objectNum, uint16 targetContainerNum, bool failIfAlreadyLoaded = false, bool makeFloatingIfGlobal = false);
+		bool loadAndMoveInto(uint16 objectNum, uint16 targetContainerNum, ObjectData*& out_object, bool failIfAlreadyLoaded = false);
 
-		bool loadFloatingObject(uint16 objectNum) {
-			return loadAndMoveInto(objectNum, OCI_Global, false, true);
+		bool loadFloatingObject(uint16 objectNum, ObjectData*& out_object) {
+
+
+			debug(GS_THIS, "Load Floating Object %ld", objectNum);
+
+			bool result = loadAndMoveInto(objectNum, OCI_Global, out_object);
+
+			if (result) {
+				out_object->setFloating(true);
+			}
+
+			return result;
 		}
 
-		bool loadInventoryObject(uint16 objectNum) {
-			return loadAndMoveInto(objectNum, OCI_Inventory);
+		bool loadInventoryObject(uint16 objectNum, ObjectData*& out_object) {
+
+			bool didLoad =  loadAndMoveInto(objectNum, OCI_Inventory, out_object);
+
+			if (didLoad == false) {
+				warn(GS_THIS, "Inventory Object %ld was not loaded!", objectNum);
+			}
+			else {
+				debug(GS_THIS, "Loaded Inventory Object %ld", objectNum);
+			}
+
+			return didLoad;
 		}
 
 		bool loadRoomObject(uint16 roomNum, DiskReader& reader, const TagPair& tag);
