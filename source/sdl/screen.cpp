@@ -165,7 +165,7 @@ namespace gs
 							MOUSE_LMB_EVENT = 1;
 						}
 						else if (event.button.button == SDL_BUTTON_RIGHT) {
-							MOUSE_RMB_EVENT = 1;
+							MOUSE_RMB_EVENT = -1;
 						}
 					}
 					break;

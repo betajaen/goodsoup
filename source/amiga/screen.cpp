@@ -271,17 +271,17 @@ namespace gs
 							MOUSE_Y = msg->MouseY;
 
 							if (msg->Code == SELECTUP) {
-								MOUSE_LMB_STATE = 1;
+								MOUSE_LMB_EVENT = 1;
 							}
 							else {
-								MOUSE_LMB_STATE = -1;
+								MOUSE_LMB_EVENT = -1;
 							}
 
 							if (msg->Code == MENUUP) {
-								MOUSE_RMB_STATE = 1;
+								MOUSE_RMB_EVENT = 1;
 							}
 							else {
-								MOUSE_RMB_STATE = -1;
+								MOUSE_RMB_EVENT = -1;
 							}
 						}
 						break;
