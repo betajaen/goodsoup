@@ -1043,7 +1043,11 @@ namespace gs
 					return;
 					case ResourceRoutineOp_LoadObject: {
 						ObjectData* object = NULL;
-						OBJECTS->loadInventoryObject(resourceNum, object);
+						object = OBJECTS->findObject(resourceNum);
+						if (object == NULL) {
+							debug(GS_THIS, "Pre-loading Object %ld", resourceNum);
+							OBJECTS->loadInventoryObject(resourceNum, object);
+						}
 					}
 					return;
 					case ResourceRoutineOp_LoadRoom:
