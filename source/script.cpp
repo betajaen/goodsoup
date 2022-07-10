@@ -215,15 +215,11 @@ namespace gs
 			uint32 verbKey = reader.readUInt32LE();
 			length += sizeof(uint32);
 
-			debug(GS_THIS, "verb key %ld", verbKey);
-
 			if (verbKey == 0)
 				break;
 
 			uint32 verbOffset = reader.readUInt32LE();
 			length += sizeof(uint32);
-
-			debug(GS_THIS, "verb offset %ld", (uint32) verbOffset);
 
 			script->_offsetkeys[script->_numOffsets] = verbKey;
 			script->_offsetValues[script->_numOffsets] = verbOffset;
@@ -235,9 +231,6 @@ namespace gs
 		}
 
 		reader.readBytes(script->_script, tag.length - length);
-
-		debug(GS_THIS, "LENGTH = %ld", length);
-		debug(GS_THIS, "+VERB %ld %ld %ld", (uint32) objectNum, (uint32) length, (uint32) script->_numOffsets);
 
 		return true;
 	}
