@@ -128,6 +128,15 @@ namespace gs
 			return _objectClass[objectNum];
 		}
 
+		uint16 getObjectRoom(uint16 objectNum) {
+			if (objectNum >= NUM_OBJECT_GLOBALS) {
+				error(GS_THIS, "Invalid object number %ld", (uint32) objectNum);
+				return 0;
+			}
+
+			return _objectRoomNum[objectNum];
+		}
+
 	private:
 
 		uint8 _roomDisks[NUM_ROOMS];
