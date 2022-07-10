@@ -57,8 +57,6 @@ namespace gs
 			return DiskReader::Null();
 		}
 
-		debug(GS_THIS, "Seek to Object %ld at Room %ld at pos %ld", objectNum, roomNum, reader.pos());
-
 		TagPair lflf = reader.readTagPair();
 
 		if (lflf.isTag(GS_MAKE_ID('L','F','L','F')) == false) {
@@ -97,8 +95,6 @@ namespace gs
 									reader.seek(rmscPair);
 									break;
 								}
-
-								debug(GS_THIS, "Counter = %ld", counter);
 
 								reader.seek(rmscPair);
 
@@ -384,7 +380,6 @@ namespace gs
 	}
 
 	bool ObjectState::loadRoomObject(uint16 roomNum, DiskReader& reader, const TagPair& tag) {
-		debug(GS_THIS, "Load Froom Object %ld", roomNum);
 
 		bool isNew = false;
 		ObjectData* object = _readIntoObject(reader, tag, isNew);
@@ -729,6 +724,12 @@ namespace gs
 		_class = objectClass;
 	}
 
+	uint32 ObjectData::getClass(uint32 class_) {
+		class_ = class_ & 0x7F;
+
+		return (1 << (class_ - 1)) != 0;
+	}
+
 	void ObjectData::setClassFlags(uint8 objectClassFlags, bool enable) {
 
 		uint32 flags = (objectClassFlags & 0x7F);
@@ -746,6 +747,7 @@ namespace gs
 	void ObjectData::setState(byte state) {
 		_state = state;
 	}
+
 
 
 }
