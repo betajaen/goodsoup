@@ -195,6 +195,8 @@ namespace gs
 
 		ObjectData* findObject(uint16 objectNum);
 
+		byte getOwner(uint16 objectNum);
+
 		void putClass(uint16 objectNum, uint32 classKind, bool isEnabled);
 
 		byte getState(uint16 objectNum);

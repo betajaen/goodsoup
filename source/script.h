@@ -25,7 +25,7 @@
 
 namespace gs
 {
-#define MAX_SCRIPT_TABLE_ENTRIES 8
+#define MAX_SCRIPT_TABLE_ENTRIES 24
 	class DiskReader;
 	struct TagPair;
 

@@ -57,6 +57,8 @@ namespace gs
 			return DiskReader::Null();
 		}
 
+		debug(GS_THIS, "Seek to Object %ld at Room %ld at pos %ld", objectNum, roomNum, reader.pos());
+
 		TagPair lflf = reader.readTagPair();
 
 		if (lflf.isTag(GS_MAKE_ID('L','F','L','F')) == false) {
@@ -68,6 +70,8 @@ namespace gs
 			error(GS_THIS, "Room length %ld is 0 bytes!", (uint32) roomNum);
 			return DiskReader::Null();
 		}
+
+		uint32 counter = 0;
 
 		while (reader.pos() < lflf.end()) {
 			TagPair roomPair = reader.readTagPair();
@@ -87,10 +91,14 @@ namespace gs
 								uint32 readVersion = reader.readUInt32LE();
 								uint16 readObjectNum = reader.readUInt16LE();
 
+								counter++;
+
 								if (readObjectNum != objectNum) { // Not this one. Skip OBCD completely.
 									reader.seek(rmscPair);
 									break;
 								}
+
+								debug(GS_THIS, "Counter = %ld", counter);
 
 								reader.seek(rmscPair);
 
@@ -656,6 +664,17 @@ namespace gs
 
 
 		return true;
+	}
+
+	byte ObjectState::getOwner(uint16 objectNum) {
+		ObjectData* object = findObject(objectNum);
+		if (object) {
+			return object->_owner;
+		}
+		else {
+			warn(GS_THIS, "getOwner %ld returned a null object", (uint32) objectNum);
+			return 0;
+		}
 	}
 
 	byte ObjectState::getState(uint16 objectNum) {

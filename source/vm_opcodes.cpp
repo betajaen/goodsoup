@@ -1790,12 +1790,14 @@ namespace gs
 			}
 			return;
 			case OP_getState: {
-				int32 obj = _stack.pop();
+				uint16 obj = _stack.pop();
 				_stack.push(OBJECTS->getState(obj));
 			}
 			return;
-			case OP_getOwner:
-				GS_UNHANDLED_OP;
+			case OP_getOwner: {
+				uint16 obj = _stack.pop();
+				_stack.push(OBJECTS->getOwner(obj));
+			}
 			return;
 			case OP_isScriptRunning: {
 				int32 scriptNum = _stack.pop();

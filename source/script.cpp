@@ -209,25 +209,34 @@ namespace gs
 		script->_fileOffset = tag.dataPos;
 		script->_kind = SDK_Verb;
 
-		uint16 length = tag.length;
+		uint16 length = 0;
 
 		while(true) {
-			byte verbKey = reader.readByte();
-			length -= sizeof(byte);
+			uint32 verbKey = reader.readUInt32LE();
+			length += sizeof(uint32);
+
+			debug(GS_THIS, "verb key %ld", verbKey);
 
 			if (verbKey == 0)
 				break;
 
-			uint16 verbOffset = reader.readUInt16LE();
-			length -= sizeof(uint16);
+			uint32 verbOffset = reader.readUInt32LE();
+			length += sizeof(uint32);
+
+			debug(GS_THIS, "verb offset %ld", (uint32) verbOffset);
 
 			script->_offsetkeys[script->_numOffsets] = verbKey;
 			script->_offsetValues[script->_numOffsets] = verbOffset;
 			script->_numOffsets++;
 		}
 
-		reader.readBytes(script->_script, length);
+		for(uint8 i=0;i < script->_numOffsets;i++) {
+			script->_offsetValues[i] -= length;
+		}
 
+		reader.readBytes(script->_script, tag.length - length);
+
+		debug(GS_THIS, "LENGTH = %ld", length);
 		debug(GS_THIS, "+VERB %ld %ld %ld", (uint32) objectNum, (uint32) length, (uint32) script->_numOffsets);
 
 		return true;
