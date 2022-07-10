@@ -39,7 +39,7 @@ namespace gs
 					TagPair rmscPair = reader.readTagPair();
 
 					if (rmscPair.isTag(GS_MAKE_ID('O', 'B', 'C', 'D'))) {
-						if (OBJECTS->loadFromRoomLoad(reader, rmscPair) == false)
+						if (OBJECTS->loadRoomObject(_num, reader, rmscPair) == false)
 							return false;
 						reader.seekEndOf(rmscPair);
 						continue;
@@ -60,7 +60,7 @@ namespace gs
 					if (room.isTag(GS_MAKE_ID('O', 'B', 'I', 'M'))) {
 						TagPair obim = reader.readTagPair();
 
-						if (OBJECTS->loadFromRoomLoad(reader, obim) == false)
+						if (OBJECTS->loadRoomObject(_num, reader, obim) == false)
 							return false;
 
 						reader.seekEndOf(obim);

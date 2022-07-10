@@ -30,11 +30,6 @@
 
 namespace gs
 {
-	struct ActorObjectData;
-	struct FLObjectData;
-	struct InventoryObjectData;
-	
-	struct RoomObjectData;
 
 	enum RoomObjectFlags {
 		OF_None = 0,
@@ -53,8 +48,18 @@ namespace gs
 		OK_Untouchable = 32
 	};
 
+	enum ObjectContainerId {
+		// Objects "being loaded" or unloaded.
+		OCI_None = 0xFFFF,
+		// Objects in the global objects
+		OCI_Global = 0xFFFE,
+		// Objects in inventory
+		OCI_Inventory = 0xFFFD
+	};
+
 	struct ObjectData {
 		uint16 _num;
+		uint16 _containerNum;
 		uint8 _parent;
 		uint8 _parentState;
 		uint8 _state;
@@ -100,6 +105,8 @@ namespace gs
 
 		ObjectData* _acquireByNum(uint16 num, bool& out_isNew);
 
+		bool _moveObject(ObjectData* object, uint16 targetNum);
+
 	public:
 
 		ObjectState();
@@ -108,6 +115,7 @@ namespace gs
 
 		Array<ObjectData*, uint16> _globalObjects;
 		Array<ObjectData*, uint16> _roomObjects;
+		Array<ObjectData*, uint16> _inventoryObjects;
 
 		uint16 getCount() const {
 			return _globalObjects.size() + _roomObjects.size();
@@ -118,10 +126,19 @@ namespace gs
 		void moveRoomObjectsToGlobals();
 		void clearRoomObjectsForNewRoom();
 
-		bool loadFromFloatingObject(uint16 objectNum);
-		bool loadFromRoomLoad(DiskReader& reader, const TagPair& tag);
-		bool unload(uint16 objectNum);
+		bool loadAndMoveInto(uint16 objectNum, uint16 targetContainerNum, bool failIfAlreadyLoaded = false, bool makeFloatingIfGlobal = false);
 
+		bool loadFloatingObject(uint16 objectNum) {
+			return loadAndMoveInto(objectNum, OCI_Global, false, true);
+		}
+
+		bool loadInventoryObject(uint16 objectNum) {
+			return loadAndMoveInto(objectNum, OCI_Inventory);
+		}
+
+		bool loadRoomObject(uint16 roomNum, DiskReader& reader, const TagPair& tag);
+
+		bool unload(uint16 objectNum);
 
 		bool hasGlobalObject(uint16 objectNum) const;
 		bool hasRoomObject(uint16 objectNum) const;
@@ -145,27 +162,9 @@ namespace gs
 
 		ObjectData* findGlobalObject(uint16 objectNum);
 		ObjectData* findRoomObject(uint16 objectNum);
+		ObjectData* findInventoryObject(uint16 objectNum);
 
-		ObjectData* findObject(uint16 objectNum) {
-
-			if (objectNum == 0) {
-				return NULL;
-			}
-
-			ObjectData* objectData = findRoomObject(objectNum);
-
-			if (objectData != NULL) {
-				return objectData;
-			}
-
-			objectData = findGlobalObject(objectNum);
-
-			if (objectData != NULL) {
-				return objectData;
-			}
-
-			return NULL;
-		}
+		ObjectData* findObject(uint16 objectNum);
 
 		void putClass(uint16 objectNum, uint32 classKind, bool isEnabled);
 

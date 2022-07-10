@@ -332,7 +332,8 @@ namespace gs
 
 	}
 
-	bool ObjectState::loadFromFloatingObject(uint16 objectNum) {
+	bool ObjectState::loadAndMoveInto(uint16 objectNum, uint16 targetNum, bool failIfAlreadyLoaded, bool makeFloatingIfGlobal)
+	{
 
 		ObjectData* object;
 
@@ -340,11 +341,14 @@ namespace gs
 
 		if (object != NULL) {
 
-			if (object->isFloating() == false) {
-				warn(GS_THIS, "A floating object %ld was requested which is already loaded, but it is not floating?", objectNum);
+			if (failIfAlreadyLoaded)
+				return false;
+
+			if (targetNum == OCI_Global && makeFloatingIfGlobal) {
+				object->setFloating(true);
 			}
 
-			return object;
+			return _moveObject(object, targetNum);
 		}
 
 
@@ -358,6 +362,15 @@ namespace gs
 
 		bool isNew;
 		object = _readIntoObject(reader, tag, isNew);
+		if (isNew) {
+			object->_containerNum = OCI_None;
+		}
+
+		if (targetNum == OCI_Global && makeFloatingIfGlobal) {
+			object->setFloating(true);
+		}
+
+		_moveObject(object, targetNum);
 
 		if (object) {
 			object->setFloating(true);
@@ -367,14 +380,18 @@ namespace gs
 		return object;
 	}
 
-	bool ObjectState::loadFromRoomLoad(DiskReader& reader, const TagPair& tag) {
+	bool ObjectState::loadRoomObject(uint16 roomNum, DiskReader& reader, const TagPair& tag) {
 		bool isNew = false;
 		ObjectData* object = _readIntoObject(reader, tag, isNew);
 		if (object == NULL)
 			return false;
 
 		if (isNew) {
+			object->_containerNum = roomNum;
 			_roomObjects.push(object);
+		}
+		else {
+			_moveObject(object, roomNum);
 		}
 
 		return true;
@@ -387,19 +404,31 @@ namespace gs
 		}
 
 		for(uint16 i=0;i < _roomObjects.size();i++) {
-			ObjectData* data = _roomObjects.get_unchecked(i);
-			if (data->_num == objectNum) {
+			ObjectData* object = _roomObjects.get_unchecked(i);
+			if (object->_num == objectNum) {
+				object->clear();
 				_roomObjects.erase(i);
-				_pool.release_unchecked(data);
+				_pool.release_unchecked(object);
 				return true;
 			}
 		}
 
 		for (uint16 i=0;i < _globalObjects.size();i++) {
-			ObjectData* data = _globalObjects.get_unchecked(i);
-			if (data->_num == objectNum) {
+			ObjectData* object = _globalObjects.get_unchecked(i);
+			if (object->_num == objectNum) {
+				object->clear();
 				_globalObjects.erase(i);
-				_pool.release_unchecked(data);
+				_pool.release_unchecked(object);
+				return true;
+			}
+		}
+
+		for (uint16 i=0;i < _inventoryObjects.size();i++) {
+			ObjectData* object = _inventoryObjects.get_unchecked(i);
+			if (object->_num == objectNum) {
+				object->clear();
+				_inventoryObjects.erase(i);
+				_pool.release_unchecked(object);
 				return true;
 			}
 		}
@@ -427,6 +456,43 @@ namespace gs
 		return NULL;
 	}
 
+	ObjectData* ObjectState::findInventoryObject(uint16 objectNum) {
+		for(uint16 i=0; i < _inventoryObjects.size(); i++) {
+			const ObjectData* object = _inventoryObjects.get_unchecked(i);
+			if (object->_num == objectNum) {
+				return (ObjectData*) object;
+			}
+		}
+		return NULL;
+	}
+
+	ObjectData* ObjectState::findObject(uint16 objectNum) {
+
+		if (objectNum == 0) {
+			return NULL;
+		}
+
+		ObjectData* objectData = findRoomObject(objectNum);
+
+		if (objectData != NULL) {
+			return objectData;
+		}
+
+		objectData = findGlobalObject(objectNum);
+
+		if (objectData != NULL) {
+			return objectData;
+		}
+
+		objectData = findInventoryObject(objectNum);
+
+		if (objectData != NULL) {
+			return objectData;
+		}
+
+		return NULL;
+	}
+
 	void ObjectState::dumpObjects() const {
 		for(uint16 i=0; i < _roomObjects.size(); i++) {
 			const ObjectData* object = _roomObjects.get_unchecked(i);
@@ -441,6 +507,16 @@ namespace gs
 		for(uint16 i=0; i < _globalObjects.size(); i++) {
 			const ObjectData* object = _globalObjects.get_unchecked(i);
 			debug(GS_THIS, "G Idx=%ld Num=%ld Flags=%ld Parent=%ld ParentState=%ld",
+				  (uint32) i,
+				  (uint32) object->_num,
+				  (uint32) object->_flags,
+				  (uint32) object->_parent,
+				  (uint32) object->_parentState
+			);
+		}
+		for(uint16 i=0; i < _inventoryObjects.size(); i++) {
+			const ObjectData* object = _inventoryObjects.get_unchecked(i);
+			debug(GS_THIS, "I Idx=%ld Num=%ld Flags=%ld Parent=%ld ParentState=%ld",
 				  (uint32) i,
 				  (uint32) object->_num,
 				  (uint32) object->_flags,
@@ -486,6 +562,102 @@ namespace gs
 		return 0;
 	}
 
+	bool ObjectState::_moveObject(ObjectData* object, uint16 targetNum) {
+
+		if (object->_containerNum == targetNum) {
+			return true; // Already in container.
+		}
+
+		if (object->_containerNum <= NUM_ROOMS && targetNum <= NUM_ROOMS) {
+			// Note:
+			// For now assume the object is in _roomObjects.
+			// Each room may need to have its own _objects array in the future.
+			return true;
+		}
+
+		bool foundContainer = false;
+
+		if (object->_containerNum <= NUM_ROOMS) {
+			// Note:
+			// For now assume the object is in _roomObjects.
+			// Each room may need to have its own _objects array in the future.
+
+			for(uint16 i=0;i < _roomObjects.size();i++) {
+				ObjectData* otherObject = _roomObjects.get_unchecked(i);
+
+				if (otherObject == object) {
+					_roomObjects.erase(i);
+					foundContainer = true;
+					break;
+				}
+			}
+
+		}
+		else if (object->_containerNum == OCI_Global) {
+			for(uint16 i=0;i < _globalObjects.size();i++) {
+
+				ObjectData* otherObject = _globalObjects.get_unchecked(i);
+
+				if (otherObject == object) {
+					_globalObjects.erase(i);
+					foundContainer = true;
+					break;
+				}
+			}
+		}
+		else if (object->_containerNum == OCI_Inventory) {
+			for(uint16 i=0;i < _inventoryObjects.size();i++) {
+
+				ObjectData* otherObject = _inventoryObjects.get_unchecked(i);
+
+				if (otherObject == object) {
+					_inventoryObjects.erase(i);
+					foundContainer = true;
+					break;
+				}
+			}
+		}
+		else if (object->_containerNum == OCI_None) {
+			foundContainer = true;
+		}
+		else {
+			error(GS_THIS, "Corrupted containerNum for object %ld", object->_num);
+			abort_quit_stop();
+			return false;
+		}
+
+		if (foundContainer == false) {
+			error(GS_THIS, "Object %ld was not in its container %ld", object->_num, object->_containerNum);
+			abort_quit_stop();
+			return false;
+		}
+
+
+		if (object->_containerNum <= NUM_ROOMS) {
+			// Note:
+			// For now assume the object is in _roomObjects.
+			// Each room may need to have its own _objects array in the future.
+
+			_roomObjects.push(object);
+		}
+		else if (object->_containerNum == OCI_Global) {
+			_globalObjects.push(object);
+		}
+		else if (object->_containerNum == OCI_Inventory) {
+			_inventoryObjects.push(object);
+		}
+		else if (object->_containerNum == OCI_None) {
+			// Nothing to do here.
+		}
+		else {
+			error(GS_THIS, "Object %ld was moved to a non-existing container %ld", object->_num, object->_containerNum);
+		}
+
+		object->_containerNum = targetNum;
+
+		return true;
+	}
+
 	byte ObjectState::getState(uint16 objectNum) {
 		ObjectData* object = findObject(objectNum);
 		if (object) {
@@ -509,6 +681,7 @@ namespace gs
 
 	void ObjectData::clear() {
 		_num = 0;
+		_containerNum = OCI_None;
 		_state = 0;
 		_parent = 0;
 		_parentState = 0;
