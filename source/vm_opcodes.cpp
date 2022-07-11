@@ -60,8 +60,11 @@ namespace gs
 
 	void VirtualMachine::_step() {
 		_pcOpcode = _pc;
-		_opcode = _readByte();	
+		_opcode = _readByte();
+		
+#if GS_DEBUG==1
 		_pcState.opcode = _opcode;
+#endif
 
 #if defined(GS_VM_DEBUG) && GS_VM_DEBUG==1
         ScriptContext& ctx = _context[CURRENT_CONTEXT];

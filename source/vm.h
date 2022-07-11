@@ -164,11 +164,13 @@ namespace gs
 	{
 	private:
 
+#if GS_DEBUG==1
 		struct PcState
 		{
 			uint16 pc, pcAfter, scriptNum;
 			uint8  opcode, context, contextAfter;
 		};
+#endif
 
 		OpcodeSpan						_nullScript;
 		Buffer<int32>					_intGlobals;
@@ -182,9 +184,11 @@ namespace gs
 		OpcodeSpan						_script;
 		byte							_opcode;
 		Array<char>						_messageTemp;
+#if GS_DEBUG==1
 		RingLog<PcState>				_lastPcStates;
 		PcState							_pcState;
 		bool							_pushPcState;
+#endif
 		VmStack<256>					_stack;
 		Array<byte, uint16>				_arrayTemp;
 

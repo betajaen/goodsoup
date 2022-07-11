@@ -40,11 +40,13 @@ namespace gs
 
 		// Global Ints
 		if (!(varName & 0xF0000000)) {
+#if GS_CHECKED == 1
 			if (varName >= NUM_INT_GLOBALS) {
 				error(GS_THIS, "Int Global %d out of range!", varName);
 				abort_quit_stop();
 				return;
 			}
+#endif
 			INTS->set(varName, value);
 			return;
 		}
@@ -52,12 +54,13 @@ namespace gs
 		// Global Bools
 		if (varName & 0x80000000) {
 			varName &= 0x7FFFFFFF;
+#if GS_CHECKED == 1
 			if (varName >= NUM_BOOL_GLOBALS) {
 				error(GS_THIS, "Bool Global variable %d out of range!", varName);
 				abort_quit_stop();
 				return;
 			}
-
+#endif
 			BOOLS->set_unchecked(varName, value);
 			return;
 		}
@@ -65,11 +68,13 @@ namespace gs
 		// VM Local Ints
 		if (varName & 0x40000000) {
 			varName &= 0xFFFFFFF;
+#if GS_CHECKED == 1
 			if (varName >= NUM_INT_LOCALS) {
 				error(GS_THIS, "Script variable %d out of range!", varName);
 				abort_quit_stop();
 				return;
 			}
+#endif
 
 			LOCALS->set_unchecked(CURRENT_CONTEXT, varName, value);
 			return;
@@ -79,36 +84,42 @@ namespace gs
 
 	int32 getVar(uint32 varName) {
 
-
 		// Global Ints
 		if (!(varName & 0xF0000000)) {
+#if GS_CHECKED == 1
 			if (varName >= NUM_INT_GLOBALS) {
 				error(GS_THIS, "Int Global %d out of range!", varName);
 				abort_quit_stop();
 				return 0;
 			}
+#endif
 			return INTS->get(varName);
 		}
 
 		// Global Bools
 		if (varName & 0x80000000) {
 			varName &= 0x7FFFFFFF;
+#if GS_CHECKED == 1
 			if (varName >= NUM_BOOL_GLOBALS) {
 				error(GS_THIS, "Bool Global variable %d out of range!", varName);
 				abort_quit_stop();
 				return 0;
 			}
+#endif
 			return BOOLS->get_unchecked(varName);
 		}
 
 		// Local Ints
 		if (varName & 0x40000000) {
 			varName &= 0xFFFFFFF;
+
+#if GS_CHECKED == 1
 			if (varName >= NUM_INT_LOCALS) {
 				error(GS_THIS, "Script variable %d out of range!", varName);
 				abort_quit_stop();
 				return 0;
 			}
+#endif
 
 			return LOCALS->get_unchecked(CURRENT_CONTEXT, varName);
 		}
@@ -117,11 +128,13 @@ namespace gs
 	}
 
 	void VmLocalVars::clear(uint8 context) {
+#if GS_CHECKED == 1
 		if (context >= MAX_SCRIPT_CONTEXTS) {
 			error(GS_THIS, "Context out of range %ld!", (uint32) context);
 			abort_quit_stop();
 			return;
 		}
+#endif
 
 		for (uint8 i = 0; i < NUM_INT_LOCALS; i++) {
 			_locals[context][i] = 0;
@@ -129,7 +142,8 @@ namespace gs
 	}
 
 	void VmLocalVars::copyInto(uint8 context, int32* values, uint8 numValues) {
-		
+
+#if GS_CHECKED == 1
 		if (context >= MAX_SCRIPT_CONTEXTS) {
 			error(GS_THIS, "Context out of range %ld!", (uint32) context);
 			abort_quit_stop();
@@ -142,7 +156,7 @@ namespace gs
 			abort_quit_stop();
 			return;
 		}
-
+#endif
 		
 		for (uint8 i = 0; i < numValues; i++) {
 			_locals[context][i] = values[i];

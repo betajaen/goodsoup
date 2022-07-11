@@ -73,10 +73,12 @@ namespace gs
 
 		uint8 arrayIdx = _getFreeIndex();
 
+#if 0
 		if (arrayIdx == NUM_ARRAY) {
 			error(GS_THIS, "Out of array slots!");
 			return NULL;
 		}
+#endif
 
 		uint32 allocSize = 4;
 
@@ -110,11 +112,13 @@ namespace gs
 	}
 	
 	void VmArrayAllocator::deallocateFromArray(VmArray* array) {
-		
+
+#if GS_CHECKED == 1
 		if (array == NULL) {
 			error(GS_THIS, "Tried to free a null VmArray!");
 			return;
 		}
+#endif
 
 		uint8 index = array->_idx;
 

@@ -407,7 +407,9 @@ namespace gs
 			LOCALS->clear(i);
 		}
 
+#if GS_DEBUG==1
 		_pushPcState = false;
+#endif
 
 		INTS->currentdisk = 1;
 
@@ -439,10 +441,13 @@ namespace gs
 
 	void VirtualMachine::runScript(uint16 scriptNum, bool freezeResistant, bool recursive, int32* data, uint8 dataCount)
 	{
+
+#if GS_CHECKED == 1
 		if (scriptNum == 0) {
 			warn(GS_THIS, "VM tried to run NULL script 0");
 			return;
 		}
+#endif
 
 		if (recursive == false) {
 			_stopScript(scriptNum);
@@ -480,10 +485,12 @@ namespace gs
 
 	void VirtualMachine::runObjectScript(uint16 objectNum, uint8 verb, bool freezeResistant, bool recursive, int32* data, uint8 dataCount) {
 
+#if GS_CHECKED == 1
 		if (objectNum == 0) {
 			warn(GS_THIS, "Could not run a NULL object script %ld", (uint32) objectNum);
 			return;
 		}
+#endif
 
 		if (recursive == false) {
 			_stopObjectScript(objectNum);
@@ -514,11 +521,14 @@ namespace gs
 	}
 	
 	void VirtualMachine::runRoomScript(uint16 scriptNum) {
+
+#if GS_CHECKED == 1
 		if (scriptNum == 0) {
 			error(GS_THIS, "Could not run a NULL room script %ld", (uint32) scriptNum);
 			abort_quit_stop();
 			return;
 		}
+#endif
 
 		uint8 contextNum;
 
@@ -548,11 +558,14 @@ namespace gs
 	}
 
 	void VirtualMachine::runInputScript(uint16 scriptNum, int32 clickArea, int32 code, int32 mode) {
+
+#if GS_CHECKED == 1
 		if (scriptNum == 0) {
 			error(GS_THIS, "Could not run a NULL room script %ld", (uint32) scriptNum);
 			abort_quit_stop();
 			return;
 		}
+#endif
 
 		uint8 contextNum;
 
@@ -598,29 +611,36 @@ namespace gs
 		
 		ScriptContext& context = _context[CURRENT_CONTEXT];
 
+#if GS_CHECKED == 1
 		if (context._cutsceneOverride) {
 			error(GS_THIS, "Ending with active cutscene");
 			abort_quit_stop();
 			return;
 		}
+#endif
 
 		context._scriptNum = 0;
 		context._state = SCS_Dead;
 
 		CURRENT_CONTEXT = NO_CONTEXT;
-		
+
+#if GS_DEBUG == 1
 		if (_pushPcState) {
 			_pushPcState = false;
 			_pcState.contextAfter = CURRENT_CONTEXT;
 			_pcState.pcAfter = _pc;
 			_lastPcStates.write(_pcState);
 		}
+#endif
 
 	}
 
 	void VirtualMachine::_stopScript(uint16 scriptNum) {
+
+#if GS_CHECKED == 1
 		if (scriptNum == 0)
 			return;
+#endif
 
 		for (uint8 i = 0; i < MAX_SCRIPT_CONTEXTS; i++) {
 			ScriptContext& context = _context[i];
@@ -662,8 +682,11 @@ namespace gs
 	}
 	
 	void VirtualMachine::_stopObjectScript(uint16 scriptNum) {
-				if (scriptNum == 0)
+
+#if GS_CHECKED == 1
+		if (scriptNum == 0)
 			return;
+#endif
 
 		for (uint8 i = 0; i < MAX_SCRIPT_CONTEXTS; i++) {
 			ScriptContext& context = _context[i];
@@ -877,13 +900,15 @@ namespace gs
 	}
 
 	void VirtualMachine::_pushAndRunScript(uint8 newContextNum) {
-		
+
+#if GS_DEBUG==1
 		if (_pushPcState) {
 			_pushPcState = false;
 			_pcState.contextAfter = newContextNum;
 			_pcState.pcAfter = _pc;
 			_lastPcStates.write(_pcState);
 		}
+#endif
 
 		ScriptStackItem& last = _contextStack[_contextStackSize];
 		
@@ -947,14 +972,15 @@ namespace gs
 				}
 
 				_pc = lastContext._lastPC;
-				
+
+#if GS_DEBUG==1
 				PcState state;
 				state.context = last._contextNum;
 				state.opcode = 0xFF;
 				state.pc = _pc;
 				state.pcAfter = _pc;
 				_lastPcStates.write(state);
-
+#endif
 				return;
 			}
 
@@ -968,16 +994,20 @@ namespace gs
             ScriptContext& context = _context[CURRENT_CONTEXT];
             context._bIsExecuted = true;
 
+#if GS_DEBUG == 1
 			_pushPcState = true;
 			_pcState.pc = _pc;
 			_pcState.context = CURRENT_CONTEXT;
+#endif
 
 			_step();
+#if GS_DEBUG==1
 			if (_pushPcState) {
 				_pcState.pcAfter = _pc;
 				_pcState.contextAfter = CURRENT_CONTEXT;
 				_lastPcStates.write(_pcState);
 			}
+#endif
 		}
 	}
 
@@ -989,23 +1019,7 @@ namespace gs
 			_break();
 		}
 	}
-/*
-  var scr = CurrentScript;
-            _slots[scr].CutSceneOverride++;
 
-            ++cutScene.StackPointer;
-
-            cutScene.Data[cutScene.StackPointer].Data = args.Length > 0 ? args[0] : 0;
-            cutScene.Data[cutScene.StackPointer].Script = 0;
-            cutScene.Data[cutScene.StackPointer].Pointer = 0;
-
-            cutScene.ScriptIndex = scr;
-
-            if (_variables[VariableCutSceneStartScript.Value] != 0)
-                RunScript(_variables[VariableCutSceneStartScript.Value], false, false, args);
-
-            cutScene.ScriptIndex = 0xFF;
- */
 	void VirtualMachine::_beginCutscene(uint16 stackListCount) {
 		uint8 contextIdx = CURRENT_CONTEXT;
 		ScriptContext& context = _context[CURRENT_CONTEXT];
@@ -1082,13 +1096,15 @@ namespace gs
 
 	void VirtualMachine::_break() {
 		if (CURRENT_CONTEXT != NO_CONTEXT) {
-			
+
+#if GS_DEBUG == 1
 			if (_pushPcState) {
 				_pushPcState = false;
 				_pcState.contextAfter = NO_CONTEXT;
 				_pcState.pcAfter = _pc;
 				_lastPcStates.write(_pcState);
 			}
+#endif
 
 			ScriptContext& context = _context[CURRENT_CONTEXT];
 			context._lastPC = _pc;
@@ -1246,7 +1262,7 @@ namespace gs
 	}
 
 	void VirtualMachine::_dumpState() {
-
+#if GS_DEBUG==1
 		dumpStack();
 
 		debug_write(DC_Debug, GS_FILE_NAME, __FILE__, __FUNCTION__, __LINE__, "VM State as follows:");
@@ -1356,11 +1372,11 @@ namespace gs
 
 	
 		debug_write_char('\n');
-
+#endif
 	}
 
 	void VirtualMachine::dumpStack() {
-
+#if GS_DEBUG==1
 		debug(GS_THIS, "VMContext **START");
 		for(uint8 i=0;i < MAX_SCRIPT_CONTEXTS;i++) {
 			ScriptContext& context = _context[i];
@@ -1371,6 +1387,7 @@ namespace gs
 			debug(GS_THIS, "VMContext [%d] %d %s %s", i, context._scriptNum, ObjectWhereToString(context._scriptWhere), ObjectStateToString(context._state));
 		}
 		debug(GS_THIS, "VMContext **END");
+#endif
 	}
 
 	void VirtualMachine::_forceQuit() {
