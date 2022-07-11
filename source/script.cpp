@@ -203,6 +203,12 @@ namespace gs
 			return false;
 		}
 
+		// No script.
+		// Just a empty table entry
+		if (tag.length == 4) {
+			return true;
+		}
+
 		ScriptData* script = _objectVerbs.acquire();
 		script->_id = objectNum;
 		script->_parentId = 0;
@@ -221,6 +227,12 @@ namespace gs
 			uint32 verbOffset = reader.readUInt32LE();
 			length += sizeof(uint32);
 
+			if (script->_numOffsets >= MAX_SCRIPT_TABLE_ENTRIES) {
+				error(GS_THIS, "Out of Script Table Entries for script %ld", (uint32) script->_id);
+				abort_quit_stop();
+				return false;
+			}
+
 			script->_offsetkeys[script->_numOffsets] = verbKey;
 			script->_offsetValues[script->_numOffsets] = verbOffset;
 			script->_numOffsets++;
@@ -230,8 +242,14 @@ namespace gs
 			script->_offsetValues[i] -= length;
 		}
 
-		reader.readBytes(script->_script, tag.length - length);
+		if (length > tag.length) {
+			error(GS_THIS, "Header is to large in script %ld", (uint32) script->_id);
+			abort_quit_stop();
+			return false;
+		}
 
+		reader.readBytes(script->_script, tag.length - length);
+		
 		return true;
 	}
 
