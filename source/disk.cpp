@@ -33,6 +33,7 @@ namespace gs
 
 	static inline void checkTag(char tagName[5], uint32 pos)
 	{
+#if GS_CHECKED == 1
 		if (tagName[0] < 'A')
 			goto _error;
 		if (tagName[0] > 'Z')
@@ -53,6 +54,7 @@ namespace gs
 
 	_error:
 		error(GS_THIS, "(%ld,%2x,%2x,%2x,%2x) Read a bad tagName. Read index is incorrect! ", pos, tagName[0], tagName[1], tagName[2], tagName[3]);
+#endif
 	}
 
 	Disk::Disk() {
@@ -91,17 +93,21 @@ namespace gs
 		_file.readTag(tagName);
 		tagLength = _file.readUInt32BE();
 
+#if GS_CHECKED==1
 		// File header
 		if (tagEqual(tagName, 'L', 'E', 'C', 'F') == false) {
 			error(GS_THIS, "Disk %ld is not a COMI.LA%ld file!", _num, _num);
 			return false;
 		}
+#endif
 
+#if GS_CHECKED==1
 		// Reasonable tag length;
 		if (tagLength < 10000) {
 			error(GS_THIS, "Disk %ld is probably not a COMI.LA%ld file!", _num, _num);
 			return false;
 		}
+#endif
 
 		
 		while (_file.isEof() == false) {

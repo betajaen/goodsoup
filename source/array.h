@@ -346,7 +346,7 @@ namespace gs
 		}
 
 		inline void push(const T& item) {
-#if GS_CHECK == 1
+#if GS_CHECKED == 1
 			if (isFull()) {
 				error(GS_THIS, "Out of bounds access");
 			}
@@ -366,7 +366,7 @@ namespace gs
 		}
 
 		inline T& pop() const {
-#if GS_CHECK == 1
+#if GS_CHECKED == 1
 			if (_end == 0) {
 				error(GS_THIS, "Out of bounds access");
 			}

@@ -31,6 +31,7 @@ namespace gs
 
 	static inline void checkTag(char tagName[5], uint32 pos)
 	{
+#if GS_CHECKED == 1
 		if (tagName[0] < 'A')
 			goto _error;
 		if (tagName[0] > 'Z')
@@ -51,6 +52,7 @@ namespace gs
 
 	_error:
 		error(GS_THIS, "(%ld,%2x,%2x,%2x,%2x) Read a bad tagName. Read index is incorrect! ", pos, tagName[0], tagName[1], tagName[2], tagName[3]);
+#endif
 	}
 
 	Index::Index() {
@@ -75,8 +77,6 @@ namespace gs
 
 			TagPair tag = reader.readTagPair();
 
-			debug(GS_THIS, "+ INDEX %s", tag.tagStr());
-
 			if (tag.isTag(GS_MAKE_ID('R', 'N', 'A', 'M'))) {
 				// Skip RNAMEs as it seems to be a debug feature, and possible waste of memory.
 				reader.skip(tag);
@@ -85,6 +85,7 @@ namespace gs
 
 			if (tag.isTag(GS_MAKE_ID('M', 'A', 'X', 'S'))) {
 
+#if GS_CHECKED == 1
 				reader.skip(100); // Copyright header.
 
 				uint32 value;
@@ -114,20 +115,24 @@ namespace gs
 				ENFORCE_MAXS1(NUM_ARRAY);
 				ENFORCE_MAXS1(NUM_VERBS);
 #undef ENFORCE_MAXS1
-
+#else
+				reader.skip(tag);
+#endif
 				continue;
 			}
+
 
 			if (tag.isTag(GS_MAKE_ID('D', 'R', 'O', 'O'))) {
 
 				uint32 length = reader.readUInt32LE();
 
+#if GS_CHECKED == 1
 				if (length != NUM_ROOMS) {
 					error(GS_THIS, "Number of rooms %ld is unexpected %ld", length, NUM_ROOMS);
 					abort_quit_stop();
 					return false;
 				}
-
+#endif
 				for(uint8 i=0;i < NUM_ROOMS;i++) {
 					_roomDisks[i] = reader.readByte();
 				}
@@ -142,11 +147,13 @@ namespace gs
 
 				uint32 length = reader.readUInt32LE();
 
+#if GS_CHECKED == 1
 				if (length != NUM_ROOMS) {
 					error(GS_THIS, "Number of rooms %ld is unexpected %ld", length, NUM_ROOMS);
 					abort_quit_stop();
 					return false;
 				}
+#endif
 
 				// We dont need to store these as they are implied by the array index.
 				for(uint8 i=0;i < NUM_ROOMS;i++) {
@@ -170,11 +177,14 @@ namespace gs
 
 				uint32 length = reader.readUInt32LE();
 
+#if GS_CHECKED == 1
+
 				if (length != NUM_SCRIPTS) {
 					error(GS_THIS, "Number of scripts %ld is unexpected %ld", length, NUM_SCRIPTS);
 					abort_quit_stop();
 					return false;
 				}
+#endif
 
 				for(uint16 i=0;i < NUM_SCRIPTS;i++) {
 					_scriptRoom[i] = reader.readByte();
@@ -191,11 +201,13 @@ namespace gs
 
 				uint32 length = reader.readUInt32LE();
 
+#if GS_CHECKED == 1
 				if (length != NUM_OBJECT_GLOBALS) {
 					error(GS_THIS, "Number of objects %ld is unexpected %ld", length, NUM_SCRIPTS);
 					abort_quit_stop();
 					return false;
 				}
+#endif
 
 				for(uint16 i=0;i < NUM_OBJECT_GLOBALS;i++) {
 					_objectNameHash[i] = reader.readFixedStringAsHash(40);
@@ -215,10 +227,12 @@ namespace gs
 
 				while (reader.pos() < tag.end()) {
 
+#if GS_CHECKED == 1
 					if (count > NUM_AARY) {
 						error(GS_THIS, "(AARY, %ld, %ld) Expected AARY count has been exceeded!");
 						return false;
 					}
+#endif
 
 					arrayNum = reader.readUInt32LE();
 
@@ -255,12 +269,14 @@ namespace gs
 
 			checkTag:
 
+#if GS_CHECKED == 1
 			if (reader.pos() > tag.end()) {
 
 				error(GS_THIS, "Tag overread!! %s %ld %ld", tag.tagStr(), reader.pos(), tag.end());
 				abort_quit_stop();
 				return false;
 			}
+#endif
 
 			continue;
 

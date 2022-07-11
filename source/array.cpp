@@ -21,6 +21,7 @@
 
 namespace gs
 {
+#if GS_TEST==1
 	void test_array() {
 		Array<int32> a;
 		a.push(1);
@@ -43,4 +44,5 @@ namespace gs
 		FixedArray<int32, 8> b;
 		b[2] = 3;
 	}
+#endif
 }
