@@ -39,12 +39,12 @@ namespace gs
 		}
 
 		void clear() {
-			for (Index i = 0; i < _items.size(); i++) {
+			for (Index i = 0; i < _items.getSize(); i++) {
 				T* item = _items.get_unchecked(i);
 				deleteObject_unchecked(item);
 			}
 			_items.release();
-			for (Index i = 0; i < _pool.size(); i++) {
+			for (Index i = 0; i < _pool.getSize(); i++) {
 				T* item = _pool.get_unchecked(i);
 				deleteObject_unchecked(item);
 			}
@@ -52,7 +52,7 @@ namespace gs
 		}
 
 		T* acquire() {
-			if (_pool.size()) {
+			if (_pool.getSize()) {
 				T* item = _pool.popItem();
 				_items.push(item);
 				return item;
@@ -64,7 +64,7 @@ namespace gs
 		}
 
 		bool release(T* item) {
-			for (uint16 i = 0; i < _items.size(); i++) {
+			for (uint16 i = 0; i < _items.getSize(); i++) {
 				T* test = _items.get_unchecked(i);
 				if (test == item) {
 					_items.erase(i);
@@ -77,7 +77,7 @@ namespace gs
 		}
 		
 		void release_unchecked(T* item) {
-			for (uint16 i = 0; i < _items.size(); i++) {
+			for (uint16 i = 0; i < _items.getSize(); i++) {
 				T* test = _items.get_unchecked(i);
 				if (test == item) {
 					_items.erase(i);
@@ -88,7 +88,7 @@ namespace gs
 		}
 
 		uint16 getSize() const {
-			return _items.size();
+			return _items.getSize();
 		}
 
 		T* get(Index idx) {
@@ -122,14 +122,14 @@ namespace gs
 		}
 
 		void clear() {
-			for(Index i=0;i < _free.size();i++) {
+			for(Index i=0;i < _free.getSize(); i++) {
 				deleteObject_unchecked(_free.get_unchecked(i));
 			}
 			_free.clear();
 		}
 
 		T* acquire() {
-			if (_free.size()) {
+			if (_free.getSize()) {
 				T* item = _free.popItem();
 				return item;
 			}
@@ -139,7 +139,7 @@ namespace gs
 		}
 
 		void release(T* item) {
-			for (uint16 i = 0; i < _free.size(); i++) {
+			for (uint16 i = 0; i < _free.getSize(); i++) {
 				T* test = _free.get_unchecked(i);
 				if (test == item) {
 					return;

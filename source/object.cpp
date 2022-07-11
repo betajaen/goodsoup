@@ -230,7 +230,7 @@ namespace gs
 	ObjectData* ObjectState::_acquireByNum(uint16 num, bool& out_isNew) {
 		if (num != 0) {
 
-			for(uint16 i=0; i < _roomObjects.size(); i++) {
+			for(uint16 i=0; i < _roomObjects.getSize(); i++) {
 				ObjectData* object = _roomObjects.get_unchecked(i);
 				if (object->_num == num) {
 					out_isNew = false;
@@ -238,7 +238,7 @@ namespace gs
 				}
 			}
 
-			for(uint16 i=0;i < _globalObjects.size();i++) {
+			for(uint16 i=0;i < _globalObjects.getSize(); i++) {
 				ObjectData* object= _globalObjects.get_unchecked(i);
 				if (object->_num == num) {
 					out_isNew = false;
@@ -257,13 +257,13 @@ namespace gs
 	}
 
 	void ObjectState::clearAll() {
-		for(uint16 i=0; i < _roomObjects.size(); i++) {
+		for(uint16 i=0; i < _roomObjects.getSize(); i++) {
 			ObjectData* object = _roomObjects.get_unchecked(i);
 			object->clear();
 			_pool.release_unchecked(object);
 		}
 
-		for (uint16 i=0;i < _globalObjects.size();i++) {
+		for (uint16 i=0;i < _globalObjects.getSize(); i++) {
 			ObjectData* object = _globalObjects.get_unchecked(i);
 			object->clear();
 			_pool.release_unchecked(object);
@@ -278,7 +278,7 @@ namespace gs
 		while(true) {
 			bool didDelete = false;
 
-			for(uint16 i=0;i < _globalObjects.size();i++) {
+			for(uint16 i=0;i < _globalObjects.getSize(); i++) {
 				ObjectData* object = _globalObjects.get_unchecked(i);
 
 				if (object->isFloating() == false) {
@@ -294,7 +294,7 @@ namespace gs
 		}
 
 		// Merge in new ones.
-		for(uint16 i=0; i < _roomObjects.size();i++) {
+		for(uint16 i=0; i < _roomObjects.getSize(); i++) {
 			ObjectData* object = _roomObjects.get_unchecked(i);
 			_globalObjects.push(object);
 		}
@@ -307,7 +307,7 @@ namespace gs
 
 		static Array< Pair<uint16, ObjectData*> > objectsToClear;
 
-		for(uint16 i=0; i < _globalObjects.size(); i++) {
+		for(uint16 i=0; i < _globalObjects.getSize(); i++) {
 
 			ObjectData* object = _globalObjects.get_unchecked(i);
 
@@ -325,8 +325,8 @@ namespace gs
 			}
 		}
 
-		if (objectsToClear.size()) {
-			for (uint16 i = 0; i < objectsToClear.size(); i++) {
+		if (objectsToClear.getSize()) {
+			for (uint16 i = 0; i < objectsToClear.getSize(); i++) {
 				Pair<uint16, ObjectData*> idxObject = objectsToClear.get_unchecked(i);
 				_pool.release_unchecked(idxObject._second);
 				_globalObjects.erase(idxObject._first);
@@ -403,7 +403,7 @@ namespace gs
 			return false;
 		}
 
-		for(uint16 i=0;i < _roomObjects.size();i++) {
+		for(uint16 i=0;i < _roomObjects.getSize(); i++) {
 			ObjectData* object = _roomObjects.get_unchecked(i);
 			if (object->_num == objectNum) {
 				object->clear();
@@ -413,7 +413,7 @@ namespace gs
 			}
 		}
 
-		for (uint16 i=0;i < _globalObjects.size();i++) {
+		for (uint16 i=0;i < _globalObjects.getSize(); i++) {
 			ObjectData* object = _globalObjects.get_unchecked(i);
 			if (object->_num == objectNum) {
 				object->clear();
@@ -423,7 +423,7 @@ namespace gs
 			}
 		}
 
-		for (uint16 i=0;i < _inventoryObjects.size();i++) {
+		for (uint16 i=0;i < _inventoryObjects.getSize(); i++) {
 			ObjectData* object = _inventoryObjects.get_unchecked(i);
 			if (object->_num == objectNum) {
 				object->clear();
@@ -437,7 +437,7 @@ namespace gs
 	}
 
 	ObjectData* ObjectState::findGlobalObject(uint16 objectNum)  {
-		for(uint16 i=0; i < _globalObjects.size(); i++) {
+		for(uint16 i=0; i < _globalObjects.getSize(); i++) {
 			const ObjectData* object = _globalObjects.get_unchecked(i);
 			if (object->_num == objectNum) {
 				return (ObjectData*) object;
@@ -447,7 +447,7 @@ namespace gs
 	}
 
 	ObjectData* ObjectState::findRoomObject(uint16 objectNum)  {
-		for(uint16 i=0; i < _roomObjects.size(); i++) {
+		for(uint16 i=0; i < _roomObjects.getSize(); i++) {
 			const ObjectData* object = _roomObjects.get_unchecked(i);
 			if (object->_num == objectNum) {
 				return (ObjectData*) object;
@@ -457,7 +457,7 @@ namespace gs
 	}
 
 	ObjectData* ObjectState::findInventoryObject(uint16 objectNum) {
-		for(uint16 i=0; i < _inventoryObjects.size(); i++) {
+		for(uint16 i=0; i < _inventoryObjects.getSize(); i++) {
 			const ObjectData* object = _inventoryObjects.get_unchecked(i);
 			if (object->_num == objectNum) {
 				return (ObjectData*) object;
@@ -497,7 +497,7 @@ namespace gs
 
 		debug(GS_THIS, "Object Dump");
 
-		for(uint16 i=0; i < _roomObjects.size(); i++) {
+		for(uint16 i=0; i < _roomObjects.getSize(); i++) {
 			const ObjectData* object = _roomObjects.get_unchecked(i);
 			debug(GS_THIS, "R Idx=%ld Num=%ld Flags=%ld Parent=%ld ParentState=%ld",
 				  (uint32) i,
@@ -507,7 +507,7 @@ namespace gs
 				  (uint32) object->_parentState
 				  );
 		}
-		for(uint16 i=0; i < _globalObjects.size(); i++) {
+		for(uint16 i=0; i < _globalObjects.getSize(); i++) {
 			const ObjectData* object = _globalObjects.get_unchecked(i);
 			debug(GS_THIS, "G Idx=%ld Num=%ld Flags=%ld Parent=%ld ParentState=%ld",
 				  (uint32) i,
@@ -517,7 +517,7 @@ namespace gs
 				  (uint32) object->_parentState
 			);
 		}
-		for(uint16 i=0; i < _inventoryObjects.size(); i++) {
+		for(uint16 i=0; i < _inventoryObjects.getSize(); i++) {
 			const ObjectData* object = _inventoryObjects.get_unchecked(i);
 			debug(GS_THIS, "I Idx=%ld Num=%ld Flags=%ld Parent=%ld ParentState=%ld",
 				  (uint32) i,
@@ -535,7 +535,7 @@ namespace gs
 		uint8 otherState, thisState;
 		uint16 otherNum;
 
-		for(uint8 i=0;i < _globalObjects.size();i++) {
+		for(uint8 i=0;i < _globalObjects.getSize(); i++) {
 
 			const ObjectData* object = _globalObjects.get_unchecked(i);
 
@@ -585,7 +585,7 @@ namespace gs
 			// For now assume the object is in _roomObjects.
 			// Each room may need to have its own _objects array in the future.
 
-			for(uint16 i=0;i < _roomObjects.size();i++) {
+			for(uint16 i=0;i < _roomObjects.getSize(); i++) {
 				ObjectData* otherObject = _roomObjects.get_unchecked(i);
 
 				if (otherObject == object) {
@@ -597,7 +597,7 @@ namespace gs
 
 		}
 		else if (object->_containerNum == OCI_Global) {
-			for(uint16 i=0;i < _globalObjects.size();i++) {
+			for(uint16 i=0;i < _globalObjects.getSize(); i++) {
 
 				ObjectData* otherObject = _globalObjects.get_unchecked(i);
 
@@ -609,7 +609,7 @@ namespace gs
 			}
 		}
 		else if (object->_containerNum == OCI_Inventory) {
-			for(uint16 i=0;i < _inventoryObjects.size();i++) {
+			for(uint16 i=0;i < _inventoryObjects.getSize(); i++) {
 
 				ObjectData* otherObject = _inventoryObjects.get_unchecked(i);
 

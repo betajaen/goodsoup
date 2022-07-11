@@ -57,7 +57,7 @@ namespace gs
 
 		void reset() {
 			
-			const uint16 size = _items.size();
+			const uint16 size = _items.getSize();
 
 			if (size) {
 				for (uint16 i = 0; i < size; i++) {
@@ -82,7 +82,7 @@ namespace gs
 				return;
 			}
 			
-			const uint16 size = _items.size();
+			const uint16 size = _items.getSize();
 
 			for (uint16 i = 0; i < size; i++) {
 				T* other = _items.get_unchecked(i);
@@ -103,7 +103,7 @@ namespace gs
 				return;
 			}
 
-			const uint16 size = _items.size();
+			const uint16 size = _items.getSize();
 
 			for (uint16 i = 0; i < size; i++) {
 				T* item = _items.get_unchecked(i);
@@ -120,7 +120,7 @@ namespace gs
 
 		T* find(uint16 num) const {
 			
-			const uint16 size = _items.size();
+			const uint16 size = _items.getSize();
 
 			for (uint16 i = 0; i < size; i++) {
 				T* other = _items.get_unchecked(i);
@@ -134,7 +134,7 @@ namespace gs
 
 		bool exists(uint16 num) const {
 
-			const uint16 size = _items.size();
+			const uint16 size = _items.getSize();
 
 			for (uint16 i = 0; i < size; i++) {
 				T* item = _items.get_unchecked(i);

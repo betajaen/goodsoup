@@ -132,19 +132,19 @@ namespace gs
 			_end = 0;
 		}
 
-		T* ptr() {
+		T* getPtr() {
 			return _begin;
 		}
 
-		const T* ptr() const {
+		const T* getPtr() const {
 			return _begin;
 		}
 
-		Index size() const {
+		Index getSize() const {
 			return _end;
 		}
 
-		Index capacity() const {
+		Index getCapacity() const {
 			return _capacity;
 		}
 

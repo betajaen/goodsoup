@@ -378,7 +378,7 @@ namespace gs
 
 		_script = ReadSpan<byte, uint16>();
 
-		if (_messageTemp.capacity() == 0) {
+		if (_messageTemp.getCapacity() == 0) {
 			_messageTemp.reserve(384);
 		}
 		else {

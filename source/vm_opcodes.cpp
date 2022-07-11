@@ -683,7 +683,7 @@ namespace gs
 					case ArrayOps_AssignString: {
 						uint16 offset = _stack.pop();
 						_readBytesForArray();
-						uint16 len = _arrayTemp.size();
+						uint16 len = _arrayTemp.getSize();
 
 						array = ARRAYS->allocate(arrayNum, 0, len + 1, VAK_String);
 

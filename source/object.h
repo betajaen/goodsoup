@@ -129,7 +129,7 @@ namespace gs
 		Array<ObjectData*, uint16> _inventoryObjects;
 
 		uint16 getCount() const {
-			return _globalObjects.size() + _roomObjects.size();
+			return _globalObjects.getSize() + _roomObjects.getSize();
 		}
 
 		void dumpObjects() const;

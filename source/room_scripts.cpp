@@ -32,7 +32,7 @@ namespace gs
 
 	void RoomScriptData::close() {
 
-		for (uint16 i = 0; i < _scripts.size(); i++) {
+		for (uint16 i = 0; i < _scripts.getSize(); i++) {
 			ScriptDataReference& script = _scripts.get_unchecked(i);
 			script.gcForget();
 		}
@@ -75,8 +75,8 @@ namespace gs
 
 	bool RoomScriptData::hasLocalScript(uint32 num) const {
 
-		if (_scripts.size() > 0) {
-			for (uint8 i = 0; i < _scripts.size(); i++) {
+		if (_scripts.getSize() > 0) {
+			for (uint8 i = 0; i < _scripts.getSize(); i++) {
 				const ScriptDataReference& script = _scripts.get_unchecked(i);
 				if (script.matchIdKind(num, SDK_Local)) {
 					return true;
@@ -90,8 +90,8 @@ namespace gs
 
 	bool RoomScriptData::getLocalScript(uint32 num, ScriptDataReference& out_Script) const {
 		
-		if (_scripts.size() > 0) {
-			for (uint8 i = 0; i < _scripts.size(); i++) {
+		if (_scripts.getSize() > 0) {
+			for (uint8 i = 0; i < _scripts.getSize(); i++) {
 				const ScriptDataReference& script = _scripts.get_unchecked(i);
 				if (script.matchIdKind(num, SDK_Local)) {
 					out_Script.copyFrom(script);
