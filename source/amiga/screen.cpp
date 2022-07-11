@@ -76,6 +76,7 @@ namespace gs
 	};
 
 	ULONG sPalette[2 + (256 * 3)] = { 0 };
+	ULONG sOriginalPalette[2 + (256 * 3)] = { 0 };
 
 	GS_AMIGA_TEXT(TEXT_Unpause, "Resume");
 	GS_AMIGA_TEXT(TEXT_Quit, "Quit");
@@ -380,8 +381,40 @@ namespace gs
 
 		*dst = 0;
 
+		CopyMem(&sPalette[0], &sOriginalPalette[0], sizeof(sPalette));
+
 		LoadRGB32(&sScreen->ViewPort, &sPalette[0]);
 	}
+
+	void resetScreenPalette() {
+		CopyMem(&sPalette[0], &sOriginalPalette[0], sizeof(sPalette));
+		LoadRGB32(&sScreen->ViewPort, &sPalette[0]);
+	}
+
+	void scaleScreenPalette(uint8 from, uint8 to, uint8 redScale, uint8 greenScale, uint8 blueScale) {
+		uint8* dst = (uint8*) &sPalette[from * 3];
+		uint8* src = (uint8*) &sOriginalPalette[from * 3];
+		uint8 c;
+		for (uint16 i = from; i < to; i++) {
+			// red
+			c = *src;
+			*dst = ((c * redScale) / 255) & 0xFF;
+			src += 4;
+			dst += 4;
+			// green
+			c = *src;
+			*dst = ((c * greenScale) / 255) & 0xFF;
+			src += 4;
+			dst += 4;
+			// blue
+			c = *src;
+			*dst = ((c * blueScale) / 255) & 0xFF;
+			src += 4;
+			dst += 4;
+		}
+		LoadRGB32(&sScreen->ViewPort, &sPalette[0]);
+	}
+
 
 	void blitBitmap(uint32 x, uint32 y, uint32 w, uint32 h, uint32 len, byte*) {
 	}

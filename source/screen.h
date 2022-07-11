@@ -30,6 +30,9 @@ namespace gs
 	bool closeScreen();
 	void screenLoop();
 	void setScreenPalette(uint8* palette, uint8 from = 0, uint8 to = 255);
+	void scaleScreenPalette(uint8 from, uint8 to, uint8 redScale, uint8 greenScale, uint8 blueScale);
+	void resetScreenPalette();
+
 	void drawSystemText(uint8 colour, uint16 x, uint16 y, const char* text);
 	void drawSystemTextF(uint8 colour, uint16 x, uint16 y, const char* fmt, ...);
 	void clearScreen(uint8 colour);

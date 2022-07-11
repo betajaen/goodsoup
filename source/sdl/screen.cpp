@@ -36,6 +36,7 @@ namespace gs
 	bool sSurfaceDirty = false;
 	bool sPaletteDirty = false;
 	SDL_Color sPalette[256];
+	SDL_Color sOriginalPalette[256];
     bool quitNextFrame;
 
 	bool closeScreen();
@@ -258,10 +259,37 @@ namespace gs
 	void setRoomPalette(RoomPaletteData* palette) {
 		uint8* rgb = &palette->palette[0];
 		for (uint16 i = 0; i < 256; i++) {
-			SDL_Color& colour = sPalette[i];
-			colour.r = *rgb++;
-			colour.g = *rgb++;
-			colour.b = *rgb++;
+			SDL_Color& dst = sOriginalPalette[i];
+			dst.r = *rgb++;
+			dst.g = *rgb++;
+			dst.b = *rgb++;
+			SDL_Color& copy = sPalette[i];
+			copy.r = dst.r;
+			copy.g = dst.g;
+			copy.b = dst.b;
+		}
+		sPaletteDirty = true;
+	}
+
+	void resetScreenPalette() {
+		for (uint16 i = 0; i < 256; i++) {
+			SDL_Color& dst = sPalette[i];
+			SDL_Color& src = sOriginalPalette[i];
+			dst.r = src.r;
+			dst.g = src.g;
+			dst.b = src.b;
+		}
+		sPaletteDirty = true;
+	}
+
+	void scaleScreenPalette(uint8 from, uint8 to, uint8 redScale, uint8 greenScale, uint8 blueScale) {
+		for (uint16 i = from; i < to; i++) {
+			SDL_Color& original = sOriginalPalette[i];
+			SDL_Color& dest = sPalette[i];
+
+			dest.r = (original.r * redScale) / 255;
+			dest.g = (original.g * greenScale) / 255;
+			dest.b = (original.b * blueScale) / 255;
 		}
 		sPaletteDirty = true;
 	}

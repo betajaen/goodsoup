@@ -32,6 +32,7 @@
 #include "actor.h"
 #include "index.h"
 #include "vm_debugger.h"
+#include "screen.h"
 
 #define DEBUG_OPCODES 0
 
@@ -1171,13 +1172,14 @@ namespace gs
 						_stack.pop();
 						NO_FEATURE(GS_THIS, "Not implemented OP_roomOps RoomOp_FadePalette");
 					return;
-					case RoomOp_DarkenPalette:
-						_stack.pop();
-						_stack.pop();
-						_stack.pop();
-						_stack.pop();
-						_stack.pop();
-						NO_FEATURE(GS_THIS, "Not implemented OP_roomOps RoomOp_DarkenPalette");
+					case RoomOp_DarkenPalette: {
+						uint8 endColour = _stack.pop();
+						uint8 startColour = _stack.pop();
+						int32 blueScale = _stack.pop();
+						int32 greenScale =_stack.pop();
+						int32 redScale = _stack.pop();
+						scaleScreenPalette(startColour, endColour, redScale, greenScale, blueScale);
+					}
 					return;
 					case RoomOp_PaletteManipulate:
 						_stack.pop();
