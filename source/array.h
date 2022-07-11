@@ -67,17 +67,21 @@ namespace gs
 			}
 
 			inline T& operator[](Index idx) {
+#if GS_CHECKED == 1
 				if (idx >= N) {
 					error(GS_THIS, "(FIXED, %d, %d) Out of bounds access", N, idx);
 				}
+#endif
 
 				return _array[idx];
 			}
 
 			inline const T& operator[](Index idx) const {
+#if GS_CHECKED == 1
 				if (idx >= N) {
 					error(GS_THIS, "(FIXED, %d, %d) Out of bounds access", N, idx);
 				}
+#endif
 
 				return _array[idx];
 			}
@@ -158,26 +162,31 @@ namespace gs
 		}
 
 		void pop() {
+#if GS_CHECKED == 1
 			if (_end == 0) {
 				error(GS_THIS, "(%p, %d, %d, %d) Out of bounds erasure.", _begin, _end, _capacity);
 			}
-
+#endif
 			--_end;
 		}
 
 		T popItem() {
+#if GS_CHECKED == 1
 			if (_end == 0) {
 				error(GS_THIS, "(%p, %d, %d, %d) Out of bounds erasure.", _begin, _end, _capacity);
 			}
+#endif
 
 			--_end;
 			return _begin[_end];
 		}
 
 		void erase(Index index) {
+#if GS_CHECKED == 1
 			if (index >= _end) {
 				error(GS_THIS, "(%p, %d, %d, %d) Out of bounds erasure.", _begin, _end, _capacity, index);
 			}
+#endif
 
 			if (index == _end - 1) {
 				--_end;
@@ -189,33 +198,41 @@ namespace gs
 		}
 
 		inline T& operator[](Index idx) {
+#if GS_CHECKED == 1
 			if (idx >= _end) {
 				error(GS_THIS, "(FIXED, %d, %d) Out of bounds access", _end, idx);
 			}
+#endif
 
 			return _begin[idx];
 		}
 
 		inline const T& operator[](Index idx) const {
+#if GS_CHECKED == 1
 			if (idx >= _end) {
 				error(GS_THIS, "(FIXED, %d, %d) Out of bounds access", _end, idx);
 			}
+#endif
 
 			return _begin[idx];
 		}
 
 		inline T& get(Index idx) {
+#if GS_CHECKED == 1
 			if (idx >= _end) {
 				error(GS_THIS, "(FIXED, %d, %d) Out of bounds access", _end, idx);
 			}
+#endif
 
 			return _begin[idx];
 		}
 
 		inline const T& get(Index idx) const {
+#if GS_CHECKED == 1
 			if (idx >= _end) {
 				error(GS_THIS, "(FIXED, %d, %d) Out of bounds access", _end, idx);
 			}
+#endif
 
 			return _begin[idx];
 		}
@@ -287,17 +304,21 @@ namespace gs
 		}
 
 		inline T& get(Index idx) {
+#if GS_CHECKED == 1
 			if (idx >= _end) {
 				error(GS_THIS, "(FIXED, %d, %d) Out of bounds access", _end, idx);
 			}
+#endif
 
 			return _items[idx];
 		}
 		
 		inline const T& get(Index idx) const {
+#if GS_CHECKED == 1
 			if (idx >= _end) {
 				error(GS_THIS, "(FIXED, %d, %d) Out of bounds access", _end, idx);
 			}
+#endif
 
 			return _items[idx];
 		}
@@ -325,9 +346,11 @@ namespace gs
 		}
 
 		inline void push(const T& item) {
+#if GS_CHECK == 1
 			if (isFull()) {
 				error(GS_THIS, "Out of bounds access");
 			}
+#endif
 			_items[_end++] = item;
 		}
 
@@ -343,9 +366,11 @@ namespace gs
 		}
 
 		inline T& pop() const {
+#if GS_CHECK == 1
 			if (_end == 0) {
 				error(GS_THIS, "Out of bounds access");
 			}
+#endif
 
 			_end--;
 			return _items[_end];
