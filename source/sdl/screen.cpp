@@ -25,6 +25,7 @@
 #include "../functions.h"
 #include "../room.h"
 #include "../input.h"
+#include "../table.h"
 
 #include <SDL2/SDL.h>
 
@@ -286,10 +287,15 @@ namespace gs
 		for (uint16 i = from; i < to; i++) {
 			SDL_Color& original = sOriginalPalette[i];
 			SDL_Color& dest = sPalette[i];
-
+#if 0
 			dest.r = (original.r * redScale) / 255;
 			dest.g = (original.g * greenScale) / 255;
 			dest.b = (original.b * blueScale) / 255;
+#else
+			dest.r = TABLE_DARKEN_PALETTE[(uint32) (original.r << 8) | redScale];
+			dest.g = TABLE_DARKEN_PALETTE[(uint32) (original.g << 8) | greenScale];
+			dest.b = TABLE_DARKEN_PALETTE[(uint32) (original.b << 8) | blueScale];
+#endif
 		}
 		sPaletteDirty = true;
 	}

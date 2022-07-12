@@ -89,7 +89,8 @@ OBJ +=	source/main_game.o\
 		source/object.o\
 		source/object_functions.o\
 		source/verb.o\
-		source/actor.o
+		source/actor.o\
+		source/table.o
 
 all: $(OBJ)
 	$(CC) -o $(PROGRAM) $(OBJ) $(CFLAGS)

@@ -42,6 +42,7 @@ namespace gs
 	void blitLine(uint16 y, byte* lineData);
 	void blitCopyBitmap(byte* bitmap);
 	void drawRoomBackgroundSimple(ReadSpan<byte, uint32>& data, uint32 width, uint32 height);
+
 }
 
 #endif

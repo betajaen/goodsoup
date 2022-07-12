@@ -249,7 +249,7 @@ namespace gs
 		}
 
 		reader.readBytes(script->_script, tag.length - length);
-		
+
 		return true;
 	}
 

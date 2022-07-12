@@ -23,6 +23,7 @@
 #include "../globals.h"
 #include "../functions.h"
 #include "../room.h"
+#include "../table.h"
 
 #include "timer_amiga.h"
 #include "cursor_amiga.h"
@@ -396,6 +397,7 @@ namespace gs
 		uint8* src = (uint8*) &sOriginalPalette[from * 3];
 		uint8 c;
 		for (uint16 i = from; i < to; i++) {
+#if 0
 			// red
 			c = *src;
 			*dst = ((c * redScale) / 255) & 0xFF;
@@ -411,6 +413,24 @@ namespace gs
 			*dst = ((c * blueScale) / 255) & 0xFF;
 			src += 4;
 			dst += 4;
+#else
+			// red
+			c = *src;
+			*dst = TABLE_DARKEN_PALETTE[(uint32) (c << 8) | redScale];
+			src += 4;
+			dst += 4;
+			// green
+			c = *src;
+			*dst = TABLE_DARKEN_PALETTE[(uint32) (c << 8) | greenScale];
+			src += 4;
+			dst += 4;
+			// blue
+			c = *src;
+			*dst = TABLE_DARKEN_PALETTE[(uint32) (c << 8) | blueScale];
+			src += 4;
+			dst += 4;
+#endif
+
 		}
 		LoadRGB32(&sScreen->ViewPort, &sPalette[0]);
 	}

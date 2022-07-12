@@ -36,6 +36,7 @@
 #include "actor.h"
 #include "input.h"
 #include "vm_debugger.h"
+#include "table.h"
 
 extern const char GOODSOUP_VERSION_STR[] = "$VER: goodsoup 0.5 (" __AMIGADATE__ ")";
 
@@ -63,6 +64,7 @@ namespace gs
 	uint8 KEY_EVENT;
 
 	void cleanup() {
+		closeTables();
 		deleteObject(ACTORS);
 		deleteObject(VERBS);
 		deleteObject(SCRIPTS);
@@ -115,6 +117,11 @@ namespace gs
 		ACTORS = newObject<ActorState>();
 
 		if (INDEX->readFromFile(GS_GAME_PATH GS_INDEX_FILENAME) == false) {
+			cleanup();
+			return 1;
+		}
+
+		if (openTables() == false) {
 			cleanup();
 			return 1;
 		}
