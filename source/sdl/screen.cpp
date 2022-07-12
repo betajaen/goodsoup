@@ -328,4 +328,9 @@ namespace gs
 
 		sSurfaceDirty = true;
 	}
+
+
+	void blitImage(uint32 x, uint32 y, ImageData* image) {
+		/* TODO */
+	}
 }

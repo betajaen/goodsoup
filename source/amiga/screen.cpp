@@ -24,6 +24,7 @@
 #include "../functions.h"
 #include "../room.h"
 #include "../table.h"
+#include "../image.h"
 
 #include "timer_amiga.h"
 #include "cursor_amiga.h"
@@ -446,4 +447,9 @@ namespace gs
 	void blitCopyBitmap(byte* bitmap) {
 		WritePixelArray(bitmap, 0, 0, GS_SCREEN_WIDTH, &sRastPort, 0, 0, GS_SCREEN_WIDTH, GS_SCREEN_HEIGHT, RECTFMT_LUT8);
 	}
+
+	void blitImage(uint32 x, uint32 y, ImageData* image) {
+		WritePixelArray(image->_bitmap, 0, 0, image->_width, &sRastPort, x, y, image->_width, image->_height, RECTFMT_LUT8);
+	}
+
 }

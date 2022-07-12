@@ -25,6 +25,7 @@ namespace gs
 {
 	class RoomData;
 	struct RoomPaletteData;
+	struct ImageData;
 
 	bool openScreen();
 	bool closeScreen();
@@ -42,6 +43,7 @@ namespace gs
 	void blitLine(uint16 y, byte* lineData);
 	void blitCopyBitmap(byte* bitmap);
 	void drawRoomBackgroundSimple(ReadSpan<byte, uint32>& data, uint32 width, uint32 height);
+	void blitImage(uint32 x, uint32 y, ImageData* image);
 
 }
 
