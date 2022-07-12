@@ -37,6 +37,7 @@
 #include "input.h"
 #include "vm_debugger.h"
 #include "table.h"
+#include "image.h"
 
 extern const char GOODSOUP_VERSION_STR[] = "$VER: goodsoup 0.5 (" __AMIGADATE__ ")";
 
@@ -65,6 +66,7 @@ namespace gs
 
 	void cleanup() {
 		closeTables();
+		deleteObject(IMAGES);
 		deleteObject(ACTORS);
 		deleteObject(VERBS);
 		deleteObject(SCRIPTS);
@@ -115,6 +117,7 @@ namespace gs
 		SCRIPTS = newObject<ScriptState>();
 		VERBS = newObject<VerbState>();
 		ACTORS = newObject<ActorState>();
+		IMAGES = newObject<ImageState>();
 
 		if (INDEX->readFromFile(GS_GAME_PATH GS_INDEX_FILENAME) == false) {
 			cleanup();
