@@ -33,10 +33,32 @@ namespace gs
 		clear();
 	}
 
-	CostumeData* CostumeState::create(uint16 num) {
+	DiskReader CostumeState::_seekToCostume(uint16, TagPair& out_pair) {
+		return DiskReader::Null();
+	}
+
+	CostumeData* CostumeState::_readIntoCostume(DiskReader &reader, const TagPair &parentTag, CostumeData* costume) {
+		return NULL;
+	}
+
+	CostumeData* CostumeState::loadFromNum(uint16 num) {
+
+		TagPair tag;
+		DiskReader reader = _seekToCostume(num, tag);
+		if (reader.isNull()) {
+			return NULL;
+		}
+
 		CostumeData* costume = _pool.acquire();
-		costume->_num = num;
+		_readIntoCostume(reader, tag, costume);
 		_costumes.push(costume);
+	}
+
+	CostumeData* CostumeState::loadFromTag(DiskReader& reader, const TagPair& parentTag) {
+		CostumeData* costume = _pool.acquire();
+		_readIntoCostume(reader, parentTag, costume);
+		_costumes.push(costume);
+
 		return costume;
 	}
 

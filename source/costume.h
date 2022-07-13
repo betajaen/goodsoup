@@ -29,6 +29,7 @@ namespace gs
 		uint16 _parentNum;
 		uint32 _fileOffset;
 		uint8  _diskNum;
+		uint8  _bResourceLocked;
 
 		void reset();
 	};
@@ -39,6 +40,9 @@ namespace gs
 
 		Array<CostumeData*> _costumes;
 
+		DiskReader _seekToCostume(uint16, TagPair& out_pair);
+		CostumeData* _readIntoCostume(DiskReader &reader, const TagPair &parentTag, CostumeData* costume);
+
 	public:
 
 		CostumeState();
@@ -47,8 +51,19 @@ namespace gs
 		void clear();
 
 		CostumeData* findFromNum(uint16 num);
+		CostumeData* loadFromNum(uint16 num);
+		CostumeData* loadFromTag(DiskReader& reader, const TagPair& parentTag);
 
-		CostumeData* create(uint16 num);
+		CostumeData* findOrLoadFromNum(uint16 num) {
+			CostumeData* data = findFromNum(num);
+
+			if (data == NULL) {
+				data = loadFromNum(num);
+			}
+
+			return num;
+		}
+
 		void destroy(uint16 num);
 
 	};

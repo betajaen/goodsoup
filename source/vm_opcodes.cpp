@@ -33,6 +33,8 @@
 #include "index.h"
 #include "vm_debugger.h"
 #include "screen.h"
+#include "costumes.h"
+#include "costume.h"
 
 #define DEBUG_OPCODES 0
 
@@ -1091,7 +1093,7 @@ namespace gs
 						NO_FEATURE(GS_THIS, "Not implemented OP_resourceRoutines ResourceRoutineOp_Dummy");
 					return;
 					case ResourceRoutineOp_LoadCostume:
-						NO_FEATURE(GS_THIS, "Not implemented OP_resourceRoutines ResourceRoutineOp_LoadCostume");
+						COSTUMES->findOrLoadFromNum(resourceNum);
 					return;
 					case ResourceRoutineOp_LoadObject: {
 						ObjectData* object = NULL;
@@ -1111,8 +1113,12 @@ namespace gs
 					case ResourceRoutineOp_LoadSound:
 						NO_FEATURE(GS_THIS, "Not implemented OP_resourceRoutines ResourceRoutineOp_LoadSound");
 					return;
-					case ResourceRoutineOp_LockCostume:
-						NO_FEATURE(GS_THIS, "Not implemented OP_resourceRoutines ResourceRoutineOp_LockCostume");
+					case ResourceRoutineOp_LockCostume: {
+						CostumeData* data = COSTUMES->findOrLoadFromNum(resourceNum);
+						if (data != NULL) {
+							data->_bResourceLocked = true;
+						}
+					}
 					return;
 					case ResourceRoutineOp_LockRoom:
 						NO_FEATURE(GS_THIS, "Not implemented OP_resourceRoutines ResourceRoutineOp_LockRoom");
@@ -1123,8 +1129,12 @@ namespace gs
 					case ResourceRoutineOp_LockSound:
 						NO_FEATURE(GS_THIS, "Not implemented OP_resourceRoutines ResourceRoutineOp_LockSound");
 					return;
-					case ResourceRoutineOp_UnlockCostume:
-						NO_FEATURE(GS_THIS, "Not implemented OP_resourceRoutines ResourceRoutineOp_UnlockCostume");
+					case ResourceRoutineOp_UnlockCostume: {
+						CostumeData* data = COSTUMES->findFromNum(resourceNum);
+						if (data != NULL) {
+							data->_bResourceLocked = false;
+						}
+					}
 					return;
 					case ResourceRoutineOp_UnlockRoom:
 						NO_FEATURE(GS_THIS, "Not implemented OP_resourceRoutines ResourceRoutineOp_UnlockRoom");
