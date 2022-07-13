@@ -117,6 +117,17 @@ namespace gs
 
 		reader.readBytes(script->_script, (uint16) tag.length);
 
+		if (script != NULL && _reservedLocks.getSize() > 0) {
+			for(uint16 i=0;i < _reservedLocks.getSize();i++) {
+				uint16 other = _reservedLocks.get_unchecked(i);
+				if (other == script->_id) {
+					script->_bResourceLock = true;
+					_reservedLocks.erase(i);
+					break;
+				}
+			}
+		}
+
 		debug(GS_THIS, "+SCRP %ld, %ld", (uint32) script->_id, (uint32) tag.length);
 
 		return script;
@@ -190,6 +201,17 @@ namespace gs
 
 		reader.readBytes(script->_script, length);
 
+		if (script != NULL && _reservedLocks.getSize() > 0) {
+			for(uint16 i=0;i < _reservedLocks.getSize();i++) {
+				uint16 other = _reservedLocks.get_unchecked(i);
+				if (other == script->_id) {
+					script->_bResourceLock = true;
+					_reservedLocks.erase(i);
+					break;
+				}
+			}
+		}
+
 		debug(GS_THIS, "+ %s %ld", tag.tagStr(), length);
 
 		return ScriptDataReference(script);
@@ -250,6 +272,17 @@ namespace gs
 
 		reader.readBytes(script->_script, tag.length - length);
 
+		if (script != NULL && _reservedLocks.getSize() > 0) {
+			for(uint16 i=0;i < _reservedLocks.getSize();i++) {
+				uint16 other = _reservedLocks.get_unchecked(i);
+				if (other == script->_id) {
+					script->_bResourceLock = true;
+					_reservedLocks.erase(i);
+					break;
+				}
+			}
+		}
+
 		return true;
 	}
 
@@ -283,11 +316,61 @@ namespace gs
 		return ScriptDataReference();
 	}
 
+	ScriptData* ScriptState::find(uint16 scriptNum) {
+
+		for(uint16 i=0;i < _globals.getSize();i++) {
+			ScriptData* data = _globals.get_unchecked(i);
+			if (data) {
+				if (data->_id == scriptNum) {
+					return data;
+				}
+			}
+		}
+		for(uint16 i=0;i < _locals.getSize();i++) {
+			ScriptData* data = _locals.get_unchecked(i);
+			if (data) {
+				if (data->_id == scriptNum) {
+					return data;
+				}
+			}
+		}
+		for(uint16 i=0;i < _objectVerbs.getSize();i++) {
+			ScriptData* data = _objectVerbs.get_unchecked(i);
+			if (data) {
+				if (data->_id == scriptNum) {
+					return data;
+				}
+			}
+		}
+
+		return NULL;
+	}
+
+	void ScriptState::addResourceLock(uint16 scriptNum) {
+		for (uint16 i = 0; i < _reservedLocks.getSize(); i++) {
+			uint16 other = _reservedLocks.get_unchecked(i);
+			if (other == scriptNum)
+				return;
+		}
+
+		_reservedLocks.push(scriptNum);
+	}
+
+	void ScriptState::removeResourceLock(uint16 num) {
+		for(uint16 i=0;i < _reservedLocks.getSize();i++) {
+			uint16 other = _reservedLocks.get_unchecked(i);
+			if (other == num) {
+				_reservedLocks.erase(i);
+			}
+		}
+	}
+
 	void ScriptData::debugTables() {
 		debug(GS_THIS, "ScriptData, NumOffsets=%ld", _numOffsets);
 		for(uint8 i=0;i < _numOffsets;i++) {
 			debug(GS_THIS, "[%ld] => %ld", (uint32) _offsetkeys[i], (uint32) _offsetValues[i]);
 		}
 	}
+
 
 }

@@ -33,7 +33,7 @@
 #include "index.h"
 #include "vm_debugger.h"
 #include "screen.h"
-#include "costumes.h"
+#include "costume.h"
 #include "costume.h"
 
 #define DEBUG_OPCODES 0
@@ -1118,13 +1118,23 @@ namespace gs
 						if (data != NULL) {
 							data->_bResourceLocked = true;
 						}
+						else {
+							COSTUMES->addResourceLock(resourceNum);
+						}
 					}
 					return;
 					case ResourceRoutineOp_LockRoom:
 						NO_FEATURE(GS_THIS, "Not implemented OP_resourceRoutines ResourceRoutineOp_LockRoom");
 					return;
-					case ResourceRoutineOp_LockScript:
-						NO_FEATURE(GS_THIS, "Not implemented OP_resourceRoutines ResourceRoutineOp_LockScript");
+					case ResourceRoutineOp_LockScript: {
+						ScriptData* script = SCRIPTS->find(resourceNum);
+						if (script) {
+							script->_bResourceLock = true;
+						}
+						else {
+							SCRIPTS->addResourceLock(resourceNum);
+						}
+					}
 					return;
 					case ResourceRoutineOp_LockSound:
 						NO_FEATURE(GS_THIS, "Not implemented OP_resourceRoutines ResourceRoutineOp_LockSound");
@@ -1134,13 +1144,23 @@ namespace gs
 						if (data != NULL) {
 							data->_bResourceLocked = false;
 						}
+						else {
+							COSTUMES->removeResourceLock(resourceNum);
+						}
 					}
 					return;
 					case ResourceRoutineOp_UnlockRoom:
 						NO_FEATURE(GS_THIS, "Not implemented OP_resourceRoutines ResourceRoutineOp_UnlockRoom");
 					return;
-					case ResourceRoutineOp_UnlockScript:
-						NO_FEATURE(GS_THIS, "Not implemented OP_resourceRoutines ResourceRoutineOp_UnlockScript");
+					case ResourceRoutineOp_UnlockScript: {
+						ScriptData* script = SCRIPTS->find(resourceNum);
+						if (script) {
+							script->_bResourceLock = false;
+						}
+						else {
+							SCRIPTS->removeResourceLock(resourceNum);
+						}
+					}
 					return;
 					case ResourceRoutineOp_UnlockSound:
 						NO_FEATURE(GS_THIS, "Not implemented OP_resourceRoutines ResourceRoutineOp_UnlockSound");

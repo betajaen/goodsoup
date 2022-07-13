@@ -33,30 +33,67 @@ namespace gs
 		clear();
 	}
 
-	DiskReader CostumeState::_seekToCostume(uint16, TagPair& out_pair) {
-		return DiskReader::Null();
+	 bool CostumeState::_seekToCostume(uint16 costumeNum, DiskReader& out_reader, TagPair& out_pair) {
+		return false;
 	}
 
-	CostumeData* CostumeState::_readIntoCostume(DiskReader &reader, const TagPair &parentTag, CostumeData* costume) {
-		return NULL;
+	bool CostumeState::_readIntoCostume(DiskReader &reader, const TagPair &parentTag, CostumeData* costume) {
+		return false;
 	}
 
 	CostumeData* CostumeState::loadFromNum(uint16 num) {
 
+#if 0
 		TagPair tag;
-		DiskReader reader = _seekToCostume(num, tag);
-		if (reader.isNull()) {
+		DiskReader reader; //(ReadFile::NullFile, 0);
+
+		if (_seekToCostume(num, reader, tag) == false) {
 			return NULL;
 		}
-
+#endif
 		CostumeData* costume = _pool.acquire();
-		_readIntoCostume(reader, tag, costume);
+		costume->_num = num;
+
+#if 0
+		if (_readIntoCostume(reader, tag, costume) == false) {
+			_pool.release_unchecked(costume);
+			return NULL;
+		}
+#endif
+
+		if (costume != NULL && _reservedLocks.getSize() > 0) {
+			for(uint16 i=0;i < _reservedLocks.getSize();i++) {
+				uint16 other = _reservedLocks.get_unchecked(i);
+
+				if (other == num) {
+					costume->_bResourceLocked = true;
+					_reservedLocks.erase(i);
+					break;
+				}
+			}
+		}
+
 		_costumes.push(costume);
+
+		return costume;
 	}
 
 	CostumeData* CostumeState::loadFromTag(DiskReader& reader, const TagPair& parentTag) {
 		CostumeData* costume = _pool.acquire();
 		_readIntoCostume(reader, parentTag, costume);
+
+		if (costume != NULL && _reservedLocks.getSize() > 0) {
+			for(uint16 i=0;i < _reservedLocks.getSize();i++) {
+				uint16 other = _reservedLocks.get_unchecked(i);
+
+				if (other == costume->_num) {
+					costume->_bResourceLocked = true;
+					_reservedLocks.erase(i);
+					break;
+				}
+			}
+		}
+
 		_costumes.push(costume);
 
 		return costume;
@@ -87,6 +124,25 @@ namespace gs
 			if (costume->_num == num) {
 				_costumes.erase(i);
 				_pool.release_unchecked(costume);
+			}
+		}
+	}
+
+	void CostumeState::addResourceLock(uint16 num) {
+		for(uint16 i=0;i < _reservedLocks.getSize();i++) {
+			uint16 other = _reservedLocks.get_unchecked(i);
+			if (other == num)
+				return;
+		}
+
+		_reservedLocks.push(num);
+	}
+
+	void CostumeState::removeResourceLock(uint16 num) {
+		for(uint16 i=0;i < _reservedLocks.getSize();i++) {
+			uint16 other = _reservedLocks.get_unchecked(i);
+			if (other == num) {
+				_reservedLocks.erase(i);
 			}
 		}
 	}

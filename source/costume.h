@@ -39,9 +39,10 @@ namespace gs
 		AllocatedPool<CostumeData, uint16> _pool;
 
 		Array<CostumeData*> _costumes;
+		Array<uint16> _reservedLocks;
 
-		DiskReader _seekToCostume(uint16, TagPair& out_pair);
-		CostumeData* _readIntoCostume(DiskReader &reader, const TagPair &parentTag, CostumeData* costume);
+		bool _seekToCostume(uint16, DiskReader& out_reader, TagPair& out_pair);
+		bool _readIntoCostume(DiskReader &reader, const TagPair &parentTag, CostumeData* costume);
 
 	public:
 
@@ -61,10 +62,13 @@ namespace gs
 				data = loadFromNum(num);
 			}
 
-			return num;
+			return data;
 		}
 
 		void destroy(uint16 num);
+
+		void addResourceLock(uint16 num);
+		void removeResourceLock(uint16 num);
 
 	};
 

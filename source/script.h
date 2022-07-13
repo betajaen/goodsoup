@@ -75,6 +75,7 @@ namespace gs
 		uint8 _kind;
 		uint8 _users;
 		uint8 _flags;
+		uint8 _bResourceLock;
 		uint8 _numOffsets;
 		uint8 _offsetkeys[MAX_SCRIPT_TABLE_ENTRIES];
 		uint16 _offsetValues[MAX_SCRIPT_TABLE_ENTRIES];
@@ -278,6 +279,7 @@ namespace gs
 		ArrayPool<ScriptData, uint16> _globals;
 		ArrayPool<ScriptData, uint16> _locals;
 		ArrayPool<ScriptData, uint16> _objectVerbs;
+		Array<uint16> _reservedLocks;
 
 		ScriptData* _newGlobal(uint16 scriptNum);
 
@@ -297,6 +299,12 @@ namespace gs
 		bool readObjectVerbScript(uint16 objectNum, const TagPair& tag, DiskReader& reader);
 
 		ScriptDataReference getObjectVerbScript(uint16 objectNum, uint8 verbNum);
+
+		ScriptData* find(uint16 scriptNum);
+
+		void addResourceLock(uint16 scriptNum);
+		void removeResourceLock(uint16 scriptNum);
+
 	};
 
 	extern ScriptState* SCRIPTS;
