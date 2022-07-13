@@ -220,6 +220,29 @@ namespace gs
 				goto checkTag;
 			}
 
+			if (tag.isTag(GS_MAKE_ID('D', 'C', 'O', 'S'))) {
+
+				uint32 length = reader.readUInt32LE();
+
+#if GS_CHECKED == 1
+				if (length != NUM_COSTUMES) {
+					error(GS_THIS, "Number of scripts %ld is unexpected %ld", length, NUM_COSTUMES);
+					abort_quit_stop();
+					return false;
+				}
+#endif
+
+				for(uint16 i=0;i < NUM_COSTUMES;i++) {
+					_costumeRoom[i] = reader.readByte();
+				}
+
+				for(uint32 i=0;i < NUM_COSTUMES;i++) {
+					_costumeOffset[i] = reader.readUInt32LE();
+				}
+
+				goto checkTag;
+			}
+
 			if (tag.isTag(GS_MAKE_ID('A', 'A', 'R', 'Y'))) {
 
 				uint16 count = 0, arrayNum = 0;
@@ -260,7 +283,6 @@ namespace gs
 
 
 			/* TODO DSOU */
-			/* TODO DCOS */
 			/* TODO DCHR */
 
 			NO_FEATURE(GS_THIS, "Missing support for Index Tag %s", tag.tagStr());

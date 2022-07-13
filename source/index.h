@@ -154,6 +154,8 @@ namespace gs
 		uint32 _roomScriptOffsets[NUM_ROOMS];
 		uint8  _scriptRoom[NUM_SCRIPTS];
 		uint32 _scriptOffset[NUM_SCRIPTS];
+		uint8 _costumeRoom[NUM_COSTUMES];
+		uint32 _costumeOffset[NUM_COSTUMES];
 		uint32 _objectNameHash[NUM_OBJECT_GLOBALS];
 		byte _objectPrototypeState[NUM_OBJECT_GLOBALS];
 		byte _objectPrototypeRoomNum[NUM_OBJECT_GLOBALS];
