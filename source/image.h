@@ -28,6 +28,7 @@ namespace gs
 		uint16 _num;
 		uint16 _parentNum;
 		uint16 _width, _height;
+		uint32 _size;
 		uint16 _format;
 		uint32 _fileOffset;
 		uint8  _diskNum;
@@ -36,6 +37,7 @@ namespace gs
 
 		void allocateBitmap();
 		void releaseBitmap();
+		void clear(uint8 colour);
 
 		void reset();
 	};

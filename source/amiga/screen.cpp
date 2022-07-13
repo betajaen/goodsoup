@@ -448,7 +448,7 @@ namespace gs
 		WritePixelArray(bitmap, 0, 0, GS_SCREEN_WIDTH, &sRastPort, 0, 0, GS_SCREEN_WIDTH, GS_SCREEN_HEIGHT, RECTFMT_LUT8);
 	}
 
-	void blitImage(uint32 x, uint32 y, ImageData* image) {
+	void drawImage(uint32 x, uint32 y, ImageData* image) {
 		WritePixelArray(image->_bitmap, 0, 0, image->_width, &sRastPort, x, y, image->_width, image->_height, RECTFMT_LUT8);
 	}
 

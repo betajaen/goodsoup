@@ -90,13 +90,20 @@ namespace gs
 			releaseMemory(_bitmap);
 		}
 
-		_bitmap = (byte*) allocateMemory(1, _width * _height, 0);
+		_size = _width * _height;
+		_bitmap = (byte*) allocateMemory(1, _size, 0);
 	}
 
 	void ImageData::releaseBitmap() {
 		if (_bitmap) {
 			releaseMemory(_bitmap);
 			_bitmap = NULL;
+		}
+	}
+
+	void ImageData::clear(uint8 colour) {
+		for(uint32 i=0;i < _size;i++) {
+			_bitmap[i] = colour;
 		}
 	}
 

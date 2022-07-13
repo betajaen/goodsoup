@@ -17,7 +17,7 @@
 
 #define GS_FILE_NAME "screen"
 
-#include "types_sdl.h"
+#include "../types.h"
 #include "../debug.h"
 #include "../profile.h"
 #include "../screen.h"
@@ -26,6 +26,7 @@
 #include "../room.h"
 #include "../input.h"
 #include "../table.h"
+#include "../image.h"
 
 #include <SDL2/SDL.h>
 
@@ -39,6 +40,28 @@ namespace gs
 	SDL_Color sPalette[256];
 	SDL_Color sOriginalPalette[256];
     bool quitNextFrame;
+
+
+	static void _blitBitmap(uint32 x, uint32 y, uint32 w, uint32 h, byte* data) {
+
+		SDL_Rect srcRect;
+		srcRect.x = 0;
+		srcRect.y = 0;
+		srcRect.w = w;
+		srcRect.h = h;
+
+		SDL_Rect dstRect;
+		dstRect.x = x;
+		dstRect.y = y;
+		dstRect.w = w;
+		dstRect.h = h;
+
+		// TODO: Replace this with a re-usable SDL_Surface .
+		SDL_Surface* surface = SDL_CreateRGBSurfaceWithFormatFrom(data, w, h, 8, w, SDL_PIXELFORMAT_INDEX8);
+		SDL_BlitSurface(surface, &srcRect, sSurface, &dstRect);
+		SDL_FreeSurface(surface);
+	}
+
 
 	bool closeScreen();
 
@@ -88,6 +111,7 @@ namespace gs
 	}
 
 	bool closeScreen() {
+
 
 		if (sSurface) {
 			SDL_FreeSurface(sSurface);
@@ -300,10 +324,6 @@ namespace gs
 		sPaletteDirty = true;
 	}
 
-	void blitBitmap(uint32 x, uint32 y, uint32 w, uint32 h, uint32 len, byte*) {
-
-	}
-	
 	void blitLine(uint16 y, byte* lineData) {
 		
 		SDL_LockSurface(sSurface);
@@ -316,7 +336,7 @@ namespace gs
 
 		sSurfaceDirty = true;
 	}
-	
+
 	void blitCopyBitmap(byte* bitmap) {
 		
 		SDL_LockSurface(sSurface);
@@ -329,8 +349,7 @@ namespace gs
 		sSurfaceDirty = true;
 	}
 
-
-	void blitImage(uint32 x, uint32 y, ImageData* image) {
-		/* TODO */
+	void drawImage(uint32 x, uint32 y, ImageData* image) {
+		_blitBitmap(x, y, image->_width, image->_height, image->_bitmap);
 	}
 }
