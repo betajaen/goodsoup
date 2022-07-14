@@ -173,6 +173,8 @@ namespace gs
 
 				if (tag.isTag(GS_MAKE_ID('V', 'E', 'R', 'B'))) {
 
+					debug(GS_THIS, "Load VERB %ld", object->_num);
+
 					if (SCRIPTS->readObjectVerbScript(object->_num, tag, reader) == false) {
 						error(GS_THIS, "Could not read Object %ld Verb Script", (uint32) object->_num);
 						abort_quit_stop();
@@ -392,6 +394,10 @@ namespace gs
 		}
 		else {
 			_moveObject(object, roomNum);
+		}
+
+		if (object->_num == 1365) {
+			debug(GS_THIS, "************ room %ld new=%ld", object->_num, isNew);
 		}
 
 		return true;
@@ -724,10 +730,15 @@ namespace gs
 		_class = objectClass;
 	}
 
-	uint32 ObjectData::getClass(uint32 class_) {
-		class_ = class_ & 0x7F;
+	bool ObjectData::getClassFlags(uint32 flags) {
+		flags = flags & 0x7F;
 
-		return (1 << (class_ - 1)) != 0;
+		if (flags >= 32) {
+			error(GS_THIS, "Out of range for class flags %ld", flags);
+			return false;
+		}
+
+		return (1 << (flags - 1)) != 0;
 	}
 
 	void ObjectData::setClassFlags(uint8 objectClassFlags, bool enable) {

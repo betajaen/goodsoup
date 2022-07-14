@@ -105,7 +105,7 @@ namespace gs
 
 		void setState(byte state);
 
-		uint32 getClass(uint32 class_);
+		bool getClassFlags(uint32 flags);
 	};
 
 	class ObjectState {
