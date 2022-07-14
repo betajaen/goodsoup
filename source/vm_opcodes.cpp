@@ -1891,7 +1891,6 @@ namespace gs
 
 					while (--num >= 0) {
 						flags = _stack.getListItem(num);
-						debug(GS_THIS, "CLS = %ld <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<,", flags);
 						b = object->getClassFlags(flags);
 						if ((flags & 0x80 && !b) || (!(flags & 0x80) && b))
 							cond = 0;
