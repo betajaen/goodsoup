@@ -24,6 +24,7 @@
 #include "disk.h"
 #include "debug.h"
 #include "profile.h"
+#include "vm_opcodes.h"
 
 namespace gs
 {
@@ -227,15 +228,22 @@ namespace gs
 
 		// No script.
 		// Just a empty table entry
-		if (tag.length == 4) {
-			return true;
-		}
 
 		ScriptData* script = _objectVerbs.acquire();
 		script->_id = objectNum;
 		script->_parentId = 0;
 		script->_fileOffset = tag.dataPos;
 		script->_kind = SDK_Verb;
+		script->_numOffsets = 0;
+
+		if (tag.length == 4) {
+			// There is no script. Current the Script system doesnt handle zero sized scripts very well,
+			// so make this a noop script instead.
+			script->_script.setSize(2);
+			script->_script.set_unchecked(0, OP_systemOps);
+			script->_script.set_unchecked(1, SystemOps_Noop);
+			return true;
+		}
 
 		uint16 length = 0;
 
@@ -281,6 +289,17 @@ namespace gs
 					break;
 				}
 			}
+		}
+
+		if (script->_id == 1365) {
+			debug(GS_THIS, "***************************************");
+		}
+
+		debug(GS_THIS, "+ VERB %ld", script->_id);
+
+
+		if (script->_id == 1365) {
+			debug(GS_THIS, "***************************************");
 		}
 
 		return true;
