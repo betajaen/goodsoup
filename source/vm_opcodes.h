@@ -283,7 +283,8 @@ namespace gs
 		SystemOps_Restart = 158,
 		SystemOps_Pause = 159,
 		SystemOps_Quit = 160,
-		SystemOps_AbortQuitStop = 161
+		SystemOps_AbortQuitStop = 161,
+		SystemOps_Noop = 162,
 	};
 	
 	enum ActorOp {

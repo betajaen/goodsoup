@@ -1078,7 +1078,7 @@ namespace gs
 			}
 			return;
 			case OP_createBoxMatrix: {
-				warn(GS_THIS, "createBoxMatrix not implemented");
+				warn(GS_THIS, "createBoxMatrix not implemented %ld");
 			}
 			return;
 			case OP_a9:
@@ -1105,13 +1105,14 @@ namespace gs
 					}
 					return;
 					case ResourceRoutineOp_LoadRoom:
-						NO_FEATURE(GS_THIS, "Not implemented OP_resourceRoutines ResourceRoutineOp_LoadRoom");
+						NO_FEATURE(GS_THIS, "Not implemented OP_resourceRoutines ResourceRoutineOp_LoadRoom %ld", resourceNum);
 					return;
-					case ResourceRoutineOp_LoadScript:
-						NO_FEATURE(GS_THIS, "Not implemented OP_resourceRoutines ResourceRoutineOp_LoadScript");
+					case ResourceRoutineOp_LoadScript: {
+						SCRIPTS->getOrLoadGlobalScript(resourceNum);
+					}
 					return;
 					case ResourceRoutineOp_LoadSound:
-						NO_FEATURE(GS_THIS, "Not implemented OP_resourceRoutines ResourceRoutineOp_LoadSound");
+						NO_FEATURE(GS_THIS, "Not implemented OP_resourceRoutines ResourceRoutineOp_LoadSound %ld", resourceNum);
 					return;
 					case ResourceRoutineOp_LockCostume: {
 						CostumeData* data = COSTUMES->findOrLoadFromNum(resourceNum);
@@ -1124,7 +1125,7 @@ namespace gs
 					}
 					return;
 					case ResourceRoutineOp_LockRoom:
-						NO_FEATURE(GS_THIS, "Not implemented OP_resourceRoutines ResourceRoutineOp_LockRoom");
+						NO_FEATURE(GS_THIS, "Not implemented OP_resourceRoutines ResourceRoutineOp_LockRoom %ld", resourceNum);
 					return;
 					case ResourceRoutineOp_LockScript: {
 						ScriptData* script = SCRIPTS->find(resourceNum);
@@ -1137,7 +1138,7 @@ namespace gs
 					}
 					return;
 					case ResourceRoutineOp_LockSound:
-						NO_FEATURE(GS_THIS, "Not implemented OP_resourceRoutines ResourceRoutineOp_LockSound");
+						NO_FEATURE(GS_THIS, "Not implemented OP_resourceRoutines ResourceRoutineOp_LockSound %ld", resourceNum);
 					return;
 					case ResourceRoutineOp_UnlockCostume: {
 						CostumeData* data = COSTUMES->findFromNum(resourceNum);
@@ -1150,7 +1151,7 @@ namespace gs
 					}
 					return;
 					case ResourceRoutineOp_UnlockRoom:
-						NO_FEATURE(GS_THIS, "Not implemented OP_resourceRoutines ResourceRoutineOp_UnlockRoom");
+						NO_FEATURE(GS_THIS, "Not implemented OP_resourceRoutines ResourceRoutineOp_UnlockRoom %ld", resourceNum);
 					return;
 					case ResourceRoutineOp_UnlockScript: {
 						ScriptData* script = SCRIPTS->find(resourceNum);
@@ -1163,19 +1164,19 @@ namespace gs
 					}
 					return;
 					case ResourceRoutineOp_UnlockSound:
-						NO_FEATURE(GS_THIS, "Not implemented OP_resourceRoutines ResourceRoutineOp_UnlockSound");
+						NO_FEATURE(GS_THIS, "Not implemented OP_resourceRoutines ResourceRoutineOp_UnlockSound %ld", resourceNum);
 					return;
 					case ResourceRoutineOp_SetResourceCounterCostume:
-						NO_FEATURE(GS_THIS, "Not implemented OP_resourceRoutines ResourceRoutineOp_SetResourceCounterCostume");
+						NO_FEATURE(GS_THIS, "Not implemented OP_resourceRoutines ResourceRoutineOp_SetResourceCounterCostume %ld", resourceNum);
 					return;
 					case ResourceRoutineOp_SetResourceCounterRoom:
-						NO_FEATURE(GS_THIS, "Not implemented OP_resourceRoutines ResourceRoutineOp_SetResourceCounterRoom");
+						NO_FEATURE(GS_THIS, "Not implemented OP_resourceRoutines ResourceRoutineOp_SetResourceCounterRoom %ld", resourceNum);
 					return;
 					case ResourceRoutineOp_SetResourceCounterScript:
-						NO_FEATURE(GS_THIS, "Not implemented OP_resourceRoutines ResourceRoutineOp_SetResourceCounterScript");
+						NO_FEATURE(GS_THIS, "Not implemented OP_resourceRoutines ResourceRoutineOp_SetResourceCounterScript %ld", resourceNum);
 					return;
 					case ResourceRoutineOp_SetResourceCounterSound:
-						NO_FEATURE(GS_THIS, "Not implemented OP_resourceRoutines ResourceRoutineOp_SetResourceCounterSound");
+						NO_FEATURE(GS_THIS, "Not implemented OP_resourceRoutines ResourceRoutineOp_SetResourceCounterSound %ld", resourceNum);
 					return;
 				}
 
@@ -1666,6 +1667,9 @@ namespace gs
 					error(GS_THIS, "AbortQuitStop has been called through a Script!");
 					return;
 				}
+				else if (param == SystemOps_Noop) {
+					return;
+				}
 
 				NO_FEATURE(GS_THIS, "Not implemented SysCall! %ld", (uint32)param);
 				
@@ -1877,11 +1881,26 @@ namespace gs
 			}
 			return;
 			case OP_ifClassOfIs: {
-				uint16 num = _stack.readList(16);
+				int16 num = _stack.readList(16);
 				uint16 obj = _stack.pop();
 
-				_stack.push(0);
-				NO_FEATURE(GS_THIS, "Not implemented OP_ifClassOfIs");
+				uint32 cls;
+				bool b;
+				int32 cond = 1;
+				ObjectData* object = OBJECTS->findObject(obj);
+
+				if (object) {
+
+					while (--num >= 0) {
+						cls = _stack.getListItem(num);
+						debug(GS_THIS, "CLS = %ld", cls);
+						b = object->getClassFlags(cls);
+						if ((cls & 0x80 && !b) || (!(cls & 0x80) && b))
+							cond = 0;
+					}
+				}
+
+				_stack.push(cond);
 			}
 			return;
 			case OP_getState: {
