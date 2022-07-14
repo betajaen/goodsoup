@@ -2082,20 +2082,15 @@ namespace gs
 
 			 */
 			case OP_findInventory: {
-				int32 idx = _stack.pop();
-				int32 owner = _stack.pop();
+				uint8 idx = _stack.pop();
+				uint16 owner = _stack.pop();
 
-				debug(GS_THIS, "Idx = %ld, Owner = %ld", (uint32) idx, (uint32) owner);
-
-				NO_FEATURE(GS_THIS, "Not implemented OP_findInventory");
-
-				_stack.push(0);
+				_stack.push(OBJECTS->findNthInventoryItem(owner, idx));
 			}
 			return;
 			case OP_getInventoryCount: {
-				_stack.pop();
-				NO_FEATURE(GS_THIS, "Not implemented OP_getInventoryCount");
-				_stack.push(0);
+				uint16 owner = _stack.pop();
+				_stack.push(OBJECTS->calculateInventoryCountForOwner(owner));
 			}
 			return;
 			case OP_getAnimateVariable: {

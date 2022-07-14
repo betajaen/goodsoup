@@ -100,6 +100,7 @@ namespace gs
 
 								out_tag = rmscPair;
 
+								/* TODO: What about IMHD? */
 								return reader;
 							}
 							reader.skip(innerObjectTag);
@@ -122,8 +123,8 @@ namespace gs
 
 	ObjectData* ObjectState::_readIntoObject(DiskReader &reader, const TagPair &parentTag, bool& out_isNew) {
 
-		// This needs to handle OBCD tags and OBIM tags, in either order. And create or fetch the existing
-		// object.
+		// This is written in a way that it can create an object from a OBCD or OBIM tag, and read in either order.
+		// The object should be created on the first instance, and then fetched in the second.
 
 		int isCorrectTag = false;
 		ObjectData* object = NULL;
@@ -147,11 +148,13 @@ namespace gs
 					object->_parentState = reader.readByte();
 					object->_flags = OF_AllowMaskOr;
 
-					debug(GS_THIS, "+Object %ld, Parent = %ld, ParentState = %ld",
-						  (uint32) object->_num,
-						  (uint32) object->_parent,
-						  (uint32) object->_parentState
-						  );
+					if (out_isNew) {
+						debug(GS_THIS, "+Object %ld (CDHD), Parent = %ld, ParentState = %ld",
+							  (uint32) object->_num,
+							  (uint32) object->_parent,
+							  (uint32) object->_parentState
+						);
+					}
 
 					break;
 				}
@@ -218,7 +221,13 @@ namespace gs
 			object->_width = reader.readInt32LE();
 			object->_height = reader.readInt32LE();
 
-
+			if (out_isNew) {
+				debug(GS_THIS, "+Object %ld (IMHD), Parent = %ld, ParentState = %ld",
+					  (uint32) object->_num,
+					  (uint32) object->_parent,
+					  (uint32) object->_parentState
+				);
+			}
 
 			return object;
 
@@ -394,10 +403,6 @@ namespace gs
 		}
 		else {
 			_moveObject(object, roomNum);
-		}
-
-		if (object->_num == 1365) {
-			debug(GS_THIS, "************ room %ld new=%ld", object->_num, isNew);
 		}
 
 		return true;
@@ -697,6 +702,28 @@ namespace gs
 		else {
 			warn(GS_THIS, "setState %ld returned a null object", (uint32) objectNum);
 		}
+	}
+
+	uint16 ObjectState::findNthInventoryItem(uint16 owner, uint8 idx) {
+		uint8 count=1;
+		for(uint16 i=0;i < _inventoryObjects.getSize();i++) {
+			ObjectData* object = _inventoryObjects.get_unchecked(i);
+			if (object->_owner == owner && count++ == idx) {
+				return object->_num;
+			}
+		}
+		return 0;
+	}
+
+	uint8 ObjectState::calculateInventoryCountForOwner(uint8 owner) {
+		uint8 count=0;
+		for(uint16 i=0;i < _inventoryObjects.getSize();i++) {
+			ObjectData* object = _inventoryObjects.get_unchecked(i);
+			if (object->_owner == owner) {
+				count++;
+			}
+		}
+		return count;
 	}
 
 	void ObjectData::clear() {

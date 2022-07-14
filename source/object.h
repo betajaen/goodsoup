@@ -207,6 +207,9 @@ namespace gs
 
 		uint16 findRoomObjectNumFromXY(int16 x, int16 y);
 
+		uint16 findNthInventoryItem(uint16 owner, uint8 idx);
+
+		uint8 calculateInventoryCountForOwner(uint8 owner);
 	};
 
 	extern ObjectState* OBJECTS;
