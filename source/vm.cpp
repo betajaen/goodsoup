@@ -456,7 +456,7 @@ namespace gs
 
 		uint8 contextNum = 0;
 
-		if (_findFreeContext(contextNum) == false) {
+		if (_acquireContext(contextNum) == false) {
 			error(GS_THIS, "Could not find free ScriptContext for %ld", (uint32)scriptNum);
 			abort_quit_stop();
 			return;
@@ -512,7 +512,7 @@ namespace gs
 
 		uint8 contextNum;
 
-		if (_findFreeContext(contextNum) == false) {
+		if (_acquireContext(contextNum) == false) {
 			error(GS_THIS, "Could not find free ScriptContext for %ld : %ld", (uint32) objectNum, (uint32) verb);
 			abort_quit_stop();
 			return;
@@ -546,7 +546,7 @@ namespace gs
 
 		uint8 contextNum;
 
-		if (_findFreeContext(contextNum) == false) {
+		if (_acquireContext(contextNum) == false) {
 			error(GS_THIS, "Could not find free ScriptContext for %ld", (uint32)scriptNum);
 			abort_quit_stop();
 			return;
@@ -583,7 +583,7 @@ namespace gs
 
 		uint8 contextNum;
 
-		if (_findFreeContext(contextNum) == false) {
+		if (_acquireContext(contextNum) == false) {
 			error(GS_THIS, "Could not find free ScriptContext for %ld", (uint32)scriptNum);
 			abort_quit_stop();
 			return;
@@ -610,9 +610,10 @@ namespace gs
 		}
 	}
 
-	bool VirtualMachine::_findFreeContext(uint8& num) {
+	bool VirtualMachine::_acquireContext(uint8& num) {
 		for (uint8 i = 0; i < MAX_SCRIPT_CONTEXTS; i++) {
 			if (_context[i].isDead()) {
+				_context[i].reset();
 				num = i;
 				return true;
 			}

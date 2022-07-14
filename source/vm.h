@@ -193,7 +193,7 @@ namespace gs
 		Array<byte, uint16>				_arrayTemp;
 
 
-		bool _findFreeContext(uint8& num);
+		bool _acquireContext(uint8& num);
 		bool _updateScriptData(ScriptContext& context);
 		void _pushAndRunScript(uint8 newContextNum);
 		void _step();
