@@ -493,16 +493,12 @@ namespace gs
 		}
 #endif
 
-		// Check Object Exists
-		ObjectData* objectData = OBJECTS->findRoomObject(objectNum);
+		// Check Object Exists; Room, Global or Inventory
+		ObjectData* objectData = OBJECTS->findObject(objectNum);
 		if (objectData == NULL) {
-			objectData = OBJECTS->findGlobalObject(objectNum);
-
-			if (objectData == NULL) {
-				error(GS_THIS, "Could not run a object script %ld on a unloaded object", (uint32) objectNum);
-				abort_quit_stop();
-				return;
-			}
+			error(GS_THIS, "Could not run a object script %ld on a unloaded object", (uint32) objectNum);
+			abort_quit_stop();
+			return;
 		}
 
 		// Check that there is data.
@@ -1405,6 +1401,11 @@ namespace gs
 			debug(GS_THIS, "VMContext [%d] %d %s %s", i, context._scriptNum, ObjectWhereToString(context._scriptWhere), ObjectStateToString(context._state));
 		}
 		debug(GS_THIS, "VMContext **END");
+#endif
+#if GS_DEBUG==1
+		debug(GS_THIS, "Objects **START");
+		OBJECTS->dumpObjects();
+		debug(GS_THIS, "Objects **END");
 #endif
 	}
 
