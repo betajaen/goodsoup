@@ -28,6 +28,7 @@
 #include "room.h"
 #include "endian.h"
 #include "vm_debugger.h"
+#include "object.h"
 
 #define DEBUG_CONTEXT_STACK 0
 
@@ -491,6 +492,23 @@ namespace gs
 			return;
 		}
 #endif
+
+		// Check Object Exists
+		ObjectData* objectData = OBJECTS->findRoomObject(objectNum);
+		if (objectData == NULL) {
+			objectData = OBJECTS->findGlobalObject(objectNum);
+
+			if (objectData == NULL) {
+				error(GS_THIS, "Could not run a object script %ld on a unloaded object", (uint32) objectNum);
+				abort_quit_stop();
+				return;
+			}
+		}
+
+		// Check that there is data.
+		if (objectData->_script.isNull()) {
+			return;
+		}
 
 		if (recursive == false) {
 			_stopObjectScript(objectNum);
