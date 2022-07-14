@@ -107,6 +107,10 @@ namespace gs
 
 			i = size;
 			while(i-- != 0) {
+				
+				if (_size == 0)
+					break;
+
 				_tempItems[i] = _pop_unchecked();
 			}
 
