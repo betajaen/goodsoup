@@ -19,6 +19,9 @@
 
 #include "vm_debugger.h"
 #include "vm.h"
+#include "debug.h"
+
+#define GS_VM_DEBUG_TO_LOG 1
 
 extern const char GOODSOUP_VERSION_STR[];
 
@@ -75,6 +78,9 @@ namespace gs
     void vmDebugScript(uint8 context, uint16 scriptNum, uint8 scriptType, uint8 verb, uint32 checkSum) {
         if (sPaused == false) {
             sDebugFile.writeFormat("\n@ %02lx %04lx \"%s\" %02lx %08lx\n", context, scriptNum, ObjectWhereToString(scriptType), verb, checkSum);
+#if GS_VM_DEBUG_TO_LOG == 1
+			debug(GS_THIS, "@ %02lx %04lx \"%s\" %02lx %08lx", context, scriptNum, ObjectWhereToString(scriptType), verb, checkSum)	;
+#endif
         }
     }
 
@@ -83,6 +89,9 @@ namespace gs
             for(uint8 i = 0;i < count;i++) {
 				if (values[i] != 0) {
                 	sDebugFile.writeFormat("L %02x %08x\n", i, values[i]);
+#if GS_VM_DEBUG_TO_LOG == 1
+			debug(GS_THIS, "L %02x %08x", i, values[i]);
+#endif
 				}
             }
         }
@@ -92,6 +101,9 @@ namespace gs
          if (sPaused == false) {
             for(uint8 i = 0;i < count;i++) {
                 sDebugFile.writeFormat("S %02x %08x\n", i, values[i]);
+#if GS_VM_DEBUG_TO_LOG == 1
+			debug(GS_THIS, "S %02x %08x", i, values[i]);
+#endif
             }
         }
     }
@@ -99,36 +111,54 @@ namespace gs
     void vmDebugOpcode(uint16 pc, uint8 opcode) {
         if (sPaused == false) {
             sDebugFile.writeFormat("> %04lx %02lx \"%s\"\n", pc, opcode, OpcodeToString(opcode));
+#if GS_VM_DEBUG_TO_LOG == 1
+			debug(GS_THIS, "> %04lx %02lx \"%s\"", pc, opcode, OpcodeToString(opcode));
+#endif
         }
     }
 
     void vmDebugResult(int32 v0) {
         if (sPaused == false) {
             sDebugFile.writeFormat(". %08lx\n", v0);
+#if GS_VM_DEBUG_TO_LOG == 1
+			debug(GS_THIS, ". %08lx", v0);
+#endif
         }
     }
 
     void vmDebugResult(int32 v0, int32 v1) {
         if (sPaused == false) {
             sDebugFile.writeFormat(". %08lx %08lx\n", v0, v1);
+#if GS_VM_DEBUG_TO_LOG == 1
+			debug(GS_THIS, ". %08lx %08lx", v0, v1);
+#endif
         }
     }
 
     void vmDebugResult(int32 v0, int32 v1, int32 v2) {
         if (sPaused == false) {
             sDebugFile.writeFormat(". %08lx %08lx %08lx\n", v0, v1, v2);
+#if GS_VM_DEBUG_TO_LOG == 1
+			debug(GS_THIS, ". %08lx %08lx %08lx", v0, v1, v2);
+#endif
         }
     }
 
     void vmDebugResult(int32 v0, int32 v1, int32 v2, int32 v3) {
         if (sPaused == false) {
             sDebugFile.writeFormat(". %08lx %08lx %08lx %08lx\n", v0, v1, v2, v3);
+#if GS_VM_DEBUG_TO_LOG == 1
+			debug(GS_THIS, ". %08lx %08lx %08lx %08lx", v0, v1, v2, v3);
+#endif
         }
     }
 
     void vmDebugResult(int32 v0, int32 v1, int32 v2, int32 v3, int32 v4) {
         if (sPaused == false) {
             sDebugFile.writeFormat(". %08lx %08lx %08lx %08lx %08lx\n", v0, v1, v2, v3, v4);
+#if GS_VM_DEBUG_TO_LOG == 1
+			debug(GS_THIS, ". %08lx %08lx %08lx %08lx %08lx", v0, v1, v2, v3, v4);
+#endif
         }
     }
 #endif
