@@ -950,28 +950,28 @@ namespace gs
 
 				switch (param) {
 					case CursorCommandOp_CursorOn:
-						NO_FEATURE(GS_THIS, "Not implemented OP_cursorCommand CursorCommandOp_CursorOn");
+						//NO_FEATURE(GS_THIS, "Not implemented OP_cursorCommand CursorCommandOp_CursorOn");
 					return;
 					case CursorCommandOp_CursorOff:
-						NO_FEATURE(GS_THIS, "Not implemented OP_cursorCommand CursorCommandOp_CursorOff");
+						//NO_FEATURE(GS_THIS, "Not implemented OP_cursorCommand CursorCommandOp_CursorOff");
 					return;
 					case CursorCommandOp_SoftCursorOn:
-						NO_FEATURE(GS_THIS, "Not implemented OP_cursorCommand CursorCommandOp_SoftCursorOn");
+						//NO_FEATURE(GS_THIS, "Not implemented OP_cursorCommand CursorCommandOp_SoftCursorOn");
 					return;
 					case CursorCommandOp_SoftCursorOff:
-						NO_FEATURE(GS_THIS, "Not implemented OP_cursorCommand CursorCommandOp_SoftCursorOff");
+						//NO_FEATURE(GS_THIS, "Not implemented OP_cursorCommand CursorCommandOp_SoftCursorOff");
 					return;
 					case CursorCommandOp_UserPutOn:
-						NO_FEATURE(GS_THIS, "Not implemented OP_cursorCommand CursorCommandOp_UserPutOn");
+						//NO_FEATURE(GS_THIS, "Not implemented OP_cursorCommand CursorCommandOp_UserPutOn");
 					return;
 					case CursorCommandOp_UserPutOff:
-						NO_FEATURE(GS_THIS, "Not implemented OP_cursorCommand CursorCommandOp_UserPutOff");
+						//NO_FEATURE(GS_THIS, "Not implemented OP_cursorCommand CursorCommandOp_UserPutOff");
 					return;
 					case CursorCommandOp_SoftUserPutOn:
-						NO_FEATURE(GS_THIS, "Not implemented OP_cursorCommand CursorCommandOp_SoftUserPutOn");
+						//NO_FEATURE(GS_THIS, "Not implemented OP_cursorCommand CursorCommandOp_SoftUserPutOn");
 					return;
 					case CursorCommandOp_SoftUserPutOff:
-						NO_FEATURE(GS_THIS, "Not implemented OP_cursorCommand CursorCommandOp_SoftUserPutOff");
+						//NO_FEATURE(GS_THIS, "Not implemented OP_cursorCommand CursorCommandOp_SoftUserPutOff");
 					return;
 					case CursorCommandOp_CursorImage:
 						_stack.pop();
@@ -981,7 +981,7 @@ namespace gs
 					case CursorCommandOp_HotSpot:
 						_stack.pop();
 						_stack.pop();
-						NO_FEATURE(GS_THIS, "Not implemented OP_cursorCommand CursorCommandOp_HotSpot");
+						//NO_FEATURE(GS_THIS, "Not implemented OP_cursorCommand CursorCommandOp_HotSpot");
 					return;
 					case CursorCommandOp_Transparency:
 						_stack.pop();
@@ -992,7 +992,8 @@ namespace gs
 						NO_FEATURE(GS_THIS, "Not implemented OP_cursorCommand CursorCommandOp_CharsetSet");
 					return;
 					case CursorCommandOp_CharsetColour:
-						NO_FEATURE(GS_THIS, "Not implemented OP_cursorCommand CursorCommandOp_CharsetColour");
+						_stack.readList(16);
+						// NO_FEATURE(GS_THIS, "Not implemented OP_cursorCommand CursorCommandOp_CharsetColour");
 					return;
 					case CursorCommandOp_CursorPut:
 						_stack.pop();
@@ -1199,9 +1200,11 @@ namespace gs
 						_stack.pop();
 						NO_FEATURE(GS_THIS, "Not implemented OP_roomOps RoomOp_SetColour");
 					return;
-					case RoomOp_FadePalette:
-						_stack.pop();
+					case RoomOp_FadePalette: {
+						uint16 pal = _stack.pop();
+						debug(GS_THIS, "Fade palette %ld ((((((((((((((", pal);
 						NO_FEATURE(GS_THIS, "Not implemented OP_roomOps RoomOp_FadePalette");
+					}
 					return;
 					case RoomOp_DarkenPalette: {
 						uint8 endColour = _stack.pop();
@@ -1761,10 +1764,6 @@ namespace gs
 						/* Unused Save Game Functionality */
 					}
 					return;
-					case KernelSetOp_SetKeyScript: {
-						NO_FEATURE(GS_THIS, "Not implemented KernelSetOp_SetKeyScript");
-					}
-					return;
 					case KernelSetOp_KillAllScriptsExceptCurrent:
 						NO_FEATURE(GS_THIS, "Not implemented KernelSetOp_KillAllScriptsExceptCurrent");
 					return;
@@ -1883,8 +1882,7 @@ namespace gs
 			case OP_ifClassOfIs: {
 				int16 num = _stack.readList(16);
 				uint16 obj = _stack.pop();
-
-				uint32 cls;
+				uint32 flags;
 				bool b;
 				int32 cond = 1;
 				ObjectData* object = OBJECTS->findObject(obj);
@@ -1892,10 +1890,10 @@ namespace gs
 				if (object) {
 
 					while (--num >= 0) {
-						cls = _stack.getListItem(num);
-						debug(GS_THIS, "CLS = %ld", cls);
-						b = object->getClassFlags(cls);
-						if ((cls & 0x80 && !b) || (!(cls & 0x80) && b))
+						flags = _stack.getListItem(num);
+						debug(GS_THIS, "CLS = %ld <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<,", flags);
+						b = object->getClassFlags(flags);
+						if ((flags & 0x80 && !b) || (!(flags & 0x80) && b))
 							cond = 0;
 					}
 				}
@@ -1999,7 +1997,7 @@ namespace gs
 					}
 					return;
 					case KernelGetOp_ReadRegistryValue: {
-						NO_FEATURE(GS_THIS, "Not implemented OP_kernelGetFunctions KernelGetOp_ReadRegistryValue");
+						// NO_FEATURE(GS_THIS, "Not implemented OP_kernelGetFunctions KernelGetOp_ReadRegistryValue");
 						_stack.push(-1);
 					}
 					return;
