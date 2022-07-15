@@ -408,10 +408,6 @@ namespace gs
 			LOCALS->clear(i);
 		}
 
-#if GS_DEBUG==1
-		_pushPcState = false;
-#endif
-
 		INTS->currentdisk = 1;
 
 	}
@@ -470,9 +466,6 @@ namespace gs
 		context._bRecursive = recursive;
 		context._scriptWhere = (scriptNum < NUM_SCRIPTS) ? OW_Global : OW_Local;
 
-#if DEBUG_CONTEXT_STACK == 1
-		debug(GS_THIS, "Attached Script %ld:%ld (%s) ", (uint32) contextNum, (uint32) scriptNum, ObjectWhereToString(context._scriptWhere));
-#endif
 		LOCALS->clear(contextNum);
 
 		if (_updateScriptData(context)) {
@@ -638,16 +631,6 @@ namespace gs
 		context._state = SCS_Dead;
 
 		CURRENT_CONTEXT = NO_CONTEXT;
-
-#if GS_DEBUG == 1
-		if (_pushPcState) {
-			_pushPcState = false;
-			_pcState.contextAfter = CURRENT_CONTEXT;
-			_pcState.pcAfter = _pc;
-			_lastPcStates.write(_pcState);
-		}
-#endif
-
 	}
 
 	void VirtualMachine::_stopScript(uint16 scriptNum) {
@@ -916,15 +899,6 @@ namespace gs
 
 	void VirtualMachine::_pushAndRunScript(uint8 newContextNum) {
 
-#if GS_DEBUG==1
-		if (_pushPcState) {
-			_pushPcState = false;
-			_pcState.contextAfter = newContextNum;
-			_pcState.pcAfter = _pc;
-			_lastPcStates.write(_pcState);
-		}
-#endif
-
 		ScriptStackItem& last = _contextStack[_contextStackSize];
 		
 		if (CURRENT_CONTEXT == NO_CONTEXT) {
@@ -988,14 +962,6 @@ namespace gs
 
 				_pc = lastContext._lastPC;
 
-#if GS_DEBUG==1
-				PcState state;
-				state.context = last._contextNum;
-				state.opcode = 0xFF;
-				state.pc = _pc;
-				state.pcAfter = _pc;
-				_lastPcStates.write(state);
-#endif
 				return;
 			}
 
@@ -1005,30 +971,17 @@ namespace gs
 	}
 
 	void VirtualMachine::runCurrentScript() {
+		ScriptContext& context = _context[CURRENT_CONTEXT];
 		while (CURRENT_CONTEXT != NO_CONTEXT) {
-            ScriptContext& context = _context[CURRENT_CONTEXT];
             context._bIsExecuted = true;
-
-#if GS_DEBUG == 1
-			_pushPcState = true;
-			_pcState.pc = _pc;
-			_pcState.context = CURRENT_CONTEXT;
-#endif
-
 			_step();
-#if GS_DEBUG==1
-			if (_pushPcState) {
-				_pcState.pcAfter = _pc;
-				_pcState.contextAfter = CURRENT_CONTEXT;
-				_lastPcStates.write(_pcState);
-			}
-#endif
 		}
 	}
 
 	void VirtualMachine::_delay(uint32 time) {
+		ScriptContext& context = _context[CURRENT_CONTEXT];
 		if (CURRENT_CONTEXT != NO_CONTEXT) {
-			ScriptContext& context = _context[CURRENT_CONTEXT];
+			context._bIsExecuted = true;
 			context._delay = time;
 			context._state = SCS_Paused;
 			_break();
@@ -1111,16 +1064,6 @@ namespace gs
 
 	void VirtualMachine::_break() {
 		if (CURRENT_CONTEXT != NO_CONTEXT) {
-
-#if GS_DEBUG == 1
-			if (_pushPcState) {
-				_pushPcState = false;
-				_pcState.contextAfter = NO_CONTEXT;
-				_pcState.pcAfter = _pc;
-				_lastPcStates.write(_pcState);
-			}
-#endif
-
 			ScriptContext& context = _context[CURRENT_CONTEXT];
 			context._lastPC = _pc;
 			CURRENT_CONTEXT = NO_CONTEXT;
@@ -1274,120 +1217,6 @@ namespace gs
             break;
         }
 
-	}
-
-	void VirtualMachine::_dumpState() {
-#if GS_DEBUG==1
-		dumpStack();
-
-		debug_write(DC_Debug, GS_FILE_NAME, __FILE__, __FUNCTION__, __LINE__, "VM State as follows:");
-		
-		uint8 lastContext = CURRENT_CONTEXT;
-
-		for (uint16 i = 0; i < 8; i++) {
-			PcState state;
-			_lastPcStates.read(7-i, state);
-
-			if (state.pc == state.pcAfter && state.opcode == 0xFF) {
-				debug_write_str("## Resume to ");
-				debug_write_byte(state.context);
-				debug_write_char('\n');
-				continue;
-			}
-				
-			if (i == 0 || state.context != lastContext) {
-				debug_write_byte((byte) (state.context));
-			}
-			else {
-				debug_write_char('.');
-				debug_write_char('.');
-			}
-			debug_write_char(' ');
-				
-			lastContext = state.context;
-				
-			debug_write_char(' ');
-			debug_write_int(state.pc);
-			debug_write_char(' ');
-			debug_write_str(_getOpcodeName(state.opcode));
-			debug_write_char('@');
-			debug_write_byte(state.opcode);
-				
-			debug_write_char(' ');
-			debug_write_char('(');
-
-			if (state.context == CURRENT_CONTEXT && _script.isNull() == false) {
-
-				for (uint16 j = state.pc; j < state.pcAfter; j++) {
-					if (j != state.pc) {
-						debug_write_char(' ');
-					}
-					debug_write_byte(_script.get_unchecked(j));
-				}
-
-			}
-			else {
-				debug_write_char('?');
-			}
-				
-			debug_write_char(')');
-			debug_write_char('\n');
-
-			if (state.context != state.contextAfter && state.opcode != OP_stopObjectCode) {
-				debug_write_str("##  ");
-				debug_write_byte(state.context);
-				debug_write_str(" to ");
-				debug_write_byte(state.contextAfter);
-				debug_write_char('\n');
-			}
-
-		}
-			
-		debug_write_str("??  ");
-		debug_write_int(_pcOpcode);
-		debug_write_char(' ');
-		debug_write_str(_getOpcodeName(_opcode));
-		debug_write_char('@');
-		debug_write_byte(_opcode);
-
-		uint16 end = _pcOpcode + 15;
-		if (end > _script.getSize()) {
-			end = _script.getSize();
-		}
-			
-		debug_write_char(' ');
-		debug_write_char('(');
-			
-
-
-		for (uint16 i = _pc; i < end; i++) {
-			if (i != _pc) {
-				debug_write_char(' ');
-			}
-			debug_write_byte(_script.get_unchecked(i));
-		}
-			
-		debug_write_str(" ...)\n");
-
-		int16 stackMin = _stack.getSize() - 16;
-		if (stackMin < 0)
-			stackMin = 0;
-
-		int16 stackMax = _stack.getSize();
-		
-		if (stackMax > 0) {
-			for (int16 i = stackMin; i < stackMax; i++) {
-				debug_write_str("    ");
-				debug_write_byte(i);
-				debug_write_char('=');
-				debug_write_int(_stack.get_unchecked(i));
-				debug_write_char('\n');
-			}
-		}
-
-	
-		debug_write_char('\n');
-#endif
 	}
 
 	void VirtualMachine::dumpStack() {

@@ -91,7 +91,7 @@ namespace gs
 
 		uint16 readList(uint16 capacity) {
 
-			uint16 i, size;
+			uint16 i, size, sizePopped;
 
 			for (i = 0; i < capacity; i++) {
 				_tempItems[i] = 0;
@@ -106,12 +106,20 @@ namespace gs
 			}
 
 			i = size;
+			sizePopped = 0;
 			while(i-- != 0) {
 				
 				if (_size == 0)
 					break;
 
 				_tempItems[i] = _pop_unchecked();
+				sizePopped++;
+			}
+
+			if (size != sizePopped) {
+				error(GS_THIS, "Stack num %ld is not the same as amount popped %ld", (uint32) size, (uint32) sizePopped);
+				abort_quit_stop();
+				return 0;
 			}
 
 			verbose(GS_THIS, "%ld of %ld", (uint32) size, (uint32) capacity);

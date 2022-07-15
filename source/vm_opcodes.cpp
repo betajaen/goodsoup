@@ -48,15 +48,13 @@ namespace gs
 #if defined(GS_DEBUG)
 	#define GS_UNHANDLED_OP\
 		do {\
-			_dumpState();\
-			_forceQuit();\
+			abort_quit_stop();\
 			error(GS_THIS, "Unhandled Opcode! %lx 'OP_%s'", _opcode, _getOpcodeName(_opcode));\
 		} while(0);
 #else
 	#define GS_UNHANDLED_OP\
 		do {\
-			_dumpState();\
-			_forceQuit();\
+			abort_quit_stop();\
 			error(GS_THIS, "Unhandled Opcode");\
 		} while(0);
 #endif
@@ -64,10 +62,6 @@ namespace gs
 	void VirtualMachine::_step() {
 		_pcOpcode = _pc;
 		_opcode = _readByte();
-		
-#if GS_DEBUG==1
-		_pcState.opcode = _opcode;
-#endif
 
 #if defined(GS_VM_DEBUG) && GS_VM_DEBUG==1
         ScriptContext& ctx = _context[CURRENT_CONTEXT];
@@ -1003,8 +997,7 @@ namespace gs
 				}
 
 				NO_FEATURE(GS_THIS, "Not implemented OP_cursorCommand(%ld)", (uint32) param);
-				_dumpState();
-				_forceQuit();
+				abort_quit_stop();
 			}
 			return;
 			case OP_loadRoom: {
@@ -1183,8 +1176,7 @@ namespace gs
 
 
 				NO_FEATURE(GS_THIS, "Not implemented OP_resourceRoutines(%ld,%ld)", (uint32) subOp, (uint32) resourceNum);
-				_dumpState();
-				_forceQuit();
+				abort_quit_stop();
 
 			}
 			return;
@@ -1243,8 +1235,7 @@ namespace gs
 				}
 
 				error(GS_THIS, "Not implemented OP_roomOps(%ld)", (uint32) subOp);
-				_dumpState();
-				_forceQuit();
+				abort_quit_stop();
 			}
 			return;
 			case OP_actorOps: {
@@ -1630,8 +1621,7 @@ namespace gs
 				}
 
 				NO_FEATURE(GS_THIS, "Not implemented OP_verbOps(%ld)", (uint32) subOp);
-				_dumpState();
-				_forceQuit();
+				abort_quit_stop();
 			}
 			return;
 			case OP_startSound: {
@@ -1679,8 +1669,13 @@ namespace gs
 				/* UNHANDLED */
 			}
 			return;
-			case OP_saveRestoreVerbs:
-				GS_UNHANDLED_OP;
+			case OP_saveRestoreVerbs: {
+				byte subOp = _readByte();
+				int32 c = _stack.pop();
+				int32 b = _stack.pop();
+				int32 a = _stack.pop();
+				NO_FEATURE(GS_THIS, "Not implemented OP_saveRestoreVerbs! %ld", (uint32) subOp);
+			}
 			return;
 			case OP_setObjectName:
 				GS_UNHANDLED_OP;
@@ -1790,9 +1785,8 @@ namespace gs
 					return;
 				}
 
-				_dumpState();
-				_forceQuit();
 				NO_FEATURE(GS_THIS, "Not implemented KernelSetFunctions(%ld, %ld)", (uint32) subOp, length);
+				abort_quit_stop();
 			}
 			return;
 			case OP_bb:
@@ -2026,9 +2020,9 @@ namespace gs
 					}
 					return;
 				}
-				_dumpState();
-				_forceQuit();
+				
 				NO_FEATURE(GS_THIS, "Not implemented OP_kernelGetFunctions(%ld)", (uint32) opcode);
+				abort_quit_stop();
 			}
 			return;
 			case OP_isActorInBox: {

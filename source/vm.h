@@ -121,29 +121,6 @@ namespace gs
 		uint8  _contextNum;
 	};
 
-	struct ArrayHeader {
-		uint16 dim1;
-		uint16 dim2;
-		uint8  kind;
-		uint8  data[1];
-
-		inline void WriteByte(uint16 offset, byte value) {
-			data[offset] = value;
-		}
-		
-		inline void WriteUInt16_Native(uint16 offset, uint16 value) {
-#if GS_BIG
-			data[offset] = value >> 8;
-			data[offset+1] = value & 0xFF;
-#else
-			data[offset] = value & 0xFF;
-			data[offset+1] = value >> 8;
-#endif
-		}
-
-	};
-
-
 	struct CutsceneScriptStackItem {
 		int32 _data;
 		uint32 _pc;
@@ -164,14 +141,6 @@ namespace gs
 	{
 	private:
 
-#if GS_DEBUG==1
-		struct PcState
-		{
-			uint16 pc, pcAfter, scriptNum;
-			uint8  opcode, context, contextAfter;
-		};
-#endif
-
 		OpcodeSpan						_nullScript;
 		Buffer<int32>					_intGlobals;
 		Buffer<byte>					_boolGlobals;
@@ -180,15 +149,10 @@ namespace gs
 		CutsceneScriptState				_cutscenes;
 		uint16							_contextStackSize;
 		uint32							_pc, _pcAfter, _pcOpcode;
-		ScriptDataReference			_scriptReference;
+		ScriptDataReference				_scriptReference;
 		OpcodeSpan						_script;
 		byte							_opcode;
 		Array<char>						_messageTemp;
-#if GS_DEBUG==1
-		RingLog<PcState>				_lastPcStates;
-		PcState							_pcState;
-		bool							_pushPcState;
-#endif
 		VmStack<256>					_stack;
 		Array<byte, uint16>				_arrayTemp;
 
@@ -210,7 +174,6 @@ namespace gs
 		void _readStringLength(uint16& from, uint16& length);
 		void _decodeParseString(uint8 m, uint8 n);
 
-		void _dumpState();
 		void _forceQuit();
 
 		void _runExitScript();
@@ -248,7 +211,7 @@ namespace gs
 		void unfreezeAll();
 
 		void abort() {
-			_dumpState();
+			dumpStack();
 			_forceQuit();
 		}
 
