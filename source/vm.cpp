@@ -459,14 +459,11 @@ namespace gs
 		}
 
 		ScriptContext& context = _context[contextNum];
-		context.reset();
 		context._scriptNum = scriptNum;
 		context._state = SCS_Running;
 		context._bFreezeResistant = freezeResistant;
 		context._bRecursive = recursive;
 		context._scriptWhere = (scriptNum < NUM_SCRIPTS) ? OW_Global : OW_Local;
-
-		LOCALS->clear(contextNum);
 
 		if (_updateScriptData(context)) {
 			LOCALS->clear(contextNum);
@@ -973,6 +970,15 @@ namespace gs
 	void VirtualMachine::runCurrentScript() {
 		ScriptContext& context = _context[CURRENT_CONTEXT];
 		while (CURRENT_CONTEXT != NO_CONTEXT) {
+
+#if GS_DEBUG == 1
+			if (_pc >= _script.getSize()) {
+				error(GS_THIS, "Out of program space!");
+				abort_quit_stop();
+				return;
+			}
+#endif
+
             context._bIsExecuted = true;
 			_step();
 		}
