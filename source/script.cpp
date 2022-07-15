@@ -378,6 +378,21 @@ namespace gs
 		}
 	}
 
+	void ScriptState::dumpState() {
+		for(uint16 i=0;i < _globals.getSize();i++) {
+			ScriptData* script = _globals.get_unchecked(i);
+			debug(GS_THIS, "G Id=%ld(%lx) Parent=%ld(%lx) Size=%ld", (uint32) script->_id, (uint32) script->_id, (uint32) script->_parentId, (uint32) script->_parentId, script->_script.getSize());
+		}
+		for(uint16 i=0;i < _locals.getSize();i++) {
+			ScriptData* script = _locals.get_unchecked(i);
+			debug(GS_THIS, "L Id=%ld(%lx) Parent=%ld(%lx) Size=%ld", (uint32) script->_id, (uint32) script->_id, (uint32) script->_parentId, (uint32) script->_parentId, script->_script.getSize());
+		}
+		for(uint16 i=0;i < _objectVerbs.getSize();i++) {
+			ScriptData* script = _objectVerbs.get_unchecked(i);
+			debug(GS_THIS, "V Id=%ld(%lx) Parent=%ld(%lx) Size=%ld", (uint32) script->_id, (uint32) script->_id, (uint32) script->_parentId, (uint32) script->_parentId, script->_script.getSize());
+		}
+	}
+
 	void ScriptData::debugTables() {
 		debug(GS_THIS, "ScriptData, NumOffsets=%ld", _numOffsets);
 		for(uint8 i=0;i < _numOffsets;i++) {

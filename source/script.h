@@ -305,6 +305,7 @@ namespace gs
 		void addResourceLock(uint16 scriptNum);
 		void removeResourceLock(uint16 scriptNum);
 
+		void dumpState();
 	};
 
 	extern ScriptState* SCRIPTS;
