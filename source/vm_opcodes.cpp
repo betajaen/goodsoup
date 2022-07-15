@@ -1240,6 +1240,9 @@ namespace gs
 			return;
 			case OP_actorOps: {
 				byte subOp = _readByte();
+#if defined(GS_VM_DEBUG) && GS_VM_DEBUG==1
+				vmDebugResult(subOp);
+#endif
 				switch(subOp) {
 					case ActorOp_SetCostume: {
                         ActorData* actor = ACTORS->getActor();
@@ -1542,6 +1545,9 @@ namespace gs
 					}
 					return;
 				}
+
+				error(GS_THIS, "Unsupported Actor Operation %ld", subOp);
+				abort_quit_stop();
 			}
 			return;
 			case OP_cameraOps: {
@@ -1831,6 +1837,9 @@ namespace gs
 			case OP_startScriptQuick2: {
 				uint8 num = _stack.readList(25);
 				uint16 scriptNum = _stack.pop();
+#if defined(GS_VM_DEBUG) && GS_VM_DEBUG==1
+				vmDebugResult(scriptNum, num, _stack.getSize());
+#endif
 				runScript(scriptNum, false, true, _stack.getList(), num);
 			}
 			return;
