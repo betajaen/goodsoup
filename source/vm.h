@@ -178,7 +178,6 @@ namespace gs
 
 		void _runExitScript();
 		void _runEnterScript();
-		void _unloadAllRoomScripts();
 
 		const char* _getOpcodeName(uint8 opcode) const;
 
@@ -202,6 +201,8 @@ namespace gs
 		void runRoomScript(uint16 scriptNum);
 		void runAllScripts();
 		void runInputScript(uint16 scriptNum, int32 clickArea, int32 code, int32 mode);
+
+		void unloadAllRoomScripts();
 
 		bool isScriptRunning(uint16 scriptNum);
 		bool isRoomScriptRunning(uint16 scriptNum);

@@ -1258,7 +1258,7 @@ namespace gs
 #endif
 	}
 	
-	void VirtualMachine::_unloadAllRoomScripts() {
+	void VirtualMachine::unloadAllRoomScripts() {
 		for (uint8 i = 0; i < MAX_SCRIPT_CONTEXTS; i++) {
 			ScriptContext& context = _context[i];
 			const uint8 where = context._scriptWhere;

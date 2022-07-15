@@ -192,6 +192,11 @@ namespace gs
 
 	void startRoom(uint16 roomNum, bool runExitScript, bool runEnterScript) {
 
+		uint16 oldRoomNum = 0;
+
+		if (sCurrentRoom != NULL) {
+			oldRoomNum = sCurrentRoom->getNum();
+		}
 
 		if (INTS->exitScript > 0) {
 			VM->runScript(INTS->exitScript, false, false);
@@ -219,6 +224,7 @@ namespace gs
 			sCurrentRoom = NULL;
 		}
 
+		VM->unloadAllRoomScripts();
 
 		RoomData* roomData = NULL;
 
@@ -242,6 +248,8 @@ namespace gs
 		}
 
 		sCurrentRoom = roomData;
+
+
 
 		OBJECTS->moveRoomObjectsToGlobals();
 
