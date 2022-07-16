@@ -19,7 +19,7 @@
 
 #include "resource.h"
 #include "room.h"
-#include "vm.h"
+#include "vm/vm.h"
 #include "string.h"
 #include "screen.h"
 #include "globals.h"

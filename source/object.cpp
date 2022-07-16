@@ -22,8 +22,8 @@
 #include "room.h"
 #include "index.h"
 #include "resource.h"
-#include "vm_vars.h"
-#include "vm_debugger.h"
+#include "vm/vars.h"
+#include "vm/debugger.h"
 #include "pair.h"
 
 namespace gs

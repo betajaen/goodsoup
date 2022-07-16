@@ -17,8 +17,8 @@
 
 #define GS_FILE_NAME "vm_debugger"
 
-#include "vm_debugger.h"
-#include "vm.h"
+#include "vm/debugger.h"
+#include "vm/vm.h"
 #include "debug.h"
 
 #define GS_VM_DEBUG_TO_LOG 1

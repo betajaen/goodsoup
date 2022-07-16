@@ -17,10 +17,10 @@
 
 #define GS_FILE_NAME "vm_array"
 
-#include "vm_array.h"
+#include "vm/array.h"
 
 #include "memory.h"
-#include "vm_vars.h"
+#include "vm/vars.h"
 
 namespace gs
 {

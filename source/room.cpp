@@ -20,11 +20,11 @@
 #include "room.h"
 #include "resource.h"
 
-#include "vm.h"
+#include "vm/vm.h"
 #include "debug.h"
 #include "profile.h"
 #include "globals.h"
-#include "vm_vars.h"
+#include "vm/vars.h"
 #include "disk.h"
 #include "utils.h"
 #include "screen.h"

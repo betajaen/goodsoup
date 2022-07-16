@@ -17,9 +17,9 @@
 
 #define GS_FILE_NAME "vars"
 
-#include "vm_vars.h"
+#include "vars.h"
 #include "vm.h"
-#include "globals.h"
+#include "../globals.h"
 
 #include "memory.h"
 

@@ -72,11 +72,11 @@ OBJ +=	source/hash.o\
 
 # Game Sources
 OBJ +=	source/main_game.o\
-		source/vm.o\
-		source/vm_array.o\
-		source/vm_opcodes.o\
-		source/vm_vars.o\
-		source/vm_debugger.o\
+		source/vm/vm.o\
+		source/vm/array.o\
+		source/vm/opcodes.o\
+		source/vm/vars.o\
+		source/vm/debugger.o\
 		source/script.o\
 		source/room.o\
 		source/room_scripts.o\
@@ -104,6 +104,7 @@ all: $(OBJ)
 
 clean .IGNORE:
 	$(DELETE) source/*.o
+	$(DELETE) source/vm/*.o
 	$(DELETE) source/sdl/*.o
 	$(DELETE) source/amiga/*.o
 	$(DELETE) dist/monkey3

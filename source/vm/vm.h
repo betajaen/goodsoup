@@ -18,13 +18,13 @@
 #ifndef GS_VM_H
 #define GS_VM_H
 
-#include "types.h"
-#include "buffer.h"
+#include "../types.h"
+#include "../buffer.h"
+#include "../array.h"
+#include "../profile.h"
+#include "../script.h"
+#include "stack.h"
 #include "array.h"
-#include "vm_stack.h"
-#include "vm_array.h"
-#include "profile.h"
-#include "script.h"
 
 namespace gs
 {

@@ -23,7 +23,7 @@
 
 #include "utils.h"
 #include "profile.h"
-#include "vm_array.h"
+#include "vm/array.h"
 
 namespace gs
 {

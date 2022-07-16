@@ -24,7 +24,7 @@
 #include "disk.h"
 #include "debug.h"
 #include "profile.h"
-#include "vm_opcodes.h"
+#include "vm/opcodes.h"
 
 namespace gs
 {
