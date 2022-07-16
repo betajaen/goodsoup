@@ -466,6 +466,61 @@ namespace gs
 
 	};
 
+	template<typename T, typename Index, Index Capacity>
+	class Stack {
+	private:
+		T    	_items[Capacity];
+		Index   _head;
+
+	public:
+
+		Stack() {
+			clearMemoryNonAllocated(&_items[0], sizeof(_items));
+		}
+
+		T* items() {
+			return &_items[0];
+		}
+
+		void clear() {
+			_head = 0;
+		}
+
+		uint16 getSize() const {
+			return _head;
+		}
+
+		void push(const T& item) {
+			if (_head == Capacity) {
+				error(GS_THIS, "Stack overflow!");
+				abort_quit_stop();
+				return;
+			}
+
+			_items[_head] = item;
+			_head++;
+		}
+
+		bool pop(T& item) {
+			if (_head == 0) {
+				error(GS_THIS, "Stack underflow!");
+				abort_quit_stop();
+				return false;
+			}
+			_head--;
+			item = _items[_head];
+			return true;
+		}
+
+		bool peek(T& item) {
+			if (_head == 0) {
+				return false;
+			}
+			item = _items[_head - 1];
+			return true;
+		}
+
+	};
 
 }
 
