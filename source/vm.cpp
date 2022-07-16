@@ -476,12 +476,10 @@ namespace gs
 
 	void VirtualMachine::runObjectScript(uint16 objectNum, uint8 verb, bool freezeResistant, bool recursive, int32* data, uint8 dataCount) {
 
-#if GS_CHECKED == 1
+		// This can be normal. Observed in Script 51+0x7B
 		if (objectNum == 0) {
-			warn(GS_THIS, "Could not run a NULL object script %ld", (uint32) objectNum);
 			return;
 		}
-#endif
 
 		// Check Object Exists; Room, Global or Inventory
 		ObjectData* objectData = OBJECTS->findObject(objectNum);
