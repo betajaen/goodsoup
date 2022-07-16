@@ -8,6 +8,7 @@ IGNORE_NO_FEATURE = 0
 ONE_FRAME = 0
 VM_DEBUG = 0
 CHECKED = 1
+FRAME_DELAY=1
 
 CFLAGS = -Isource -D__AMIGADATE__="\"$(DATESTR)\""
 
@@ -55,6 +56,7 @@ CFLAGS += -DGS_TEST=$(TEST)
 CFLAGS += -DGS_VM_DEBUG=$(VM_DEBUG)
 CFLAGS += -DGS_ONE_FRAME=$(ONE_FRAME)
 CFLAGS += -DGS_CHECKED=$(CHECKED)
+CFLAGS += -DGS_FRAME_DELAY=$(FRAME_DELAY)
 
 ifeq ($(IGNORE_NO_FEATURE), 1)
 CFLAGS += -DGS_IGNORE_NO_FEATURE
@@ -101,5 +103,7 @@ all: $(OBJ)
 	$(CC) $(CFLAGS) -c $< -o $@
 
 clean .IGNORE:
-	$(DELETE) $(OBJ)
-	$(DELETE) $(PROGRAM)
+	$(DELETE) source/*.o
+	$(DELETE) source/sdl/*.o
+	$(DELETE) source/amiga/*.o
+	$(DELETE) dist/monkey3

@@ -131,6 +131,11 @@ namespace gs
         quitNextFrame = false;
 
 		while (QUIT_NOW == false) {
+
+#if GS_FRAME_DELAY == 1
+			SDL_Delay(GS_FRAME_DELAY_MSEC);
+#endif
+
 			bool step = false;
 
 			while (SDL_PollEvent(&event)) {
