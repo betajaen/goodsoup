@@ -24,6 +24,7 @@
 #include "resource.h"
 #include "vm_vars.h"
 #include "vm_debugger.h"
+#include "pair.h"
 
 namespace gs
 {
