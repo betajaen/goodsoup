@@ -18,8 +18,13 @@
 #ifndef GS_OPCODES_H
 #define GS_OPCODES_H
 
+#include "../types.h"
+
 namespace gs
 {
+
+	const char* getOpcodeString(uint8 opcode);
+
 	enum Opcodes {
 		OP_00 = 0x00,
 		OP_pushWord = 0x01,
@@ -284,7 +289,7 @@ namespace gs
 		SystemOps_Pause = 159,
 		SystemOps_Quit = 160,
 		SystemOps_AbortQuitStop = 161,
-		SystemOps_Noop = 162,
+		SystemOps_Noop = 162
 	};
 	
 	enum ActorOp {

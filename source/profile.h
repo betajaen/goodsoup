@@ -36,7 +36,7 @@ namespace gs
 	enum GameConstants
 	{
 		MAX_SCRIPT_CONTEXTS = 80,
-		NUM_STACK_SCRIPTS = 15,
+		MAX_CONTEXT_STACK_SIZE = 15,
 
 		// MAXS Constants
 		NUM_INT_GLOBALS = 1500,

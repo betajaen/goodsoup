@@ -20,6 +20,7 @@
 
 #include "../types.h"
 #include "../debug.h"
+#include "../memory.h"
 
 #define DEBUG_STACK 0
 
@@ -145,6 +146,8 @@ namespace gs
 
 
 	};
+
+	extern VmStack<256> STACK;
 
 }
 

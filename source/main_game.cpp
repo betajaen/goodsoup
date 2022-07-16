@@ -77,7 +77,6 @@ namespace gs
 		deleteObject(VM);
 		deleteObject(INTS);
 		deleteObject(BOOLS);
-		deleteObject(LOCALS);
 		deleteObject(INDEX);
 		deleteObject(RESOURCES);
         vmDebugStop();
@@ -114,7 +113,6 @@ namespace gs
 		
 		INTS = newObject<VmIntVars>();
 		BOOLS = newObject<VmBoolVars>();
-		LOCALS = newObject<VmLocalVars>();
 		OBJECTS = newObject<ObjectState>();
 		SCRIPTS = newObject<ScriptState>();
 		VERBS = newObject<VerbState>();

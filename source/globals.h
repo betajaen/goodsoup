@@ -28,7 +28,6 @@ namespace gs
 	class Resources;
 	struct VmIntVars;
 	struct VmBoolVars;
-	struct VmLocalVars;
 
 	extern VirtualMachine* VM;
 	extern Index* INDEX;
@@ -36,7 +35,6 @@ namespace gs
 	extern Resources* RESOURCES;
 	extern VmIntVars* INTS;
 	extern VmBoolVars* BOOLS;
-	extern VmLocalVars* LOCALS;
 	extern uint8 CURRENT_CONTEXT;
 
 	extern bool QUIT_NOW;

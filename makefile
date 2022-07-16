@@ -73,8 +73,11 @@ OBJ +=	source/hash.o\
 # Game Sources
 OBJ +=	source/main_game.o\
 		source/vm/vm.o\
+		source/vm/context.o\
+		source/vm/stack.o\
 		source/vm/array.o\
 		source/vm/opcodes.o\
+		source/vm/opcodes_names.o\
 		source/vm/vars.o\
 		source/vm/debugger.o\
 		source/script.o\

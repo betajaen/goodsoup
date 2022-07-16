@@ -23,6 +23,8 @@
 #include "vars.h"
 #include "array.h"
 #include "debugger.h"
+#include "stack.h"
+
 #include "../globals.h"
 #include "../debug.h"
 #include "../utils.h"
@@ -48,7 +50,7 @@ namespace gs
 	#define GS_UNHANDLED_OP\
 		do {\
 			abort_quit_stop();\
-			error(GS_THIS, "Unhandled Opcode! %lx 'OP_%s'", _opcode, _getOpcodeName(_opcode));\
+			error(GS_THIS, "Unhandled Opcode! %lx 'OP_%s'", _opcode, getOpcodeString(_opcode));\
 		} while(0);
 #else
 	#define GS_UNHANDLED_OP\
@@ -58,12 +60,10 @@ namespace gs
 		} while(0);
 #endif
 
-	void VirtualMachine::_step() {
-		_pcOpcode = _pc;
-		_opcode = _readByte();
+	void ScriptContext::_step() {
+		uint8 _opcode = _readByte();
 
 #if defined(GS_VM_DEBUG) && GS_VM_DEBUG==1
-        ScriptContext& ctx = _context[CURRENT_CONTEXT];
         vmDebugOpcode(_pc - 1, _opcode);
 #endif
 
@@ -74,10 +74,10 @@ namespace gs
 			case OP_pushWord: {
 				uint32 value = _readWord();
 
-				_stack.push(value);
+				STACK.push(value);
 
 #if defined(GS_VM_DEBUG) && GS_VM_DEBUG==1
-                vmDebugResult(_stack.getSize(), value);
+                vmDebugResult(STACK.getSize(), value);
 #endif
 
 			}
@@ -89,21 +89,21 @@ namespace gs
 
 
 
-				_stack.push(varValue);
+				STACK.push(varValue);
 
 #if defined(GS_VM_DEBUG) && GS_VM_DEBUG==1
-                vmDebugResult(_stack.getSize(), varName, varValue);
+                vmDebugResult(STACK.getSize(), varName, varValue);
 #endif
 			}
 			return;
 			case OP_wordArrayRead: {
-				uint32 base = _stack.pop();
+				uint32 base = STACK.pop();
 				uint16 arrayNum = _readWord();
 
 				VmArray* array = ARRAYS->findFromNum(arrayNum);
 				if (array) {
 					int32 value = array->read(0, base);
-					_stack.push(value);
+					STACK.push(value);
 				}
 				else {
 					error(GS_THIS, "NULL VmArray (%ld) used with OP_wordArrayRead", (uint32) arrayNum);
@@ -112,14 +112,14 @@ namespace gs
 			}
 			return;
 			case OP_wordArrayIndexedRead: {
-				int32 base = _stack.pop();
-				int32 index = _stack.pop();
+				int32 base = STACK.pop();
+				int32 index = STACK.pop();
 				uint16 arrayNum = _readWord();
 
 				VmArray* array = ARRAYS->findFromNum(arrayNum);
 				if (array) {
 					int32 value = array->read(index, base);
-					_stack.push(value);
+					STACK.push(value);
 				}
 				else {
 					error(GS_THIS, "NULL VmArray (%ld) used with OP_wordArrayIndexedRead", (uint32) arrayNum);
@@ -128,108 +128,108 @@ namespace gs
 			}
 			return;
 			case OP_dup: {
-				int32 value = _stack.pop();
-				_stack.push(value);
-				_stack.push(value);
+				int32 value = STACK.pop();
+				STACK.push(value);
+				STACK.push(value);
 			}
 			return;
 			case OP_pop: {
-				_stack.pop();
+				STACK.pop();
 			}
 			return;
 			case OP_not: {
-				int32 left = _stack.pop();
-				_stack.push(left == 0 ? 1 : 0);
+				int32 left = STACK.pop();
+				STACK.push(left == 0 ? 1 : 0);
 			}
 			return;
 			case OP_eq: {
-				int32 right = _stack.pop();
-				int32 left = _stack.pop();
-				_stack.push(left == right ? 1 : 0);
+				int32 right = STACK.pop();
+				int32 left = STACK.pop();
+				STACK.push(left == right ? 1 : 0);
 			}
 			return;
 			case OP_neq: {
-				int32 right = _stack.pop();
-				int32 left = _stack.pop();
-				_stack.push(left != right ? 1 : 0);
+				int32 right = STACK.pop();
+				int32 left = STACK.pop();
+				STACK.push(left != right ? 1 : 0);
 			}
 			return;
 			case OP_gt: {
-				int32 right = _stack.pop();
-				int32 left = _stack.pop();
-				_stack.push(left > right ? 1 : 0);
+				int32 right = STACK.pop();
+				int32 left = STACK.pop();
+				STACK.push(left > right ? 1 : 0);
 			}
 			return;
 			case OP_lt: {
-				int32 right = _stack.pop();
-				int32 left = _stack.pop();
-				_stack.push(left < right ? 1 : 0);
+				int32 right = STACK.pop();
+				int32 left = STACK.pop();
+				STACK.push(left < right ? 1 : 0);
 			}
 			return;
 			case OP_le: {
-				int32 right = _stack.pop();
-				int32 left = _stack.pop();
-				_stack.push(left <= right ? 1 : 0);
+				int32 right = STACK.pop();
+				int32 left = STACK.pop();
+				STACK.push(left <= right ? 1 : 0);
 			}
 			return;
 			case OP_ge: {
-				int32 right = _stack.pop();
-				int32 left = _stack.pop();
-				_stack.push(left >= right ? 1 : 0);
+				int32 right = STACK.pop();
+				int32 left = STACK.pop();
+				STACK.push(left >= right ? 1 : 0);
 			}
 			return;
 			case OP_add: {
-				int32 right = _stack.pop();
-				int32 left = _stack.pop();
-				_stack.push(left + right);
+				int32 right = STACK.pop();
+				int32 left = STACK.pop();
+				STACK.push(left + right);
 			}
 			return;
 			case OP_sub: {
-				int32 right = _stack.pop();
-				int32 left = _stack.pop();
-				_stack.push(left - right);
+				int32 right = STACK.pop();
+				int32 left = STACK.pop();
+				STACK.push(left - right);
 			}
 			return;
 			case OP_mul: {
-				int32 right = _stack.pop();
-				int32 left = _stack.pop();
-				_stack.push(left * right);
+				int32 right = STACK.pop();
+				int32 left = STACK.pop();
+				STACK.push(left * right);
 			}
 			return;
 			case OP_div: {
-				int32 right = _stack.pop();
-				int32 left = _stack.pop();
-				_stack.push(left / right);
+				int32 right = STACK.pop();
+				int32 left = STACK.pop();
+				STACK.push(left / right);
 			}
 			return;
 			case OP_land: {
-				int32 right = _stack.pop();
-				int32 left = _stack.pop();
-				_stack.push(left && right ? 1 : 0);
+				int32 right = STACK.pop();
+				int32 left = STACK.pop();
+				STACK.push(left && right ? 1 : 0);
 			}
 			return;
 			case OP_lor: {
-				int32 right = _stack.pop();
-				int32 left = _stack.pop();
-				_stack.push(left || right ? 1 : 0);
+				int32 right = STACK.pop();
+				int32 left = STACK.pop();
+				STACK.push(left || right ? 1 : 0);
 			}
 			return;
 			case OP_band: {
-				int32 right = _stack.pop();
-				int32 left = _stack.pop();
-				_stack.push(left & right);
+				int32 right = STACK.pop();
+				int32 left = STACK.pop();
+				STACK.push(left & right);
 			}
 			return;
 			case OP_bor: {
-				int32 right = _stack.pop();
-				int32 left = _stack.pop();
-				_stack.push(left | right);
+				int32 right = STACK.pop();
+				int32 left = STACK.pop();
+				STACK.push(left | right);
 			}
 			return;
 			case OP_mod: {
-				int32 right = _stack.pop();
-				int32 left = _stack.pop();
-				_stack.push(left % right);
+				int32 right = STACK.pop();
+				int32 left = STACK.pop();
+				STACK.push(left % right);
 			}
 			return;
 			case OP_17:
@@ -464,7 +464,7 @@ namespace gs
 				GS_UNHANDLED_OP;
 			return;
 			case OP_if: {
-				int32 cond = _stack.pop();
+				int32 cond = STACK.pop();
 				int32 relOffset = _readWord();
 				
 				if (cond != 0) {
@@ -473,7 +473,7 @@ namespace gs
 			}
 			return;
 			case OP_ifNot: {
-				int32 cond = _stack.pop();
+				int32 cond = STACK.pop();
 				int32 relOffset = _readWord();
 				
 				if (cond == 0) {
@@ -487,20 +487,19 @@ namespace gs
 			}
 			return;
 			case OP_breakHere: {
-				_break();
+				VM->_break();
 			}
 			return;
 			case OP_delayFrames: {
-				ScriptContext& context = _context[CURRENT_CONTEXT];
-				if (context._delayFrameCount == 0) {
-					context._delayFrameCount = _stack.pop();
+				if (_delayFrameCount == 0) {
+					_delayFrameCount = STACK.pop();
 				}
 				else {
-					context._delayFrameCount--;
+					_delayFrameCount--;
 				}
-				if (context._delayFrameCount != 0) {
+				if (_delayFrameCount != 0) {
 					_pc--;
-					_break();
+					VM->_break();
 				}
 			}
 			return;
@@ -511,7 +510,7 @@ namespace gs
 				switch (subOp) {
 					case WaitOp_WaitActor: {
 						offset = _readSignedWord();
-						_stack.pop();
+						STACK.pop();
 						NO_FEATURE(GS_THIS, "Not implemented OP_cursorCommand WaitOp_WaitActor");
 					}
 					break;
@@ -529,13 +528,13 @@ namespace gs
 					break;
 					case WaitOp_WaitAnimation: {
 						offset = _readSignedWord();
-						_stack.pop();
+						STACK.pop();
 						NO_FEATURE(GS_THIS, "Not implemented OP_cursorCommand WaitOp_WaitAnimation");
 					}
 					break;
 					case WaitOp_WaitTurn: {
 						offset = _readSignedWord();
-						_stack.pop();
+						STACK.pop();
 						NO_FEATURE(GS_THIS, "Not implemented OP_cursorCommand WaitOp_WaitTurn");
 					}
 					break;
@@ -548,23 +547,29 @@ namespace gs
 			}
 			return;
 			case OP_delay: {
-				int32 time = _stack.pop();
-				_delay(time);
+				debug(GS_THIS, "*** DELAY1 %ld", (uint32) _scriptNum);
+				_delay = STACK.pop();
+				_state = SCS_Paused;
+				VM->_break();
 			}
 			return;
 			case OP_delaySeconds: {
-				int32 time = _stack.pop() * 60;
-				_delay(time);
+				debug(GS_THIS, "*** DELAY2 %ld", (uint32) _scriptNum);
+				_delay = STACK.pop() * 60;
+				_state = SCS_Paused;
+				VM->_break();
 			}
 			return;
 			case OP_delayMinutes: {
-				int32 time = _stack.pop() * 3600;
-				_delay(time);
+				debug(GS_THIS, "*** DELAY3 %ld", (uint32) _scriptNum);
+				_delay = STACK.pop() * 3600;
+				_state = SCS_Paused;
+				VM->_break();
 			}
 			return;
 			case OP_writeWordVar: {
 				uint32 varWhere = _readUnsignedWord();
-				int32 value = _stack.pop();
+				int32 value = STACK.pop();
 #if defined(GS_VM_DEBUG) && GS_VM_DEBUG==1
                 vmDebugResult(varWhere, value);
 #endif
@@ -592,11 +597,11 @@ namespace gs
 
 				switch (subOp) {
 					case DimArrayOp_NewInt:
-						size = _stack.pop();
+						size = STACK.pop();
 						ARRAYS->allocate(arrayNum, 0, size, VAK_Integer);
 					return;
 					case DimArrayOp_NewString:
-						size = _stack.pop();
+						size = STACK.pop();
 						ARRAYS->allocate(arrayNum, 0, size, VAK_String);
 					return;
 					case DimArrayOp_Delete:
@@ -610,8 +615,8 @@ namespace gs
 			return;
 			case OP_wordArrayWrite: {
 				uint16 arrayNum = _readWord();
-				int32 value = _stack.pop();
-				int32 base = _stack.pop();
+				int32 value = STACK.pop();
+				int32 base = STACK.pop();
 
 				VmArray* array = ARRAYS->findFromNum(arrayNum);
 				if (array) {
@@ -635,14 +640,14 @@ namespace gs
 
 				switch (subOp) {
 					case Dim2DimOp_Int: {
-						uint16 y = _stack.pop();
-						uint16 x = _stack.pop();
+						uint16 y = STACK.pop();
+						uint16 x = STACK.pop();
 						ARRAYS->allocate(arrayNum, x, y, VAK_Integer);
 					}
 					return;
 					case Dim2DimOp_String: {
-						uint16 y = _stack.pop();
-						uint16 x = _stack.pop();
+						uint16 y = STACK.pop();
+						uint16 x = STACK.pop();
 						ARRAYS->allocate(arrayNum, x, y,VAK_String);
 					}
 					return;
@@ -658,9 +663,9 @@ namespace gs
 			return;
 			case OP_wordArrayIndexedWrite: {
 
-				int32 value = _stack.pop();
-				int32 base = _stack.pop();
-				int32 index = _stack.pop();
+				int32 value = STACK.pop();
+				int32 base = STACK.pop();
+				int32 index = STACK.pop();
 				uint16 arrayNum = _readWord();
 
 				VmArray* array = ARRAYS->findFromNum(arrayNum);
@@ -680,7 +685,8 @@ namespace gs
 				VmArray* array;
 				switch (subOp) {
 					case ArrayOps_AssignString: {
-						uint16 offset = _stack.pop();
+						Array<byte, uint16>& _arrayTemp = VM->_arrayTemp;
+						uint16 offset = STACK.pop();
 						_readBytesForArray();
 						uint16 len = _arrayTemp.getSize();
 
@@ -697,15 +703,15 @@ namespace gs
 					return;
 					case ArrayOps_AssignScummVarList: {
 						/* TODO */
-						uint16 offset = _stack.pop();
-						uint16 len = _stack.readList(128);
+						uint16 offset = STACK.pop();
+						uint16 len = STACK.readList(128);
 						VmArray* array = ARRAYS->findFromNum(arrayNum);
 
 						if (array == NULL) {
 							array = ARRAYS->allocate(arrayNum, 0, offset + len, VAK_Integer);
 						}
 
-						array->writeFromCArray(0, offset, _stack.getList(), len);
+						array->writeFromCArray(0, offset, STACK.getList(), len);
 
 
 #if defined(GS_VM_DEBUG) && GS_VM_DEBUG==1
@@ -714,13 +720,13 @@ namespace gs
 					}
 					return;
 					case ArrayOps_Assign2DimList: {
-						uint16 offset = _stack.pop();
-						uint16 len = _stack.readList(128);
+						uint16 offset = STACK.pop();
+						uint16 len = STACK.readList(128);
 						VmArray* array = ARRAYS->findFromNum(arrayNum);
 
 						if (array) {
-							int32* list = _stack.getList();
-							uint16 index = _stack.pop();
+							int32* list = STACK.getList();
+							uint16 index = STACK.pop();
 							for(uint16 i=0;i < len;i++) {
 								array->write(list[i], index, offset + i);
 							}
@@ -752,89 +758,92 @@ namespace gs
 			case OP_startScript: {
 				uint32 script, flags;
 
-				uint8 count = _stack.readList(25);
-				script = _stack.pop();
-				flags = _stack.pop();
+				uint8 count = STACK.readList(25);
+				script = STACK.pop();
+				flags = STACK.pop();
 
-				runScript(script, (flags & 1) !=0, (flags & 2) !=0, _stack.getList(), count);
+				VM->runScript(script, (flags & 1) !=0, (flags & 2) !=0, STACK.getList(), count);
 			}
 			return;
 			case OP_startScriptQuick: {
 				uint32 script, flags;
 
-				uint8 count = _stack.readList(25);
-				script = _stack.pop();
+				uint8 count = STACK.readList(25);
+				script = STACK.pop();
 
-				runScript(script, false, true, _stack.getList(), count);
+				VM->runScript(script, false, true, STACK.getList(), count);
 			}
 			return;
 			case OP_stopObjectCode: {
-				_stopObjectCode();
+				_reset();
+				VM->_break();
 			}
 			return;
 			case OP_stopScript: {
-				uint32 scriptNum = _stack.pop();
+				uint32 scriptNum = STACK.pop();
 				if (scriptNum == 0) {
-					_stopObjectCode();
+					_reset();
+					VM->_break();
 				}
 				else {
-					_stopScript(scriptNum);
+					VM->_stopScript(scriptNum);
 				}
 			}
 			return;
 			case OP_jumpToScript: {
-				uint16 num = _stack.readList(25);
-				uint16 scriptNum = _stack.pop();
-				uint16 flags = _stack.pop();
-				_stopObjectCode();
-				runScript(scriptNum, (flags & 1) !=0, (flags & 2) !=0, _stack.getList(), num);
+				uint16 num = STACK.readList(25);
+				uint16 scriptNum = STACK.pop();
+				uint16 flags = STACK.pop();
+				_reset();
+				VM->_break();
+				VM->runScript(scriptNum, (flags & 1) !=0, (flags & 2) !=0, STACK.getList(), num);
 			}
 			return;
 			case OP_dummy:
 			return;
 			case OP_startObject: {
-				uint16 num = _stack.readList(25);
-				uint32 entryPc = _stack.pop();
-				uint16 scriptNum = _stack.pop();
-				uint16 flags = _stack.pop();
+				uint16 num = STACK.readList(25);
+				uint32 entryPc = STACK.pop();
+				uint16 scriptNum = STACK.pop();
+				uint16 flags = STACK.pop();
 				
-				runObjectScript(scriptNum, entryPc, (flags & 1) !=0, (flags & 2) !=0, _stack.getList(), num);
+				VM->runObjectScript(scriptNum, entryPc, (flags & 1) !=0, (flags & 2) !=0, STACK.getList(), num);
 			}
 			return;
 			case OP_stopObjectScript:
 				GS_UNHANDLED_OP;
 			return;
 			case OP_cutscene: {
-				uint16 num = _stack.readList(25);
-				_beginCutscene(num);
+				uint16 num = STACK.readList(25);
+				VM->_beginCutscene(*this, num);
 			}
 			return;
 			case OP_endCutscene: {
-				_endCutscene();
+				VM->_endCutscene(*this);
 			}
 			return;
 			case OP_freezeUnfreeze: {
-				int32 script = _stack.pop();
+				int32 script = STACK.pop();
 
 				vmDebugResult(script);
 
 				if (script) {
-					freezeScripts(script);
+					VM->freezeScripts(script);
 				}
 				else {
-					unfreezeAll();
+					VM->unfreezeAll();
 				}
 			}
 			return;
 			case OP_beginOverride:
-				_beginOverride();
+				VM->_beginOverride(*this);
 			return;
 			case OP_endOverride:
-				_endOverride();
+				VM->_endOverride(*this);
 			return;
 			case OP_stopSentence: {
 				SENTENCE_NUM = 0;
-				_stopScript(INTS->sentenceScript);
+				VM->_stopScript(INTS->sentenceScript);
 				/* TODO: Clear Input Flags */
 			}
 			return;
@@ -845,12 +854,12 @@ namespace gs
 				GS_UNHANDLED_OP;
 			return;
 			case OP_setClass: {
-				int16 num = _stack.readList(16);
-				int32 obj = _stack.pop();
+				int16 num = STACK.readList(16);
+				int32 obj = STACK.pop();
 
 				for(int16 i=(num-1);i > -1;i--) {
 
-					int32 classNum = _stack.getListItem(i);
+					int32 classNum = STACK.getListItem(i);
 
 					if (classNum == 0) {
 						ObjectData* object = OBJECTS->findObject(num);
@@ -874,8 +883,8 @@ namespace gs
 			}
 			return;
 			case OP_setState: {
-				int32 state = _stack.pop();
-				int32 obj = _stack.pop();
+				int32 state = STACK.pop();
+				int32 obj = STACK.pop();
 				OBJECTS->setState(obj,state);
 			}
 			return;
@@ -886,7 +895,7 @@ namespace gs
 				GS_UNHANDLED_OP;
 			return;
 			case OP_actorFollowCamera: {
-				_stack.pop();
+				STACK.pop();
 				NO_FEATURE(GS_THIS, "Not implemented OP_actorFollowCamera");
 			}
 			return;
@@ -897,11 +906,11 @@ namespace gs
 				_decodeParseString(0, 1);
 			return;
 			case OP_printEgo:
-				_stack.push(INTS->ego);
+				STACK.push(INTS->ego);
 				_decodeParseString(0, 1);
 			return;
 			case OP_talkActor: {
-				uint16 actorNum = _stack.pop();
+				uint16 actorNum = STACK.pop();
 				uint16 offset, length;
 				_readStringLength(offset, length);
 				_actorSay(actorNum, length, offset);
@@ -967,30 +976,30 @@ namespace gs
 						//NO_FEATURE(GS_THIS, "Not implemented OP_cursorCommand CursorCommandOp_SoftUserPutOff");
 					return;
 					case CursorCommandOp_CursorImage:
-						_stack.pop();
-						_stack.pop();
+						STACK.pop();
+						STACK.pop();
 						//// NO_FEATURE(GS_THIS, "Not implemented OP_cursorCommand CursorCommandOp_CursorImage");
 					return;
 					case CursorCommandOp_HotSpot:
-						_stack.pop();
-						_stack.pop();
+						STACK.pop();
+						STACK.pop();
 						//NO_FEATURE(GS_THIS, "Not implemented OP_cursorCommand CursorCommandOp_HotSpot");
 					return;
 					case CursorCommandOp_Transparency:
-						_stack.pop();
+						STACK.pop();
 						NO_FEATURE(GS_THIS, "Not implemented OP_cursorCommand CursorCommandOp_Transparency");
 					return;
 					case CursorCommandOp_CharsetSet:
-						_stack.pop();
+						STACK.pop();
 						NO_FEATURE(GS_THIS, "Not implemented OP_cursorCommand CursorCommandOp_CharsetSet");
 					return;
 					case CursorCommandOp_CharsetColour:
-						_stack.readList(16);
+						STACK.readList(16);
 						// NO_FEATURE(GS_THIS, "Not implemented OP_cursorCommand CursorCommandOp_CharsetColour");
 					return;
 					case CursorCommandOp_CursorPut:
-						_stack.pop();
-						_stack.pop();
+						STACK.pop();
+						STACK.pop();
 						NO_FEATURE(GS_THIS, "Not implemented OP_cursorCommand CursorCommandOp_CursorPut");
 					return;
 				}
@@ -1000,7 +1009,7 @@ namespace gs
 			}
 			return;
 			case OP_loadRoom: {
-				uint16 roomNum = _stack.pop();
+				uint16 roomNum = STACK.pop();
 				startRoom(roomNum, true, true);
 			}
 			return;
@@ -1008,9 +1017,9 @@ namespace gs
 				GS_UNHANDLED_OP;
 			return;
 			case OP_walkActorToObj: {
-				_stack.pop(); // distance
-				_stack.pop(); // object;
-				_stack.pop(); // actor
+				STACK.pop(); // distance
+				STACK.pop(); // object;
+				STACK.pop(); // actor
 
 				NO_FEATURE(GS_THIS, "Not implemented OP_walkActorToObj");
 			}
@@ -1021,10 +1030,10 @@ namespace gs
 			case OP_putActorAtXY: {
 				int32 roomNum, actorNum, x, y;
 
-				roomNum = _stack.pop();
-				y = _stack.pop();
-				x = _stack.pop();
-				actorNum = _stack.pop();
+				roomNum = STACK.pop();
+				y = STACK.pop();
+				x = STACK.pop();
+				actorNum = STACK.pop();
 
 				ACTORS->putActorAtXY(actorNum, roomNum, x, y);
 
@@ -1038,8 +1047,8 @@ namespace gs
 				GS_UNHANDLED_OP;
 			return;
 			case OP_animateActor: {
-				uint32 animation = _stack.pop();
-				uint16 actorNum = _stack.pop();
+				uint32 animation = STACK.pop();
+				uint16 actorNum = STACK.pop();
 
 				ActorData* actor = ACTORS->getActor(actorNum);
 
@@ -1053,7 +1062,7 @@ namespace gs
 				GS_UNHANDLED_OP;
 			return;
 			case OP_pickupObject: {
-				uint16 objectNum = _stack.pop();
+				uint16 objectNum = STACK.pop();
 				ObjectData* object = NULL;
 				if (OBJECTS->loadInventoryObject(objectNum, object) && object) {
 					object->setOwner(INTS->ego);
@@ -1066,8 +1075,8 @@ namespace gs
 			}
 			return;
 			case OP_setBoxFlags: {
-				_stack.pop();
-				_stack.readList(65);
+				STACK.pop();
+				STACK.readList(65);
 			}
 			return;
 			case OP_createBoxMatrix: {
@@ -1079,7 +1088,7 @@ namespace gs
 			return;
 			case OP_resourceRoutines: {
 				byte  subOp = _readByte();
-				int32 resourceNum = _stack.pop();
+				int32 resourceNum = STACK.pop();
 
 				switch (subOp) {
 					case ResourceRoutineOp_Dummy:
@@ -1185,36 +1194,36 @@ namespace gs
 
 				switch (subOp) {
 					case RoomOp_SetColour:
-						_stack.pop();
-						_stack.pop();
-						_stack.pop();
-						_stack.pop();
+						STACK.pop();
+						STACK.pop();
+						STACK.pop();
+						STACK.pop();
 						NO_FEATURE(GS_THIS, "Not implemented OP_roomOps RoomOp_SetColour");
 					return;
 					case RoomOp_FadePalette: {
-						uint16 pal = _stack.pop();
+						uint16 pal = STACK.pop();
 						debug(GS_THIS, "Fade palette %ld ((((((((((((((", pal);
 						NO_FEATURE(GS_THIS, "Not implemented OP_roomOps RoomOp_FadePalette");
 					}
 					return;
 					case RoomOp_DarkenPalette: {
-						uint8 endColour = _stack.pop();
-						uint8 startColour = _stack.pop();
-						int32 blueScale = _stack.pop();
-						int32 greenScale =_stack.pop();
-						int32 redScale = _stack.pop();
+						uint8 endColour = STACK.pop();
+						uint8 startColour = STACK.pop();
+						int32 blueScale = STACK.pop();
+						int32 greenScale =STACK.pop();
+						int32 redScale = STACK.pop();
 						scaleScreenPalette(startColour, endColour, redScale, greenScale, blueScale);
 					}
 					return;
 					case RoomOp_PaletteManipulate:
-						_stack.pop();
-						_stack.pop();
-						_stack.pop();
-						_stack.pop();
+						STACK.pop();
+						STACK.pop();
+						STACK.pop();
+						STACK.pop();
 						NO_FEATURE(GS_THIS, "Not implemented OP_roomOps RoomOp_PaletteManipulate");
 					return;
 					case RoomOp_SetPalette:
-						_stack.pop();
+						STACK.pop();
 						NO_FEATURE(GS_THIS, "Not implemented OP_roomOps RoomOp_SetPalette");
 					return;
 					case RoomOp_SaveGame:
@@ -1224,11 +1233,11 @@ namespace gs
 						NO_FEATURE(GS_THIS, "Not implemented OP_roomOps RoomOp_LoadGame");
 					return;
 					case RoomOp_DesaturatePalette:
-						_stack.pop();
-						_stack.pop();
-						_stack.pop();
-						_stack.pop();
-						_stack.pop();
+						STACK.pop();
+						STACK.pop();
+						STACK.pop();
+						STACK.pop();
+						STACK.pop();
 						NO_FEATURE(GS_THIS, "Not implemented OP_roomOps RoomOp_DesaturatePalette");
 					return;
 				}
@@ -1245,15 +1254,15 @@ namespace gs
 				switch(subOp) {
 					case ActorOp_SetCostume: {
                         ActorData* actor = ACTORS->getActor();
-                        uint16 costumeNum = _stack.pop();
+                        uint16 costumeNum = STACK.pop();
                         if (actor) {
                             actor->setCostume(costumeNum);
                         }
                     }
 					return;
 					case ActorOp_SetWalkSpeed: {
-                        int32 x = _stack.pop();   // y speed
-                        int32 y = _stack.pop();   // x speed
+                        int32 x = STACK.pop();   // y speed
+                        int32 y = STACK.pop();   // x speed
 						ActorData* actor = ACTORS->getActor();
                         if (actor) {
                             actor->setWalkSpeed(x, y);
@@ -1268,7 +1277,7 @@ namespace gs
                     }
 					return;
 					case ActorOp_InitAnimation: {
-                        uint8 frame = _stack.pop();
+                        uint8 frame = STACK.pop();
 						ActorData* actor = ACTORS->getActor();
                         if (actor) {
                             actor->_initFrame = frame;
@@ -1276,8 +1285,8 @@ namespace gs
                     }
 					return;
 					case ActorOp_SetAnimationTalk: {
-                        uint8 stopFrame = _stack.pop();
-                        uint8 startFrame = _stack.pop();
+                        uint8 stopFrame = STACK.pop();
+                        uint8 startFrame = STACK.pop();
 						ActorData* actor = ACTORS->getActor();
                         if (actor) {
                             actor->_talkStopFrame = stopFrame;
@@ -1286,7 +1295,7 @@ namespace gs
                     }
 					return;
 					case ActorOp_SetAnimationWalk:  {
-                        uint8 walkFrame = _stack.pop();
+                        uint8 walkFrame = STACK.pop();
 						ActorData* actor = ACTORS->getActor();
                         if (actor) {
                             actor->_walkFrame = walkFrame;
@@ -1294,7 +1303,7 @@ namespace gs
                     }
 					return;
 					case ActorOp_SetAnimationStand:  {
-                        uint8 standFrame = _stack.pop();
+                        uint8 standFrame = STACK.pop();
 						ActorData* actor = ACTORS->getActor();
                         if (actor) {
                             actor->_standFrame = standFrame;
@@ -1302,7 +1311,7 @@ namespace gs
                     }
 					return;
 					case ActorOp_SetAnimationSpeed: {
-						uint8 speed = _stack.pop();
+						uint8 speed = STACK.pop();
 						ActorData* actor = ACTORS->getActor();
 						if (actor) {
 							actor->setAnimationSpeed(speed);
@@ -1317,7 +1326,7 @@ namespace gs
 					}
 					return;
 					case ActorOp_SetElevation: {
-						int16 elevation = _stack.pop();
+						int16 elevation = STACK.pop();
 						ActorData* actor = ACTORS->getActor();
 						if (actor) {
 							actor->setElevation(elevation);
@@ -1325,8 +1334,8 @@ namespace gs
 					}
 					return;
 					case ActorOp_SetPalette: {
-						uint16 paletteNum = _stack.pop();
-						uint8 idx = _stack.pop();
+						uint16 paletteNum = STACK.pop();
+						uint8 idx = STACK.pop();
 						ActorData* actor = ACTORS->getActor();
 						if (actor) {
 							actor->setPalette(idx, paletteNum);
@@ -1334,7 +1343,7 @@ namespace gs
 					}
 					return;
 					case ActorOp_SetTalkColour: {
-						int32 colour = _stack.pop();
+						int32 colour = STACK.pop();
 						ActorData* actor = ACTORS->getActor();
 						if (actor) {
 							actor->_talkColour = colour;
@@ -1348,7 +1357,7 @@ namespace gs
 					}
 					return;
 					case ActorOp_SetActorWidth: {
-						int32 width = _stack.pop();
+						int32 width = STACK.pop();
 						ActorData* actor = ACTORS->getActor();
 						if (actor) {
 							actor->_w = width;
@@ -1356,7 +1365,7 @@ namespace gs
 					}
 					return;
 					case ActorOp_SetActorScale: {
-						int32 scale = _stack.pop();
+						int32 scale = STACK.pop();
 						ActorData* actor = ACTORS->getActor();
 						if (actor) {
 							actor->setScale(scale, scale);
@@ -1371,7 +1380,7 @@ namespace gs
 					}
 					return;
 					case ActorOP_SetAlwaysZClip: {
-						int32 clip = _stack.pop();
+						int32 clip = STACK.pop();
 						ActorData* actor = ACTORS->getActor();
 						if (actor) {
 							if (clip == 255)
@@ -1399,7 +1408,7 @@ namespace gs
 					}
 					return;
 					case ActorOp_SetSpecialDraw: {
-						uint8 shadowMode = _stack.pop();
+						uint8 shadowMode = STACK.pop();
 						ActorData *actor = ACTORS->getActor();
 						if (actor) {
 							actor->_shadowMode = shadowMode;
@@ -1407,8 +1416,8 @@ namespace gs
 					}
 					return;
 					case ActorOp_SetTextOffset: {
-						int32 y = _stack.pop();
-						int32 x = _stack.pop();
+						int32 y = STACK.pop();
+						int32 x = STACK.pop();
 						ActorData* actor = ACTORS->getActor();
 						if (actor) {
 							actor->_talkX = x;
@@ -1417,7 +1426,7 @@ namespace gs
 					}
 					return;
 					case ActorOp_Init: {
-						int32 currentActor = _stack.pop();
+						int32 currentActor = STACK.pop();
 						if (currentActor < 0 || currentActor > NUM_ACTORS) {
 							warn(GS_THIS, "ActorOp_Init has an invalid actor num %ld", currentActor);
 						}
@@ -1427,8 +1436,8 @@ namespace gs
 					}
 					return;
 					case ActorOp_SetActorVariable: {
-						int32 value = _stack.pop();
-						uint8 idx = _stack.pop();
+						int32 value = STACK.pop();
+						uint8 idx = STACK.pop();
 						ActorData* actor = ACTORS->getActor();
 						if (actor) {
 							actor->setVar(idx, value);
@@ -1457,7 +1466,7 @@ namespace gs
 					}
 					return;
 					case ActorOp_SetActorZ: {
-						int16 layer = _stack.pop();
+						int16 layer = STACK.pop();
 						ActorData* actor = ACTORS->getActor();
 						if (actor) {
 							actor->_layer = layer;
@@ -1473,7 +1482,7 @@ namespace gs
 					}
 					return;
 					case ActorOp_SetAngle: {
-						int16 angle = _stack.pop();
+						int16 angle = STACK.pop();
 						ActorData* actor = ACTORS->getActor();
 						if (actor) {
 							actor->_moving &= ~AMF_Turn;
@@ -1482,7 +1491,7 @@ namespace gs
 					}
 					return;
 					case ActorOp_TurnAngle: {
-						int16 angle = _stack.pop();
+						int16 angle = STACK.pop();
 						ActorData *actor = ACTORS->getActor();
 						if (actor) {
 							actor->turnToDirection(angle);
@@ -1490,7 +1499,7 @@ namespace gs
 					}
 					return;
 					case ActorOp_SetWalkScript: {
-						uint16 walkScript = _stack.pop();
+						uint16 walkScript = STACK.pop();
 						ActorData* actor = ACTORS->getActor();
 						if (actor) {
 							actor->_walkScript = walkScript;
@@ -1498,7 +1507,7 @@ namespace gs
 					}
 					return;
 					case ActorOp_SetTalkScript:{
-						uint16 talkScript = _stack.pop();
+						uint16 talkScript = STACK.pop();
 						ActorData* actor = ACTORS->getActor();
 						if (actor) {
 							actor->_talkScript = talkScript;
@@ -1520,7 +1529,7 @@ namespace gs
 					}
 					return;
 					case ActorOp_SetTalkVolume: {
-						int32 volume = _stack.pop();
+						int32 volume = STACK.pop();
 						ActorData* actor = ACTORS->getActor();
 						if (actor) {
 							actor->_talkFrequency = volume;
@@ -1528,7 +1537,7 @@ namespace gs
 					}
 					return;
 					case ActorOp_SetTalkFrequency: {
-						int32 frequency = _stack.pop();
+						int32 frequency = STACK.pop();
 						ActorData* actor = ACTORS->getActor();
 						if (actor) {
 							actor->_talkFrequency = frequency;
@@ -1536,7 +1545,7 @@ namespace gs
 					}
 					return;
 					case ActorOp_SetActorPan: {
-						int32 pan = _stack.pop();
+						int32 pan = STACK.pop();
 						ActorData* actor = ACTORS->getActor();
 						if (actor) {
 							actor->_talkPan = pan;
@@ -1559,7 +1568,7 @@ namespace gs
 
 				switch (subOp) {
 					case VerbOp_GetOrNew: {
-						int32 verbNum = _stack.pop();
+						int32 verbNum = STACK.pop();
 						VERBS->getOrNew(verbNum);
 					}
 					return;
@@ -1573,8 +1582,8 @@ namespace gs
 						NO_FEATURE(GS_THIS, "Not implemented OP_verbOps VerbOp_SetName");
 					return;
 					case VerbOp_SetPosition:
-						_stack.pop();
-						_stack.pop();
+						STACK.pop();
+						STACK.pop();
 						NO_FEATURE(GS_THIS, "Not implemented OP_verbOps VerbOp_SetPosition");
 					return;
 					case VerbOp_Enable:
@@ -1584,43 +1593,43 @@ namespace gs
 						NO_FEATURE(GS_THIS, "Not implemented OP_verbOps VerbOp_Disable");
 					return;
 					case VerbOp_SetColour:
-						_stack.pop();
+						STACK.pop();
 						NO_FEATURE(GS_THIS, "Not implemented OP_verbOps VerbOp_SetColour");
 					return;
 					case VerbOp_SetHilightColour:
-						_stack.pop();
+						STACK.pop();
 						NO_FEATURE(GS_THIS, "Not implemented OP_verbOps VerbOp_SetHilightColour");
 					return;
 					case VerbOp_SetDimmedColour:
-						_stack.pop();
+						STACK.pop();
 						NO_FEATURE(GS_THIS, "Not implemented OP_verbOps VerbOp_SetDimmedColour");
 					return;
 					case VerbOp_Dim:
 						NO_FEATURE(GS_THIS, "Not implemented OP_verbOps VerbOp_Dim");
 					return;
 					case VerbOp_SetKey:
-						_stack.pop();
+						STACK.pop();
 						NO_FEATURE(GS_THIS, "Not implemented OP_verbOps VerbOp_SetKey");
 					return;
 					case VerbOp_SetImage:
-						_stack.pop();
-						_stack.pop();
+						STACK.pop();
+						STACK.pop();
 						NO_FEATURE(GS_THIS, "Not implemented OP_verbOps VerbOp_SetImage");
 					return;
 					case VerbOp_SetNameString:
-						_stack.pop();
+						STACK.pop();
 						NO_FEATURE(GS_THIS, "Not implemented OP_verbOps VerbOp_SetNameString");
 					return;
 					case VerbOp_Centre:
 						NO_FEATURE(GS_THIS, "Not implemented OP_verbOps VerbOp_Centre");
 					return;
 					case VerbOp_SetCharSet:
-						_stack.pop();
+						STACK.pop();
 						NO_FEATURE(GS_THIS, "Not implemented OP_verbOps VerbOp_SetCharSet");
 					return;
 					case VerbOp_SetLineSpacing: {
 						Verb* verb = VERBS->getLastVerbUsed();
-						verb->_lineSpacing = _stack.pop();
+						verb->_lineSpacing = STACK.pop();
 					}
 					return;
 				}
@@ -1630,7 +1639,7 @@ namespace gs
 			}
 			return;
 			case OP_startSound: {
-				uint32 soundNum = _stack.pop();
+				uint32 soundNum = STACK.pop();
 				warn(GS_THIS, "No audio support for audio %lx", soundNum);
 			}
 			return;
@@ -1638,13 +1647,13 @@ namespace gs
 				GS_UNHANDLED_OP;
 			return;
 			case OP_stopSound: {
-				uint16 soundNum = _stack.pop();
+				uint16 soundNum = STACK.pop();
 				NO_FEATURE(GS_THIS, "Not implemented OP_stopSound %ld", soundNum);
 			}
 			return;
 			case OP_soundKludge: {
 
-				uint16 num = _stack.readList(16);
+				uint16 num = STACK.readList(16);
 
 				NO_FEATURE(GS_THIS, "Not implemented OP_soundKludge %ld", num);
 
@@ -1656,7 +1665,7 @@ namespace gs
 				byte param = _readByte();
 
 				if (param == SystemOps_Quit) {
-					_forceQuit();
+					VM->_forceQuit();
 					info(GS_THIS, "Quit has been called!");
 					return;
 				}
@@ -1676,9 +1685,9 @@ namespace gs
 			return;
 			case OP_saveRestoreVerbs: {
 				byte subOp = _readByte();
-				int32 c = _stack.pop();
-				int32 b = _stack.pop();
-				int32 a = _stack.pop();
+				int32 c = STACK.pop();
+				int32 b = STACK.pop();
+				int32 a = STACK.pop();
 				NO_FEATURE(GS_THIS, "Not implemented OP_saveRestoreVerbs! %ld", (uint32) subOp);
 			}
 			return;
@@ -1702,13 +1711,13 @@ namespace gs
 			return;
 			case OP_kernelSetFunctions: {
 
-				uint8 length = _stack.readList(30);
-				byte subOp = _stack.getListItem(0);
+				uint8 length = STACK.readList(30);
+				byte subOp = STACK.getListItem(0);
 
 				switch(subOp) {
 
 					case KernelSetOp_LockObject: {
-						uint16 objectNum = _stack.getListItem(1);
+						uint16 objectNum = STACK.getListItem(1);
 
 						ObjectData* object = OBJECTS->findObject(objectNum);
 						if (object) {
@@ -1722,7 +1731,7 @@ namespace gs
 					}
 					return;
 					case KernelSetOp_UnlockObject:{
-						ObjectData* object = OBJECTS->findObject(_stack.getListItem(1));
+						ObjectData* object = OBJECTS->findObject(STACK.getListItem(1));
 						if (object) {
 							object->setLocked(false);
 						}
@@ -1834,12 +1843,12 @@ namespace gs
 				GS_UNHANDLED_OP;
 			return;
 			case OP_startScriptQuick2: {
-				uint8 num = _stack.readList(25);
-				uint16 scriptNum = _stack.pop();
+				uint8 num = STACK.readList(25);
+				uint16 scriptNum = STACK.pop();
 #if defined(GS_VM_DEBUG) && GS_VM_DEBUG==1
-				vmDebugResult(scriptNum, num, _stack.getSize());
+				vmDebugResult(scriptNum, num, STACK.getSize());
 #endif
-				runScript(scriptNum, false, true, _stack.getList(), num);
+				VM->runScript(scriptNum, false, true, STACK.getList(), num);
 			}
 			return;
 			case OP_startObjectQuick:
@@ -1855,35 +1864,35 @@ namespace gs
 				GS_UNHANDLED_OP;
 			return;
 			case OP_isAnyOf: {
-				int16 num = _stack.readList(100);
-				int32 val = _stack.pop();
+				int16 num = STACK.readList(100);
+				int32 val = STACK.pop();
 
 				while (--num >= 0) {
-					if (_stack.getListItem(num) == val) {
-						_stack.push(1);
+					if (STACK.getListItem(num) == val) {
+						STACK.push(1);
 						return;
 					}
 				}
 				
-				_stack.push(0);
+				STACK.push(0);
 			}
 			return;
 			case OP_getRandomNumber: {
-				uint32 max = _stack.pop();
+				uint32 max = STACK.pop();
 				uint32 num = getRandom(max);
-				_stack.push(num);
+				STACK.push(num);
 			}
 			return;
 			case OP_getRandomNumberRange: {
-				uint32 max = _stack.pop();
-				uint32 min = _stack.pop();
+				uint32 max = STACK.pop();
+				uint32 min = STACK.pop();
 				uint32 num = getRandomRange(min, max);
-				_stack.push(num);
+				STACK.push(num);
 			}
 			return;
 			case OP_ifClassOfIs: {
-				int16 num = _stack.readList(16);
-				uint16 obj = _stack.pop();
+				int16 num = STACK.readList(16);
+				uint16 obj = STACK.pop();
 				uint32 flags;
 				bool b;
 				int32 cond = 1;
@@ -1892,139 +1901,139 @@ namespace gs
 				if (object) {
 
 					while (--num >= 0) {
-						flags = _stack.getListItem(num);
+						flags = STACK.getListItem(num);
 						b = object->getClassFlags(flags);
 						if ((flags & 0x80 && !b) || (!(flags & 0x80) && b))
 							cond = 0;
 					}
 				}
 
-				_stack.push(cond);
+				STACK.push(cond);
 			}
 			return;
 			case OP_getState: {
-				uint16 obj = _stack.pop();
-				_stack.push(OBJECTS->getState(obj));
+				uint16 obj = STACK.pop();
+				STACK.push(OBJECTS->getState(obj));
 			}
 			return;
 			case OP_getOwner: {
-				uint16 obj = _stack.pop();
-				_stack.push(OBJECTS->getOwner(obj));
+				uint16 obj = STACK.pop();
+				STACK.push(OBJECTS->getOwner(obj));
 			}
 			return;
 			case OP_isScriptRunning: {
-				int32 scriptNum = _stack.pop();
-				bool isRunning = isScriptRunning(scriptNum);
-				_stack.push(isRunning ? 1 : 0);
+				int32 scriptNum = STACK.pop();
+				bool isRunning = VM->isScriptRunning(scriptNum);
+				STACK.push(isRunning ? 1 : 0);
 			}
 			return;
 			case OP_d4:
 				GS_UNHANDLED_OP;
 			return;
 			case OP_isSoundRunning: {
-				uint16 soundNum = _stack.pop();
-				_stack.push(0);
+				uint16 soundNum = STACK.pop();
+				STACK.push(0);
 				warn(GS_THIS, "No Sound Support for OP_isSoundRunning %ld", (uint32) soundNum);
 			}
 			return;
 			case OP_abs: {
-				int32 v = _stack.pop();
+				int32 v = STACK.pop();
 				if (!(v >= 0))
 					v = -v;
-				_stack.push(v);
+				STACK.push(v);
 			}
 			return;
 			case OP_d7:
 				GS_UNHANDLED_OP;
 			return;
 			case OP_kernelGetFunctions: {
-				uint16 len = _stack.readList(30);
-				byte opcode = _stack.getListItem(0);
+				uint16 len = STACK.readList(30);
+				byte opcode = STACK.getListItem(0);
 
 				switch (opcode) {
 					case KernelGetOp_GetRGBSlot: {
 						NO_FEATURE(GS_THIS, "Not implemented OP_kernelGetFunctions KernelGetOp_GetRGBSlot");
-						_stack.push(0);
+						STACK.push(0);
 					}
 					return;
 					case KernelGetOp_GetKeyState: {
 						NO_FEATURE(GS_THIS, "Not implemented OP_kernelGetFunctions KernelGetOp_GetKeyState");
-						_stack.push(0);
+						STACK.push(0);
 					}
 					return;
 					case KernelGetOp_CheckXYInBoxBounds: {
 						NO_FEATURE(GS_THIS, "Not implemented OP_kernelGetFunctions KernelGetOp_GetBox");
-						_stack.push(0);
+						STACK.push(0);
 					}
 					return;
 					case KernelGetOp_FindBlastObject: {
 						NO_FEATURE(GS_THIS, "Not implemented OP_kernelGetFunctions KernelGetOp_FindBlastObject");
-						_stack.push(0);
+						STACK.push(0);
 					}
 					return;
 					case KernelGetOp_TestActorHit: {
 						NO_FEATURE(GS_THIS, "Not implemented OP_kernelGetFunctions KernelGetOp_TestActorHit");
-						_stack.push(0);
+						STACK.push(0);
 					}
 					return;
 					case KernelGetOp_GetLipSyncWidth: {
 						NO_FEATURE(GS_THIS, "Not implemented OP_kernelGetFunctions KernelGetOp_GetLipSyncWidth");
-						_stack.push(0);
+						STACK.push(0);
 					}
 					return;
 					case KernelGetOp_GetLipSyncHeight: {
 						NO_FEATURE(GS_THIS, "Not implemented OP_kernelGetFunctions KernelGetOp_GetLipSyncHeight");
-						_stack.push(0);
+						STACK.push(0);
 					}
 					return;
 					case KernelGetOp_GetTalkAnimation: {
 						NO_FEATURE(GS_THIS, "Not implemented OP_kernelGetFunctions KernelGetOp_GetTalkAnimation");
-						_stack.push(0);
+						STACK.push(0);
 					}
 					return;
 					case KernelGetOp_GetGroupSfxVolume: {
 						NO_FEATURE(GS_THIS, "Not implemented OP_kernelGetFunctions KernelGetOp_GetGroupSfxVolume");
-						_stack.push(0);
+						STACK.push(0);
 					}
 					return;
 					case KernelGetOp_GetGroupVoiceVolume: {
 						NO_FEATURE(GS_THIS, "Not implemented OP_kernelGetFunctions KernelGetOp_GetGroupVoiceVolume");
-						_stack.push(0);
+						STACK.push(0);
 					}
 					return;
 					case KernelGetOp_GetGroupMusicVolume: {
 						NO_FEATURE(GS_THIS, "Not implemented OP_kernelGetFunctions KernelGetOp_GetGroupMusicVolume");
-						_stack.push(0);
+						STACK.push(0);
 					}
 					return;
 					case KernelGetOp_ReadRegistryValue: {
 						// NO_FEATURE(GS_THIS, "Not implemented OP_kernelGetFunctions KernelGetOp_ReadRegistryValue");
-						_stack.push(-1);
+						STACK.push(-1);
 					}
 					return;
 					case KernelGetOp_ImGetMusicPosition: {
 						NO_FEATURE(GS_THIS, "Not implemented OP_kernelGetFunctions KernelGetOp_ImGetMusicPosition");
-						_stack.push(0);
+						STACK.push(0);
 					}
 					return;
 					case KernelGetOp_MusicLipGetSyncWidth: {
 						NO_FEATURE(GS_THIS, "Not implemented OP_kernelGetFunctions KernelGetOp_MusicLipGetSyncWidth");
-						_stack.push(0);
+						STACK.push(0);
 					}
 					return;
 					case KernelGetOp_MusicLipGetSyncHeight: {
 						NO_FEATURE(GS_THIS, "Not implemented OP_kernelGetFunctions KernelGetOp_MusicLipGetSyncHeight");
-						_stack.push(0);
+						STACK.push(0);
 					}
 					return;
 					case KernelGetOp_GetWalkBoxAt: {
 						NO_FEATURE(GS_THIS, "Not implemented OP_kernelGetFunctions KernelGetOp_GetWalkBoxAt");
-						_stack.push(-1);
+						STACK.push(-1);
 					}
 					return;
 					case KernelGetOp_IsPointInBox: {
 						NO_FEATURE(GS_THIS, "Not implemented OP_kernelGetFunctions KernelGetOp_IsPointInBox");
-						_stack.push(0);
+						STACK.push(0);
 					}
 					return;
 				}
@@ -2034,9 +2043,9 @@ namespace gs
 			}
 			return;
 			case OP_isActorInBox: {
-				_stack.pop();
-				_stack.pop();
-				_stack.push(0);
+				STACK.pop();
+				STACK.pop();
+				STACK.push(0);
 				NO_FEATURE(GS_THIS, "Not implemented OP_isActorInBox");
 			}
 			return;
@@ -2044,22 +2053,22 @@ namespace gs
 				GS_UNHANDLED_OP;
 			return;
 			case OP_getActorFromXY: {
-				_stack.pop();
-				_stack.pop();
-				_stack.push(0);
+				STACK.pop();
+				STACK.pop();
+				STACK.push(0);
 				NO_FEATURE(GS_THIS, "Not implemented OP_getActorFromXY");
 			}
 			return;
 			case OP_findObjectFromXY: {
-				int32 y = _stack.pop();
-				int32 x = _stack.pop();
-				_stack.push(OBJECTS->findRoomObjectNumFromXY(x, y));
+				int32 y = STACK.pop();
+				int32 x = STACK.pop();
+				STACK.push(OBJECTS->findRoomObjectNumFromXY(x, y));
 			}
 			return;
 			case OP_getVerbFromXY: {
-				_stack.pop();
-				_stack.pop();
-				_stack.push(0);
+				STACK.pop();
+				STACK.pop();
+				STACK.push(0);
 				NO_FEATURE(GS_THIS, "Not implemented OP_getVerbFromXY");
 			}
 			return;
@@ -2081,89 +2090,89 @@ namespace gs
 
 			 */
 			case OP_findInventory: {
-				uint8 idx = _stack.pop();
-				uint16 owner = _stack.pop();
+				uint8 idx = STACK.pop();
+				uint16 owner = STACK.pop();
 
-				_stack.push(OBJECTS->findNthInventoryItem(owner, idx));
+				STACK.push(OBJECTS->findNthInventoryItem(owner, idx));
 			}
 			return;
 			case OP_getInventoryCount: {
-				uint16 owner = _stack.pop();
-				_stack.push(OBJECTS->calculateInventoryCountForOwner(owner));
+				uint16 owner = STACK.pop();
+				STACK.push(OBJECTS->calculateInventoryCountForOwner(owner));
 			}
 			return;
 			case OP_getAnimateVariable: {
-				uint8 varNum = _stack.pop();
-				uint8 actorNum = _stack.pop();
+				uint8 varNum = STACK.pop();
+				uint8 actorNum = STACK.pop();
 				ActorData* actor = ACTORS->getActor(actorNum);
 				if (actor) {
-					_stack.push(actor->getVar(varNum));
+					STACK.push(actor->getVar(varNum));
 				}
 				else {
-					_stack.push(0);
+					STACK.push(0);
 				}
 			}
 			return;
 			case OP_getActorRoom: {
-				uint16 actorNum = _stack.pop();
+				uint16 actorNum = STACK.pop();
 
 				if (actorNum == 0 || actorNum == 255) {
-					_stack.push(0);
+					STACK.push(0);
 #if defined(GS_VM_DEBUG) && GS_VM_DEBUG==1
-                    vmDebugResult(_stack.getSize(), actorNum, 0);
+                    vmDebugResult(STACK.getSize(), actorNum, 0);
 #endif
 					return;
 				}
 
 				ActorData* actor = ACTORS->getActor(actorNum);
 				if (actor) {
-					_stack.push(actor->_roomNum);
+					STACK.push(actor->_roomNum);
 #if defined(GS_VM_DEBUG) && GS_VM_DEBUG==1
-                    vmDebugResult(_stack.getSize(), actorNum, actor->_roomNum);
+                    vmDebugResult(STACK.getSize(), actorNum, actor->_roomNum);
 #endif
 				}
 				else {
 					warn(GS_THIS, "Unknown actor %ld to get room from", (uint16) actorNum);
-					_stack.push(0);
+					STACK.push(0);
 #if defined(GS_VM_DEBUG) && GS_VM_DEBUG==1
-                    vmDebugResult(_stack.getSize(), 0);
+                    vmDebugResult(STACK.getSize(), 0);
 #endif
 				}
 			}
 			return;
 			case OP_getActorWalkBox:  {
-				uint16 actorNum = _stack.pop();
+				uint16 actorNum = STACK.pop();
 				ActorData* actor = ACTORS->getActor(actorNum);
 
 				if (actor != NULL) {
-					_stack.push(actor->_bIgnoreBoxes ? 0 : actor->_walkBox);
+					STACK.push(actor->_bIgnoreBoxes ? 0 : actor->_walkBox);
 				}
 				else {
-					_stack.push(0);
+					STACK.push(0);
 				}
 			}
 			return;
 			case OP_getActorMoving: {
-				uint16 actorNum = _stack.pop();
+				uint16 actorNum = STACK.pop();
 				ActorData* actor = ACTORS->getActor(actorNum);
 
 				if (actor != NULL) {
-					_stack.push(actor->_moving);
+					STACK.push(actor->_moving);
 				}
 				else {
-					_stack.push(0);
+					STACK.push(0);
 				}
 			}
 			return;
 			case OP_getActorCostume: {
-				uint16 actorNum = _stack.pop();
+				uint16 actorNum = STACK.pop();
 				ActorData* actor = ACTORS->getActor(actorNum);
 
 				if (actor != NULL) {
-					_stack.push(actor->_costume);
+					STACK.push(actor->_costume);
 				}
 				else {
-					_stack.push(0);
+					STACK.push(0);
 				}
 			}
 			return;
@@ -2180,44 +2189,44 @@ namespace gs
 				GS_UNHANDLED_OP;
 			return;
 			case OP_getObjectNewDir: {
-				_stack.pop();
+				STACK.pop();
 				/// NO_FEATURE(GS_THIS, "Not implemented OP_getObjectNewDir");
-				_stack.push(0);
+				STACK.push(0);
 			}
 			return;
 			case OP_getObjectX: {
-				uint16 objectNum = _stack.pop();
+				uint16 objectNum = STACK.pop();
 				/* TODO - Actors - I assume the ID < NUM_ACTORS */
 				ObjectData* object = OBJECTS->findObject(objectNum);
 				if (object != NULL) {
-					_stack.push(object->_x);
+					STACK.push(object->_x);
 				}
 				else {
-					_stack.push(0);
+					STACK.push(0);
 				}
 			}
 			return;
 			case OP_getObjectY: {
-				uint16 objectNum = _stack.pop();
+				uint16 objectNum = STACK.pop();
 				/* TODO - Actors - I assume the ID < NUM_ACTORS */
 				ObjectData* object = OBJECTS->findObject(objectNum);
 				if (object != NULL) {
-					_stack.push(object->_y);
+					STACK.push(object->_y);
 				}
 				else {
-					_stack.push(0);
+					STACK.push(0);
 				}
 			}
 			return;
 			case OP_getActorChore: {
-				uint16 actorNum = _stack.pop();
+				uint16 actorNum = STACK.pop();
 				ActorData* actor = ACTORS->getActor(actorNum);
 
 				if (actor != NULL) {
-					_stack.push(actor->_frame);
+					STACK.push(actor->_frame);
 				}
 				else {
-					_stack.push(0);
+					STACK.push(0);
 				}
 			}
 			return;

@@ -25,6 +25,7 @@
 #include "../script.h"
 #include "stack.h"
 #include "array.h"
+#include "context.h"
 
 namespace gs
 {
@@ -34,92 +35,8 @@ namespace gs
 
 	extern VirtualMachine* VM;
 
-	enum ScriptContextState
-	{
-		SCS_Dead = 0,
-		SCS_Paused = 1,
-		SCS_Running = 2,
-		SCS_Frozen = 0x80
-	};
-
-	
-	enum ObjectWhere
-	{
-		OW_Unknown = 0,
-		OW_NotFound = 1,
-		OW_Inventory = 2,
-		OW_Room = 3,
-		OW_Global = 4,
-		OW_Local = 5,
-		OW_FLObject = 6,
-		OW_ObjectVerb = 7
-	};
-	
 	const char* ObjectWhereToString(uint8 where);
 	const char* ObjectStateToString(uint8 state);
-    const char* OpcodeToString(uint8 opcode);
-
-	struct ScriptContext
-	{
-		void reset();
-
-		inline void markDead() {
-			_scriptNum = 0;
-			_scriptWhere = OW_NotFound;
-			_state = SCS_Dead;
-		}
-
-		inline bool isFrozen() const {
-			return _freezeCount > 0;
-		}
-
-		inline bool isDead() const {
-			return _state == 0;
-		}
-
-		inline void freeze() {
-			_freezeCount++;
-			if (_freezeCount) {
-				_state |= SCS_Frozen;
-			}
-		}
-
-		inline void unfreeze() {
-			if (_freezeCount) {
-				_freezeCount--;
-				if (_freezeCount == 0) {
-					_state &= ~SCS_Frozen;
-				}
-			}
-		}
-
-		inline void unfreezeAll() {
-			_freezeCount = 0;
-			_state &= ~SCS_Frozen;
-		}
-
-		uint16 _scriptNum;
-		uint8  _verb;
-        uint8  _indexNum;
-		uint32 _lastPC;
-		int32  _delay;
-		uint16 _delayFrameCount;
-		uint8  _scriptWhere;
-		uint8  _state;
-		uint8  _freezeCount;
-		uint8  _bFreezeResistant;
-		uint8  _bRecursive;
-		uint8  _bIsExecuted;
-		uint8  _cutsceneOverride;
-	};
-
-	struct ScriptStackItem {
-		void reset();
-
-		uint16 _scriptNum;
-		uint8  _scriptWhere;
-		uint8  _contextNum;
-	};
 
 	struct CutsceneScriptStackItem {
 		int32 _data;
@@ -142,60 +59,31 @@ namespace gs
 	private:
 
 		OpcodeSpan						_nullScript;
-		Buffer<int32>					_intGlobals;
-		Buffer<byte>					_boolGlobals;
-		ScriptContext					_context[MAX_SCRIPT_CONTEXTS];
-		ScriptStackItem					_contextStack[NUM_STACK_SCRIPTS];
+		ScriptContextAllocator			_contextAllocator;
+		Stack<uint8, uint8, MAX_CONTEXT_STACK_SIZE>				_contextStackNewNew;
+		uint8							_contextStackNew[MAX_CONTEXT_STACK_SIZE];
+		uint8                           _contextStackNewSize;
+
 		CutsceneScriptState				_cutscenes;
-		uint16							_contextStackSize;
-		uint32							_pc, _pcAfter, _pcOpcode;
-		ScriptDataReference				_scriptReference;
-		OpcodeSpan						_script;
 		byte							_opcode;
-		Array<char>						_messageTemp;
-		VmStack<256>					_stack;
-		Array<byte, uint16>				_arrayTemp;
 
 
-		bool _acquireContext(uint8& num);
-		bool _updateScriptData(ScriptContext& context);
-		void _pushAndRunScript(uint8 newContextNum);
-		void _step();
-		void _stopScript(uint16 scriptNum);
+		void _pushAndRunScript(ScriptContext& context);
 		void _stopObjectScript(uint16 scriptNum);
-		void _stopObjectCode();
-		void _delay(uint32 seconds);
-		void _break();
-
-		byte _readByte();
-		int32  _readWord();
-		uint32  _readUnsignedWord();
-		int32  _readSignedWord();
-		void _readStringLength(uint16& from, uint16& length);
-		void _decodeParseString(uint8 m, uint8 n);
-
-		void _forceQuit();
-
 		void _runExitScript();
 		void _runEnterScript();
-
-		const char* _getOpcodeName(uint8 opcode) const;
-
-		void _beginCutscene(uint16 stackListCount);
-		void _endCutscene();
-		void _beginOverride();
-		void _endOverride();
-
 		void _readBytesForArray();
+
 	public:
 
 		VirtualMachine();
 		~VirtualMachine();
 
+		Array<char>						_messageTemp;
+		Array<byte, uint16>				_arrayTemp;
+
 		void   reset();
 
-
-		void runCurrentScript();
 		void runScript(uint16 scriptNum, bool freezeResistant, bool recursive, int32* data = NULL, uint8 dataCount = 0);
 		void runObjectScript(uint16 objectNum, uint8 verb, bool freezeResistant, bool recursive, int32* data = NULL, uint8 dataCount = 0);
 		void runRoomScript(uint16 scriptNum);
@@ -222,6 +110,20 @@ namespace gs
 
 
 		void _actorSay(uint16 actorNum, uint16 length, uint16 offset);
+
+		void _break();
+
+		void _beginCutscene(ScriptContext& context, uint16 stackListCount);
+
+		void _endCutscene(ScriptContext& context);
+
+		void _beginOverride(ScriptContext& context);
+
+		void _endOverride(ScriptContext& context);
+
+		void _stopScript(uint16 scriptNum);
+
+		void _forceQuit();
 	};
 }
 
