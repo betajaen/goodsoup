@@ -18,8 +18,8 @@
 #ifndef GS_VM_STACK_H
 #define GS_VM_STACK_H
 
-#include "types.h"
-#include "debug.h"
+#include "../types.h"
+#include "../debug.h"
 
 #define DEBUG_STACK 0
 

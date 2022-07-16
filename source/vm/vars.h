@@ -18,9 +18,9 @@
 #ifndef GS_VM_VARS_H
 #define GS_VM_VARS_H
 
-#include "types.h"
-#include "profile.h"
-#include "debug.h"
+#include "../types.h"
+#include "../profile.h"
+#include "../debug.h"
 
 namespace gs
 {

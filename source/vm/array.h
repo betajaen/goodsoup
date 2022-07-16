@@ -18,13 +18,12 @@
 #ifndef GS_VM_ARRAY_H
 #define GS_VM_ARRAY_H
 
-#include "types.h"
-#include "array.h"
-#include "buffer.h"
-#include "endian.h"
-
-#include "profile.h"
-#include "debug.h"
+#include "../types.h"
+#include "../array.h"
+#include "../buffer.h"
+#include "../endian.h"
+#include "../profile.h"
+#include "../debug.h"
 
 namespace gs
 {

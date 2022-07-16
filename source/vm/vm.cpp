@@ -18,16 +18,16 @@
 #define GS_FILE_NAME "vm"
 
 #include "vm.h"
+#include "opcodes.h"
+#include "vars.h"
+#include "debugger.h"
 #include "../globals.h"
 #include "../script.h"
 #include "../index.h"
 #include "../debug.h"
 #include "../profile.h"
-#include "opcodes.h"
-#include "vars.h"
 #include "../room.h"
 #include "../endian.h"
-#include "debugger.h"
 #include "../object.h"
 
 #define DEBUG_CONTEXT_STACK 0

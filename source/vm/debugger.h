@@ -18,9 +18,9 @@
 #ifndef GS_VM_DEBUGGER_H
 #define GS_VM_DEBUGGER_H
 
-#include "types.h"
-#include "file.h"
-#include "debug.h"
+#include "../types.h"
+#include "../file.h"
+#include "../debug.h"
 
 namespace gs
 {
