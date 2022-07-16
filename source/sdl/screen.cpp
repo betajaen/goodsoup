@@ -131,7 +131,6 @@ namespace gs
         quitNextFrame = false;
 
 		while (QUIT_NOW == false) {
-			
 			bool step = false;
 
 			while (SDL_PollEvent(&event)) {

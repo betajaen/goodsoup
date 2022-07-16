@@ -202,7 +202,7 @@ namespace gs
 
 	void screenLoop() {
 
-		uint32 timerBit = sSystemTimer.start(GS_FRAME_DELAY_MSEC); // 1/30 seconds in microseconds.
+		uint32 timerBit = sSystemTimer.start(GS_FRAME_DELAY_USEC); // 1/30 seconds in microseconds.
 		uint32 windowBit = (1 << sWindow->UserPort->mp_SigBit);
 
 		debug(GS_THIS, "Signal bit = %lx", timerBit);
@@ -302,7 +302,7 @@ namespace gs
 						runFrame();
 					}
 
-					sSystemTimer.start(GS_FRAME_DELAY_MSEC);
+					sSystemTimer.start(GS_FRAME_DELAY_USEC);
 				}
 			}
 
