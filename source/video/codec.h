@@ -21,6 +21,7 @@
 #include "../types.h"
 #include "../file.h"
 #include "../disk.h"
+#include "../room.h"	// For RoomPaletteData
 
 namespace gs
 {
@@ -28,6 +29,13 @@ namespace gs
 	class Codec
 	{
 		DiskReader _diskReader;
+
+		uint16 _frameCount;
+		uint16 _frameNum;
+
+		RoomPaletteData _palette;
+
+		void _readAndApplyPalette();
 
 	public:
 

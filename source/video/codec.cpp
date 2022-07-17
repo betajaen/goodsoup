@@ -24,14 +24,65 @@ namespace gs
 {
 
 	Codec::Codec(DiskReader reader)
-		: _diskReader(reader)
+		: _diskReader(reader), _frameNum(0)
 	{
+		TagPair animTag = _diskReader.readSanTagPair();
+
+		if (animTag.isTag(GS_MAKE_ID('A','N','I','M')) == false) {
+			error(GS_THIS, "This is not an ANIM SAN file! Missing ANIM tag got %s", animTag.tagStr());
+			abort_quit_stop();
+			return;
+		}
+
+		TagPair animHeader = _diskReader.readSanTagPair();
+
+		if (animHeader.isTag(GS_MAKE_ID('A','H','D','R')) == false) {
+			error(GS_THIS, "This is not an ANIM SAN file! Missing ANHD tag got %s!", animHeader.tagStr());
+			abort_quit_stop();
+			return;
+		}
+
+		debug(GS_THIS, "File Pos = %ld, Length = %ld",  _diskReader.pos(), animHeader.length);
+
+		_diskReader.skip(2);
+		_frameCount = _diskReader.readUInt16LE();
+		_diskReader.skip(2);
+
+		_readAndApplyPalette();
+
+		_diskReader.seekEndOf(animHeader);
+
+		debug(GS_THIS, "Opened Codec %ld Frames", _frameCount);
 	}
 
 	Codec::~Codec() {
 	}
 
+	void Codec::_readAndApplyPalette() {
+		_diskReader.readBytes(&_palette.palette[0], 3 * 256);
+		screenSetPalette(&_palette);
+	}
+
 	int32 Codec::presentFrame() {
-		return -1;	// Temp. Last Frame.
+
+		TagPair frme = _diskReader.readSanTagPair();
+
+		if (frme.isTag(GS_MAKE_ID('F','R','M','E')) == false) {
+			error(GS_THIS, "This is not an ANIM SAN file! Missing FRME tag got %s!", frme.tagStr());
+			abort_quit_stop();
+		}
+
+		debug(GS_THIS, "File Position = %ld, Length = %ld", frme.dataPos, frme.length);
+
+
+		_diskReader.seekEndOf(frme);
+		_frameNum++;
+
+		if (_frameNum == _frameCount) {
+			return -1;
+		}
+		else {
+			return 1;
+		}
 	}
 }

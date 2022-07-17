@@ -145,6 +145,15 @@ namespace gs
 			return pair;
 		}
 
+		inline TagPair readSanTagPair() {
+			TagPair pair;
+			byte* tag = (byte*) &pair.tag;
+			_file.readBytes(tag, 4);
+			pair.length = _file.readUInt32BE();
+			pair.dataPos = _file.pos();
+			return pair;
+		}
+
 		inline bool readAndCompareTag(uint32 test, TagPair& tag) {
 			tag = readTagPair();
 			return tag.tag == test;
