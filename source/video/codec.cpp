@@ -19,12 +19,14 @@
 
 #include "codec.h"
 #include "../screen.h"
+#include "../codecs.h"
 
 namespace gs
 {
 
 #define FOBJ_HDR_OP 0
 #define FOBJ_HDR_EXTENDED 2
+#define FOBJ_HDR_BOMP_LENGTH 12
 
 	Codec::Codec(DiskReader reader)
 		: _diskReader(reader), _frameNum(0)
@@ -66,7 +68,7 @@ namespace gs
 
 	void Codec::_readFrameObjectAndApply(const TagPair& fobj) {
 
-		uint8 header[19];
+		uint8 header[24];
 
 		uint16 type = _diskReader.readUInt16LE();
 
@@ -82,20 +84,41 @@ namespace gs
 		_diskReader.skip(4);	// Unknown
 
 		uint16 seqNum = _diskReader.readUInt16LE();
-
 		_diskReader.readBytes(&header, sizeof(header));
 
 		if (header[FOBJ_HDR_EXTENDED] & 1) {
 			_diskReader.skip(32896);
 		}
 
-		debug(GS_THIS, "++ FOBJ %ld (%ld) %ld %ld ", type, (uint32) header[FOBJ_HDR_OP], w, h);
+		// debug(GS_THIS, "++ FOBJ %ld (%ld) %ld %ld ", type, (uint32) header[FOBJ_HDR_OP], w, h);
 
-		// "Keyframes" - just copy over as-is.
-		if (header[FOBJ_HDR_OP] == 0 && w == GS_SCREEN_WIDTH && h == GS_SCREEN_HEIGHT) {
-			_diskReader.readBytes(&_tempFrame[0], GS_BITMAP_SIZE);
-			screenBlitCopy(&_tempFrame[0]);
+		switch(header[FOBJ_HDR_OP]) {
+
+			case 0: {	// "Key Frame"
+				_diskReader.readBytes(&_tempFrame[0], GS_BITMAP_SIZE);
+				screenBlitCopy(&_tempFrame[0]);
+			}
+			break;
+			case 5: {	// BOMP Compressed Frame
+				uint32 length = READ_LE_UINT32(&header[FOBJ_HDR_BOMP_LENGTH]);
+
+#if defined(GS_CHECKED) && GS_CHECKED == 1
+				if (length > GS_BITMAP_SIZE) {
+					error(GS_THIS, "BOMP Frame Length to large! %ld", length);
+					abort_quit_stop();
+					return;
+				}
+#endif
+
+				_diskReader.readBytes(&_tempBuffer[0], length);
+				decodeBomp(&_tempFrame[0], &_tempBuffer[0], length);
+				screenBlitCopy(&_tempFrame[0]);
+
+			}
+			break;
+
 		}
+
 
 		_diskReader.seekEndOf(fobj);
 	}

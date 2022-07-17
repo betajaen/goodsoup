@@ -35,6 +35,7 @@ namespace gs
 
 		RoomPaletteData _palette;
 
+		uint8 _tempBuffer[GS_BITMAP_SIZE];
 		uint8 _tempFrame[GS_BITMAP_SIZE];
 
 		void _readAndApplyPalette();
