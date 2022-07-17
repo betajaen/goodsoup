@@ -17,7 +17,7 @@
 
 #define GS_FILE_NAME "codec"
 
-#include "codec.h"
+#include "san_codec.h"
 #include "../screen.h"
 #include "../codecs.h"
 
@@ -28,7 +28,7 @@ namespace gs
 #define FOBJ_HDR_EXTENDED 2
 #define FOBJ_HDR_BOMP_LENGTH 12
 
-	Codec::Codec(DiskReader reader)
+	SanCodec::SanCodec(DiskReader reader)
 		: _diskReader(reader), _frameNum(0)
 	{
 		TagPair animTag = _diskReader.readSanTagPair();
@@ -58,15 +58,15 @@ namespace gs
 		_diskReader.seekEndOf(animHeader);
 	}
 
-	Codec::~Codec() {
+	SanCodec::~SanCodec() {
 	}
 
-	void Codec::_readAndApplyPalette() {
+	void SanCodec::_readAndApplyPalette() {
 		_diskReader.readBytes(&_palette.palette[0], 3 * 256);
 		screenSetPalette(&_palette);
 	}
 
-	void Codec::_readFrameObjectAndApply(const TagPair& fobj) {
+	void SanCodec::_readFrameObjectAndApply(const TagPair& fobj) {
 
 		uint8 header[24];
 
@@ -123,7 +123,7 @@ namespace gs
 		_diskReader.seekEndOf(fobj);
 	}
 
-	int32 Codec::presentFrame() {
+	int32 SanCodec::presentFrame() {
 
 		TagPair frme = _diskReader.readSanTagPair();
 

@@ -18,7 +18,7 @@
 #define GS_FILE_NAME "video"
 
 #include "video.h"
-#include "codec.h"
+#include "san_codec.h"
 #include "../screen.h"
 #include "../room.h"  // For RoomPaletteData
 #include "../disk.h"
@@ -69,7 +69,7 @@ namespace gs
 			return;
 		}
 
-		_codec = newObject<Codec>(DiskReader(_file));
+		_codec = newObject<SanCodec>(DiskReader(_file));
 	}
 
 	void VideoContext::unloadVideo() {

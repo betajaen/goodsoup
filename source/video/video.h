@@ -24,7 +24,7 @@
 namespace gs
 {
 
-	class Codec;
+	class SanCodec;
 
 	enum VideoStateKind {
 		VSK_NotLoaded = 0,
@@ -39,7 +39,7 @@ namespace gs
 		uint32 _videoFrameCounter;
 		int32 _waitFrames;
 
-		Codec* _codec;
+		SanCodec* _codec;
 		ReadFile _file;
 
 	public:

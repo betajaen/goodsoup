@@ -26,7 +26,7 @@
 namespace gs
 {
 
-	class Codec
+	class SanCodec
 	{
 		DiskReader _diskReader;
 
@@ -43,8 +43,8 @@ namespace gs
 
 	public:
 
-		Codec(DiskReader reader);
-		~Codec();
+		SanCodec(DiskReader reader);
+		~SanCodec();
 
 		int32 presentFrame();
 
