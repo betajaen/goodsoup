@@ -64,7 +64,6 @@ namespace gs
 		ReadFile& _file;
 	public:
 
-
 		DiskReader(ReadFile& file);
 		DiskReader(ReadFile& file, uint32 offset);
 		~DiskReader();

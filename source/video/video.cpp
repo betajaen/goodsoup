@@ -18,8 +18,10 @@
 #define GS_FILE_NAME "video"
 
 #include "video.h"
+#include "codec.h"
 #include "../screen.h"
 #include "../room.h"  // For RoomPaletteData
+#include "../disk.h"
 
 namespace gs
 {
@@ -36,16 +38,38 @@ namespace gs
 
 	}
 
-	VideoContext::VideoContext() {
+	VideoContext::VideoContext()
+		: _codec(NULL) {
 	}
 
 	VideoContext::~VideoContext() {
+
+		if (_codec != NULL) {
+			deleteObject(_codec);
+			_file.close();
+		}
 	}
 
 	void VideoContext::loadVideo(uint8 id) {
-		/* Temporary Code to imitate Video Playing */
 
+		if (_codec) {
+			deleteObject(_codec);
+			_file.close();
+		}
+
+		/* Temporary Code to imitate Video Playing */
 		_videoStateKind = VSK_Loaded;
+
+		// Temp. Ignore ID and just open OPENING.SAN for now.
+		_file.open(GS_GAME_PATH "RESOURCE/OPENING.SAN");
+
+		if (_file.isOpen() == false) {
+			error(GS_THIS, "Could not open Video File!");
+			abort_quit_stop();
+			return;
+		}
+
+		_codec = newObject<Codec>(DiskReader(_file));
 	}
 
 	void VideoContext::unloadVideo() {
@@ -62,29 +86,37 @@ namespace gs
 			_videoStateKind = VSK_Playing;
 			_videoFrameCounter = 0;
 
-			RoomPaletteData pal;
+			int32 frames = _codec->presentFrame();
 
-			int16 j=0;
-			for(uint16 i=0,j=0;i < 256;i++) {
-				pal.palette[j++] = i & 0xFF;
-				pal.palette[j++] = i*4 & 0xFF;
-				pal.palette[j++] = i*8 & 0xFF;
+			if (frames < 0) {
+				_videoStateKind = VSK_Stopped;
+				deleteObject(_codec);
+				_file.close();
+			}
+			else {
+				_waitFrames = _waitFrames;
 			}
 
-			screenSetPalette(&pal);
-			screenClear(0);
 			return;
 		}
 
 
 		if (_videoStateKind == VSK_Playing) {
 			_videoFrameCounter++;
-			tempAnimation(_videoFrameCounter);
+			_waitFrames--;
 
 			debug(GS_THIS, "Video Frame %ld", _videoFrameCounter);
 
-			if (_videoFrameCounter >= 25 * 5) {
-				_videoStateKind = VSK_Stopped;
+			if (_waitFrames <= 0) {
+				int32 frames = _codec->presentFrame();
+				if (frames < 0) {
+					_videoStateKind = VSK_Stopped;
+					deleteObject(_codec);
+					_file.close();
+				}
+				else {
+					_waitFrames = frames;
+				}
 			}
 
 			return;

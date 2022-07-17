@@ -15,50 +15,28 @@
  *
  */
 
-#ifndef GS_VIDEO_H
-#define GS_VIDEO_H
+#ifndef GS_CODEC_H
+#define GS_CODEC_H
 
 #include "../types.h"
 #include "../file.h"
+#include "../disk.h"
 
 namespace gs
 {
 
-	class Codec;
-
-	enum VideoStateKind {
-		VSK_NotLoaded = 0,
-		VSK_Loaded = 1,
-		VSK_Playing = 2,
-		VSK_Stopped = 3
-	};
-
-	class VideoContext {
-
-		uint8 _videoStateKind;
-		uint32 _videoFrameCounter;
-		int32 _waitFrames;
-
-		Codec* _codec;
-		ReadFile _file;
+	class Codec
+	{
+		DiskReader _diskReader;
 
 	public:
 
-		VideoContext();
-		~VideoContext();
+		Codec(DiskReader reader);
+		~Codec();
 
-		void loadVideo(uint8 id);
-		void unloadVideo();
-		void playVideoFrame();
-
-		inline uint8 getVideoStateKind() const {
-			return _videoStateKind;
-		}
+		int32 presentFrame();
 
 	};
-
-
-	extern VideoContext* VIDEO;
 
 }
 
