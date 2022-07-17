@@ -164,7 +164,7 @@ namespace gs
 
 		switch (code) {
 			default:
-				warn(GS_THIS, "Unsupported drawStrip#%ld functionality!", (uint32) code);
+				NO_FEATURE(GS_THIS, "Unsupported drawStrip#%ld functionality!", (uint32) code);
 			return;
 			case 18:
 				transparentCheck = false;

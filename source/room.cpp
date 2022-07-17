@@ -175,8 +175,6 @@ namespace gs
 						reader.skip(sizeof(uint32));	// unknown
 						numZBuffers = reader.readUInt32LE();
 
-						debug(GS_THIS, "RMHD %ld, %ld, %ld, %ld", (uint32) width, (uint32) height, (uint32) numObjects, (uint32) numZBuffers);
-
 						return true;
 					}
 
@@ -241,7 +239,6 @@ namespace gs
 		DRAWING_OBJECTS.clear();
 
 		debug(GS_THIS,  "NewRoom");
-		OBJECTS->dumpObjects();
 
 		INTS->room = roomNum;
 

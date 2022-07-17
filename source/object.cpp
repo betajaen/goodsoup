@@ -177,8 +177,6 @@ namespace gs
 
 				if (tag.isTag(GS_MAKE_ID('V', 'E', 'R', 'B'))) {
 
-					debug(GS_THIS, "Load VERB %ld", object->_num);
-
 					if (SCRIPTS->readObjectVerbScript(object->_num, tag, reader) == false) {
 						error(GS_THIS, "Could not read Object %ld Verb Script", (uint32) object->_num);
 						abort_quit_stop();
