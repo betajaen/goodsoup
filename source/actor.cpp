@@ -199,7 +199,7 @@ namespace gs
 
 	void ActorData::animate(uint32 animation) {
 		/* TODO */
-		warn(GS_THIS, "No support for Actor %ld Animation %ld", (uint32) _num, (uint32) animation);
+		NO_FEATURE(GS_THIS, "No support for Actor %ld Animation %ld", (uint32) _num, (uint32) animation);
 	}
 
 }

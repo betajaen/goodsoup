@@ -1200,7 +1200,6 @@ namespace gs
 					return;
 					case RoomOp_FadePalette: {
 						uint16 pal = STACK.pop();
-						debug(GS_THIS, "Fade palette %ld ((((((((((((((", pal);
 						NO_FEATURE(GS_THIS, "Not implemented OP_roomOps RoomOp_FadePalette");
 					}
 					return;
@@ -1638,7 +1637,7 @@ namespace gs
 			return;
 			case OP_startSound: {
 				uint32 soundNum = STACK.pop();
-				warn(GS_THIS, "No audio support for audio %lx", soundNum);
+				NO_FEATURE(GS_THIS, "No audio support for audio %lx", soundNum);
 			}
 			return;
 			case OP_startMusic:
@@ -1933,7 +1932,7 @@ namespace gs
 			case OP_isSoundRunning: {
 				uint16 soundNum = STACK.pop();
 				STACK.push(0);
-				warn(GS_THIS, "No Sound Support for OP_isSoundRunning %ld", (uint32) soundNum);
+				NO_FEATURE(GS_THIS, "No Sound Support for OP_isSoundRunning %ld", (uint32) soundNum);
 			}
 			return;
 			case OP_abs: {

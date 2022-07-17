@@ -200,7 +200,7 @@ namespace gs
 
 		// Check that there is data.
 		if (objectData->_script.isNull()) {
-			warn(GS_THIS, "Null script for Object %ld", objectNum);
+			// warn(GS_THIS, "Null script for Object %ld", objectNum);
 			return;
 		}
 
