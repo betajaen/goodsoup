@@ -30,19 +30,23 @@ namespace gs
 	bool openScreen();
 	bool closeScreen();
 	void screenLoop();
-	void scaleScreenPalette(uint8 from, uint8 to, uint8 redScale, uint8 greenScale, uint8 blueScale);
-	void resetScreenPalette();
 
-	void drawSystemText(uint8 colour, uint16 x, uint16 y, const char* text);
-	void drawSystemTextF(uint8 colour, uint16 x, uint16 y, const char* fmt, ...);
-	void clearScreen(uint8 colour);
-	void drawBox(uint8 colour, uint16 x, uint16 y, uint16 w, uint16 h);
-	void setRoomPalette(RoomPaletteData* palette);
-	void blitBitmap(uint32 x, uint32 y, uint32 w, uint32 h, uint32 len, byte*);
-	void blitLine(uint16 y, byte* lineData);
-	void blitCopyBitmap(byte* bitmap);
-	void drawRoomBackgroundSimple(ReadSpan<byte, uint32>& data, uint32 width, uint32 height);
-	void drawImage(uint32 x, uint32 y, ImageData* image);
+	void screenClear(uint8 colour);
+
+	void screenSetPalette(RoomPaletteData* palette);
+	void screenScalePalette(uint8 from, uint8 to, uint8 redScale, uint8 greenScale, uint8 blueScale);
+	void screenResetPalette();
+
+	void screenPrintSystem(uint8 colour, uint16 x, uint16 y, const char* text);
+	void screenPrintSystemF(uint8 colour, uint16 x, uint16 y, const char* fmt, ...);
+
+	void screenDrawBox(uint8 colour, uint16 x, uint16 y, uint16 w, uint16 h);
+
+	void screenBlitBitmap(uint32 x, uint32 y, uint32 w, uint32 h, uint32 len, byte*);
+	void screenBlitBitmapLine(uint16 y, byte* lineData);
+	void screenBlitCopy(byte* srcBitmap);
+	void screenBlitImage(uint32 x, uint32 y, ImageData* image);
+	void screenBlitRoomBackground(ReadSpan<byte, uint32>& data, uint32 width, uint32 height);
 
 }
 

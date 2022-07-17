@@ -98,7 +98,8 @@ OBJ +=	source/main_game.o\
 		source/table.o\
 		source/image.o\
 		source/costume.o\
-		source/video/video.o
+		source/video/video.o\
+		source/draw.o
 
 all: $(OBJ)
 	$(CC) -o $(PROGRAM) $(OBJ) $(CFLAGS)

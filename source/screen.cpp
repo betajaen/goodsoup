@@ -178,9 +178,9 @@ namespace gs
 
 	}
 
-	void drawRoomBackgroundSimple(ReadSpan<byte, uint32>& imageData, uint32 width, uint32 height) {
+	void screenBlitRoomBackground(ReadSpan<byte, uint32>& imageData, uint32 width, uint32 height) {
 		
-		clearScreen(0);
+		screenClear(0);
 		
 		if (imageData.getSize() == 0) {
 			return;
@@ -203,7 +203,7 @@ namespace gs
 
 		}
 		
-		blitCopyBitmap(&screen[0]);
+		screenBlitCopy(&screen[0]);
 	}
 
 }

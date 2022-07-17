@@ -36,6 +36,7 @@
 #include "../index.h"
 #include "../screen.h"
 #include "../costume.h"
+#include "draw.h"
 
 #define DEBUG_OPCODES 0
 
@@ -1209,7 +1210,7 @@ namespace gs
 						int32 blueScale = STACK.pop();
 						int32 greenScale =STACK.pop();
 						int32 redScale = STACK.pop();
-						scaleScreenPalette(startColour, endColour, redScale, greenScale, blueScale);
+						drawScalePalette(startColour, endColour, redScale, greenScale, blueScale);
 					}
 					return;
 					case RoomOp_PaletteManipulate:

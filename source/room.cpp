@@ -30,6 +30,7 @@
 #include "screen.h"
 #include "object.h"
 #include "functions.h"
+#include "draw.h"
 
 namespace gs
 {
@@ -287,19 +288,10 @@ namespace gs
 
 		/* TEMP */
 		if (roomData) {
-			RoomPaletteData* palette = roomData->getPalette(0);
+			DRAW_FLAGS &= DF_TotalChange;
 
-			if (palette) {
-				setRoomPalette(palette);
-			}
-
-
-			if (roomData->getNumBackgrounds() != 0) {
-				ReadSpan<byte, uint32> backgroundData = roomData->getBackground(0);
-				if (backgroundData.getSize() > 0) {
-					drawRoomBackgroundSimple(backgroundData, 640, 480); // TEMP.
-				}
-			}
+			drawSetPalette(roomData, 0);
+			drawRoomBackground(roomData, 0);
 
 		}
 

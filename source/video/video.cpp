@@ -29,10 +29,10 @@ namespace gs
 
 		int y = frame;
 		y %= GS_SCREEN_HEIGHT;
-		drawBox(0, 0, y, GS_SCREEN_WIDTH, 1);
+		screenDrawBox(0, 0, y, GS_SCREEN_WIDTH, 1);
 		y++;
 		y %= GS_SCREEN_HEIGHT;
-		drawBox(frame, 0, y, GS_SCREEN_WIDTH, 8);
+		screenDrawBox(frame, 0, y, GS_SCREEN_WIDTH, 8);
 
 	}
 
@@ -71,8 +71,8 @@ namespace gs
 				pal.palette[j++] = i*8 & 0xFF;
 			}
 
-			setRoomPalette(&pal);
-			clearScreen(0);
+			screenSetPalette(&pal);
+			screenClear(0);
 			return;
 		}
 

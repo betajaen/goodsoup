@@ -40,6 +40,7 @@
 #include "table.h"
 #include "image.h"
 #include "costume.h"
+#include "draw.h"
 
 extern const char GOODSOUP_VERSION_STR[] = "$VER: goodsoup 0.5 (" __AMIGADATE__ ")";
 
@@ -207,7 +208,9 @@ namespace gs
 		INTS->virtMouseY = MOUSE_Y;
 		INTS->leftbtnHold = MOUSE_LMB_STATE;
 
-		drawBox(col++, 10, 10, 10, 10);
+		screenDrawBox(col++, 10, 10, 10, 10);
+
+		DRAW_FLAGS = 0;
 
 		VM->processScriptDelays(1);
 

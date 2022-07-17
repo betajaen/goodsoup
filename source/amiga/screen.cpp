@@ -87,7 +87,7 @@ namespace gs
 
 	GS_AMIGA_MENU(MENU_Game, GS_GAME_NAME, &MENUITEM_Quit);
 	
-	void drawSystemText(uint8 colour, uint16 x, uint16 y, const char* text);
+	void screenPrintSystem(uint8 colour, uint16 x, uint16 y, const char* text);
 
 	bool openScreen() {
 
@@ -307,11 +307,11 @@ namespace gs
 		sSystemTimer.close();
 	}
 	
-	void clearScreen(uint8 colour) {
+	void screenClear(uint8 colour) {
 		SetRast(&sRastPort, colour);
 	}
 
-	void drawSystemText(uint8 colour, uint16 x, uint16 y, const char* text) {
+	void screenPrintSystem(uint8 colour, uint16 x, uint16 y, const char* text) {
 		struct IntuiText  intText;
 		intText.FrontPen = 1;
 		intText.BackPen = 0;
@@ -326,15 +326,15 @@ namespace gs
 		PrintIText(&sRastPort, &intText, x, y);
 	}
 
-	void drawSystemTextF(uint8 colour, uint16 x, uint16 y, const char* fmt, ...) {
+	void screenPrintSystemF(uint8 colour, uint16 x, uint16 y, const char* fmt, ...) {
 		static char sTemp[256] = {};
 		const char* arg = (const char*)(&fmt + 1);
 		RawDoFmt((CONST_STRPTR)fmt, (APTR)arg, (PUTCHARPROC)&PutChar, &sTemp[0]);
 
-		drawSystemText(colour, x, y, &sTemp[0]);
+		screenPrintSystem(colour, x, y, &sTemp[0]);
 	}
 
-	void drawBox(uint8 colour, uint16 x, uint16 y, uint16 w, uint16 h) {
+	void screenDrawBox(uint8 colour, uint16 x, uint16 y, uint16 w, uint16 h) {
 		FillPixelArray(&sRastPort, x, y, w, h, colour);
 	}
 	
@@ -363,7 +363,7 @@ namespace gs
 
 	}
 	
-	void setRoomPalette(RoomPaletteData* palette) {
+	void screenSetPalette(RoomPaletteData* palette) {
 		
 		ULONG* dst = &sPalette[0];
 		uint8* src = &palette->palette[0];
@@ -384,12 +384,12 @@ namespace gs
 		LoadRGB32(&sScreen->ViewPort, &sPalette[0]);
 	}
 
-	void resetScreenPalette() {
+	void screenResetPalette() {
 		CopyMem(&sPalette[0], &sOriginalPalette[0], sizeof(sPalette));
 		LoadRGB32(&sScreen->ViewPort, &sPalette[0]);
 	}
 
-	void scaleScreenPalette(uint8 from, uint8 to, uint8 redScale, uint8 greenScale, uint8 blueScale) {
+	void screenScalePalette(uint8 from, uint8 to, uint8 redScale, uint8 greenScale, uint8 blueScale) {
 		uint8* dst = (uint8*) &sPalette[from * 3];
 		uint8* src = (uint8*) &sOriginalPalette[from * 3];
 		uint8 c;
@@ -433,18 +433,18 @@ namespace gs
 	}
 
 
-	void blitBitmap(uint32 x, uint32 y, uint32 w, uint32 h, uint32 len, byte*) {
+	void screenBlitBitmap(uint32 x, uint32 y, uint32 w, uint32 h, uint32 len, byte*) {
 	}
 	
-	void blitLine(uint16 y, byte* lineData) {
+	void screenBlitBitmapLine(uint16 y, byte* lineData) {
 		WritePixelArray(lineData, 0, 0, GS_SCREEN_WIDTH, &sRastPort, 0, y, GS_SCREEN_WIDTH, 1, RECTFMT_LUT8);
 	}
 	
-	void blitCopyBitmap(byte* bitmap) {
+	void screenBlitCopy(byte* bitmap) {
 		WritePixelArray(bitmap, 0, 0, GS_SCREEN_WIDTH, &sRastPort, 0, 0, GS_SCREEN_WIDTH, GS_SCREEN_HEIGHT, RECTFMT_LUT8);
 	}
 
-	void drawImage(uint32 x, uint32 y, ImageData* image) {
+	void screenBlitImage(uint32 x, uint32 y, ImageData* image) {
 		WritePixelArray(image->_bitmap, 0, 0, image->_width, &sRastPort, x, y, image->_width, image->_height, RECTFMT_LUT8);
 	}
 

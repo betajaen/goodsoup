@@ -32,26 +32,26 @@ namespace gs
 	void runOSD() {
 
 		if (PAUSED) {
-			drawSystemText(1, 10, 10, "Paused");
+			screenPrintSystem(1, 10, 10, "Paused");
 		}
 
-		drawSystemTextF(1, 10, 20, "Frame: %ld", FRAME_NUM);
+		screenPrintSystemF(1, 10, 20, "Frame: %ld", FRAME_NUM);
 
-		drawSystemTextF(1, 10, 30, "Mouse: %ld %ld %ld %ld", MOUSE_X, MOUSE_Y, MOUSE_LMB_STATE, MOUSE_RMB_STATE);
+		screenPrintSystemF(1, 10, 30, "Mouse: %ld %ld %ld %ld", MOUSE_X, MOUSE_Y, MOUSE_LMB_STATE, MOUSE_RMB_STATE);
 
 		RoomData* room = getRoom();
 
 		if (room == NULL) {
-			drawSystemText(1, 10, 40, "Room: <NONE>");
+			screenPrintSystem(1, 10, 40, "Room: <NONE>");
 		}
 		else {
 
 			String roomName = INDEX->getRoomName(room->getNum());
 
-			drawSystemTextF(1, 10, 40, "Room: %ld %s", (uint32) room->getNum(), roomName.string());
+			screenPrintSystemF(1, 10, 40, "Room: %ld %s", (uint32) room->getNum(), roomName.string());
 		}
 
-		drawSystemTextF(1, 10, 50, "Objects: %ld", (uint32) OBJECTS->getCount());
+		screenPrintSystemF(1, 10, 50, "Objects: %ld", (uint32) OBJECTS->getCount());
 
 	}
 

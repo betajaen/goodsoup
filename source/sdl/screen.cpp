@@ -233,12 +233,12 @@ namespace gs
 		}
 	}
 
-	void clearScreen(uint8 colour) {
+	void screenClear(uint8 colour) {
 		SDL_FillRect(sSurface, NULL, colour);
 		sSurfaceDirty = true;
 	}
 
-	void drawBox(uint8 colour, uint16 x, uint16 y, uint16 w, uint16 h) {
+	void screenDrawBox(uint8 colour, uint16 x, uint16 y, uint16 w, uint16 h) {
 		SDL_Rect rect;
 		rect.x = x;
 		rect.y = y;
@@ -249,11 +249,11 @@ namespace gs
 		sSurfaceDirty = true;
 	}
 	
-	void drawSystemText(uint8 colour, uint16 x, uint16 y, const char* text) {
+	void screenPrintSystem(uint8 colour, uint16 x, uint16 y, const char* text) {
 		//printf("SYSTEX: %s\n", text);
 	}
 
-	void drawSystemTextF(uint8 colour, uint16 x, uint16 y, const char* fmt, ...) {
+	void screenPrintSystemF(uint8 colour, uint16 x, uint16 y, const char* fmt, ...) {
 
 		static char sTemp[256] = { 0 };
 
@@ -276,7 +276,7 @@ namespace gs
 		PAUSED = !PAUSED;
 	}
 	
-	void setRoomPalette(RoomPaletteData* palette) {
+	void screenSetPalette(RoomPaletteData* palette) {
 		uint8* rgb = &palette->palette[0];
 		for (uint16 i = 0; i < 256; i++) {
 			SDL_Color& dst = sOriginalPalette[i];
@@ -291,7 +291,7 @@ namespace gs
 		sPaletteDirty = true;
 	}
 
-	void resetScreenPalette() {
+	void screenResetPalette() {
 		for (uint16 i = 0; i < 256; i++) {
 			SDL_Color& dst = sPalette[i];
 			SDL_Color& src = sOriginalPalette[i];
@@ -302,7 +302,7 @@ namespace gs
 		sPaletteDirty = true;
 	}
 
-	void scaleScreenPalette(uint8 from, uint8 to, uint8 redScale, uint8 greenScale, uint8 blueScale) {
+	void screenScalePalette(uint8 from, uint8 to, uint8 redScale, uint8 greenScale, uint8 blueScale) {
 		for (uint16 i = from; i < to; i++) {
 			SDL_Color& original = sOriginalPalette[i];
 			SDL_Color& dest = sPalette[i];
@@ -319,7 +319,7 @@ namespace gs
 		sPaletteDirty = true;
 	}
 
-	void blitLine(uint16 y, byte* lineData) {
+	void screenBlitBitmapLine(uint16 y, byte* lineData) {
 		
 		SDL_LockSurface(sSurface);
 		uint8* dst = (uint8*) sSurface->pixels;
@@ -332,7 +332,7 @@ namespace gs
 		sSurfaceDirty = true;
 	}
 
-	void blitCopyBitmap(byte* bitmap) {
+	void screenBlitCopy(byte* bitmap) {
 		
 		SDL_LockSurface(sSurface);
 		uint8* dst = (uint8*) sSurface->pixels;
@@ -344,7 +344,7 @@ namespace gs
 		sSurfaceDirty = true;
 	}
 
-	void drawImage(uint32 x, uint32 y, ImageData* image) {
+	void screenBlitImage(uint32 x, uint32 y, ImageData* image) {
 		_blitBitmap(x, y, image->_width, image->_height, image->_bitmap);
 	}
 }
