@@ -61,6 +61,46 @@ namespace gs
 		screenSetPalette(&_palette);
 	}
 
+	void Codec::_readFrameObjectAndApply(const TagPair& fobj) {
+		uint16 type = _diskReader.readUInt16LE();
+
+		if (type != 47) {
+			_diskReader.skip(fobj.length - 2);
+			return;
+		}
+
+		uint16 x = _diskReader.readUInt16LE();
+		uint16 y = _diskReader.readUInt16LE();
+		uint16 w = _diskReader.readUInt16LE();
+		uint16 h = _diskReader.readUInt16LE();
+
+		_diskReader.skip(4);
+
+
+		_diskReader.skip(2);	// 0,1
+		uint8 op = _diskReader.readByte(); // 2
+		_diskReader.skip(1); // 3
+		uint8 extraHeader = _diskReader.readByte(); // 4
+
+		uint32 offset = 21;
+
+		if (extraHeader & 1) {
+			offset += 32896;
+		}
+
+		_diskReader.skip(offset);
+
+		debug(GS_THIS, "++ FOBJ %ld (%ld) %ld %ld %ld %ld ", type, (uint32) op, x, y, w, h);
+
+		// "Keyframes" - just copy over as-is.
+		if (op == 0 && w == GS_SCREEN_WIDTH && h == GS_SCREEN_HEIGHT) {
+			_diskReader.readBytes(&_tempFrame[0], GS_BITMAP_SIZE);
+			screenBlitCopy(&_tempFrame[0]);
+		}
+
+		_diskReader.seekEndOf(fobj);
+	}
+
 	int32 Codec::presentFrame() {
 
 		TagPair frme = _diskReader.readSanTagPair();
@@ -75,14 +115,7 @@ namespace gs
 		while(_diskReader.pos() < frme.end()) {
 			TagPair tag = _diskReader.readSanTagPair();
 
-			// There is inconsistencies between the header length and the actual data written.
-			// It seems that the length should be to the nearest 2, but there are cases when this is
-			// not the case. This seems to fix it.
-
-			uint32 length = tag.length;
-			if ((length & 1)) {
-				length++;
-			}
+			debug(GS_THIS, "Frame %ld %s %ld", _frameNum, tag.tagStr(), tag.length);
 
 			if (tag.isTag(GS_MAKE_ID('N','P','A','L'))) {
 				_readAndApplyPalette();
@@ -90,32 +123,32 @@ namespace gs
 			}
 
 			if (tag.isTag(GS_MAKE_ID('I','A','C','T'))) {
-				_diskReader.skip(length);
+				_diskReader.skip(tag.length);
 				continue;
 			}
 
 			if (tag.isTag(GS_MAKE_ID('F','O','B','J'))) {
-				_diskReader.skip(length);
+				_readFrameObjectAndApply(tag);
 				continue;
 			}
 
 			if (tag.isTag(GS_MAKE_ID('X','P','A','L'))) {
-				_diskReader.skip(length);
+				_diskReader.skip(tag.length);
 				continue;
 			}
 
 			if (tag.isTag(GS_MAKE_ID('T','E','X','T'))) {
-				_diskReader.skip(length);
+				_diskReader.skip(tag.length);
 				continue;
 			}
 
 			if (tag.isTag(GS_MAKE_ID('S','T','O','R'))) {
-				_diskReader.skip(length);
+				_diskReader.skip(tag.length);
 				continue;
 			}
 
 			if (tag.isTag(GS_MAKE_ID('F','T','C','H'))) {
-				_diskReader.skip(length);
+				_diskReader.skip(tag.length);
 				continue;
 			}
 
@@ -125,8 +158,6 @@ namespace gs
 			return -1;
 		}
 
-
-		_diskReader.seek(frme.dataPos + frme.length);
 		_frameNum++;
 
 		if (_frameNum == _frameCount) {
