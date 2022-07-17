@@ -66,6 +66,36 @@ namespace gs
 		screenSetPalette(&_palette);
 	}
 
+	void SanCodec::_readAndApplyDeltaPalette(const TagPair& xpal) {
+
+		if (xpal.length == 6) {
+			_diskReader.skip(6);
+
+			for(uint16 i=0;i < 768;i++) {
+				uint16 s = _palette.palette[i];
+				int16 d  = _deltaPalette[i];
+
+				/* TODO: Optimise with a lookup table!
+				 		 Otherwise it may be possible with bit-shifts to save on mem.
+				 */
+				int16 c = ((s * 129 + d) / 128);
+				if (c > 255)
+					c = 255;
+				else if (c < 0)
+					c = 0;
+				_palette.palette[i] = (uint8) c;
+			}
+			screenSetPalette(&_palette);
+		}
+		else {
+			_diskReader.skip(4);
+			_diskReader.readBytes(&_deltaPalette[0], sizeof(_deltaPalette));
+			_diskReader.readBytes(&_palette.palette[0], sizeof(_palette.palette));
+			screenSetPalette(&_palette);
+		}
+
+	}
+
 	void SanCodec::_readFrameObjectAndApply(const TagPair& fobj) {
 
 		uint8 header[24];
@@ -155,7 +185,7 @@ namespace gs
 			}
 
 			if (tag.isTag(GS_MAKE_ID('X','P','A','L'))) {
-				_diskReader.skip(tag.length);
+				_readAndApplyDeltaPalette(tag);
 				continue;
 			}
 
