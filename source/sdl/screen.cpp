@@ -126,11 +126,11 @@ namespace gs
 		return true;
 	}
 	
-	void screenLoop() {
+	void screenEventHandler() {
 		SDL_Event event;
         quitNextFrame = false;
 
-		while (QUIT_NOW == false) {
+		while (SCREEN_EVENT_HANDLER_SHOULD_QUIT == false) {
 
 #if GS_FRAME_DELAY == 1
 			SDL_Delay(GS_FRAME_DELAY_MSEC);
@@ -145,7 +145,7 @@ namespace gs
                             quitNextFrame = true;
                         }
                         else {
-                            QUIT_NOW = true;
+							setNextGameState(GSK_Quit, 0);
                         }
 					}
 					break;
@@ -203,12 +203,12 @@ namespace gs
 			}
 
 			if (PAUSED == false) {
-				runFrame();
+				frameHandler();
 			}
 			else {
 				if (step) {
 					debug(GS_THIS, "Step");
-					runFrame();
+					frameHandler();
 					step = false;
 				}
 			}
@@ -228,23 +228,14 @@ namespace gs
 			SDL_UpdateWindowSurface(sWindow);
 
             if (quitNextFrame) {
-                QUIT_NOW = true;
+				setNextGameState(GSK_Quit, 0);
             }
 		}
-	}
-	
-	void setScreenPalette(uint8* palette, uint8 from, uint8 to) {
-		for (uint8 i = from; i <= to; i++) {
-			SDL_Color& colour = sPalette[i];
-			colour.r = *palette;
-			colour.g = *palette;
-			colour.a = *palette;
-		}
-		sPaletteDirty = true;
 	}
 
 	void clearScreen(uint8 colour) {
 		SDL_FillRect(sSurface, NULL, colour);
+		sSurfaceDirty = true;
 	}
 
 	void drawBox(uint8 colour, uint16 x, uint16 y, uint16 w, uint16 h) {

@@ -29,6 +29,7 @@
 #include "utils.h"
 #include "screen.h"
 #include "object.h"
+#include "functions.h"
 
 namespace gs
 {
@@ -200,7 +201,7 @@ namespace gs
 
 		if (INTS->exitScript > 0) {
 			VM->runScript(INTS->exitScript, false, false);
-			if (QUIT_NOW)
+			if (isQuitting())
 				return;
 		}
 
@@ -209,13 +210,13 @@ namespace gs
 
 			if (sCurrentRoom->hasLocalScript(HSN_RoomExit)) {
 				VM->runRoomScript(HSN_RoomExit);
-				if (QUIT_NOW)
+				if (isQuitting())
 					return;
 			}
 
 			if (INTS->exitScript2 > 0) {
 				VM->runScript(INTS->entryScript2, false, false);
-				if (QUIT_NOW)
+				if (isQuitting())
 					return;
 			}
 
@@ -263,19 +264,19 @@ namespace gs
 			
 			if (INTS->entryScript > 0) {
 				VM->runScript(INTS->entryScript, false, false);
-				if (QUIT_NOW)
+				if (isQuitting())
 					return;
 			}
 
 			if (sCurrentRoom->hasLocalScript(HSN_RoomEntrance)) {
 				VM->runRoomScript(HSN_RoomEntrance);
-				if (QUIT_NOW)
+				if (isQuitting())
 					return;
 			}
 
 			if (INTS->entryScript2 > 0) {
 				VM->runScript(INTS->entryScript2, false, false);
-				if (QUIT_NOW)
+				if (isQuitting())
 					return;
 			}
 

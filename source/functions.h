@@ -22,6 +22,33 @@
 
 namespace gs
 {
+	enum GameStateKind {
+		GSK_None = 0,
+		GSK_Boot = 1,
+		GSK_Quit = 2,
+		GSK_Room = 3,
+		GSK_Video = 4
+	};
+
+	extern uint8 GAME_STATE;
+	extern int32 GAME_STATE_PARAM;
+	extern uint8 NEXT_GAME_STATE;
+	extern int32 NEXT_GAME_STATE_PARAM;
+	extern bool SCREEN_EVENT_HANDLER_SHOULD_QUIT;
+
+	inline bool hasGameStateChanged() {
+		return NEXT_GAME_STATE != GSK_None && NEXT_GAME_STATE != GAME_STATE;
+	}
+
+	inline void setNextGameState(uint8 state, int32 param) {
+		NEXT_GAME_STATE = state;
+		NEXT_GAME_STATE_PARAM = param;
+	}
+
+	inline bool isQuitting() {
+		return NEXT_GAME_STATE == GSK_Quit;
+	}
+
 	void startScene(uint16 roomNum);
 	
 	void setVar(uint32 varName, int32 value);
@@ -32,7 +59,9 @@ namespace gs
 
 	void runOSD();
 
-	void runFrame();
+	void screenEventHandler();
+
+	void frameHandler();
 
 
 }

@@ -67,12 +67,16 @@ namespace gs
 		CutsceneScriptState				_cutscenes;
 		byte							_opcode;
 
+		bool 	_bIsInterrupting;
+		uint8	_bInterruptContextIdx;
+		uint8   _bInterruptContextAction;
 
 		void _pushAndRunScript(VmContext& context);
 		void _stopObjectScript(uint16 scriptNum);
 		void _runExitScript();
 		void _runEnterScript();
 		void _readBytesForArray();
+		bool _isInterrupting();
 
 	public:
 
@@ -124,6 +128,13 @@ namespace gs
 		void _stopScript(uint16 scriptNum);
 
 		void _forceQuit();
+
+		bool isInterrupting() const {
+			return _bIsInterrupting;
+		}
+
+		void interrupt();
+
 	};
 }
 

@@ -30,7 +30,6 @@ namespace gs
 	bool openScreen();
 	bool closeScreen();
 	void screenLoop();
-	void setScreenPalette(uint8* palette, uint8 from = 0, uint8 to = 255);
 	void scaleScreenPalette(uint8 from, uint8 to, uint8 redScale, uint8 greenScale, uint8 blueScale);
 	void resetScreenPalette();
 

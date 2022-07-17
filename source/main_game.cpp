@@ -26,6 +26,7 @@
 #include "vm/array.h"
 #include "vm/vars.h"
 #include "vm/debugger.h"
+#include "video/video.h"
 #include "index.h"
 #include "resource.h"
 #include "profile.h"
@@ -52,7 +53,11 @@ namespace test
 namespace gs
 {
 
-	bool QUIT_NOW = false;
+	uint8 NEXT_GAME_STATE = GSK_None;
+	int32 GAME_STATE_PARAM = 0;
+	uint8 GAME_STATE = GSK_None;
+	int32 NEXT_GAME_STATE_PARAM = 0;
+	bool SCREEN_EVENT_HANDLER_SHOULD_QUIT = false;
 	bool PAUSED = false;
 	int32 SENTENCE_NUM = 0;
 	bool SHOW_OSD = true;
@@ -67,6 +72,7 @@ namespace gs
 
 	void cleanup() {
 		closeTables();
+		deleteObject(VIDEO);
 		deleteObject(COSTUMES);
 		deleteObject(IMAGES);
 		deleteObject(ACTORS);
@@ -97,10 +103,7 @@ namespace gs
 		return test::run();
 #else
 
-
 		info(GS_THIS, "%s\n", &GOODSOUP_VERSION_STR[6]);
-
-		QUIT_NOW = false;
 
 		if (openScreen() == false) {
 			error(GS_THIS, "Could not open screen!");
@@ -119,6 +122,7 @@ namespace gs
 		ACTORS = newObject<ActorState>();
 		IMAGES = newObject<ImageState>();
 		COSTUMES = newObject<CostumeState>();
+		VIDEO = newObject<VideoContext>();
 
 		if (INDEX->readFromFile(GS_GAME_PATH GS_INDEX_FILENAME) == false) {
 			cleanup();
@@ -132,17 +136,15 @@ namespace gs
 
 		RESOURCES = newObject<Resources>();
 		RESOURCES->open();
-
 		VM = newObject<VirtualMachine>();
 		VM->reset();
-        vmDebugRemark("Boot");
-        //vmDebugPause();
-		VM->runScript(1, false, false);
-        //vmDebugResume();
-        vmDebugRemark("Loop");
 
-		info(GS_THIS, "=========Starting Main Loop===========");
-		screenLoop();
+		NEXT_GAME_STATE = GSK_Boot;
+		NEXT_GAME_STATE_PARAM = 1;
+		GAME_STATE = GSK_None;
+		SCREEN_EVENT_HANDLER_SHOULD_QUIT = false;
+
+		screenEventHandler();
 
 		cleanup();
 		closeScreen();
@@ -157,7 +159,7 @@ namespace gs
 	int32 DEBUG_STOP_AFTER_FRAMES_COUNT = 0;
 	int test = 0;
 
-	void runFrame() {
+	void roomFrameHandler(bool fullRedraw) {
 
 #if defined(GS_VM_DEBUG) && GS_VM_DEBUG==1
         vmDebugRemark("frame");
@@ -166,7 +168,7 @@ namespace gs
 		if (DEBUG_STOP_AFTER_FRAMES) {
 			DEBUG_STOP_AFTER_FRAMES_COUNT--;
 			if (DEBUG_STOP_AFTER_FRAMES_COUNT <= 0) {
-				QUIT_NOW = true;
+				setNextGameState(GSK_Quit, 0);
 				return;
 			}
 		}
@@ -234,6 +236,72 @@ namespace gs
 #endif
 	}
 
+	void videoFrameHander(bool start, int32 videoId) {
+
+		if (start) {
+			VIDEO->loadVideo(videoId);
+		}
+		else {
+			VIDEO->playVideoFrame();
+
+			if (VIDEO->getVideoStateKind() == VSK_Stopped) {
+				VIDEO->unloadVideo();
+				setNextGameState(GSK_Room, 0);
+			}
+		}
+
+	}
+
+	void frameHandler() {
+
+		bool newState = false;
+
+		if (NEXT_GAME_STATE != GSK_None) {
+			GAME_STATE = NEXT_GAME_STATE;
+			GAME_STATE_PARAM = NEXT_GAME_STATE_PARAM;
+			NEXT_GAME_STATE = 0;
+			NEXT_GAME_STATE_PARAM = 0;
+			newState = true;
+		}
+
+		switch(GAME_STATE) {
+			case GSK_Boot: {
+#if defined(GS_VM_DEBUG) && GS_VM_DEBUG==1
+				vmDebugRemark("Boot");
+#endif
+				VM->runScript(GAME_STATE_PARAM, false, false);
+
+				NEXT_GAME_STATE = GSK_Room;
+				NEXT_GAME_STATE_PARAM = 0;
+			}
+			break;
+			case GSK_Room: {
+#if defined(GS_VM_DEBUG) && GS_VM_DEBUG == 1
+				if (newState) {
+					vmDebugRemark("First Frame");
+				}
+				else {
+					vmDebugRemark("Frame");
+				}
+#endif
+
+				roomFrameHandler(newState);
+			}
+			break;
+			case GSK_Video: {
+				videoFrameHander(newState, GAME_STATE_PARAM);
+			}
+			break;
+			case GSK_Quit: {
+				if (newState) {
+					SCREEN_EVENT_HANDLER_SHOULD_QUIT = true;
+				}
+			}
+			break;
+		}
+
+	}
+
 }
 
 namespace gs
@@ -241,7 +309,7 @@ namespace gs
 	void abort_quit_stop() {
 		using namespace gs;
 
-		gs::QUIT_NOW = true;
+		setNextGameState(GSK_Quit, 0);
 
 		if (VM) {
 			VM->abort();

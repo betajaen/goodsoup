@@ -97,7 +97,8 @@ OBJ +=	source/main_game.o\
 		source/actor.o\
 		source/table.o\
 		source/image.o\
-		source/costume.o
+		source/costume.o\
+		source/video/video.o
 
 all: $(OBJ)
 	$(CC) -o $(PROGRAM) $(OBJ) $(CFLAGS)
@@ -108,6 +109,7 @@ all: $(OBJ)
 clean .IGNORE:
 	$(DELETE) source/*.o
 	$(DELETE) source/vm/*.o
+	$(DELETE) source/video/*.o
 	$(DELETE) source/sdl/*.o
 	$(DELETE) source/amiga/*.o
 	$(DELETE) dist/monkey3

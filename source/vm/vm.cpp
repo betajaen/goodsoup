@@ -29,6 +29,7 @@
 #include "../room.h"
 #include "../endian.h"
 #include "../object.h"
+#include "../functions.h"
 
 #define DEBUG_CONTEXT_STACK 0
 
@@ -142,7 +143,7 @@ namespace gs
 				CURRENT_CONTEXT = i;
 				context.run();
 
-				if (QUIT_NOW)
+				if (isQuitting())
 					break;
 			}
 		}
@@ -166,7 +167,7 @@ namespace gs
 
 		VmContext& context = _contextAllocator.acquire();
 
-		if (QUIT_NOW)
+		if (isQuitting())
 			return;
 
 		context._scriptNum = scriptNum;
@@ -209,7 +210,7 @@ namespace gs
 
 		VmContext& context = _contextAllocator.acquire();
 
-		if (QUIT_NOW)
+		if (isQuitting())
 			return;
 
 		context._scriptNum = objectNum;
@@ -237,7 +238,7 @@ namespace gs
 
 		VmContext& context = _contextAllocator.acquire();
 
-		if (QUIT_NOW)
+		if (isQuitting())
 			return;
 
 		context._scriptNum = scriptNum;
@@ -267,7 +268,7 @@ namespace gs
 
 		VmContext& context = _contextAllocator.acquire();
 
-		if (QUIT_NOW)
+		if (isQuitting())
 			return;
 
 		context._scriptNum = scriptNum;
@@ -649,7 +650,7 @@ namespace gs
 	}
 
 	void VirtualMachine::_forceQuit() {
-		QUIT_NOW = true;
+		setNextGameState(GSK_Quit, 0);
 		CURRENT_CONTEXT = NO_CONTEXT;
 	}
 
@@ -664,6 +665,12 @@ namespace gs
 		}
 
 		/* TODO: Delete New Names */
+	}
+
+	void VirtualMachine::interrupt() {
+		_bIsInterrupting = true;
+		_bInterruptContextIdx = CURRENT_CONTEXT;
+		_bInterruptContextAction = 0;
 	}
 
 	CutsceneScriptState::CutsceneScriptState() {

@@ -1707,6 +1707,8 @@ namespace gs
 				uint16 from, length;
 				_readStringLength(from, length);
 				warn(GS_THIS, "Video Cutscenes not currently supported!");
+				setNextGameState(GSK_Video, 1);
+				VM->interrupt();
 			}
 			return;
 			case OP_kernelSetFunctions: {

@@ -200,21 +200,19 @@ namespace gs
 		return true;
 	}
 
-	void screenLoop() {
+	void screenEventHandler() {
 
 		uint32 timerBit = sSystemTimer.start(GS_FRAME_DELAY_USEC); // 1/30 seconds in microseconds.
 		uint32 windowBit = (1 << sWindow->UserPort->mp_SigBit);
 
-		debug(GS_THIS, "Signal bit = %lx", timerBit);
-
 		uint32 signalBits = windowBit | timerBit | SIGBREAKF_CTRL_C;
 
-		while (QUIT_NOW == false) {
+		while (SCREEN_EVENT_HANDLER_SHOULD_QUIT == false) {
 
 			ULONG signal = Wait(signalBits);
 
 			if (signal & SIGBREAKF_CTRL_C) {
-				QUIT_NOW = true;
+				SCREEN_EVENT_HANDLER_SHOULD_QUIT = true;
 				break;
 			}
 			
@@ -236,12 +234,12 @@ namespace gs
 					switch (msg->Class)
 					{
 						case IDCMP_CLOSEWINDOW: {
-							QUIT_NOW = true;
+							setNextGameState(GSK_Quit, 0);
 						}
 						break;
 						case IDCMP_VANILLAKEY: {
 							if (msg->Code == 27) {
-								QUIT_NOW = true;
+								SCREEN_EVENT_HANDLER_SHOULD_QUIT = true;
 							}
 							else if (msg->Code == 32) {
 								togglePause();
@@ -249,7 +247,7 @@ namespace gs
 							}
 							else if (PAUSED && (msg->Code == 115 || msg->Code == 83)) {
 								debug(GS_THIS, "Frame Step");
-								runFrame();
+								frameHandler();
 							}
 						}
 						break;
@@ -264,7 +262,7 @@ namespace gs
 									step = false;
 								}
 								else if (itemNum == 0) {
-									QUIT_NOW = true;
+									setNextGameState(GSK_Quit, 0);
 								}
 							}
 						}
@@ -295,11 +293,9 @@ namespace gs
 			
 			if (signal & timerBit) {
 
-				
-
 				if (sSystemTimer.isReady()) {
 					if (PAUSED == false) {
-						runFrame();
+						frameHandler();
 					}
 
 					sSystemTimer.start(GS_FRAME_DELAY_USEC);
