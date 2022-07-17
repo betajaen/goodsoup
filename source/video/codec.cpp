@@ -28,31 +28,29 @@ namespace gs
 	{
 		TagPair animTag = _diskReader.readSanTagPair();
 
+#if defined(GS_CHECKED) && GS_CHECKED == 1
 		if (animTag.isTag(GS_MAKE_ID('A','N','I','M')) == false) {
 			error(GS_THIS, "This is not an ANIM SAN file! Missing ANIM tag got %s", animTag.tagStr());
 			abort_quit_stop();
 			return;
 		}
+#endif
 
 		TagPair animHeader = _diskReader.readSanTagPair();
 
+#if defined(GS_CHECKED) && GS_CHECKED == 1
 		if (animHeader.isTag(GS_MAKE_ID('A','H','D','R')) == false) {
 			error(GS_THIS, "This is not an ANIM SAN file! Missing ANHD tag got %s!", animHeader.tagStr());
 			abort_quit_stop();
 			return;
 		}
-
-		debug(GS_THIS, "File Pos = %ld, Length = %ld",  _diskReader.pos(), animHeader.length);
+#endif
 
 		_diskReader.skip(2);
 		_frameCount = _diskReader.readUInt16LE();
 		_diskReader.skip(2);
-
 		_readAndApplyPalette();
-
 		_diskReader.seekEndOf(animHeader);
-
-		debug(GS_THIS, "Opened Codec %ld Frames", _frameCount);
 	}
 
 	Codec::~Codec() {
@@ -67,15 +65,68 @@ namespace gs
 
 		TagPair frme = _diskReader.readSanTagPair();
 
+#if defined(GS_CHECKED) && GS_CHECKED == 1
 		if (frme.isTag(GS_MAKE_ID('F','R','M','E')) == false) {
 			error(GS_THIS, "This is not an ANIM SAN file! Missing FRME tag got %s!", frme.tagStr());
 			abort_quit_stop();
 		}
+#endif
 
-		debug(GS_THIS, "File Position = %ld, Length = %ld", frme.dataPos, frme.length);
+		while(_diskReader.pos() < frme.end()) {
+			TagPair tag = _diskReader.readSanTagPair();
+
+			// There is inconsistencies between the header length and the actual data written.
+			// It seems that the length should be to the nearest 2, but there are cases when this is
+			// not the case. This seems to fix it.
+
+			uint32 length = tag.length;
+			if ((length & 1)) {
+				length++;
+			}
+
+			if (tag.isTag(GS_MAKE_ID('N','P','A','L'))) {
+				_readAndApplyPalette();
+				continue;
+			}
+
+			if (tag.isTag(GS_MAKE_ID('I','A','C','T'))) {
+				_diskReader.skip(length);
+				continue;
+			}
+
+			if (tag.isTag(GS_MAKE_ID('F','O','B','J'))) {
+				_diskReader.skip(length);
+				continue;
+			}
+
+			if (tag.isTag(GS_MAKE_ID('X','P','A','L'))) {
+				_diskReader.skip(length);
+				continue;
+			}
+
+			if (tag.isTag(GS_MAKE_ID('T','E','X','T'))) {
+				_diskReader.skip(length);
+				continue;
+			}
+
+			if (tag.isTag(GS_MAKE_ID('S','T','O','R'))) {
+				_diskReader.skip(length);
+				continue;
+			}
+
+			if (tag.isTag(GS_MAKE_ID('F','T','C','H'))) {
+				_diskReader.skip(length);
+				continue;
+			}
+
+			error(GS_THIS, "Unhandled tag %s", tag.tagStr());
+			abort_quit_stop();
+			_frameNum = _frameCount;
+			return -1;
+		}
 
 
-		_diskReader.seekEndOf(frme);
+		_diskReader.seek(frme.dataPos + frme.length);
 		_frameNum++;
 
 		if (_frameNum == _frameCount) {

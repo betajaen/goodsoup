@@ -105,8 +105,6 @@ namespace gs
 			_videoFrameCounter++;
 			_waitFrames--;
 
-			debug(GS_THIS, "Video Frame %ld", _videoFrameCounter);
-
 			if (_waitFrames <= 0) {
 				int32 frames = _codec->presentFrame();
 				if (frames < 0) {
