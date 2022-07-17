@@ -509,7 +509,6 @@ namespace gs
 	}
 
 	void VirtualMachine::_beginCutscene(VmContext& context, uint16 stackListCount) {
-		debug(GS_THIS, "Starting Cutscene");
 		context._cutsceneOverride++;
 		_cutscenes._stackSize++;
 
@@ -519,9 +518,6 @@ namespace gs
 		cutsceneItem._pc = 0;
 
 		_cutscenes._contextIndex = context._indexNum;
-
-		debug(GS_THIS, "Cutscene script Context=%ld Script=%ld",
-			  _cutscenes._contextIndex, INTS->cutsceneStartScript);
 
 		if (INTS->cutsceneStartScript != 0) {
 			runScript(INTS->cutsceneStartScript, false, false, STACK.getList(), stackListCount);
@@ -556,9 +552,6 @@ namespace gs
 		if (INTS->cutsceneEndScript != 0) {
 			runScript(INTS->cutsceneEndScript, false, false, &arg, 1);
 		}
-
-		debug(GS_THIS, "End Cutscene");
-
 	}
 
 	void VirtualMachine::_beginOverride(VmContext& context) {
@@ -595,7 +588,6 @@ namespace gs
 				context._delay -= delta;
 
 				if (context._delay <= 0) {
-					debug(GS_THIS, "*** End Delay %ld", (uint32) context._scriptNum);
 					context._state = SCS_Running;
 					context._delay = 0;
 				}

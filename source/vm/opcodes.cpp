@@ -547,21 +547,18 @@ namespace gs
 			}
 			return;
 			case OP_delay: {
-				debug(GS_THIS, "*** DELAY1 %ld", (uint32) _scriptNum);
 				_delay = STACK.pop();
 				_state = SCS_Paused;
 				VM->_break();
 			}
 			return;
 			case OP_delaySeconds: {
-				debug(GS_THIS, "*** DELAY2 %ld", (uint32) _scriptNum);
 				_delay = STACK.pop() * 60;
 				_state = SCS_Paused;
 				VM->_break();
 			}
 			return;
 			case OP_delayMinutes: {
-				debug(GS_THIS, "*** DELAY3 %ld", (uint32) _scriptNum);
 				_delay = STACK.pop() * 3600;
 				_state = SCS_Paused;
 				VM->_break();
