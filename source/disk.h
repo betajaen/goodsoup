@@ -150,6 +150,12 @@ namespace gs
 			byte* tag = (byte*) &pair.tag;
 			_file.readBytes(tag, 4);
 			pair.length = _file.readUInt32BE();
+
+			// Round up to nearest even number.
+			if (pair.length & 1) {
+				pair.length++;
+			}
+
 			pair.dataPos = _file.pos();
 			return pair;
 		}
