@@ -70,6 +70,7 @@ namespace gs
 	int32 MOUSE_LMB_STATE;
 	int32 MOUSE_RMB_STATE;
 	uint8 KEY_EVENT;
+	bool FAST_MODE;
 
 	void cleanup() {
 		closeTables();
@@ -97,6 +98,11 @@ namespace gs
             return 1;
         }
 
+#if GS_FRAME_DELAY == 1
+		FAST_MODE = 0;
+#else
+		FAST_MODE = 1;
+#endif
 		debug_write_str(GOODSOUP_VERSION_STR);
 		debug_write_char('\n');
 
@@ -292,6 +298,7 @@ namespace gs
 			}
 			break;
 			case GSK_Video: {
+				FAST_MODE = 0;
 				videoFrameHander(newState, GAME_STATE_PARAM);
 			}
 			break;

@@ -52,6 +52,7 @@ namespace gs
 
 	extern bool DEBUG_STOP_AFTER_FRAMES;
 	extern int32 DEBUG_STOP_AFTER_FRAMES_COUNT;
+	extern bool FAST_MODE;
 }
 
 #endif

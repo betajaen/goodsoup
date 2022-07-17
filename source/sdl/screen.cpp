@@ -132,9 +132,9 @@ namespace gs
 
 		while (SCREEN_EVENT_HANDLER_SHOULD_QUIT == false) {
 
-#if GS_FRAME_DELAY == 1
-			SDL_Delay(GS_FRAME_DELAY_MSEC);
-#endif
+			if (FAST_MODE == 0) {
+				SDL_Delay(GS_FRAME_DELAY_MSEC);
+			}
 
 			bool step = false;
 
