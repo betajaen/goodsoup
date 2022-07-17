@@ -41,6 +41,10 @@ namespace gs
 	}
 
 	inline void setNextGameState(uint8 state, int32 param) {
+
+		if (NEXT_GAME_STATE == GSK_Quit)
+			return;
+
 		NEXT_GAME_STATE = state;
 		NEXT_GAME_STATE_PARAM = param;
 	}
