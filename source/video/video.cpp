@@ -83,7 +83,7 @@ namespace gs
 
 			debug(GS_THIS, "Video Frame %ld", _videoFrameCounter);
 
-			if (_videoFrameCounter >= 25 * 30) {
+			if (_videoFrameCounter >= 25 * 5) {
 				_videoStateKind = VSK_Stopped;
 			}
 
