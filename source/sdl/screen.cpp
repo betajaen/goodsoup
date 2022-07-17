@@ -168,6 +168,10 @@ namespace gs
 						if (event.key.keysym.sym == SDLK_o) {
 							KEY_EVENT = KE_DebugDumpVerbs;
 						}
+
+						if (event.key.keysym.sym == SDLK_f) {
+							FAST_MODE = !FAST_MODE;
+						}
 					}
 					break;
 					case SDL_MOUSEMOTION: {
