@@ -132,12 +132,12 @@ namespace gs
 		CURRENT_CONTEXT = NO_CONTEXT;
 
 		for (uint8 i = 0; i < MAX_SCRIPT_CONTEXTS; i++) {
-			ScriptContext& context = _contextAllocator.get_unchecked(i);
+			VmContext& context = _contextAllocator.get_unchecked(i);
 			context._bIsExecuted = false;
 		}
 
 		for (uint8 i = 0; i < MAX_SCRIPT_CONTEXTS; i++) {
-			ScriptContext& context = _contextAllocator.get_unchecked(i);
+			VmContext& context = _contextAllocator.get_unchecked(i);
 			if (context._state == SCS_Running && context._bIsExecuted == false) {
 				CURRENT_CONTEXT = i;
 				context.run();
@@ -164,7 +164,7 @@ namespace gs
 			_stopScript(scriptNum);
 		}
 
-		ScriptContext& context = _contextAllocator.acquire();
+		VmContext& context = _contextAllocator.acquire();
 
 		if (QUIT_NOW)
 			return;
@@ -207,7 +207,7 @@ namespace gs
 			_stopObjectScript(objectNum);
 		}
 
-		ScriptContext& context = _contextAllocator.acquire();
+		VmContext& context = _contextAllocator.acquire();
 
 		if (QUIT_NOW)
 			return;
@@ -235,7 +235,7 @@ namespace gs
 		}
 #endif
 
-		ScriptContext& context = _contextAllocator.acquire();
+		VmContext& context = _contextAllocator.acquire();
 
 		if (QUIT_NOW)
 			return;
@@ -265,7 +265,7 @@ namespace gs
 		}
 #endif
 
-		ScriptContext& context = _contextAllocator.acquire();
+		VmContext& context = _contextAllocator.acquire();
 
 		if (QUIT_NOW)
 			return;
@@ -296,7 +296,7 @@ namespace gs
 		uint8 contextIndex = NO_CONTEXT;
 
 		for (uint8 i = 0; i < MAX_SCRIPT_CONTEXTS; i++) {
-			ScriptContext& context = _contextAllocator.get_unchecked(i);
+			VmContext& context = _contextAllocator.get_unchecked(i);
 
 			if (context._scriptNum == scriptNum && 
 				context._isDead() == false &&
@@ -344,7 +344,7 @@ namespace gs
 		uint8 contextIndex = NO_CONTEXT;
 
 		for (uint8 i = 0; i < MAX_SCRIPT_CONTEXTS; i++) {
-			ScriptContext& context = _contextAllocator.get_unchecked(i);
+			VmContext& context = _contextAllocator.get_unchecked(i);
 
 			if (context._scriptNum == scriptNum && 
 				context._isDead() == false &&
@@ -384,7 +384,7 @@ namespace gs
 
 	void VirtualMachine::freezeScripts(uint16 flags) {
 		for (uint8 i = 0; i < MAX_SCRIPT_CONTEXTS; i++) {
-			ScriptContext& context = _contextAllocator.get_unchecked(i);
+			VmContext& context = _contextAllocator.get_unchecked(i);
 
 			if (CURRENT_CONTEXT != i && context._isDead() == false && (!context._bFreezeResistant  || flags >= 0x80)) {
 				context._freeze();
@@ -395,7 +395,7 @@ namespace gs
 
 		if (_cutscenes._contextIndex != 0xFF) {
 			bool hasCutSceneContext;
-			ScriptContext& cutSceneContext = _contextAllocator.get(_cutscenes._contextIndex, hasCutSceneContext);
+			VmContext& cutSceneContext = _contextAllocator.get(_cutscenes._contextIndex, hasCutSceneContext);
 
 			if (hasCutSceneContext) {
 				cutSceneContext._unfreezeAll();
@@ -406,7 +406,7 @@ namespace gs
 
 	void VirtualMachine::freezeAll() {
 		for (uint8 i = 0; i < MAX_SCRIPT_CONTEXTS; i++) {
-			ScriptContext& context = _contextAllocator.get_unchecked(i);
+			VmContext& context = _contextAllocator.get_unchecked(i);
 
 			if (i == CURRENT_CONTEXT)
 				continue;
@@ -424,7 +424,7 @@ namespace gs
 
 		if (_cutscenes._contextIndex != 0xFF) {
 			bool hasCutSceneContext;
-			ScriptContext& cutSceneContext = _contextAllocator.get(_cutscenes._contextIndex, hasCutSceneContext);
+			VmContext& cutSceneContext = _contextAllocator.get(_cutscenes._contextIndex, hasCutSceneContext);
 
 			if (hasCutSceneContext) {
 				cutSceneContext._unfreezeAll();
@@ -434,7 +434,7 @@ namespace gs
 
 	void VirtualMachine::unfreezeAll() {
 		for (uint8 i = 0; i < MAX_SCRIPT_CONTEXTS; i++) {
-			ScriptContext& context = _contextAllocator.get_unchecked(i);
+			VmContext& context = _contextAllocator.get_unchecked(i);
 
 			if (i == CURRENT_CONTEXT)
 				continue;
@@ -452,7 +452,7 @@ namespace gs
 	bool VirtualMachine::isScriptRunning(uint16 scriptNum) {
 		
 		for (uint8 i = 0; i < MAX_SCRIPT_CONTEXTS; i++) {
-			ScriptContext& context = _contextAllocator.get_unchecked(i);
+			VmContext& context = _contextAllocator.get_unchecked(i);
 
 			if (context._scriptNum == scriptNum && 
 				context._isDead() == false &&
@@ -472,7 +472,7 @@ namespace gs
 	bool VirtualMachine::isRoomScriptRunning(uint16 scriptNum) {
 		
 		for (uint8 i = 0; i < MAX_SCRIPT_CONTEXTS; i++) {
-			ScriptContext& context = _contextAllocator.get_unchecked(i);
+			VmContext& context = _contextAllocator.get_unchecked(i);
 
 			if (context._scriptNum == scriptNum && 
 				context._isDead() == false &&
@@ -487,7 +487,7 @@ namespace gs
 		return false;
 	}
 
-	void VirtualMachine::_pushAndRunScript(ScriptContext &context) {
+	void VirtualMachine::_pushAndRunScript(VmContext &context) {
 
 		_contextStackNewNew.push(context._indexNum);
 		CURRENT_CONTEXT = context._indexNum;
@@ -507,7 +507,7 @@ namespace gs
 
 	}
 
-	void VirtualMachine::_beginCutscene(ScriptContext& context, uint16 stackListCount) {
+	void VirtualMachine::_beginCutscene(VmContext& context, uint16 stackListCount) {
 		debug(GS_THIS, "Starting Cutscene");
 		context._cutsceneOverride++;
 		_cutscenes._stackSize++;
@@ -530,7 +530,7 @@ namespace gs
 
 	}
 
-	void VirtualMachine::_endCutscene(ScriptContext& context) {
+	void VirtualMachine::_endCutscene(VmContext& context) {
 
 		if (context._cutsceneOverride > 0) {
 			context._cutsceneOverride--;
@@ -560,7 +560,7 @@ namespace gs
 
 	}
 
-	void VirtualMachine::_beginOverride(ScriptContext& context) {
+	void VirtualMachine::_beginOverride(VmContext& context) {
 		CutsceneScriptStackItem& cutsceneItem = _cutscenes._items[_cutscenes._stackSize];
 		cutsceneItem._context = context._indexNum;
 		cutsceneItem._pc = context._pc;
@@ -572,7 +572,7 @@ namespace gs
 		INTS->override_ = 0;
 	}
 
-	void VirtualMachine::_endOverride(ScriptContext& context) {
+	void VirtualMachine::_endOverride(VmContext& context) {
 		CutsceneScriptStackItem& cutsceneItem = _cutscenes._items[_cutscenes._stackSize];
 		cutsceneItem._context = 0;
 		cutsceneItem._pc = 0;
@@ -588,7 +588,7 @@ namespace gs
 		/* TODO: Talk Delay */
 
 		for (uint8 i = 0; i < MAX_SCRIPT_CONTEXTS; i++) {
-			ScriptContext &context = _contextAllocator.get_unchecked(i);
+			VmContext &context = _contextAllocator.get_unchecked(i);
 
 			if (context._state == SCS_Paused) {
 				context._delay -= delta;
@@ -616,7 +616,7 @@ namespace gs
 				continue;
 
 			bool hasContext;
-			ScriptContext& context = _contextAllocator.get(contextIdx, hasContext);
+			VmContext& context = _contextAllocator.get(contextIdx, hasContext);
 
 			if (hasContext) {
 				debug(GS_THIS, "[Context Stack, %ld] %ld => %ld", i, contextIdx, context._scriptNum, ObjectWhereToString(context._scriptWhere));
@@ -627,7 +627,7 @@ namespace gs
 		}
 
 		for(uint8 i=0;i < MAX_SCRIPT_CONTEXTS;i++) {
-			ScriptContext& context = _contextAllocator.get_unchecked(i);
+			VmContext& context = _contextAllocator.get_unchecked(i);
 
 			if (context._scriptNum == 0)
 				continue;
@@ -655,7 +655,7 @@ namespace gs
 
 	void VirtualMachine::unloadAllRoomScripts() {
 		for (uint8 i = 0; i < MAX_SCRIPT_CONTEXTS; i++) {
-			ScriptContext& context = _contextAllocator.get_unchecked(i);
+			VmContext& context = _contextAllocator.get_unchecked(i);
 			const uint8 where = context._scriptWhere;
 
 			if (where == OW_Room || where == OW_FLObject || where == OW_Local) {

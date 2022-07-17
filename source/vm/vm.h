@@ -59,7 +59,7 @@ namespace gs
 	private:
 
 		OpcodeSpan						_nullScript;
-		ScriptContextAllocator			_contextAllocator;
+		VmContextAllocator			_contextAllocator;
 		Stack<uint8, uint8, MAX_CONTEXT_STACK_SIZE>				_contextStackNewNew;
 		uint8							_contextStackNew[MAX_CONTEXT_STACK_SIZE];
 		uint8                           _contextStackNewSize;
@@ -68,7 +68,7 @@ namespace gs
 		byte							_opcode;
 
 
-		void _pushAndRunScript(ScriptContext& context);
+		void _pushAndRunScript(VmContext& context);
 		void _stopObjectScript(uint16 scriptNum);
 		void _runExitScript();
 		void _runEnterScript();
@@ -113,13 +113,13 @@ namespace gs
 
 		void _break();
 
-		void _beginCutscene(ScriptContext& context, uint16 stackListCount);
+		void _beginCutscene(VmContext& context, uint16 stackListCount);
 
-		void _endCutscene(ScriptContext& context);
+		void _endCutscene(VmContext& context);
 
-		void _beginOverride(ScriptContext& context);
+		void _beginOverride(VmContext& context);
 
-		void _endOverride(ScriptContext& context);
+		void _endOverride(VmContext& context);
 
 		void _stopScript(uint16 scriptNum);
 

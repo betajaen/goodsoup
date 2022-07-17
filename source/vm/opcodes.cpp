@@ -60,7 +60,7 @@ namespace gs
 		} while(0);
 #endif
 
-	void ScriptContext::_step() {
+	void VmContext::_step() {
 		uint8 _opcode = _readByte();
 
 #if defined(GS_VM_DEBUG) && GS_VM_DEBUG==1

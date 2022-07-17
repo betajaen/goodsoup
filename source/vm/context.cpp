@@ -32,23 +32,23 @@
 
 namespace gs {
 
-	ScriptContextAllocator::ScriptContextAllocator() {
+	VmContextAllocator::VmContextAllocator() {
 		clear();
 	}
 
-	ScriptContextAllocator::~ScriptContextAllocator() {
+	VmContextAllocator::~VmContextAllocator() {
 	}
 
-	void ScriptContextAllocator::clear() {
+	void VmContextAllocator::clear() {
 		for(uint8 i=0;i < MAX_SCRIPT_CONTEXTS+1;i++) {
 			_contexts[i]._reset();
 			_contexts[i]._indexNum = i;
 		}
 	}
 
-	ScriptContext& ScriptContextAllocator::acquire() {
+	VmContext& VmContextAllocator::acquire() {
 		for(uint8 i=0;i < MAX_SCRIPT_CONTEXTS;i++) {
-			ScriptContext& context = _contexts[i];
+			VmContext& context = _contexts[i];
 			if (context._isDead()) {
 				context._reset();
 				return context;
@@ -61,19 +61,19 @@ namespace gs {
 	}
 
 
-	byte ScriptContext::_readByte() {
+	byte VmContext::_readByte() {
 		byte value = _script.get_unchecked(_pc++);
 		return value;
 	}
 
-	int32 ScriptContext::_readWord() {
+	int32 VmContext::_readWord() {
 		int32 value = *( (int32*) _script.ptr(_pc));
 		value = FROM_LE_32(value);
 		_pc += 4;
 		return value;
 	}
 
-	uint32 ScriptContext::_readUnsignedWord() {
+	uint32 VmContext::_readUnsignedWord() {
 
 		uint32 value = *((uint32*) _script.ptr(_pc));
 		value = FROM_LE_32(value);
@@ -81,7 +81,7 @@ namespace gs {
 		return value;
 	}
 
-	int32 ScriptContext::_readSignedWord() {
+	int32 VmContext::_readSignedWord() {
 
 		int32 value = *((int32*) _script.ptr(_pc));
 		value = FROM_LE_32(value);
@@ -89,7 +89,7 @@ namespace gs {
 		return value;
 	}
 
-	void ScriptContext::_readStringLength(uint16& from, uint16& len) {
+	void VmContext::_readStringLength(uint16& from, uint16& len) {
 		len = 0;
 		from = _pc;
 		while (true) {
@@ -109,7 +109,7 @@ namespace gs {
 		}
 	}
 
-	void ScriptContext::_readBytesForArray() {
+	void VmContext::_readBytesForArray() {
 
 		Array<byte, uint16>& _arrayTemp = VM->_arrayTemp;
 
@@ -135,7 +135,7 @@ namespace gs {
 
 	}
 
-	void ScriptContext::_decodeParseString(uint8 m, uint8 n) {
+	void VmContext::_decodeParseString(uint8 m, uint8 n) {
 		byte subOp = _readByte();
 
 		/* TODO */
@@ -192,11 +192,11 @@ namespace gs {
 
 	}
 
-	void ScriptContext::_actorSay(uint16 actorNum, uint16 length, uint16 offset) {
+	void VmContext::_actorSay(uint16 actorNum, uint16 length, uint16 offset) {
 		info(GS_THIS, "%s", _script.ptr(offset));
 	}
 
-	bool ScriptContext::_getScriptData() {
+	bool VmContext::_getScriptData() {
 
 		if (_bHasScript) {
 			return true;
@@ -273,13 +273,13 @@ namespace gs {
 		return false;
 	}
 
-	void ScriptContext::_forgetScriptData() {
+	void VmContext::_forgetScriptData() {
 		_script = OpcodeSpan();
 		_scriptReference.gcForget();
 		_bHasScript = false;
 	}
 
-	void ScriptContext::run() {
+	void VmContext::run() {
 
 		if (_bHasScript == false) {
 			if (_getScriptData() == false) {
@@ -316,13 +316,13 @@ namespace gs {
 		}
 	}
 
-	void ScriptContext::clearLocals() {
+	void VmContext::clearLocals() {
 		for (uint8 i = 0; i < NUM_INT_LOCALS; i++) {
 			_locals[i] = 0;
 		}
 	}
 
-	void ScriptContext::setVar(uint32 name, int32 value) {
+	void VmContext::setVar(uint32 name, int32 value) {
 
 		// Local Ints
 		if (name & 0x40000000) {
@@ -343,7 +343,7 @@ namespace gs {
 		setGlobalVar(name, value);
 	}
 
-	int32 ScriptContext::getVar(uint32 name) {
+	int32 VmContext::getVar(uint32 name) {
 
 		// Local Ints
 		if (name & 0x40000000) {
@@ -363,7 +363,7 @@ namespace gs {
 		return getGlobalVar(name);
 	}
 
-	void ScriptContext::copyIntoLocals(int32* values, uint8 numValues) {
+	void VmContext::copyIntoLocals(int32* values, uint8 numValues) {
 
 #if GS_CHECKED == 1
 		if (numValues >= NUM_INT_LOCALS) {
@@ -379,7 +379,7 @@ namespace gs {
 
 	}
 
-	void ScriptContext::_reset() {
+	void VmContext::_reset() {
 		_scriptNum = 0;
 		_verb = 0;
 		_scriptWhere = OW_NotFound;

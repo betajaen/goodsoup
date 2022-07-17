@@ -47,7 +47,7 @@ namespace gs
 		SCS_Frozen = 0x80
 	};
 
-	struct ScriptContext
+	struct VmContext
 	{
 		void _reset();
 
@@ -137,18 +137,18 @@ namespace gs
 
 	};
 
-	class ScriptContextAllocator {
-		ScriptContext _contexts[MAX_SCRIPT_CONTEXTS+1];
+	class VmContextAllocator {
+		VmContext _contexts[MAX_SCRIPT_CONTEXTS + 1];
 	public:
 
-		ScriptContextAllocator();
-		~ScriptContextAllocator();
+		VmContextAllocator();
+		~VmContextAllocator();
 
 		void clear();
 
-		ScriptContext& acquire();
+		VmContext& acquire();
 
-		ScriptContext& get(uint8 contextIdx, bool& out_hasContext) {
+		VmContext& get(uint8 contextIdx, bool& out_hasContext) {
 			if (contextIdx >= MAX_SCRIPT_CONTEXTS) {
 				out_hasContext = false;
 				return _contexts[MAX_SCRIPT_CONTEXTS];
@@ -157,7 +157,7 @@ namespace gs
 			return _contexts[contextIdx];
 		}
 
-		ScriptContext& get_unchecked(uint8 contextIdx) {
+		VmContext& get_unchecked(uint8 contextIdx) {
 			return _contexts[contextIdx];
 		}
 
