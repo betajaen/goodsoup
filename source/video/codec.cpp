@@ -23,6 +23,9 @@
 namespace gs
 {
 
+#define FOBJ_HDR_OP 0
+#define FOBJ_HDR_EXTENDED 2
+
 	Codec::Codec(DiskReader reader)
 		: _diskReader(reader), _frameNum(0)
 	{
@@ -62,6 +65,9 @@ namespace gs
 	}
 
 	void Codec::_readFrameObjectAndApply(const TagPair& fobj) {
+
+		uint8 header[19];
+
 		uint16 type = _diskReader.readUInt16LE();
 
 		if (type != 47) {
@@ -69,31 +75,24 @@ namespace gs
 			return;
 		}
 
-		uint16 x = _diskReader.readUInt16LE();
-		uint16 y = _diskReader.readUInt16LE();
+		_diskReader.skip(4);	// X,Y
 		uint16 w = _diskReader.readUInt16LE();
 		uint16 h = _diskReader.readUInt16LE();
 
-		_diskReader.skip(4);
+		_diskReader.skip(4);	// Unknown
 
+		uint16 seqNum = _diskReader.readUInt16LE();
 
-		_diskReader.skip(2);	// 0,1
-		uint8 op = _diskReader.readByte(); // 2
-		_diskReader.skip(1); // 3
-		uint8 extraHeader = _diskReader.readByte(); // 4
+		_diskReader.readBytes(&header, sizeof(header));
 
-		uint32 offset = 21;
-
-		if (extraHeader & 1) {
-			offset += 32896;
+		if (header[FOBJ_HDR_EXTENDED] & 1) {
+			_diskReader.skip(32896);
 		}
 
-		_diskReader.skip(offset);
-
-		debug(GS_THIS, "++ FOBJ %ld (%ld) %ld %ld %ld %ld ", type, (uint32) op, x, y, w, h);
+		debug(GS_THIS, "++ FOBJ %ld (%ld) %ld %ld ", type, (uint32) header[FOBJ_HDR_OP], w, h);
 
 		// "Keyframes" - just copy over as-is.
-		if (op == 0 && w == GS_SCREEN_WIDTH && h == GS_SCREEN_HEIGHT) {
+		if (header[FOBJ_HDR_OP] == 0 && w == GS_SCREEN_WIDTH && h == GS_SCREEN_HEIGHT) {
 			_diskReader.readBytes(&_tempFrame[0], GS_BITMAP_SIZE);
 			screenBlitCopy(&_tempFrame[0]);
 		}
@@ -115,7 +114,7 @@ namespace gs
 		while(_diskReader.pos() < frme.end()) {
 			TagPair tag = _diskReader.readSanTagPair();
 
-			debug(GS_THIS, "Frame %ld %s %ld", _frameNum, tag.tagStr(), tag.length);
+			//debug(GS_THIS, "Frame %ld %s %ld", _frameNum, tag.tagStr(), tag.length);
 
 			if (tag.isTag(GS_MAKE_ID('N','P','A','L'))) {
 				_readAndApplyPalette();
