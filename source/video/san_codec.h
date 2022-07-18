@@ -42,6 +42,7 @@ namespace gs
 		void _readAndApplyPalette();
 		void _readAndApplyDeltaPalette(const TagPair& xpal);
 		void _readFrameObjectAndApply(const TagPair& fobj);
+		void _readAndApplyText(const TagPair& text);
 
 	public:
 

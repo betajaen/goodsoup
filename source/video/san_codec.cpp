@@ -28,6 +28,8 @@ namespace gs
 #define FOBJ_HDR_EXTENDED 2
 #define FOBJ_HDR_BOMP_LENGTH 12
 
+	static Buffer<char, uint16> _tempText;
+
 	SanCodec::SanCodec(DiskReader reader)
 		: _diskReader(reader), _frameNum(0)
 	{
@@ -153,6 +155,25 @@ namespace gs
 		_diskReader.seekEndOf(fobj);
 	}
 
+	void SanCodec::_readAndApplyText(const TagPair& text) {
+		uint16 x = _diskReader.readUInt16LE();
+		uint16 y = _diskReader.readUInt16LE();
+		uint16 flags = _diskReader.readUInt16LE();
+		uint16 x0 = _diskReader.readUInt16LE();
+		uint16 y0 = _diskReader.readUInt16LE();
+		uint16 right = _diskReader.readUInt16LE();
+
+		_diskReader.skip(4);
+		uint16 length = text.length - 16;
+
+		if (_tempText.getSize() < length) {
+			_tempText.setSize(8 + length);
+		}
+
+		_diskReader.readBytes(_tempText.ptr(0), length);
+		info(GS_THIS, "Subtitles: %s", _tempText.ptr(0));
+	}
+
 	int32 SanCodec::presentFrame() {
 
 		TagPair frme = _diskReader.readSanTagPair();
@@ -190,7 +211,7 @@ namespace gs
 			}
 
 			if (tag.isTag(GS_MAKE_ID('T','E','X','T'))) {
-				_diskReader.skip(tag.length);
+				_readAndApplyText(tag);
 				continue;
 			}
 
