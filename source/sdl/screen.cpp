@@ -348,6 +348,10 @@ namespace gs
 		sSurfaceDirty = true;
 	}
 
+	void screenBlitBitmap(uint32 dstX, uint32 dstY, uint32 srcW, uint32 srcH, byte* bitmap) {
+		_blitBitmap(dstX, dstY, srcW, srcH, bitmap);
+	}
+
 	void screenBlitImage(uint32 x, uint32 y, ImageData* image) {
 		_blitBitmap(x, y, image->_width, image->_height, image->_bitmap);
 	}

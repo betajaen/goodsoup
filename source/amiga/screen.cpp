@@ -433,7 +433,8 @@ namespace gs
 	}
 
 
-	void screenBlitBitmap(uint32 x, uint32 y, uint32 w, uint32 h, uint32 len, byte*) {
+	void screenBlitBitmap(uint32 dstX, uint32 dstY, uint32 srcW, uint32 srcH, byte* bitmap) {
+		WritePixelArray(bitmap, 0, 0, srcW, &sRastPort, dstX, dstY, srcW, srcH, RECTFMT_LUT8);
 	}
 	
 	void screenBlitBitmapLine(uint16 y, byte* lineData) {

@@ -42,7 +42,7 @@ namespace gs
 
 	void screenDrawBox(uint8 colour, uint16 x, uint16 y, uint16 w, uint16 h);
 
-	void screenBlitBitmap(uint32 x, uint32 y, uint32 w, uint32 h, uint32 len, byte*);
+	void screenBlitBitmap(uint32 dstX, uint32 dstY, uint32 srcW, uint32 srcH, byte* bitmap);
 	void screenBlitBitmapLine(uint16 y, byte* lineData);
 	void screenBlitCopy(byte* srcBitmap);
 	void screenBlitImage(uint32 x, uint32 y, ImageData* image);
