@@ -41,6 +41,7 @@
 #include "image.h"
 #include "costume.h"
 #include "draw.h"
+#include "font.h"
 
 extern const char GOODSOUP_VERSION_STR[] = "$VER: goodsoup 0.5 (" __AMIGADATE__ ")";
 
@@ -74,6 +75,7 @@ namespace gs
 
 	void cleanup() {
 		closeTables();
+		deleteObject(FONT0);
 		deleteObject(VIDEO);
 		deleteObject(COSTUMES);
 		deleteObject(IMAGES);
@@ -103,6 +105,7 @@ namespace gs
 #else
 		FAST_MODE = 1;
 #endif
+
 		debug_write_str(GOODSOUP_VERSION_STR);
 		debug_write_char('\n');
 
@@ -141,10 +144,28 @@ namespace gs
 			return 1;
 		}
 
+		FONT0 = newObject<Font>(0);
+
+		if (NEXT_GAME_STATE == GSK_Quit) {
+			cleanup();
+			return 1;
+		}
+
 		RESOURCES = newObject<Resources>();
 		RESOURCES->open();
+
+		if (NEXT_GAME_STATE == GSK_Quit) {
+			cleanup();
+			return 1;
+		}
+
 		VM = newObject<VirtualMachine>();
 		VM->reset();
+
+		if (NEXT_GAME_STATE == GSK_Quit) {
+			cleanup();
+			return 1;
+		}
 
 		NEXT_GAME_STATE = GSK_Boot;
 		NEXT_GAME_STATE_PARAM = 1;
@@ -216,6 +237,23 @@ namespace gs
 
 		screenDrawBox(col++, 10, 10, 10, 10);
 
+		uint32 palX = 0;
+		uint32 palY = 0;
+		uint32 palIdx =0;
+		for (uint8 i=0;i < 16;i++) {
+			palX = 0;
+			for(uint8 j=0;j < 16;j++) {
+
+				screenDrawBox(palIdx, palX, palY, 8, 8);
+				palIdx++;
+				palX += 8;
+			}
+
+			palY += 8;
+		}
+
+		FONT0->drawText(50,40, "Hello World!");
+
 		DRAW_FLAGS = 0;
 
 		VM->processScriptDelays(1);
@@ -246,6 +284,21 @@ namespace gs
 	}
 
 	void videoFrameHander(bool start, int32 videoId) {
+
+		uint32 palX = 0;
+		uint32 palY = 0;
+		uint32 palIdx =0;
+		for (uint8 i=0;i < 16;i++) {
+			palX = 0;
+			for(uint8 j=0;j < 16;j++) {
+
+				screenDrawBox(palIdx, palX, palY, 8, 8);
+				palIdx++;
+				palX += 8;
+			}
+
+			palY += 8;
+		}
 
 		if (start) {
 			VIDEO->loadVideo(videoId);
