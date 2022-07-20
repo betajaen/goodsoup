@@ -15,15 +15,32 @@
  *
  */
 
-#ifndef GS_BOMP_H
-#define GS_BOMP_H
+#define GS_FILE_NAME "bomp"
 
-#include "types.h"
+#include "../types.h"
+#include "../debug.h"
 
 namespace gs
 {
-	void decodeBomp(byte* dst, byte* src, uint32 length);
+	void decodeBomp(byte* dst, byte* src, uint32 length) {
+		while(length) {
+			byte code = *src++;
+			byte num = (code >> 1) + 1;
+			if (num > length)
+				num = length;
+			length -= num;
+
+			if ((code & 1) != 0) {
+				byte colour = *src++;
+				for(uint16 i=0;i < num;i++) {
+					*dst++ = colour;
+				}
+			}
+			else {
+				for(uint16 i=0;i < num;i++) {
+					*dst++ = *src++;
+				}
+			}
+		}
+	}
 }
-
-
-#endif

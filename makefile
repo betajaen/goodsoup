@@ -101,7 +101,7 @@ OBJ +=	source/main_game.o\
 		source/video/video.o\
 		source/video/san_codec.o\
 		source/draw.o\
-		source/codecs.o\
+		source/codec/bomp.o\
 		source/font.o
 
 all: $(OBJ)

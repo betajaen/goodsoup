@@ -19,7 +19,8 @@
 
 #include "san_codec.h"
 #include "../screen.h"
-#include "../codecs.h"
+#include "../codecs/bomp.h"
+#include "../font.h"
 
 namespace gs
 {
@@ -171,7 +172,8 @@ namespace gs
 		}
 
 		_diskReader.readBytes(_tempText.ptr(0), length);
-		info(GS_THIS, "Subtitles: %s", _tempText.ptr(0));
+
+		FONT0->drawText(x, y, _tempText.ptr(0));
 	}
 
 	int32 SanCodec::presentFrame() {
