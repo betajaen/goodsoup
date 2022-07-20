@@ -36,11 +36,8 @@ namespace gs
 	SDL_Surface* sWindowSurface = NULL;
 	SDL_Surface* sSurface = NULL;
 	bool sSurfaceDirty = false;
-	bool sPaletteDirty = false;
-	SDL_Color sPalette[256];
-	SDL_Color sOriginalPalette[256];
-    bool quitNextFrame;
-
+	SDL_Palette* sSurfacePalette;
+	SDL_Color 	 sOriginalPalette[256];
 
 	static void _blitBitmap(uint32 x, uint32 y, uint32 w, uint32 h, byte* data) {
 
@@ -58,6 +55,7 @@ namespace gs
 
 		// TODO: Replace this with a re-usable SDL_Surface .
 		SDL_Surface* surface = SDL_CreateRGBSurfaceWithFormatFrom(data, w, h, 8, w, SDL_PIXELFORMAT_INDEX8);
+		SDL_SetSurfacePalette(surface, sSurfacePalette);
 		SDL_BlitSurface(surface, &srcRect, sSurface, &dstRect);
 		SDL_FreeSurface(surface);
 	}
@@ -70,18 +68,6 @@ namespace gs
 		if (sWindow) {
 			closeScreen();
 		}
-
-
-		for (uint16 i = 0; i < 256; i++) {
-			SDL_Color& colour = sPalette[i];
-			colour.r = 0;
-			colour.g = 255;
-			colour.b = 0;
-			colour.a = 255;
-		}
-
-		sPalette[0].g = 0;
-		sPaletteDirty = true;
 
 		sWindow = SDL_CreateWindow(GS_GAME_NAME, 
 			SDL_WINDOWPOS_CENTERED,
@@ -107,6 +93,9 @@ namespace gs
 			return false;
 		}
 
+		sSurfacePalette = SDL_AllocPalette(256);
+		SDL_SetSurfacePalette(sSurface, sSurfacePalette);
+
 		return true;
 	}
 
@@ -123,12 +112,14 @@ namespace gs
 			sWindow = NULL;
 		}
 
+		SDL_FreePalette(sSurfacePalette);
+
 		return true;
 	}
 	
 	void screenEventHandler() {
 		SDL_Event event;
-        quitNextFrame = false;
+        bool quitNextFrame = false;
 
 		while (SCREEN_EVENT_HANDLER_SHOULD_QUIT == false) {
 
@@ -167,6 +158,10 @@ namespace gs
 
 						if (event.key.keysym.sym == SDLK_o) {
 							KEY_EVENT = KE_DebugDumpVerbs;
+						}
+
+						if (event.key.keysym.sym == SDLK_ESCAPE) {
+							KEY_EVENT = KE_SkipCutscene;
 						}
 
 						if (event.key.keysym.sym == SDLK_f) {
@@ -217,12 +212,12 @@ namespace gs
 				}
 			}
 			
-			if (sPaletteDirty) {
-				sPaletteDirty  = false;
-				SDL_LockSurface(sSurface);
-				SDL_SetPaletteColors(sSurface->format->palette, sPalette, 0, 255);
-				SDL_UnlockSurface(sSurface);
-			}
+			// if (sPaletteDirty) {
+			// 	sPaletteDirty  = false;
+			// 	SDL_LockSurface(sSurface);
+			// 	SDL_SetPaletteColors(sSurface->format->palette, sPalette, 0, 255);
+			// 	SDL_UnlockSurface(sSurface);
+			// }
 
 			if (sSurfaceDirty) {
 				sSurfaceDirty = false;
@@ -282,77 +277,51 @@ namespace gs
 	
 	void screenSetPalette(RoomPaletteData* palette) {
 		uint8* rgb = &palette->palette[0];
+
 		for (uint16 i = 0; i < 256; i++) {
 			SDL_Color& dst = sOriginalPalette[i];
 			dst.r = *rgb++;
 			dst.g = *rgb++;
 			dst.b = *rgb++;
-			SDL_Color& copy = sPalette[i];
-			copy.r = dst.r;
-			copy.g = dst.g;
-			copy.b = dst.b;
 		}
-		sPaletteDirty = true;
+
+		SDL_SetPaletteColors(sSurfacePalette, &sOriginalPalette[0], 0, 256);
 	}
 
 	void screenResetPalette() {
-		for (uint16 i = 0; i < 256; i++) {
-			SDL_Color& dst = sPalette[i];
-			SDL_Color& src = sOriginalPalette[i];
-			dst.r = src.r;
-			dst.g = src.g;
-			dst.b = src.b;
-		}
-		sPaletteDirty = true;
+		SDL_SetPaletteColors(sSurfacePalette, &sOriginalPalette[0], 0, 256);
 	}
 
 	void screenScalePalette(uint8 from, uint8 to, uint8 redScale, uint8 greenScale, uint8 blueScale) {
+
 		for (uint16 i = from; i < to; i++) {
 			SDL_Color& original = sOriginalPalette[i];
-			SDL_Color& dest = sPalette[i];
-#if 0
-			dest.r = (original.r * redScale) / 255;
-			dest.g = (original.g * greenScale) / 255;
-			dest.b = (original.b * blueScale) / 255;
-#else
+			SDL_Color& dest = sSurfacePalette->colors[i];
 			dest.r = TABLE_DARKEN_PALETTE[(uint32) (original.r << 8) | redScale];
 			dest.g = TABLE_DARKEN_PALETTE[(uint32) (original.g << 8) | greenScale];
 			dest.b = TABLE_DARKEN_PALETTE[(uint32) (original.b << 8) | blueScale];
-#endif
 		}
-		sPaletteDirty = true;
+
+		sSurfacePalette->version++;
 	}
 
 	void screenBlitBitmapLine(uint16 y, byte* lineData) {
-		
-		SDL_LockSurface(sSurface);
-		uint8* dst = (uint8*) sSurface->pixels;
-		dst += y * sSurface->pitch;
-
-		SDL_memcpy(dst, lineData, GS_SCREEN_WIDTH);
-	
-		SDL_UnlockSurface(sSurface);
-
+		_blitBitmap(0, y, GS_BITMAP_PITCH, 1, lineData);
 		sSurfaceDirty = true;
 	}
 
 	void screenBlitCopy(byte* bitmap) {
-		
-		SDL_LockSurface(sSurface);
-		uint8* dst = (uint8*) sSurface->pixels;
-		
-		SDL_memcpy(dst, bitmap, GS_SCREEN_WIDTH * GS_SCREEN_HEIGHT);
-	
-		SDL_UnlockSurface(sSurface);
-
+		_blitBitmap(0, 0, GS_BITMAP_PITCH, GS_BITMAP_ROWS, bitmap);
 		sSurfaceDirty = true;
 	}
 
 	void screenBlitBitmap(uint32 dstX, uint32 dstY, uint32 srcW, uint32 srcH, byte* bitmap) {
 		_blitBitmap(dstX, dstY, srcW, srcH, bitmap);
+		sSurfaceDirty = true;
 	}
 
 	void screenBlitImage(uint32 x, uint32 y, ImageData* image) {
 		_blitBitmap(x, y, image->_width, image->_height, image->_bitmap);
+		sSurfaceDirty = true;
 	}
 }
