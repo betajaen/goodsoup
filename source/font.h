@@ -27,7 +27,7 @@ namespace gs
 
 	struct FontChar
 	{
-		uint16  _width, _height;
+		uint16  _width, _height, _size;
 		uint8  _bTransparent;
 		uint8  _reserved;
 		uint32 _offset;

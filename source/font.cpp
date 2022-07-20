@@ -117,11 +117,12 @@ namespace gs
 				tempDataSize = imgSize;
 			}
 
-			dataSize += width * height;
-
 			_chars[i]._width = width;
 			_chars[i]._height = height;
+			_chars[i]._size = width * height;
+			_chars[i]._offset = 0;
 
+			dataSize += _chars[i]._size;
 			reader.seekEndOf(fobj);
 		}
 
@@ -129,50 +130,59 @@ namespace gs
 		_tempCharBuffer.setSize(tempDataSize, MF_Clear);
 
 		uint32 dstOffset = 0;
-		_data.setSize(dataSize, 0);
+		_data.setSize(dataSize, MF_Clear);
+
+		for(uint32 i=0;i < _data.getSize();i++) {
+			_data.set_unchecked(i, 30);
+		}
 
 		reader.seekEndOf(animHeader);
 
-		for(uint16 i=0;i < _numChars;i++) {
+		for(uint16 i=0;i < _numChars-10;i++) {
 			TagPair frme = reader.readSanTagPair();
 			TagPair fobj = reader.readSanTagPair();
 
 			FontChar& fontChar = _chars[i];
 			reader.readBytes(_tempCharBuffer.ptr(0), fobj.length);
 
-			//debug(GS_THIS, "%ld Codec=%ld Width=%ld Height=%ld", i, _tempCharBuffer.get_unchecked(0), fontChar._width, fontChar._height);
-
 			if (_tempCharBuffer.get_unchecked(0) == 44) {
 
 				fontChar._offset = dstOffset;
 
 				byte* dst = _data.ptr(dstOffset);
-				byte* src = _tempCharBuffer.ptr(22);
-				uint32 srcLength = fobj.length - 22;
+				byte* src = _tempCharBuffer.ptr(14);
 
 				for(uint16 y=0;y < fontChar._height;y++) {
 
-					byte* x = dst;
-					byte* nextSrc = src + 2 + READ_LE_UINT16(src);
-					src+=2;
+					uint16 colLength =  READ_LE_INT16(src);
+					src += 2;
 
-					debug(GS_THIS, "Width = %ld, Y = %ld", fontChar._width, y);
+					if (colLength == 0) {
+						continue;
+					}
+
+					byte* x = dst;
+					byte* nextSrc = src + colLength;
 
 					int16 len = fontChar._width;
 
 					do {
 
-						int16 transparentLength = READ_LE_UINT16(src);
+						int16 transparentLength = READ_LE_INT16(src);
 						src += 2;
-						x += transparentLength;
+
 						len -= transparentLength;
 
-						if (transparentLength <= 0)
-							break;
+						if (transparentLength > 0) {
+							while (transparentLength--) {
+								*x = 0;    // Colour.
+								x++;
+							}
+						}
 
-
-						int16 matteLength = READ_LE_UINT16(src) + 1;
+						int16 matteLength = READ_LE_INT16(src) + 1;
 						src += 2;
+
 						len -= matteLength;
 
 						if (len < 0) {
@@ -181,20 +191,21 @@ namespace gs
 
 						src += matteLength;
 						while(matteLength--) {
-							*x++ = 50;	// Colour.
+							*x = 0xFF;	// Colour.
+							x++;
 						}
 
 
 
 					} while(len > 0);
 
-					x = dst + fontChar._width;
+					dst += fontChar._width;
 					src = nextSrc;
-				}
 
-				dstOffset = (dst - _data.ptr(0));
+				}
 			}
 
+			dstOffset += fontChar._size;
 		}
 
 	}
@@ -210,6 +221,8 @@ namespace gs
 			byte* fontData = _data.ptr(fontChar._offset);
 
 			screenBlitBitmap(x, y, fontChar._width, fontChar._height, fontData);
+
+			// debug(GS_THIS, "CH=%ld X=%ld Y=%ld W=%ld H=%ld OFF=%x", ch, x, y, fontChar._width, fontChar._height, fontChar._offset);
 
 			x += fontChar._width;
 		}
