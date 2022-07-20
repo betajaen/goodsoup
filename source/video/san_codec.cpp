@@ -174,6 +174,7 @@ namespace gs
 		_diskReader.readBytes(_tempText.ptr(0), length);
 
 		FONT0->drawText(x, y, _tempText.ptr(0));
+		drawSubtitles(x, y, _tempText.ptr(0));
 	}
 
 	int32 SanCodec::presentFrame() {

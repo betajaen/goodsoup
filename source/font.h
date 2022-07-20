@@ -35,13 +35,14 @@ namespace gs
 
 	class Font
 	{
-		uint16               _numChars;
-		Buffer<byte, uint32> _data;
-		FontChar 	 		 _chars[256];
 
 		void _readNutFont(DiskReader reader);
 
 	public:
+
+		uint16               _numChars;
+		Buffer<byte, uint32> _data;
+		FontChar 	 		 _chars[256];
 
 		Font(uint8 id);
 		~Font();
@@ -51,6 +52,7 @@ namespace gs
 
 	extern Font* FONT0;
 
+	void drawSubtitles(uint32 x, uint32 y, const char* text);
 }
 
 #endif

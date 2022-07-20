@@ -178,5 +178,59 @@ namespace gs
 		}
 	}
 
+	void drawSubtitles(uint32 x, uint32 y, const char* text) {
+		Font* font = FONT0;
+		bool skipSlash = false;
+		while(true) {
+
+			if (x > GS_BITMAP_PITCH || y > GS_BITMAP_ROWS)
+				return;
+
+			char ch = *text;
+			text++;
+
+			if (ch == 0)
+				return;
+
+			if (ch == '/') {
+
+				text++;
+
+				while(true) {
+					char ch = *text;
+					text++;
+
+					if (ch == 0)
+						return;
+
+					if (ch == '/') {
+						break;
+					}
+				}
+
+				continue;
+			}
+
+			if (ch == '^') {
+				ch = *text;
+				if (ch == 'f') {
+					text += 3;
+				}
+				else if (ch == 'c') {
+					text += 4 ;
+				}
+				continue;
+			}
+
+			FontChar& fontChar = font->_chars[ch];
+			byte* fontData = font->_data.ptr(fontChar._offset);
+
+			screenBlitBitmap(x, y, fontChar._width, fontChar._height, fontData);
+
+			x += fontChar._width;
+
+		}
+
+	}
 
 }
