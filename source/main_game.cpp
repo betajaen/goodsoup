@@ -193,48 +193,7 @@ namespace gs
         vmDebugRemark("frame");
 #endif
 
-		if (DEBUG_STOP_AFTER_FRAMES) {
-			DEBUG_STOP_AFTER_FRAMES_COUNT--;
-			if (DEBUG_STOP_AFTER_FRAMES_COUNT <= 0) {
-				setNextGameState(GSK_Quit, 0);
-				return;
-			}
-		}
-
-		FRAME_NUM++;
-
-		if (MOUSE_LMB_EVENT == 1) {
-			MOUSE_LMB_STATE = 1;
-			MOUSE_LMB_EVENT = 0;
-
-			INTS->leftbtnDown = 1;
-
-		}
-		else if (MOUSE_LMB_EVENT == -1) {
-			MOUSE_LMB_STATE = 0;
-			MOUSE_LMB_EVENT = 0;
-
-			INTS->leftbtnDown = 0;
-		}
-		else {
-			INTS->leftbtnDown = 0;
-		}
-
-		if (KEY_EVENT == KE_DebugDumpStack) {
-			VM->dumpStack();
-		}
-		else if (KEY_EVENT == KE_DebugDumpVerbs) {
-			VERBS->dumpVerbs();
-		}
-
-		KEY_EVENT = 0;
-
-		INTS->mouseX = MOUSE_X;
-		INTS->mouseY = MOUSE_Y;
-		INTS->virtMouseX = MOUSE_X;
-		INTS->virtMouseY = MOUSE_Y;
-		INTS->leftbtnHold = MOUSE_LMB_STATE;
-
+#if 0
 		screenDrawBox(col++, 10, 10, 10, 10);
 
 		uint32 palX = 0;
@@ -253,6 +212,7 @@ namespace gs
 		}
 
 		FONT0->drawText(50,40, "Hello World!");
+#endif
 
 		DRAW_FLAGS = 0;
 
@@ -285,6 +245,7 @@ namespace gs
 
 	void videoFrameHander(bool start, int32 videoId) {
 
+#if 0
 		uint32 palX = 0;
 		uint32 palY = 0;
 		uint32 palIdx =0;
@@ -299,6 +260,7 @@ namespace gs
 
 			palY += 8;
 		}
+#endif
 
 		if (start) {
 			VIDEO->loadVideo(videoId);
@@ -326,6 +288,48 @@ namespace gs
 			newState = true;
 		}
 
+
+		if (DEBUG_STOP_AFTER_FRAMES) {
+			DEBUG_STOP_AFTER_FRAMES_COUNT--;
+			if (DEBUG_STOP_AFTER_FRAMES_COUNT <= 0) {
+				setNextGameState(GSK_Quit, 0);
+				return;
+			}
+		}
+
+		FRAME_NUM++;
+
+		if (MOUSE_LMB_EVENT == 1) {
+			MOUSE_LMB_STATE = 1;
+			MOUSE_LMB_EVENT = 0;
+
+			INTS->leftbtnDown = 1;
+
+		} else if (MOUSE_LMB_EVENT == -1) {
+			MOUSE_LMB_STATE = 0;
+			MOUSE_LMB_EVENT = 0;
+
+			INTS->leftbtnDown = 0;
+		} else {
+			INTS->leftbtnDown = 0;
+		}
+
+		if (KEY_EVENT == KE_DebugDumpStack) {
+			VM->dumpStack();
+		} else if (KEY_EVENT == KE_DebugDumpVerbs) {
+			VERBS->dumpVerbs();
+		} else if (GAME_STATE == GSK_Video && KEY_EVENT == KE_SkipCutscene) {
+			setNextGameState(GSK_Room, 0);
+		}
+
+		KEY_EVENT = 0;
+
+		INTS->mouseX = MOUSE_X;
+		INTS->mouseY = MOUSE_Y;
+		INTS->virtMouseX = MOUSE_X;
+		INTS->virtMouseY = MOUSE_Y;
+		INTS->leftbtnHold = MOUSE_LMB_STATE;
+
 		switch(GAME_STATE) {
 			case GSK_Boot: {
 #if defined(GS_VM_DEBUG) && GS_VM_DEBUG==1
@@ -351,7 +355,6 @@ namespace gs
 			}
 			break;
 			case GSK_Video: {
-				FAST_MODE = 0;
 				videoFrameHander(newState, GAME_STATE_PARAM);
 			}
 			break;

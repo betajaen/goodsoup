@@ -28,7 +28,8 @@ namespace gs
 	enum KeyEvent {
 		KE_None = 0,
 		KE_DebugDumpStack = 1,
-		KE_DebugDumpVerbs = 2
+		KE_DebugDumpVerbs = 2,
+		KE_SkipCutscene = 3
 	};
 
 }
