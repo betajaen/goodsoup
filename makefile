@@ -101,7 +101,8 @@ OBJ +=	source/main_game.o\
 		source/video/video.o\
 		source/video/san_codec.o\
 		source/draw.o\
-		source/codec/bomp.o\
+		source/codecs/bomp.o\
+		source/codecs/nut.o\
 		source/font.o
 
 all: $(OBJ)
@@ -114,6 +115,7 @@ clean .IGNORE:
 	$(DELETE) source/*.o
 	$(DELETE) source/vm/*.o
 	$(DELETE) source/video/*.o
+	$(DELETE) source/codecs/*.o
 	$(DELETE) source/sdl/*.o
 	$(DELETE) source/amiga/*.o
 	$(DELETE) dist/monkey3

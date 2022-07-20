@@ -22,6 +22,8 @@
 #include "disk.h"
 #include "file.h"
 #include "screen.h"
+#include "codecs/nut.h"
+#include "profile.h"
 
 namespace gs
 {
@@ -146,66 +148,13 @@ namespace gs
 			reader.readBytes(_tempCharBuffer.ptr(0), fobj.length);
 
 			if (_tempCharBuffer.get_unchecked(0) == 44) {
-
 				fontChar._offset = dstOffset;
-
-				byte* dst = _data.ptr(dstOffset);
 				byte* src = _tempCharBuffer.ptr(14);
-
-				for(uint16 y=0;y < fontChar._height;y++) {
-
-					uint16 colLength =  READ_LE_INT16(src);
-					src += 2;
-
-					if (colLength == 0) {
-						continue;
-					}
-
-					byte* x = dst;
-					byte* nextSrc = src + colLength;
-
-					int16 len = fontChar._width;
-
-					do {
-
-						int16 transparentLength = READ_LE_INT16(src);
-						src += 2;
-
-						len -= transparentLength;
-
-						if (transparentLength > 0) {
-							while (transparentLength--) {
-								*x = 0;    // Colour.
-								x++;
-							}
-						}
-
-						int16 matteLength = READ_LE_INT16(src) + 1;
-						src += 2;
-
-						len -= matteLength;
-
-						if (len < 0) {
-							matteLength += len;
-						}
-
-						src += matteLength;
-						while(matteLength--) {
-							*x = 0xFF;	// Colour.
-							x++;
-						}
-
-
-
-					} while(len > 0);
-
-					dst += fontChar._width;
-					src = nextSrc;
-
-				}
+				decodeNutFrame44ToBitmap(src, _data.ptr(dstOffset), fontChar._width, fontChar._height);
 			}
 
 			dstOffset += fontChar._size;
+
 		}
 
 	}
@@ -217,12 +166,13 @@ namespace gs
 			if (ch == 0)
 				return;
 
+			if (x > GS_BITMAP_PITCH || y > GS_BITMAP_ROWS)
+				return;
+
 			FontChar& fontChar = _chars[ch];
 			byte* fontData = _data.ptr(fontChar._offset);
 
 			screenBlitBitmap(x, y, fontChar._width, fontChar._height, fontData);
-
-			// debug(GS_THIS, "CH=%ld X=%ld Y=%ld W=%ld H=%ld OFF=%x", ch, x, y, fontChar._width, fontChar._height, fontChar._offset);
 
 			x += fontChar._width;
 		}
