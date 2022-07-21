@@ -103,6 +103,7 @@ OBJ +=	source/main_game.o\
 		source/draw.o\
 		source/codecs/bomp.o\
 		source/codecs/nut.o\
+		source/codecs/rle.o\
 		source/font.o
 
 all: $(OBJ)
