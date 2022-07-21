@@ -70,27 +70,27 @@ namespace gs
 
 		uint8* d = dstData + x + (y * dstPitch);
 
-		srcData = drawRLEimpl(d, dstPitch, srcData + info._offsets[0], colours[0]);
-		          drawRLEimpl(d, dstPitch, srcData + info._offsets[1], colours[1]);
+		drawRLEimpl(d, dstPitch, srcData + info._offsets[0], colours[0]);
+		drawRLEimpl(d, dstPitch, srcData + info._offsets[1], colours[1]);
 	}
 
 	void drawRLEImage3(uint32 x, uint32 y, const RLEImage3& info, byte* srcData, byte* dstData, uint32 dstPitch, uint8 colours[3]) {
 
 		uint8* d = dstData + x + (y * dstPitch);
 
-		srcData = drawRLEimpl(d, dstPitch, srcData + info._offsets[0], colours[0]);
-		srcData = drawRLEimpl(d, dstPitch, srcData + info._offsets[1], colours[1]);
-		          drawRLEimpl(d, dstPitch, srcData + info._offsets[2], colours[2]);
+		drawRLEimpl(d, dstPitch, srcData + info._offsets[0], colours[0]);
+		drawRLEimpl(d, dstPitch, srcData + info._offsets[1], colours[1]);
+		drawRLEimpl(d, dstPitch, srcData + info._offsets[2], colours[2]);
 	}
 
 	void drawRLEImage4(uint32 x, uint32 y, const RLEImage4& info, byte* srcData, byte* dstData, uint32 dstPitch, uint8 colours[4]) {
 
 		uint8* d = dstData + x + (y * dstPitch);
 
-		srcData = drawRLEimpl(d, dstPitch, srcData + info._offsets[0], colours[0]);
-		srcData = drawRLEimpl(d, dstPitch, srcData + info._offsets[1], colours[1]);
-		srcData = drawRLEimpl(d, dstPitch, srcData + info._offsets[2], colours[2]);
-		          drawRLEimpl(d, dstPitch, srcData + info._offsets[3], colours[3]);
+		drawRLEimpl(d, dstPitch, srcData + info._offsets[0], colours[0]);
+		drawRLEimpl(d, dstPitch, srcData + info._offsets[1], colours[1]);
+		drawRLEimpl(d, dstPitch, srcData + info._offsets[2], colours[2]);
+		drawRLEimpl(d, dstPitch, srcData + info._offsets[3], colours[3]);
 	}
 
 }

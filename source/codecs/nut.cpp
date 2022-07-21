@@ -84,8 +84,9 @@ namespace gs
 		byte  *nextSrc, *x;
 		byte  *originalRleDst = rleDst;
 		byte  *originalTempGlyphBuffer = tempGlyphBuffer;
+		int8* writeRle = (int8*) rleDst;
 
-		byte histogram[256] = { 0 };
+		// byte histogram[256] = { 0 };
 
 		for(uint16 y=0;y < rle._height;y++) {
 
@@ -129,7 +130,7 @@ namespace gs
 												//				then & 1
 												//				it will be limited to 0..1
 												//
-					histogram[s & 0xFF] = 1;
+					// histogram[s & 0xFF] = 1;
 					*x= s;
 					x++;
 					nutSrc++;
@@ -142,21 +143,87 @@ namespace gs
 			nutSrc = nextSrc;
 		}
 
+		for(uint8 i=0;i < 2;i++) {
+			rle._offsets[i] = ((byte*)writeRle) - rleDst;
+
+			uint8 colourIdx = i + 1;
+			byte* img = originalTempGlyphBuffer;
+
+			for(uint16 y=0;y < rle._height;y++) {
+
+				uint8 count = 0;
+				uint8 type = 0;
+
+				for(uint16 x=0;x < rle._width;x++) {
+					uint8 thisType = (*img == colourIdx ? 1 : 0);
+					img++;
+
+					if (x == 0) {
+						count = 1;
+						type = thisType;
+						continue;
+					}
+
+					if (thisType == type) {
+						count++;
+						continue;
+					}
+
+
+					if (type == 0) {
+						*writeRle = -((int8) count);
+						writeRle++;
+					}
+					else {
+						*writeRle = (int8) count;
+						writeRle++;
+					}
+
+					count = 1;
+					type = thisType;
+				}
+
+				if (count > 0) {
+					if (type == 0) {
+						*writeRle = -((int8) count);
+						writeRle++;
+					}
+					else {
+						*writeRle = (int8) count;
+						writeRle++;
+					}
+				}
+
+				*writeRle = 0;
+				writeRle++;
+			}
+
+			*writeRle = -128;
+			writeRle++;
+		}
 
 #if 0
-		for(uint16 i=0;i < 256;i++) {
-			byte count = histogram[i];
-			if (count != 0) {
-				debug(GS_THIS, "[%i]", i);
-			}
-		}
+		// for(uint16 i=0;i < 256;i++) {
+		// 	byte count = histogram[i];
+		// 	if (count != 0) {
+		// 		debug(GS_THIS, "[%i]", i);
+		// 	}
+		// }
+
+		debug_write_char('\n');
+		debug_write_int(rle._width);
+		debug_write_char('x');
+		debug_write_int(rle._height);
+
+		debug_write_char('\n');
+
 
 		byte* dd = originalTempGlyphBuffer;
 		for(uint16 y=0;y < rle._height;y++) {
 			for (uint16 x=0;x < rle._width;x++) {
 				byte t = (*dd);
 				if (t == 0) {
-					debug_write_char(' ');
+					debug_write_char('.');
 				}
 				else {
 					debug_write_char('0' + t);
@@ -167,9 +234,20 @@ namespace gs
 			debug_write_char('\n');
 		}
 		debug_write_char('\n');
+
+		debug_write_char('\n');
+		int8* tv = (int8*) originalRleDst;
+
+		while(tv < writeRle) {
+			debug_write_int(*tv);
+			debug_write_char(' ');
+			tv++;
+		}
+
+		debug_write_char('\n');
 #endif
 
-		return rleDst - originalRleDst;
+		return ((byte*) writeRle) - originalRleDst;
 	}
 
 }

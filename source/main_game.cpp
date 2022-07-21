@@ -75,7 +75,11 @@ namespace gs
 
 	void cleanup() {
 		closeTables();
-		deleteObject(FONT0);
+		deleteObject(FONT[4]);
+		deleteObject(FONT[3]);
+		deleteObject(FONT[2]);
+		deleteObject(FONT[1]);
+		deleteObject(FONT[0]);
 		deleteObject(VIDEO);
 		deleteObject(COSTUMES);
 		deleteObject(IMAGES);
@@ -144,7 +148,11 @@ namespace gs
 			return 1;
 		}
 
-		FONT0 = newObject<Font>(0);
+		FONT[0] = newObject<Font>(0);
+		FONT[1] = newObject<Font>(1);
+		FONT[2] = newObject<Font>(2);
+		FONT[3] = newObject<Font>(3);
+		FONT[4] = newObject<Font>(4);
 
 		if (NEXT_GAME_STATE == GSK_Quit) {
 			cleanup();
@@ -193,7 +201,7 @@ namespace gs
         vmDebugRemark("frame");
 #endif
 
-#if 0
+#if 1
 		screenDrawBox(col++, 10, 10, 10, 10);
 
 		uint32 palX = 0;
@@ -211,7 +219,7 @@ namespace gs
 			palY += 8;
 		}
 
-		FONT0->drawText(50,40, "Hello World!");
+		FONT[0]->drawText(50,40, "Hello World!");
 #endif
 
 		DRAW_FLAGS = 0;

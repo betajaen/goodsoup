@@ -53,7 +53,7 @@ namespace gs
 		void drawText(uint32 x, uint32 y, const char* text);
 	};
 
-	extern Font* FONT0;
+	extern Font* FONT[5];
 
 	void drawSubtitles(uint32 x, uint32 y, const char* text);
 }
