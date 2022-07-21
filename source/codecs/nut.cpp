@@ -57,9 +57,7 @@ namespace gs
 				t = READ_LE_INT16(src) + 1;
 				src += 2;
 				len -= t;
-
-				debug(GS_THIS, "matte = %ld", t);
-
+				
 				if (len < 0) {
 					t += len;
 				}
