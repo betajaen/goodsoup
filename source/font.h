@@ -21,22 +21,25 @@
 #include "types.h"
 #include "buffer.h"
 #include "disk.h"
+#include "codecs/rle.h"
 
 namespace gs
 {
 
 	struct FontChar
 	{
-		uint16  _width, _height, _size;
-		uint8  _bTransparent;
-		uint8  _reserved;
+		RLEImage2 _rle;
+		uint32 _size;
 		uint32 _offset;
 	};
 
 	class Font
 	{
 
-		void _readNutFont(DiskReader reader);
+		void _readNut44(DiskReader reader);
+		void _readNutRLE2(DiskReader reader);
+
+		void _readNutFont(DiskReader reader, bool isRLE2);
 
 	public:
 

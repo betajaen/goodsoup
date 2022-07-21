@@ -19,6 +19,7 @@
 #define GS_NUT_H
 
 #include "../types.h"
+#include "rle.h"
 
 namespace gs
 {
@@ -26,6 +27,8 @@ namespace gs
 	// src should point to the 14th byte in the FRME data section.
 	// Return is number of bytes written to dst.
 	uint32 decodeNutFrame44ToBitmap(byte* src, byte* dst, uint16 width, uint16 height);
+
+	uint32 decodeNutFrame44ToRLE2(byte* src, byte* dst, RLEImage2& rle);
 }
 
 

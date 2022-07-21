@@ -20,6 +20,7 @@
 #include "../types.h"
 #include "../debug.h"
 #include "../endian.h"
+#include "rle.h"
 
 namespace gs
 {
@@ -57,7 +58,7 @@ namespace gs
 				t = READ_LE_INT16(src) + 1;
 				src += 2;
 				len -= t;
-				
+
 				if (len < 0) {
 					t += len;
 				}
@@ -72,6 +73,72 @@ namespace gs
 
 			dst += width;
 			src = nextSrc;
+		}
+
+		return dst - originalDst;
+	}
+
+	uint32 decodeNutFrame44ToRLE2(byte* src, byte* dst, RLEImage2& rle) {
+
+		int16 len, t;
+		byte  *nextSrc, *x;
+		byte  *originalDst = dst;
+
+		uint32 histogram[256] = { 0 };
+
+		for(uint16 y=0;y < rle._height;y++) {
+
+			t = READ_LE_UINT16(src);
+			src += 2;
+			nextSrc = src + t;
+
+			if (t == 0)
+				continue;
+
+			len = rle._width;
+			x = dst;
+
+			do {
+
+				// Offset
+				t = READ_LE_INT16(src);
+				src += 2;
+				len -= t;
+
+				if (len <= 0)
+					break;
+
+				x += t;
+
+				// Matte
+				t = READ_LE_INT16(src) + 1;
+				src += 2;
+				len -= t;
+
+				if (len < 0) {
+					t += len;
+				}
+
+
+				while(t--) {
+					*x= *src;
+					histogram[(*src) & 0xFF]++;
+					x++;
+					src++;
+				}
+
+			} while(len > 0);
+
+			dst += rle._width;
+			src = nextSrc;
+		}
+
+		for(uint16 i=0;i < 256;i++) {
+			uint16 count = histogram[i];
+
+			if (count > 0) {
+				debug(GS_THIS, "Histogram [%ld] => %ld", i, count);
+			}
 		}
 
 		return dst - originalDst;
