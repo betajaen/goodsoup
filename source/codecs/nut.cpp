@@ -78,31 +78,32 @@ namespace gs
 		return dst - originalDst;
 	}
 
-	uint32 decodeNutFrame44ToRLE2(byte* src, byte* dst, RLEImage2& rle) {
+	uint32 decodeNutFrame44ToRLE2(byte* nutSrc, byte* rleDst, byte* tempGlyphBuffer, RLEImage2& rle) {
 
-		int16 len, t;
+		int16 len, t, s;
 		byte  *nextSrc, *x;
-		byte  *originalDst = dst;
+		byte  *originalRleDst = rleDst;
+		byte  *originalTempGlyphBuffer = tempGlyphBuffer;
 
-		uint32 histogram[256] = { 0 };
+		byte histogram[256] = { 0 };
 
 		for(uint16 y=0;y < rle._height;y++) {
 
-			t = READ_LE_UINT16(src);
-			src += 2;
-			nextSrc = src + t;
+			t = READ_LE_UINT16(nutSrc);
+			nutSrc += 2;
+			nextSrc = nutSrc + t;
 
 			if (t == 0)
 				continue;
 
 			len = rle._width;
-			x = dst;
+			x = tempGlyphBuffer;
 
 			do {
 
 				// Offset
-				t = READ_LE_INT16(src);
-				src += 2;
+				t = READ_LE_INT16(nutSrc);
+				nutSrc += 2;
 				len -= t;
 
 				if (len <= 0)
@@ -111,8 +112,8 @@ namespace gs
 				x += t;
 
 				// Matte
-				t = READ_LE_INT16(src) + 1;
-				src += 2;
+				t = READ_LE_INT16(nutSrc) + 1;
+				nutSrc += 2;
 				len -= t;
 
 				if (len < 0) {
@@ -121,27 +122,54 @@ namespace gs
 
 
 				while(t--) {
-					*x= *src;
-					histogram[(*src) & 0xFF]++;
+					s = *nutSrc;
+					s = 1 + ((s - 0xE0) & 1);	// Colours seen are 0, 1, 224, 225
+												// So if you do:
+												//				x - 224
+												//				then & 1
+												//				it will be limited to 0..1
+												//
+					histogram[s & 0xFF] = 1;
+					*x= s;
 					x++;
-					src++;
+					nutSrc++;
 				}
 
 			} while(len > 0);
 
-			dst += rle._width;
-			src = nextSrc;
+
+			tempGlyphBuffer += rle._width;
+			nutSrc = nextSrc;
 		}
 
-		for(uint16 i=0;i < 256;i++) {
-			uint16 count = histogram[i];
 
-			if (count > 0) {
-				debug(GS_THIS, "Histogram [%ld] => %ld", i, count);
+#if 0
+		for(uint16 i=0;i < 256;i++) {
+			byte count = histogram[i];
+			if (count != 0) {
+				debug(GS_THIS, "[%i]", i);
 			}
 		}
 
-		return dst - originalDst;
+		byte* dd = originalTempGlyphBuffer;
+		for(uint16 y=0;y < rle._height;y++) {
+			for (uint16 x=0;x < rle._width;x++) {
+				byte t = (*dd);
+				if (t == 0) {
+					debug_write_char(' ');
+				}
+				else {
+					debug_write_char('0' + t);
+				}
+
+				dd++;
+			}
+			debug_write_char('\n');
+		}
+		debug_write_char('\n');
+#endif
+
+		return rleDst - originalRleDst;
 	}
 
 }
