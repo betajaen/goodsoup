@@ -47,6 +47,7 @@ namespace gs
 	void screenBlitCopy(byte* srcBitmap);
 	void screenBlitImage(uint32 x, uint32 y, ImageData* image);
 	void screenBlitRoomBackground(ReadSpan<byte, uint32>& data, uint32 width, uint32 height);
+	void screenGrab(uint32 x, uint32, uint32 w, uint32 h, byte* dest);
 
 }
 

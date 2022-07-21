@@ -449,4 +449,8 @@ namespace gs
 		WritePixelArray(image->_bitmap, 0, 0, image->_width, &sRastPort, x, y, image->_width, image->_height, RECTFMT_LUT8);
 	}
 
+	void screenGrab(uint32 x, uint32 y, uint32 w, uint32 h, byte* bitmap) {
+		ReadPixelArray(bitmap, 0, 0, w, &sRastPort, x, y, w, h, RECTFMT_LUT8);
+	}
+
 }

@@ -60,6 +60,26 @@ namespace gs
 		SDL_FreeSurface(surface);
 	}
 
+	static void _grabBitmap(uint32 x, uint32 y, uint32 w, uint32 h, byte* data) {
+
+		SDL_Rect srcRect;
+		srcRect.x = x;
+		srcRect.y = y;
+		srcRect.w = w;
+		srcRect.h = h;
+
+		SDL_Rect dstRect;
+		dstRect.x = 0;
+		dstRect.y = 0;
+		dstRect.w = w;
+		dstRect.h = h;
+
+		// TODO: Replace this with a re-usable SDL_Surface .
+		SDL_Surface* surface = SDL_CreateRGBSurfaceWithFormatFrom(data, w, h, 8, w, SDL_PIXELFORMAT_INDEX8);
+		SDL_SetSurfacePalette(surface, sSurfacePalette);
+		SDL_BlitSurface(sSurface, &srcRect, surface, &dstRect);
+		SDL_FreeSurface(surface);
+	}
 
 	bool closeScreen();
 
@@ -323,5 +343,9 @@ namespace gs
 	void screenBlitImage(uint32 x, uint32 y, ImageData* image) {
 		_blitBitmap(x, y, image->_width, image->_height, image->_bitmap);
 		sSurfaceDirty = true;
+	}
+
+	void screenGrab(uint32 x, uint32 y, uint32 w, uint32 h, byte* dest) {
+		_grabBitmap(x, y, w, h, dest);
 	}
 }
