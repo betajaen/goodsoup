@@ -40,7 +40,7 @@ namespace gs
 			return;
 		}
 
-		_readNutFont(DiskReader(file), false);
+		_readNutFont(DiskReader(file), true);
 	}
 
 	Font::~Font() {
@@ -209,6 +209,7 @@ namespace gs
 		uint32 tempDataSize = 0;
 
 		// Calculate data size.
+		uint32 largestWidth = 0, largestHeight = 0;
 
 		for(uint16 i=0;i < _numChars;i++) {
 
@@ -241,6 +242,14 @@ namespace gs
 				tempDataSize = imgSize;
 			}
 
+			if (largestWidth < width) {
+				largestWidth = width;
+			}
+
+			if (largestHeight < height) {
+				largestHeight = height;
+			}
+
 			_chars[i]._rle._width = width;
 			_chars[i]._rle._height = height;
 			_chars[i]._size = width * height;
@@ -254,11 +263,11 @@ namespace gs
 		_tempCharBuffer.setSize(tempDataSize, MF_Clear);
 
 		uint32 dstOffset = 0;
-		_data.setSize(dataSize, MF_Clear);
+		_data.setSize(dataSize);
 
-		for(uint32 i=0;i < _data.getSize();i++) {
-			_data.set_unchecked(i, 30);
-		}
+		Buffer<byte, uint16> _tempGlyphBuffer;
+		_tempGlyphBuffer.setSize(largestWidth * largestHeight);
+
 
 		reader.seekEndOf(animHeader);
 
@@ -272,13 +281,21 @@ namespace gs
 			if (_tempCharBuffer.get_unchecked(0) == 44) {
 				fontChar._offset = dstOffset;
 				byte* src = _tempCharBuffer.ptr(14);
-				decodeNutFrame44ToBitmap(src, _data.ptr(dstOffset), fontChar._rle._width, fontChar._rle._height);
-			}
+				uint32 originalDstOffset = dstOffset;
+				dstOffset += decodeNutFrame44ToRLE2(src, _data.ptr(dstOffset), _tempGlyphBuffer.ptr(0), fontChar._rle);
 
-			dstOffset += fontChar._size;
+				for(uint16 i=0;i < _tempGlyphBuffer.getSize();i++) {
+					_tempGlyphBuffer.set_unchecked(i, 0);
+				}
+
+				for(uint8 i=0;i < 2;i++) {
+					fontChar._rle._offsets[i] += originalDstOffset;
+				}
+			}
 
 		}
 
+		abort_quit_stop();
 	}
 
 	void Font::drawText(uint32 x, uint32 y, const char* text) {
