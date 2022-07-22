@@ -15,6 +15,8 @@
  *
  */
 
+#define SCALE 1
+
 #define GS_FILE_NAME "screen"
 
 #include "../types.h"
@@ -38,6 +40,7 @@ namespace gs
 	bool sSurfaceDirty = false;
 	SDL_Palette* sSurfacePalette;
 	SDL_Color 	 sOriginalPalette[256];
+	SDL_Surface* sTempSurface = NULL;
 
 	static void _blitBitmap(uint32 x, uint32 y, uint32 w, uint32 h, byte* data) {
 
@@ -92,8 +95,8 @@ namespace gs
 		sWindow = SDL_CreateWindow(GS_GAME_NAME, 
 			SDL_WINDOWPOS_CENTERED,
 			SDL_WINDOWPOS_CENTERED,
-			GS_SCREEN_WIDTH,
-			GS_SCREEN_HEIGHT,
+			GS_SCREEN_WIDTH * SCALE,
+			GS_SCREEN_HEIGHT * SCALE,
 			SDL_WINDOW_SHOWN
 		);
 
@@ -115,6 +118,8 @@ namespace gs
 
 		sSurfacePalette = SDL_AllocPalette(256);
 		SDL_SetSurfacePalette(sSurface, sSurfacePalette);
+
+		sTempSurface = SDL_CreateRGBSurface(0, GS_SCREEN_WIDTH, GS_SCREEN_HEIGHT, 24, 0,0,0,0);
 
 		return true;
 	}
@@ -190,13 +195,13 @@ namespace gs
 					}
 					break;
 					case SDL_MOUSEMOTION: {
-						MOUSE_X = event.motion.x;
-						MOUSE_Y = event.motion.y;
+						MOUSE_X = event.motion.x / SCALE;
+						MOUSE_Y = event.motion.y / SCALE;
 					}
 					break;
 					case SDL_MOUSEBUTTONUP: {
-						MOUSE_X = event.button.x;
-						MOUSE_Y = event.button.y;
+						MOUSE_X = event.button.x / SCALE;
+						MOUSE_Y = event.button.y / SCALE;
 
 						if (event.button.button == SDL_BUTTON_LEFT ) {
 							MOUSE_LMB_EVENT = -1;
@@ -207,8 +212,8 @@ namespace gs
 					}
 					break;
 					case SDL_MOUSEBUTTONDOWN: {
-						MOUSE_X = event.button.x;
-						MOUSE_Y = event.button.y;
+						MOUSE_X = event.button.x / SCALE;
+						MOUSE_Y = event.button.y / SCALE;
 
 						if (event.button.button == SDL_BUTTON_LEFT ) {
 							MOUSE_LMB_EVENT = 1;
@@ -241,7 +246,25 @@ namespace gs
 
 			if (sSurfaceDirty) {
 				sSurfaceDirty = false;
-				SDL_BlitSurface(sSurface, NULL, sWindowSurface, NULL);
+#if SCALE == 1
+	SDL_BlitSurface(sSurface, NULL, sWindowSurface, NULL);
+#else
+
+	SDL_Rect srcRect;
+	srcRect.x = 0;
+	srcRect.y = 0;
+	srcRect.w = GS_SCREEN_WIDTH;
+	srcRect.h = GS_SCREEN_HEIGHT;
+
+	SDL_Rect dstRect;
+	dstRect.x = 0;
+	dstRect.y = 0;
+	dstRect.w = GS_SCREEN_WIDTH * SCALE;
+	dstRect.h = GS_SCREEN_HEIGHT * SCALE;
+
+	SDL_BlitSurface(sSurface, NULL, sTempSurface, NULL);
+	SDL_BlitScaled(sTempSurface, &srcRect, sWindowSurface, &dstRect);
+#endif
 			}
 
 			SDL_UpdateWindowSurface(sWindow);
