@@ -347,7 +347,7 @@ namespace gs
 
 		uint8 colours[2] = {
 				0,
-				16
+				0xFF
 		};
 
 		debug(GS_THIS, "%s", text);
@@ -396,7 +396,7 @@ namespace gs
 					text += 3;
 				}
 				else if (ch == 'c') {
-					colours[1] = (text[2] - '0') * 10 + (text[3] - '0');
+					colours[1] = (text[2] - '0') + (text[3] - '0') * 10;
 					text += 4;
 				}
 				continue;
