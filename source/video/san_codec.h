@@ -36,8 +36,14 @@ namespace gs
 		RoomPaletteData _palette;
 
 		int16 _deltaPalette[768];
+		uint8 _currentBuffer;
+		uint8 _deltaBuffer[2];
+		uint16 _prevSequenceNum;
 		uint8 _tempBuffer[GS_BITMAP_SIZE];
-		uint8 _tempFrame[GS_BITMAP_SIZE];
+		uint8 _buffer[3][GS_BITMAP_SIZE];
+
+		void _copyBuffers(uint8 dst, uint8 src);
+		uint8* _getBuffer(uint8 idx);
 
 		void _readAndApplyPalette();
 		void _readAndApplyDeltaPalette(const TagPair& xpal);

@@ -21,15 +21,110 @@
 #include "../screen.h"
 #include "../codecs/bomp.h"
 #include "../font.h"
+#include "../memory.h"
 
 namespace gs
 {
-
+#define FOBJ_CODEC2_ENABLED 1
 #define FOBJ_HDR_OP 0
+#define FOBJ_HDR_SEQ_OP 1
 #define FOBJ_HDR_EXTENDED 2
 #define FOBJ_HDR_BOMP_LENGTH 12
 
 	static Buffer<char, uint16> _tempText;
+
+#define SWAP_BUFFER(A, B) do { uint8 t = A; A = B; B = t; } while(0);
+
+#if FOBJ_CODEC2_ENABLED == 0
+
+	static void FillLine2x1(byte* dst, byte src) {
+		*dst++ = src;
+		*dst++ = src;
+	}
+
+	static void FillLine4x1(byte* dst, byte src) {
+		*dst++ = src;
+		*dst++ = src;
+		*dst++ = src;
+		*dst++ = src;
+	}
+
+	static void CopyLine2x1(byte* dst, byte* src) {
+		*dst++ = *src++;
+		*dst++ = *src++;
+	}
+
+	static void CopyLine4x1(byte* dst, byte* src) {
+		*dst++ = *src++;
+		*dst++ = *src++;
+		*dst++ = *src++;
+		*dst++ = *src++;
+	}
+
+	static void Codec2_Level3(byte* dst, byte*& src, byte* last) {
+		uint8 code = *src++;
+
+	}
+
+	static void Codec2_Level2(byte* dst, byte*& src, byte* last) {
+		uint8 code = *src++;
+
+	}
+
+	static void Codec2_Level1(byte* dst, byte*& src, byte* last) {
+		uint8 code = *src++;
+
+		if (code < 0xF8) {
+			uint8 t = 0; /* TODO */
+			uint8 s = 8;
+			while(s--) {
+				CopyLine4x1(dst, dst + t);
+				CopyLine4x1(dst + 4, dst + t + 4);
+				dst += GS_BITMAP_PITCH;
+			}
+		}
+		else if (code == 0xFF) {
+			Codec2_Level2(dst, src, last);
+			dst += 4;
+			Codec2_Level2(dst, src, last);
+			dst += (GS_BITMAP_PITCH * 4) - 4;
+			Codec2_Level2(dst, src, last);
+			dst += 4;
+			Codec2_Level2(dst, src, last);
+		}
+		else if (code == 0xFE) {
+			uint8 t = *src++;
+			uint8 s = 8;
+			while(s--) {
+				FillLine4x1(dst, t);
+				FillLine4x1(dst + 4, t);
+				dst += GS_BITMAP_PITCH;
+			}
+		}
+		else if (code == 0xFD) {
+			src++;
+			src++; // TODO
+		}
+	}
+
+	static void Codec2_Level0(byte* dst, byte* src, byte* last) {
+		uint8 bw = 80;
+		uint8 bh = 60;
+		const uint32 nextLine = 640 * 7;
+		do
+		{
+			uint8 tmp_bw = bw;
+			do
+			{
+				Codec2_Level1(dst, src, last);
+				dst += 8;
+			} while ((--tmp_bw) != 0);
+			dst += nextLine;
+		} while ((--bh) != 0);
+
+	}
+
+#endif
 
 	SanCodec::SanCodec(DiskReader reader)
 		: _diskReader(reader), _frameNum(0)
@@ -59,6 +154,10 @@ namespace gs
 		_diskReader.skip(2);
 		_readAndApplyPalette();
 		_diskReader.seekEndOf(animHeader);
+
+		_currentBuffer = 0;
+		_deltaBuffer[0] = 1;
+		_deltaBuffer[1] = 2;
 	}
 
 	SanCodec::~SanCodec() {
@@ -99,6 +198,20 @@ namespace gs
 
 	}
 
+	void SanCodec::_copyBuffers(uint8 dst, uint8 src) {
+		uint32* dstBuffer = (uint32*) _getBuffer(dst);
+		uint32* srcBuffer = (uint32*) _getBuffer(src);
+
+		uint32 count = GS_BITMAP_SIZE / sizeof(uint32);
+		while(count--) {
+			*dstBuffer++ = *srcBuffer++;
+		}
+	}
+
+	uint8* SanCodec::_getBuffer(uint8 idx) {
+		return &_buffer[idx][0];
+	}
+
 	void SanCodec::_readFrameObjectAndApply(const TagPair& fobj) {
 
 		uint8 header[24];
@@ -128,8 +241,24 @@ namespace gs
 		switch(header[FOBJ_HDR_OP]) {
 
 			case 0: {	// "Key Frame"
-				_diskReader.readBytes(&_tempFrame[0], GS_BITMAP_SIZE);
-				screenBlitCopy(&_tempFrame[0]);
+				uint8* buffer = _getBuffer(_currentBuffer);
+				_diskReader.readBytes(buffer, GS_BITMAP_SIZE);
+				screenBlitCopy(buffer);
+			}
+			break;
+#if FOBJ_CODEC2_ENABLED == 1
+			case 2: {
+			}
+			break;
+#endif
+			case 3: {
+				// Copies* delta 1 to current.
+				_copyBuffers(_currentBuffer, _deltaBuffer[1]);
+			}
+			break;
+			case 4: {
+				// Copies delta 0 to current.
+				_copyBuffers(_currentBuffer, _deltaBuffer[0]);
 			}
 			break;
 			case 5: {	// BOMP Compressed Frame
@@ -143,16 +272,25 @@ namespace gs
 				}
 #endif
 
+				uint8* buffer = _getBuffer(_currentBuffer);
 				_diskReader.readBytes(&_tempBuffer[0], length);
-				decodeBomp(&_tempFrame[0], &_tempBuffer[0], length);
-				screenBlitCopy(&_tempFrame[0]);
-
+				decodeBomp(buffer, &_tempBuffer[0], length);
+				screenBlitCopy(buffer);
 			}
 			break;
-
 		}
 
+		if (seqNum == _prevSequenceNum + 1) {
+			if (header[FOBJ_HDR_SEQ_OP] == 1) {
+				SWAP_BUFFER(_currentBuffer, _deltaBuffer[1]);
+			}
+			else {
+				SWAP_BUFFER(_deltaBuffer[0], _deltaBuffer[1]);
+				SWAP_BUFFER(_deltaBuffer[1], _currentBuffer);
+			}
+		}
 
+		_prevSequenceNum = seqNum;
 		_diskReader.seekEndOf(fobj);
 	}
 
@@ -242,4 +380,6 @@ namespace gs
 			return 1;
 		}
 	}
+
+
 }
