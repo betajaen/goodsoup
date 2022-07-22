@@ -23,6 +23,8 @@
 #include "../disk.h"
 #include "../room.h"	// For RoomPaletteData
 
+#define FOBJ_CODEC2_ENABLED 1
+
 namespace gs
 {
 
@@ -41,6 +43,7 @@ namespace gs
 		uint16 _prevSequenceNum;
 		uint8 _tempBuffer[GS_BITMAP_SIZE];
 		uint8 _buffer[3][GS_BITMAP_SIZE];
+		uint8 _params[32896];
 
 		void _copyBuffers(uint8 dst, uint8 src);
 		uint8* _getBuffer(uint8 idx);
@@ -49,6 +52,14 @@ namespace gs
 		void _readAndApplyDeltaPalette(const TagPair& xpal);
 		void _readFrameObjectAndApply(const TagPair& fobj);
 		void _readAndApplyText(const TagPair& text);
+
+
+#if FOBJ_CODEC2_ENABLED == 1
+		void Codec2_Level0(byte* dst, byte* src, byte* delta1, byte* delta2);
+		void Codec2_Level1(byte* dst, uint32 offset, byte*& src, byte* delta1, byte* delta2);
+		void Codec2_Level2(byte* dst, uint32 offset, byte*& src, byte* delta1, byte* delta2);
+		void Codec2_Level3(byte* dst, uint32 offset, byte*& src, byte* delta1, byte* delta2);
+#endif
 
 	public:
 

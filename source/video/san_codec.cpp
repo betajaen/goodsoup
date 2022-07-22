@@ -25,7 +25,74 @@
 
 namespace gs
 {
-#define FOBJ_CODEC2_ENABLED 1
+
+	static const int8 CODEC47_TABLE[] =
+	{
+			0,   0,  -1, -43,   6, -43,  -9, -42,  13, -41,
+			-16, -40,  19, -39, -23, -36,  26, -34,  -2, -33,
+			4, -33, -29, -32,  -9, -32,  11, -31, -16, -29,
+			32, -29,  18, -28, -34, -26, -22, -25,  -1, -25,
+			3, -25,  -7, -24,   8, -24,  24, -23,  36, -23,
+			-12, -22,  13, -21, -38, -20,   0, -20, -27, -19,
+			-4, -19,   4, -19, -17, -18,  -8, -17,   8, -17,
+			18, -17,  28, -17,  39, -17, -12, -15,  12, -15,
+			-21, -14,  -1, -14,   1, -14, -41, -13,  -5, -13,
+			5, -13,  21, -13, -31, -12, -15, -11,  -8, -11,
+			8, -11,  15, -11,  -2, -10,   1, -10,  31, -10,
+			-23,  -9, -11,  -9,  -5,  -9,   4,  -9,  11,  -9,
+			42,  -9,   6,  -8,  24,  -8, -18,  -7,  -7,  -7,
+			-3,  -7,  -1,  -7,   2,  -7,  18,  -7, -43,  -6,
+			-13,  -6,  -4,  -6,   4,  -6,   8,  -6, -33,  -5,
+			-9,  -5,  -2,  -5,   0,  -5,   2,  -5,   5,  -5,
+			13,  -5, -25,  -4,  -6,  -4,  -3,  -4,   3,  -4,
+			9,  -4, -19,  -3,  -7,  -3,  -4,  -3,  -2,  -3,
+			-1,  -3,   0,  -3,   1,  -3,   2,  -3,   4,  -3,
+			6,  -3,  33,  -3, -14,  -2, -10,  -2,  -5,  -2,
+			-3,  -2,  -2,  -2,  -1,  -2,   0,  -2,   1,  -2,
+			2,  -2,   3,  -2,   5,  -2,   7,  -2,  14,  -2,
+			19,  -2,  25,  -2,  43,  -2,  -7,  -1,  -3,  -1,
+			-2,  -1,  -1,  -1,   0,  -1,   1,  -1,   2,  -1,
+			3,  -1,  10,  -1,  -5,   0,  -3,   0,  -2,   0,
+			-1,   0,   1,   0,   2,   0,   3,   0,   5,   0,
+			7,   0, -10,   1,  -7,   1,  -3,   1,  -2,   1,
+			-1,   1,   0,   1,   1,   1,   2,   1,   3,   1,
+			-43,   2, -25,   2, -19,   2, -14,   2,  -5,   2,
+			-3,   2,  -2,   2,  -1,   2,   0,   2,   1,   2,
+			2,   2,   3,   2,   5,   2,   7,   2,  10,   2,
+			14,   2, -33,   3,  -6,   3,  -4,   3,  -2,   3,
+			-1,   3,   0,   3,   1,   3,   2,   3,   4,   3,
+			19,   3,  -9,   4,  -3,   4,   3,   4,   7,   4,
+			25,   4, -13,   5,  -5,   5,  -2,   5,   0,   5,
+			2,   5,   5,   5,   9,   5,  33,   5,  -8,   6,
+			-4,   6,   4,   6,  13,   6,  43,   6, -18,   7,
+			-2,   7,   0,   7,   2,   7,   7,   7,  18,   7,
+			-24,   8,  -6,   8, -42,   9, -11,   9,  -4,   9,
+			5,   9,  11,   9,  23,   9, -31,  10,  -1,  10,
+			2,  10, -15,  11,  -8,  11,   8,  11,  15,  11,
+			31,  12, -21,  13,  -5,  13,   5,  13,  41,  13,
+			-1,  14,   1,  14,  21,  14, -12,  15,  12,  15,
+			-39,  17, -28,  17, -18,  17,  -8,  17,   8,  17,
+			17,  18,  -4,  19,   0,  19,   4,  19,  27,  19,
+			38,  20, -13,  21,  12,  22, -36,  23, -24,  23,
+			-8,  24,   7,  24,  -3,  25,   1,  25,  22,  25,
+			34,  26, -18,  28, -32,  29,  16,  29, -11,  31,
+			9,  32,  29,  32,  -4,  33,   2,  33, -26,  34,
+			23,  36, -19,  39,  16,  40, -13,  41,   9,  42,
+			-6,  43,   1,  43,   0,   0,   0,   0,   0,   0
+	};
+
+	static int16 TABLE[256] = { 0 };
+	static byte TABLE_BIG[256 * 388] = { 0 };
+	static byte TABLE_SMALL[256 * 128] = { 0 };
+	static bool hasInitTable = false;
+
+
+	void initTable() {
+		for (uint16 j =0; j < 510; j += 2) {
+			TABLE[j / 2] = (int16)(CODEC47_TABLE[j + 1] * GS_SCREEN_WIDTH + CODEC47_TABLE[j]);
+		}
+	}
+
 #define FOBJ_HDR_OP 0
 #define FOBJ_HDR_SEQ_OP 1
 #define FOBJ_HDR_EXTENDED 2
@@ -35,101 +102,15 @@ namespace gs
 
 #define SWAP_BUFFER(A, B) do { uint8 t = A; A = B; B = t; } while(0);
 
-#if FOBJ_CODEC2_ENABLED == 0
-
-	static void FillLine2x1(byte* dst, byte src) {
-		*dst++ = src;
-		*dst++ = src;
-	}
-
-	static void FillLine4x1(byte* dst, byte src) {
-		*dst++ = src;
-		*dst++ = src;
-		*dst++ = src;
-		*dst++ = src;
-	}
-
-	static void CopyLine2x1(byte* dst, byte* src) {
-		*dst++ = *src++;
-		*dst++ = *src++;
-	}
-
-	static void CopyLine4x1(byte* dst, byte* src) {
-		*dst++ = *src++;
-		*dst++ = *src++;
-		*dst++ = *src++;
-		*dst++ = *src++;
-	}
-
-	static void Codec2_Level3(byte* dst, byte*& src, byte* last) {
-		uint8 code = *src++;
-
-	}
-
-	static void Codec2_Level2(byte* dst, byte*& src, byte* last) {
-		uint8 code = *src++;
-
-	}
-
-	static void Codec2_Level1(byte* dst, byte*& src, byte* last) {
-		uint8 code = *src++;
-
-		if (code < 0xF8) {
-			uint8 t = 0; /* TODO */
-			uint8 s = 8;
-			while(s--) {
-				CopyLine4x1(dst, dst + t);
-				CopyLine4x1(dst + 4, dst + t + 4);
-				dst += GS_BITMAP_PITCH;
-			}
-		}
-		else if (code == 0xFF) {
-			Codec2_Level2(dst, src, last);
-			dst += 4;
-			Codec2_Level2(dst, src, last);
-			dst += (GS_BITMAP_PITCH * 4) - 4;
-			Codec2_Level2(dst, src, last);
-			dst += 4;
-			Codec2_Level2(dst, src, last);
-		}
-		else if (code == 0xFE) {
-			uint8 t = *src++;
-			uint8 s = 8;
-			while(s--) {
-				FillLine4x1(dst, t);
-				FillLine4x1(dst + 4, t);
-				dst += GS_BITMAP_PITCH;
-			}
-		}
-		else if (code == 0xFD) {
-			src++;
-			src++; // TODO
-		}
-	}
-
-	static void Codec2_Level0(byte* dst, byte* src, byte* last) {
-		uint8 bw = 80;
-		uint8 bh = 60;
-		const uint32 nextLine = 640 * 7;
-		do
-		{
-			uint8 tmp_bw = bw;
-			do
-			{
-				Codec2_Level1(dst, src, last);
-				dst += 8;
-			} while ((--tmp_bw) != 0);
-			dst += nextLine;
-		} while ((--bh) != 0);
-
-	}
-
-#endif
-
 	SanCodec::SanCodec(DiskReader reader)
 		: _diskReader(reader), _frameNum(0)
 	{
 		TagPair animTag = _diskReader.readSanTagPair();
+
+		if (hasInitTable == false) {
+			initTable();
+			hasInitTable = true;
+		}
 
 #if defined(GS_CHECKED) && GS_CHECKED == 1
 		if (animTag.isTag(GS_MAKE_ID('A','N','I','M')) == false) {
@@ -233,7 +214,8 @@ namespace gs
 		_diskReader.readBytes(&header, sizeof(header));
 
 		if (header[FOBJ_HDR_EXTENDED] & 1) {
-			_diskReader.skip(32896);
+			_diskReader.readBytes(&_params[0], 32896);
+			// _diskReader.skip(32896);
 		}
 
 		// debug(GS_THIS, "++ FOBJ %ld (%ld) %ld %ld ", type, (uint32) header[FOBJ_HDR_OP], w, h);
@@ -248,6 +230,16 @@ namespace gs
 			break;
 #if FOBJ_CODEC2_ENABLED == 1
 			case 2: {
+				if (seqNum == _prevSequenceNum + 1) {
+					uint32 dataLength = fobj.end() - _diskReader.pos();
+					byte* dst = &_tempBuffer[0];
+					_diskReader.readBytes(dst, dataLength);
+					uint8 *buffer = _getBuffer(_currentBuffer);
+					uint8 *delta1 = _getBuffer(_deltaBuffer[0]);
+					uint8 *delta2 = _getBuffer(_deltaBuffer[1]);
+					Codec2_Level0(buffer, dst, delta1, delta2);
+					screenBlitCopy(buffer);
+				}
 			}
 			break;
 #endif
@@ -281,10 +273,11 @@ namespace gs
 		}
 
 		if (seqNum == _prevSequenceNum + 1) {
-			if (header[FOBJ_HDR_SEQ_OP] == 1) {
+			const uint8 op = header[FOBJ_HDR_SEQ_OP];
+			if (op == 1) {
 				SWAP_BUFFER(_currentBuffer, _deltaBuffer[1]);
 			}
-			else {
+			else if (op == 2) {
 				SWAP_BUFFER(_deltaBuffer[0], _deltaBuffer[1]);
 				SWAP_BUFFER(_deltaBuffer[1], _currentBuffer);
 			}
@@ -381,5 +374,221 @@ namespace gs
 		}
 	}
 
+
+#if FOBJ_CODEC2_ENABLED == 1
+
+	static void FillLine2x1(byte* dst, byte src) {
+		*dst++ = src;
+		*dst++ = src;
+	}
+
+	static void FillLine4x1(byte* dst, byte src) {
+		*dst++ = src;
+		*dst++ = src;
+		*dst++ = src;
+		*dst++ = src;
+	}
+
+	static void CopyLine2x1(byte* dst, byte* src) {
+		*dst++ = *src++;
+		*dst++ = *src++;
+	}
+
+	static void CopyLine4x1(byte* dst, byte* src) {
+		*dst++ = *src++;
+		*dst++ = *src++;
+		*dst++ = *src++;
+		*dst++ = *src++;
+	}
+
+	void SanCodec::Codec2_Level3(byte* dst, uint32 offset, byte*& src, byte* delta1, byte* delta2) {
+		uint8 code = *src++;
+
+		if (code < 0xF8) {
+			int16 t = TABLE[code];
+			CopyLine2x1(dst + offset, delta2 + offset + t);
+			CopyLine2x1(dst + offset + GS_BITMAP_PITCH, delta2 + offset + GS_BITMAP_PITCH+ t);
+		}
+		else if (code == 0xFF) {
+			CopyLine2x1(dst + offset, delta2 + offset);
+			CopyLine2x1(dst + offset + GS_BITMAP_PITCH, delta2 + offset + GS_BITMAP_PITCH);
+		}
+		else if (code == 0xFE) {
+			uint8 t = *src++;
+			FillLine2x1(dst + offset, t);
+			FillLine2x1(dst + offset  + GS_BITMAP_PITCH, t);
+		}
+		else if (code == 0xFC) {
+			CopyLine4x1(dst + offset, delta1 + offset);
+			CopyLine4x1(dst + offset + GS_BITMAP_PITCH, delta1 + offset + GS_BITMAP_PITCH);
+		}
+		else {
+			byte t = _params[code - 26]; /* TODO: _paramPtr[_paramPtrPos + code]; */
+			FillLine2x1(dst + offset, t);
+			FillLine2x1(dst + offset + GS_BITMAP_PITCH, t);
+		}
+	}
+
+	void SanCodec::Codec2_Level2(byte* dst, uint32 offset, byte*& src, byte* delta1, byte* delta2) {
+		uint8 code = *src++;
+
+		if (code < 0xF8) {
+
+			int16 t = TABLE[code];
+			uint8 s = 8;
+			while(s--) {
+				CopyLine4x1(dst + offset, delta2 + offset + t);
+				offset += GS_BITMAP_PITCH;
+			}
+		}
+		else if (code == 0xFF) {
+			Codec2_Level3(dst, offset, src, delta1, delta2);
+			offset += 2;
+			Codec2_Level3(dst, offset, src, delta1, delta2);
+			offset += (GS_BITMAP_PITCH * 2) - 2;
+			Codec2_Level3(dst, offset, src, delta1, delta2);
+			offset += 2;
+			Codec2_Level3(dst, offset, src, delta1, delta2);
+		}
+		else if (code == 0xFE) {
+			uint8 t = *src++;
+			uint8 s = 4;
+			while(s--) {
+				FillLine4x1(dst + offset, t);
+				offset += GS_BITMAP_PITCH;
+			}
+		}
+		else if (code == 0xFD) {
+			byte tmp = *src++;
+			int32 tmpPtr = ((int32) tmp) * 128;
+			byte l = TABLE_SMALL[tmpPtr + 96];
+			byte val = *src++;
+			int32 tmpPtr2 = tmpPtr;
+
+			while(l--) {
+				uint16 offset2 = 0; /* BitConverter.ToUInt16(_tableBig, tmp_ptr2) */
+				*(dst + offset + offset2) = val;
+				tmpPtr2 += 2;
+			}
+
+			l = TABLE_SMALL[tmpPtr + 97];
+			val = *src++;
+			tmpPtr2 += 128;
+			while(l--) {
+				uint16 offset2 = 0; /* BitConverter.ToUInt16(_tableBig, tmp_ptr2) */
+				*(dst + offset + offset2) = val;
+				tmpPtr2 += 2;
+			}
+		}
+		else if (code == 0xFC) {
+			uint8 s = 4;
+			while(s--) {
+				CopyLine4x1(dst + offset, delta1 + offset);
+				offset += GS_BITMAP_PITCH;
+			}
+		}
+		else {
+			byte t = _params[code - 26]; /* TODO: _paramPtr[_paramPtrPos + code]; */
+			uint8 s = 4;
+			while(s--) {
+				FillLine4x1(dst + offset, t);
+				offset += GS_BITMAP_PITCH;
+			}
+		}
+	}
+
+	void SanCodec::Codec2_Level1(byte* dst, uint32 offset, byte*& src, byte* delta1, byte* delta2) {
+
+		uint8 code = *src++;
+
+		if (code < 0xF8) {
+
+			int16 t = TABLE[code];
+			uint8 s = 8;
+			while(s--) {
+				CopyLine4x1(dst + offset, delta2 + offset + t);
+				CopyLine4x1(dst + offset + 4, delta2 + offset + t + 4);
+				offset += GS_BITMAP_PITCH;
+			}
+
+		}
+		else if (code == 0xFF) {
+			Codec2_Level2(dst, offset, src, delta1, delta2);
+			offset += 4;
+			Codec2_Level2(dst, offset, src, delta1, delta2);
+			offset += (GS_BITMAP_PITCH * 4) - 4;
+			Codec2_Level2(dst, offset, src, delta1, delta2);
+			offset += 4;
+			Codec2_Level2(dst, offset, src, delta1, delta2);
+		}
+		else if (code == 0xFE) {
+			uint8 t = *src++;
+			uint8 s = 8;
+			while(s--) {
+				FillLine4x1(dst + offset, t);
+				FillLine4x1(dst + offset + 4, t);
+				offset += GS_BITMAP_PITCH;
+			}
+		}
+		else if (code == 0xFD) {
+			byte tmp = *src++;
+			int32 tmpPtr = ((int32) tmp) * 388;
+			byte l = TABLE_BIG[tmpPtr + 384];
+			byte val = *src++;
+			int32 tmpPtr2 = tmpPtr;
+
+			while(l--) {
+				uint16 offset2 = 0; /* BitConverter.ToUInt16(_tableBig, tmp_ptr2) */
+				*(dst + offset + offset2) = val;
+				tmpPtr2 += 2;
+			}
+
+			l = TABLE_BIG[tmpPtr + 385];
+			val = *src++;
+			tmpPtr2 += 128;
+			while(l--) {
+				uint16 offset2 = 0; /* BitConverter.ToUInt16(_tableBig, tmp_ptr2) */
+				*(dst + offset + offset2) = val;
+				tmpPtr2 += 2;
+			}
+		}
+		else if (code == 0xFC) {
+			uint8 s = 8;
+			while(s--) {
+				CopyLine4x1(dst + offset, delta1 + offset);
+				CopyLine4x1(dst + offset + 4, delta1 + offset + 4);
+				offset += GS_BITMAP_PITCH;
+			}
+		}
+		else {
+			byte t = _params[code - 26]; /* TODO: _paramPtr[_paramPtrPos + code]; */
+			uint8 s = 8;
+			while(s--) {
+				FillLine4x1(dst + offset, t);
+				FillLine4x1(dst + offset + 4, t);
+				offset += GS_BITMAP_PITCH;
+			}
+		}
+	}
+
+	void SanCodec::Codec2_Level0(byte* dst, byte* src, byte* delta1, byte* delta2) {
+		uint8 bw = 80;
+		uint8 bh = 60;
+		const uint32 nextLine = 640 * 7;
+		uint32 offset =0;
+		do
+		{
+			uint8 tmp_bw = bw;
+			do
+			{
+				Codec2_Level1(dst, offset, src, delta1, delta2);
+				offset += 8;
+			} while ((--tmp_bw) != 0);
+			offset += nextLine;
+		} while ((--bh) != 0);
+
+	}
+
+#endif
 
 }
