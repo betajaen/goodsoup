@@ -30,16 +30,12 @@ namespace gs
 	{
 		RLEImage2 _rle;
 		uint32 _size;
-		uint32 _offset;
 	};
 
 	class Font
 	{
 
-		void _readNut44(DiskReader reader);
-		void _readNutRLE2(DiskReader reader);
-
-		void _readNutFont(DiskReader reader, bool isRLE2);
+		void _readNutFont(DiskReader reader);
 
 	public:
 
