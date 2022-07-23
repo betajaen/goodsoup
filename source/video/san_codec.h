@@ -43,7 +43,7 @@ namespace gs
 		uint16 _prevSequenceNum;
 		uint8 _tempBuffer[GS_BITMAP_SIZE];
 		uint8 _buffer[3][GS_BITMAP_SIZE];
-		uint8 _params[32896];
+		uint8 _params[8];
 
 		void _copyBuffers(uint8 dst, uint8 src);
 		uint8* _getBuffer(uint8 idx);

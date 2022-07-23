@@ -100,6 +100,7 @@ OBJ +=	source/main_game.o\
 		source/costume.o\
 		source/video/video.o\
 		source/video/san_codec.o\
+		source/video/san_tables.o\
 		source/draw.o\
 		source/codecs/bomp.o\
 		source/codecs/nut.o\

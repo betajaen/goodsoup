@@ -26,77 +26,17 @@
 namespace gs
 {
 
-	static const int8 CODEC47_TABLE[] =
-	{
-			0,   0,  -1, -43,   6, -43,  -9, -42,  13, -41,
-			-16, -40,  19, -39, -23, -36,  26, -34,  -2, -33,
-			4, -33, -29, -32,  -9, -32,  11, -31, -16, -29,
-			32, -29,  18, -28, -34, -26, -22, -25,  -1, -25,
-			3, -25,  -7, -24,   8, -24,  24, -23,  36, -23,
-			-12, -22,  13, -21, -38, -20,   0, -20, -27, -19,
-			-4, -19,   4, -19, -17, -18,  -8, -17,   8, -17,
-			18, -17,  28, -17,  39, -17, -12, -15,  12, -15,
-			-21, -14,  -1, -14,   1, -14, -41, -13,  -5, -13,
-			5, -13,  21, -13, -31, -12, -15, -11,  -8, -11,
-			8, -11,  15, -11,  -2, -10,   1, -10,  31, -10,
-			-23,  -9, -11,  -9,  -5,  -9,   4,  -9,  11,  -9,
-			42,  -9,   6,  -8,  24,  -8, -18,  -7,  -7,  -7,
-			-3,  -7,  -1,  -7,   2,  -7,  18,  -7, -43,  -6,
-			-13,  -6,  -4,  -6,   4,  -6,   8,  -6, -33,  -5,
-			-9,  -5,  -2,  -5,   0,  -5,   2,  -5,   5,  -5,
-			13,  -5, -25,  -4,  -6,  -4,  -3,  -4,   3,  -4,
-			9,  -4, -19,  -3,  -7,  -3,  -4,  -3,  -2,  -3,
-			-1,  -3,   0,  -3,   1,  -3,   2,  -3,   4,  -3,
-			6,  -3,  33,  -3, -14,  -2, -10,  -2,  -5,  -2,
-			-3,  -2,  -2,  -2,  -1,  -2,   0,  -2,   1,  -2,
-			2,  -2,   3,  -2,   5,  -2,   7,  -2,  14,  -2,
-			19,  -2,  25,  -2,  43,  -2,  -7,  -1,  -3,  -1,
-			-2,  -1,  -1,  -1,   0,  -1,   1,  -1,   2,  -1,
-			3,  -1,  10,  -1,  -5,   0,  -3,   0,  -2,   0,
-			-1,   0,   1,   0,   2,   0,   3,   0,   5,   0,
-			7,   0, -10,   1,  -7,   1,  -3,   1,  -2,   1,
-			-1,   1,   0,   1,   1,   1,   2,   1,   3,   1,
-			-43,   2, -25,   2, -19,   2, -14,   2,  -5,   2,
-			-3,   2,  -2,   2,  -1,   2,   0,   2,   1,   2,
-			2,   2,   3,   2,   5,   2,   7,   2,  10,   2,
-			14,   2, -33,   3,  -6,   3,  -4,   3,  -2,   3,
-			-1,   3,   0,   3,   1,   3,   2,   3,   4,   3,
-			19,   3,  -9,   4,  -3,   4,   3,   4,   7,   4,
-			25,   4, -13,   5,  -5,   5,  -2,   5,   0,   5,
-			2,   5,   5,   5,   9,   5,  33,   5,  -8,   6,
-			-4,   6,   4,   6,  13,   6,  43,   6, -18,   7,
-			-2,   7,   0,   7,   2,   7,   7,   7,  18,   7,
-			-24,   8,  -6,   8, -42,   9, -11,   9,  -4,   9,
-			5,   9,  11,   9,  23,   9, -31,  10,  -1,  10,
-			2,  10, -15,  11,  -8,  11,   8,  11,  15,  11,
-			31,  12, -21,  13,  -5,  13,   5,  13,  41,  13,
-			-1,  14,   1,  14,  21,  14, -12,  15,  12,  15,
-			-39,  17, -28,  17, -18,  17,  -8,  17,   8,  17,
-			17,  18,  -4,  19,   0,  19,   4,  19,  27,  19,
-			38,  20, -13,  21,  12,  22, -36,  23, -24,  23,
-			-8,  24,   7,  24,  -3,  25,   1,  25,  22,  25,
-			34,  26, -18,  28, -32,  29,  16,  29, -11,  31,
-			9,  32,  29,  32,  -4,  33,   2,  33, -26,  34,
-			23,  36, -19,  39,  16,  40, -13,  41,   9,  42,
-			-6,  43,   1,  43,   0,   0,   0,   0,   0,   0
-	};
+	extern int16 TABLE[256];
+	extern byte TABLE_BIG[256 * 388];
+	extern byte TABLE_SMALL[256 * 128];
 
-	static int16 TABLE[256] = { 0 };
-	static byte TABLE_BIG[256 * 388] = { 0 };
-	static byte TABLE_SMALL[256 * 128] = { 0 };
-	static bool hasInitTable = false;
-
-
-	void initTable() {
-		for (uint16 j =0; j < 510; j += 2) {
-			TABLE[j / 2] = (int16)(CODEC47_TABLE[j + 1] * GS_SCREEN_WIDTH + CODEC47_TABLE[j]);
-		}
-	}
+	void initTable();
 
 #define FOBJ_HDR_OP 0
 #define FOBJ_HDR_SEQ_OP 1
 #define FOBJ_HDR_EXTENDED 2
 #define FOBJ_HDR_BOMP_LENGTH 12
+#define FOBJ_HDR_PARAMS 6
 
 	static Buffer<char, uint16> _tempText;
 
@@ -106,11 +46,7 @@ namespace gs
 		: _diskReader(reader), _frameNum(0)
 	{
 		TagPair animTag = _diskReader.readSanTagPair();
-
-		if (hasInitTable == false) {
-			initTable();
-			hasInitTable = true;
-		}
+		initTable();
 
 #if defined(GS_CHECKED) && GS_CHECKED == 1
 		if (animTag.isTag(GS_MAKE_ID('A','N','I','M')) == false) {
@@ -210,13 +146,23 @@ namespace gs
 
 		_diskReader.skip(4);	// Unknown
 
-		uint16 seqNum = _diskReader.readUInt16LE();
-		_diskReader.readBytes(&header, sizeof(header));
+		uint16 seqNum = _diskReader.readUInt16LE();		// -2
+		_diskReader.readBytes(&header, sizeof(header));	// 0
 
 		if (header[FOBJ_HDR_EXTENDED] & 1) {
-			_diskReader.readBytes(&_params[0], 32896);
-			// _diskReader.skip(32896);
+			//_diskReader.readBytes(&_params[0], 32896);
+			_diskReader.skip(32896);
 		}
+
+
+		_params[0] = header[FOBJ_HDR_PARAMS + 0];		// 8 -> 6
+		_params[1] = header[FOBJ_HDR_PARAMS + 1];
+		_params[2] = header[FOBJ_HDR_PARAMS + 2];
+		_params[3] = header[FOBJ_HDR_PARAMS + 3];
+		_params[4] = header[FOBJ_HDR_PARAMS + 4];
+		_params[5] = header[FOBJ_HDR_PARAMS + 5];
+		_params[6] = header[FOBJ_HDR_PARAMS + 6];
+		_params[7] = header[FOBJ_HDR_PARAMS + 7];
 
 		// debug(GS_THIS, "++ FOBJ %ld (%ld) %ld %ld ", type, (uint32) header[FOBJ_HDR_OP], w, h);
 
@@ -378,27 +324,21 @@ namespace gs
 #if FOBJ_CODEC2_ENABLED == 1
 
 	static void FillLine2x1(byte* dst, byte src) {
-		*dst++ = src;
-		*dst++ = src;
+		uint16 t = src << 8 | src;
+		*((uint16*) dst) = t;
 	}
 
-	static void FillLine4x1(byte* dst, byte src) {
-		*dst++ = src;
-		*dst++ = src;
-		*dst++ = src;
-		*dst++ = src;
+	inline static void FillLine4x1(byte* dst, byte src) {
+		uint32 t = src << 24 | src << 16 | src << 8 | src;
+		*((uint32*) dst) = t;
 	}
 
-	static void CopyLine2x1(byte* dst, byte* src) {
-		*dst++ = *src++;
-		*dst++ = *src++;
+	inline static void CopyLine2x1(byte* dst, byte* src) {
+		*((uint16*) dst) = *((uint16*) src);
 	}
 
-	static void CopyLine4x1(byte* dst, byte* src) {
-		*dst++ = *src++;
-		*dst++ = *src++;
-		*dst++ = *src++;
-		*dst++ = *src++;
+	inline static void CopyLine4x1(byte* dst, byte* src) {
+		*((uint32*) dst) = *((uint32*) src);
 	}
 
 	void SanCodec::Codec2_Level3(byte* dst, uint32 offset, byte*& src, byte* delta1, byte* delta2) {
@@ -406,25 +346,35 @@ namespace gs
 
 		if (code < 0xF8) {
 			int16 t = TABLE[code];
+			// 1.
 			CopyLine2x1(dst + offset, delta2 + offset + t);
-			CopyLine2x1(dst + offset + GS_BITMAP_PITCH, delta2 + offset + GS_BITMAP_PITCH+ t);
+			// 2.
+			CopyLine2x1(dst + offset + GS_BITMAP_PITCH, delta2 + offset + GS_BITMAP_PITCH + t);
 		}
 		else if (code == 0xFF) {
-			CopyLine2x1(dst + offset, delta2 + offset);
-			CopyLine2x1(dst + offset + GS_BITMAP_PITCH, delta2 + offset + GS_BITMAP_PITCH);
+			// 1.
+			CopyLine2x1(dst + offset, src);
+			// 2.
+			CopyLine2x1(dst + offset + GS_BITMAP_PITCH, src + 2);
 		}
 		else if (code == 0xFE) {
 			uint8 t = *src++;
+			// 1.
 			FillLine2x1(dst + offset, t);
-			FillLine2x1(dst + offset  + GS_BITMAP_PITCH, t);
+			// 2.
+			FillLine2x1(dst + offset + GS_BITMAP_PITCH, t);
 		}
 		else if (code == 0xFC) {
-			CopyLine4x1(dst + offset, delta1 + offset);
-			CopyLine4x1(dst + offset + GS_BITMAP_PITCH, delta1 + offset + GS_BITMAP_PITCH);
+			// 1.
+			CopyLine4x1(dst + offset, dst + offset);
+			// 2.
+			CopyLine4x1(dst + offset + GS_BITMAP_PITCH, dst + offset + GS_BITMAP_PITCH);
 		}
 		else {
-			byte t = _params[code - 26]; /* TODO: _paramPtr[_paramPtrPos + code]; */
+			byte t = _params[code - 0xF8]; /* TODO: _paramPtr[_paramPtrPos + code]; */
+			// 1.
 			FillLine2x1(dst + offset, t);
+			// 2.
 			FillLine2x1(dst + offset + GS_BITMAP_PITCH, t);
 		}
 	}
@@ -433,13 +383,18 @@ namespace gs
 		uint8 code = *src++;
 
 		if (code < 0xF8) {
-
-			int16 t = TABLE[code];
-			uint8 s = 8;
-			while(s--) {
-				CopyLine4x1(dst + offset, delta2 + offset + t);
-				offset += GS_BITMAP_PITCH;
-			}
+			const int16 t = TABLE[code];
+			// 1.
+			CopyLine4x1(dst + offset, delta2 + offset + t);
+			offset += GS_BITMAP_PITCH;
+			// 2.
+			CopyLine4x1(dst + offset, delta2 + offset + t);
+			offset += GS_BITMAP_PITCH;
+			// 3.
+			CopyLine4x1(dst + offset, delta2 + offset + t);
+			offset += GS_BITMAP_PITCH;
+			// 4.
+			CopyLine4x1(dst + offset, delta2 + offset + t);
 		}
 		else if (code == 0xFF) {
 			Codec2_Level3(dst, offset, src, delta1, delta2);
@@ -451,12 +406,18 @@ namespace gs
 			Codec2_Level3(dst, offset, src, delta1, delta2);
 		}
 		else if (code == 0xFE) {
-			uint8 t = *src++;
-			uint8 s = 4;
-			while(s--) {
-				FillLine4x1(dst + offset, t);
-				offset += GS_BITMAP_PITCH;
-			}
+			const uint8 t = *src++;
+			// 1.
+			FillLine4x1(dst + offset, t);
+			offset += GS_BITMAP_PITCH;
+			// 2.
+			FillLine4x1(dst + offset, t);
+			offset += GS_BITMAP_PITCH;
+			// 3.
+			FillLine4x1(dst + offset, t);
+			offset += GS_BITMAP_PITCH;
+			// 4.
+			FillLine4x1(dst + offset, t);
 		}
 		else if (code == 0xFD) {
 			byte tmp = *src++;
@@ -481,19 +442,31 @@ namespace gs
 			}
 		}
 		else if (code == 0xFC) {
-			uint8 s = 4;
-			while(s--) {
-				CopyLine4x1(dst + offset, delta1 + offset);
-				offset += GS_BITMAP_PITCH;
-			}
+			// 1.
+			CopyLine4x1(dst + offset, delta1 + offset);
+			offset += GS_BITMAP_PITCH;
+			// 2.
+			CopyLine4x1(dst + offset, delta1 + offset);
+			offset += GS_BITMAP_PITCH;
+			// 3.
+			CopyLine4x1(dst + offset, delta1 + offset);
+			offset += GS_BITMAP_PITCH;
+			// 4.
+			CopyLine4x1(dst + offset, delta1 + offset);
 		}
 		else {
-			byte t = _params[code - 26]; /* TODO: _paramPtr[_paramPtrPos + code]; */
-			uint8 s = 4;
-			while(s--) {
-				FillLine4x1(dst + offset, t);
-				offset += GS_BITMAP_PITCH;
-			}
+			byte t = _params[code - 0xF8]; /* TODO: _paramPtr[_paramPtrPos + code]; */
+			// 1.
+			FillLine4x1(dst + offset, t);
+			offset += GS_BITMAP_PITCH;
+			// 2.
+			FillLine4x1(dst + offset, t);
+			offset += GS_BITMAP_PITCH;
+			// 3.
+			FillLine4x1(dst + offset, t);
+			offset += GS_BITMAP_PITCH;
+			// 4.
+			FillLine4x1(dst + offset, t);
 		}
 	}
 
@@ -502,15 +475,38 @@ namespace gs
 		uint8 code = *src++;
 
 		if (code < 0xF8) {
-
-			int16 t = TABLE[code];
-			uint8 s = 8;
-			while(s--) {
-				CopyLine4x1(dst + offset, delta2 + offset + t);
-				CopyLine4x1(dst + offset + 4, delta2 + offset + t + 4);
-				offset += GS_BITMAP_PITCH;
-			}
-
+			int32 t = TABLE[code];
+			// 1.
+			CopyLine4x1(dst + offset, delta2 + offset + t);
+			CopyLine4x1(dst + offset + 4, delta2 + offset + t + 4);
+			offset += GS_BITMAP_PITCH;
+			// 2.
+			CopyLine4x1(dst + offset, delta2 + offset + t);
+			CopyLine4x1(dst + offset + 4, delta2 + offset + t + 4);
+			offset += GS_BITMAP_PITCH;
+			// 3.
+			CopyLine4x1(dst + offset, delta2 + offset + t);
+			CopyLine4x1(dst + offset + 4, delta2 + offset + t + 4);
+			offset += GS_BITMAP_PITCH;
+			// 4.
+			CopyLine4x1(dst + offset, delta2 + offset + t);
+			CopyLine4x1(dst + offset + 4, delta2 + offset + t + 4);
+			offset += GS_BITMAP_PITCH;
+			// 5.
+			CopyLine4x1(dst + offset, delta2 + offset + t);
+			CopyLine4x1(dst + offset + 4, delta2 + offset + t + 4);
+			offset += GS_BITMAP_PITCH;
+			// 6.
+			CopyLine4x1(dst + offset, delta2 + offset + t);
+			CopyLine4x1(dst + offset + 4, delta2 + offset + t + 4);
+			offset += GS_BITMAP_PITCH;
+			// 7.
+			CopyLine4x1(dst + offset, delta2 + offset + t);
+			CopyLine4x1(dst + offset + 4, delta2 + offset + t + 4);
+			offset += GS_BITMAP_PITCH;
+			// 8.
+			CopyLine4x1(dst + offset, delta2 + offset + t);
+			CopyLine4x1(dst + offset + 4, delta2 + offset + t + 4);
 		}
 		else if (code == 0xFF) {
 			Codec2_Level2(dst, offset, src, delta1, delta2);
@@ -523,12 +519,37 @@ namespace gs
 		}
 		else if (code == 0xFE) {
 			uint8 t = *src++;
-			uint8 s = 8;
-			while(s--) {
-				FillLine4x1(dst + offset, t);
-				FillLine4x1(dst + offset + 4, t);
-				offset += GS_BITMAP_PITCH;
-			}
+			// 1.
+			FillLine4x1(dst + offset, t);
+			FillLine4x1(dst + offset + 4, t);
+			offset += GS_BITMAP_PITCH;
+			// 2.
+			FillLine4x1(dst + offset, t);
+			FillLine4x1(dst + offset + 4, t);
+			offset += GS_BITMAP_PITCH;
+			// 3.
+			FillLine4x1(dst + offset, t);
+			FillLine4x1(dst + offset + 4, t);
+			offset += GS_BITMAP_PITCH;
+			// 4.
+			FillLine4x1(dst + offset, t);
+			FillLine4x1(dst + offset + 4, t);
+			offset += GS_BITMAP_PITCH;
+			// 5.
+			FillLine4x1(dst + offset, t);
+			FillLine4x1(dst + offset + 4, t);
+			offset += GS_BITMAP_PITCH;
+			// 6.
+			FillLine4x1(dst + offset, t);
+			FillLine4x1(dst + offset + 4, t);
+			offset += GS_BITMAP_PITCH;
+			// 7.
+			FillLine4x1(dst + offset, t);
+			FillLine4x1(dst + offset + 4, t);
+			offset += GS_BITMAP_PITCH;
+			// 8.
+			FillLine4x1(dst + offset, t);
+			FillLine4x1(dst + offset + 4, t);
 		}
 		else if (code == 0xFD) {
 			byte tmp = *src++;
@@ -553,21 +574,71 @@ namespace gs
 			}
 		}
 		else if (code == 0xFC) {
-			uint8 s = 8;
-			while(s--) {
-				CopyLine4x1(dst + offset, delta1 + offset);
-				CopyLine4x1(dst + offset + 4, delta1 + offset + 4);
-				offset += GS_BITMAP_PITCH;
-			}
+			// 1.
+			CopyLine4x1(dst + offset, delta1 + offset);
+			CopyLine4x1(dst + offset + 4, delta1 + offset + 4);
+			offset += GS_BITMAP_PITCH;
+			// 2.
+			CopyLine4x1(dst + offset, delta1 + offset);
+			CopyLine4x1(dst + offset + 4, delta1 + offset + 4);
+			offset += GS_BITMAP_PITCH;
+			// 3.
+			CopyLine4x1(dst + offset, delta1 + offset);
+			CopyLine4x1(dst + offset + 4, delta1 + offset + 4);
+			offset += GS_BITMAP_PITCH;
+			// 4.
+			CopyLine4x1(dst + offset, delta1 + offset);
+			CopyLine4x1(dst + offset + 4, delta1 + offset + 4);
+			offset += GS_BITMAP_PITCH;
+			// 5.
+			CopyLine4x1(dst + offset, delta1 + offset);
+			CopyLine4x1(dst + offset + 4, delta1 + offset + 4);
+			offset += GS_BITMAP_PITCH;
+			// 6.
+			CopyLine4x1(dst + offset, delta1 + offset);
+			CopyLine4x1(dst + offset + 4, delta1 + offset + 4);
+			offset += GS_BITMAP_PITCH;
+			// 7.
+			CopyLine4x1(dst + offset, delta1 + offset);
+			CopyLine4x1(dst + offset + 4, delta1 + offset + 4);
+			offset += GS_BITMAP_PITCH;
+			// 8.
+			CopyLine4x1(dst + offset, delta1 + offset);
+			CopyLine4x1(dst + offset + 4, delta1 + offset + 4);
 		}
 		else {
-			byte t = _params[code - 26]; /* TODO: _paramPtr[_paramPtrPos + code]; */
-			uint8 s = 8;
-			while(s--) {
-				FillLine4x1(dst + offset, t);
-				FillLine4x1(dst + offset + 4, t);
-				offset += GS_BITMAP_PITCH;
-			}
+			byte t = _params[code - 0xF8]; /* TODO: _paramPtr[_paramPtrPos + code]; */
+			// 1.
+			FillLine4x1(dst + offset, t);
+			FillLine4x1(dst + offset + 4, t);
+			offset += GS_BITMAP_PITCH;
+			// 2.
+			FillLine4x1(dst + offset, t);
+			FillLine4x1(dst + offset + 4, t);
+			offset += GS_BITMAP_PITCH;
+			// 3.
+			FillLine4x1(dst + offset, t);
+			FillLine4x1(dst + offset + 4, t);
+			offset += GS_BITMAP_PITCH;
+			// 4.
+			FillLine4x1(dst + offset, t);
+			FillLine4x1(dst + offset + 4, t);
+			offset += GS_BITMAP_PITCH;
+			// 5.
+			FillLine4x1(dst + offset, t);
+			FillLine4x1(dst + offset + 4, t);
+			offset += GS_BITMAP_PITCH;
+			// 6.
+			FillLine4x1(dst + offset, t);
+			FillLine4x1(dst + offset + 4, t);
+			offset += GS_BITMAP_PITCH;
+			// 7.
+			FillLine4x1(dst + offset, t);
+			FillLine4x1(dst + offset + 4, t);
+			offset += GS_BITMAP_PITCH;
+			// 8.
+			FillLine4x1(dst + offset, t);
+			FillLine4x1(dst + offset + 4, t);
 		}
 	}
 
