@@ -26,11 +26,12 @@
 namespace gs
 {
 
-	extern int16 TABLE[256];
-	extern byte TABLE_BIG[256 * 388];
-	extern byte TABLE_SMALL[256 * 128];
+	extern int16 SAN_TABLE[256];
+	extern byte* SAN_TABLE_BIG;
+	extern byte* SAN_TABLE_SMALL;
 
-	void initTable();
+	void initSan47Tables();
+	void releaseSan47Tables();
 
 #define FOBJ_HDR_OP 0
 #define FOBJ_HDR_SEQ_OP 1
@@ -46,7 +47,7 @@ namespace gs
 		: _diskReader(reader), _frameNum(0)
 	{
 		TagPair animTag = _diskReader.readSanTagPair();
-		initTable();
+		initSan47Tables();
 
 #if defined(GS_CHECKED) && GS_CHECKED == 1
 		if (animTag.isTag(GS_MAKE_ID('A','N','I','M')) == false) {
@@ -345,7 +346,7 @@ namespace gs
 		uint8 code = *src++;
 
 		if (code < 0xF8) {
-			int16 t = TABLE[code];
+			int16 t = SAN_TABLE[code];
 			// 1.
 			CopyLine2x1(dst + offset, delta2 + offset + t);
 			// 2.
@@ -383,7 +384,7 @@ namespace gs
 		uint8 code = *src++;
 
 		if (code < 0xF8) {
-			const int16 t = TABLE[code];
+			const int16 t = SAN_TABLE[code];
 			// 1.
 			CopyLine4x1(dst + offset, delta2 + offset + t);
 			offset += GS_BITMAP_PITCH;
@@ -422,21 +423,21 @@ namespace gs
 		else if (code == 0xFD) {
 			byte tmp = *src++;
 			int32 tmpPtr = ((int32) tmp) * 128;
-			byte l = TABLE_SMALL[tmpPtr + 96];
+			byte l = SAN_TABLE_SMALL[tmpPtr + 96];
 			byte val = *src++;
 			int32 tmpPtr2 = tmpPtr;
 
 			while(l--) {
-				uint16 offset2 = 0; /* BitConverter.ToUInt16(_tableBig, tmp_ptr2) */
+				uint16 offset2 = READ_LE_UINT16(SAN_TABLE_SMALL + tmpPtr2);
 				*(dst + offset + offset2) = val;
 				tmpPtr2 += 2;
 			}
 
-			l = TABLE_SMALL[tmpPtr + 97];
+			l = SAN_TABLE_SMALL[tmpPtr + 97];
 			val = *src++;
 			tmpPtr2 += 128;
 			while(l--) {
-				uint16 offset2 = 0; /* BitConverter.ToUInt16(_tableBig, tmp_ptr2) */
+				uint16 offset2 = READ_LE_UINT16(SAN_TABLE_SMALL + tmpPtr2);  /* BitConverter.ToUInt16(_tableBig, tmp_ptr2) */
 				*(dst + offset + offset2) = val;
 				tmpPtr2 += 2;
 			}
@@ -475,7 +476,7 @@ namespace gs
 		uint8 code = *src++;
 
 		if (code < 0xF8) {
-			int32 t = TABLE[code];
+			int32 t = SAN_TABLE[code];
 			// 1.
 			CopyLine4x1(dst + offset, delta2 + offset + t);
 			CopyLine4x1(dst + offset + 4, delta2 + offset + t + 4);
@@ -554,21 +555,21 @@ namespace gs
 		else if (code == 0xFD) {
 			byte tmp = *src++;
 			int32 tmpPtr = ((int32) tmp) * 388;
-			byte l = TABLE_BIG[tmpPtr + 384];
+			byte l = SAN_TABLE_BIG[tmpPtr + 384];
 			byte val = *src++;
 			int32 tmpPtr2 = tmpPtr;
 
 			while(l--) {
-				uint16 offset2 = 0; /* BitConverter.ToUInt16(_tableBig, tmp_ptr2) */
+				uint16 offset2 = READ_LE_UINT16(SAN_TABLE_BIG + tmpPtr2); /* BitConverter.ToUInt16(_tableBig, tmp_ptr2) */
 				*(dst + offset + offset2) = val;
 				tmpPtr2 += 2;
 			}
 
-			l = TABLE_BIG[tmpPtr + 385];
+			l = SAN_TABLE_BIG[tmpPtr + 385];
 			val = *src++;
 			tmpPtr2 += 128;
 			while(l--) {
-				uint16 offset2 = 0; /* BitConverter.ToUInt16(_tableBig, tmp_ptr2) */
+				uint16 offset2 = READ_LE_UINT16(SAN_TABLE_BIG + tmpPtr2);  /* BitConverter.ToUInt16(_tableBig, tmp_ptr2) */
 				*(dst + offset + offset2) = val;
 				tmpPtr2 += 2;
 			}
