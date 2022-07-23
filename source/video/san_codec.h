@@ -40,13 +40,14 @@ namespace gs
 		int16 _deltaPalette[768];
 		uint8 _currentBuffer;
 		uint8 _deltaBuffer[2];
-		uint16 _prevSequenceNum;
+		int16 _prevSequenceNum;
 		uint8 _tempBuffer[GS_BITMAP_SIZE];
 		uint8 _buffer[3][GS_BITMAP_SIZE];
 		uint8 _params[8];
 
 		void _copyBuffers(uint8 dst, uint8 src);
 		uint8* _getBuffer(uint8 idx);
+		void _clearBuffer(uint8 dst, uint8 colour);
 
 		void _readAndApplyPalette();
 		void _readAndApplyDeltaPalette(const TagPair& xpal);
@@ -55,10 +56,10 @@ namespace gs
 
 
 #if FOBJ_CODEC2_ENABLED == 1
-		void Codec2_Level0(byte* dst, byte* src, byte* delta1, byte* delta2);
-		void Codec2_Level1(byte* dst, uint32 offset, byte*& src, byte* delta1, byte* delta2);
-		void Codec2_Level2(byte* dst, uint32 offset, byte*& src, byte* delta1, byte* delta2);
-		void Codec2_Level3(byte* dst, uint32 offset, byte*& src, byte* delta1, byte* delta2);
+		void Codec2_Level0(byte* dst, byte* src, byte* previous1, byte* previous2);
+		void Codec2_Level1(byte* dst, uint32 offset, byte*& src, byte* previous1, byte* previous2);
+		void Codec2_Level2(byte* dst, uint32 offset, byte*& src, byte* previous1, byte* previous2);
+		void Codec2_Level3(byte* dst, uint32 offset, byte*& src, byte* previous1, byte* previous2);
 #endif
 
 	public:
