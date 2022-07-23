@@ -65,6 +65,8 @@ namespace gs
 
 	bool fileExists(const char* path);
 
+	byte* readFileIntoMemory(const char* path, uint32& length);
+
     class StringAppendFile {
 
     public:

@@ -20,6 +20,7 @@
 #include "file_amiga.h"
 #include "../debug.h"
 #include "../endian.h"
+#include "../memory.h"
 #include "hash.h"
 
 #include <proto/dos.h>
@@ -197,6 +198,25 @@ namespace gs
 		}
 
 		return false;
+	}
+
+	byte* readFileIntoMemory(const char* path, uint32& length) {
+		BPTR file = Open(path, MODE_OLDFILE);
+		if (file == NULL)
+		{
+			Close(file);
+			return false;
+		}
+
+		byte* data = NULL;
+		Seek(file, 0, OFFSET_END);
+		length = Seek(file, 0, OFFSET_BEGINNING);
+
+		data = (byte*) allocateMemory(1, length, 0);
+		Read(file, data, length);
+
+		Close(file);
+		return data;
 	}
 
 }

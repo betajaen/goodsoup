@@ -195,7 +195,23 @@ namespace gs
 		return false;
 	}
 
+	byte* readFileIntoMemory(const char* path, uint32& length) {
+		SDL_RWops* file = SDL_RWFromFile(path, "rb");
+		if (file == NULL)
+		{
+			SDL_RWclose(file);
+			return false;
+		}
 
+		byte* data = NULL;
+		length = SDL_RWsize(file);
+
+		data = (byte*) allocateMemory(1, length, 0);
+		SDL_RWread(file, data, length, 1);
+
+		SDL_RWclose(file);
+		return data;
+	}
 
     StringAppendFile::StringAppendFile()
         : _file(NULL) {
