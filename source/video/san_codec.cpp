@@ -129,10 +129,10 @@ namespace gs
 
 	void SanCodec::_clearBuffer(uint8 dst, uint8 colour) {
 		uint32* dstBuffer = (uint32*) _getBuffer(dst);
-		uint32 length = GS_BITMAP_SIZE / 4;
 		uint32 colour32 = colour | colour << 8 | colour << 16 | colour << 24;
 
-		while(length--) {
+		uint32 count = GS_BITMAP_SIZE / sizeof(uint32);
+		while(count--) {
 			*dstBuffer++ = colour32;
 		}
 
@@ -157,71 +157,73 @@ namespace gs
 		uint16 w = _diskReader.readUInt16LE();
 		uint16 h = _diskReader.readUInt16LE();
 
+
 		_diskReader.skip(4);	// Unknown
 
 		uint16 seqNum = _diskReader.readUInt16LE();		// -2
 		_diskReader.readBytes(&header, sizeof(header));	// 0
+		if (header[FOBJ_HDR_EXTENDED] & 1) {
+			_diskReader.skip(0x8080);
+		}
+
+		//_offset1 = _deltaBuffer[1];
+		//_offset2 = _deltaBuffer[0];
+
+		_offset1 = _deltaBuffer[1];
+		_offset2 = _deltaBuffer[0];
 
 		if (seqNum == 0) {
 			_prevSequenceNum = -1;
 
-			_clearBuffer(0, header[11]);
-			_clearBuffer(1, header[12]);
+			_clearBuffer(_deltaBuffer[0], header[10]);
+			_clearBuffer(_deltaBuffer[1], header[11]);
 		}
 
-		if (header[FOBJ_HDR_EXTENDED] & 1) {
-			_diskReader.skip(32896);
-		}
+		bool changed = false;
 
 		switch(header[FOBJ_HDR_OP]) {
 
 			case 0: {	// "Key Frame"
 				uint8* buffer = _getBuffer(_currentBuffer);
 				_diskReader.readBytes(buffer, GS_BITMAP_SIZE);
-				screenBlitCopy(buffer);
+				changed= true;
 			}
 			break;
 #if FOBJ_CODEC2_ENABLED == 1
 			case 2: {
 				if (seqNum == _prevSequenceNum + 1) {
 
-
-
-					_params[0] = header[FOBJ_HDR_PARAMS + 0];		// 8 -> 6
-					_params[1] = header[FOBJ_HDR_PARAMS + 1];
-					_params[2] = header[FOBJ_HDR_PARAMS + 2];
-					_params[3] = header[FOBJ_HDR_PARAMS + 3];
-					_params[4] = header[FOBJ_HDR_PARAMS + 4];
-					_params[5] = header[FOBJ_HDR_PARAMS + 5];
-					_params[6] = header[FOBJ_HDR_PARAMS + 6];
-					_params[7] = header[FOBJ_HDR_PARAMS + 7];
+					_params[0] = header[FOBJ_HDR_PARAMS + 0];	// F8
+					_params[1] = header[FOBJ_HDR_PARAMS + 1];	// F9
+					_params[2] = header[FOBJ_HDR_PARAMS + 2];   // FA
+					_params[3] = header[FOBJ_HDR_PARAMS + 3];   // FB
 
 					uint32 dataLength = fobj.end() - _diskReader.pos();
-					byte* dst = &_tempBuffer[0];
-					_diskReader.readBytes(dst, dataLength);
+					byte* src = &_tempBuffer[0];
+					_diskReader.readBytes(src, dataLength);
 					uint8 *buffer = _getBuffer(_currentBuffer);
-					uint8 *previous1 = _getBuffer(_deltaBuffer[0]);
-					uint8 *previous2 = _getBuffer(_deltaBuffer[1]);
-					Codec2_Level0(buffer, dst, previous1, previous2);
-					screenBlitCopy(buffer);
+					Codec2_Level0(buffer, src, _getBuffer(_deltaBuffer[1]), _getBuffer(_deltaBuffer[0]));
+					changed = true;
 				}
 			}
 			break;
-#endif
 			case 3: {
 				// Copies* delta 1 to current.
 				_copyBuffers(_currentBuffer, _deltaBuffer[1]);
+				changed = true;
 			}
 			break;
 			case 4: {
 				// Copies delta 0 to current.
 				_copyBuffers(_currentBuffer, _deltaBuffer[0]);
+				changed = true;
 			}
 			break;
+#endif
+#if defined(GS_CHECKED) && GS_CHECKED == 1
 			case 5: {	// BOMP Compressed Frame
 				uint32 length = READ_LE_UINT32(&header[FOBJ_HDR_BOMP_LENGTH]);
 
-#if defined(GS_CHECKED) && GS_CHECKED == 1
 				if (length > GS_BITMAP_SIZE) {
 					error(GS_THIS, "BOMP Frame Length to large! %ld", length);
 					abort_quit_stop();
@@ -232,9 +234,14 @@ namespace gs
 				uint8* buffer = _getBuffer(_currentBuffer);
 				_diskReader.readBytes(&_tempBuffer[0], length);
 				decodeBomp(buffer, &_tempBuffer[0], length);
-				screenBlitCopy(buffer);
+				changed = true;
 			}
 			break;
+		}
+
+		if (changed == true) {
+			uint8 *buffer = _getBuffer(_currentBuffer);
+			screenBlitCopy(buffer);
 		}
 
 		if (seqNum == _prevSequenceNum + 1) {
@@ -341,33 +348,94 @@ namespace gs
 
 #if FOBJ_CODEC2_ENABLED == 1
 
-	static void FillLine2x1(byte* dst, byte src) {
+	inline static void FillLine2x1(byte* dst, byte src) {
+#if 0
+		*dst++ = src;
+		*dst++ = src;
+#else
 		uint16 t = src << 8 | src;
 		*((uint16*) dst) = t;
+#endif
 	}
 
 	inline static void FillLine4x1(byte* dst, byte src) {
+#if 0
+		*dst++ = src;
+		*dst++ = src;
+		*dst++ = src;
+		*dst = src;
+#else
 		uint32 t = src << 24 | src << 16 | src << 8 | src;
-		*((uint32*) dst) = t;
+		uint32* d = (uint32*) dst;
+		*d = t;
+#endif
+	}
+
+	inline static void FillLine8x1(byte* dst, byte src) {
+#if 0
+		*dst++ = src;
+		*dst++ = src;
+		*dst++ = src;
+		*dst++ = src;
+		*dst++ = src;
+		*dst++ = src;
+		*dst++ = src;
+		*dst = src;
+#else
+		uint32 t = src << 24 | src << 16 | src << 8 | src;
+		uint32* d = (uint32*) dst;
+		*d++ = t;
+		*d = t;
+#endif
 	}
 
 	inline static void CopyLine2x1(byte* dst, byte* src) {
+#if 0
+		*dst++ = *src++;
+		*dst = *src;
+#else
 		*((uint16*) dst) = *((uint16*) src);
+#endif
 	}
 
 	inline static void CopyLine4x1(byte* dst, byte* src) {
+#if 0
+		*dst++ = *src++;
+		*dst++ = *src++;
+		*dst++ = *src++;
+		*dst = *src;
+#else
 		*((uint32*) dst) = *((uint32*) src);
+#endif
 	}
 
-	void SanCodec::Codec2_Level3(byte* dst, uint32 offset, byte*& src, byte* previous1, byte* previous2) {
+	inline static void CopyLine8x1(byte* dst, byte* src) {
+#if 0
+		*dst++ = *src++;
+		*dst++ = *src++;
+		*dst++ = *src++;
+		*dst++ = *src++;
+		*dst++ = *src++;
+		*dst++ = *src++;
+		*dst++ = *src++;
+		*dst = *src;
+#else
+		uint32* d = (uint32*) dst;
+		uint32* s = (uint32*) src;
+		*d++ = *s++;
+		*d = *s;
+#endif
+	}
+
+	void SanCodec::Codec2_Level3(byte* dst, uint32 offset, byte*& src, byte* offset1, byte* offset2) {
 		uint8 code = *src++;
 
 		if (code < 0xF8) {
 			int16 t = SAN47_MOTION_VECTORS[code];
 			// 1.
-			CopyLine2x1(dst + offset, previous2 + offset + t);
+			CopyLine2x1(dst + offset, offset1 + offset + t);
 			// 2.
-			CopyLine2x1(dst + offset + GS_BITMAP_PITCH, previous2 + offset + GS_BITMAP_PITCH + t);
+			CopyLine2x1(dst + offset + GS_BITMAP_PITCH, offset1 + offset + GS_BITMAP_PITCH + t);
 		}
 		else if (code == 0xFF) {
 			// 1.
@@ -385,12 +453,12 @@ namespace gs
 		}
 		else if (code == 0xFC) {
 			// 1.
-			CopyLine4x1(dst + offset, dst + offset);
+			CopyLine2x1(dst + offset, offset2 + offset);
 			// 2.
-			CopyLine4x1(dst + offset + GS_BITMAP_PITCH, dst + offset + GS_BITMAP_PITCH);
+			CopyLine2x1(dst + offset + GS_BITMAP_PITCH, offset2 + offset + GS_BITMAP_PITCH);
 		}
 		else {
-			byte t = _params[code & 7];
+			byte t = _params[code - 0xF8];
 			// 1.
 			FillLine2x1(dst + offset, t);
 			// 2.
@@ -398,31 +466,31 @@ namespace gs
 		}
 	}
 
-	void SanCodec::Codec2_Level2(byte* dst, uint32 offset, byte*& src, byte* previous1, byte* previous2) {
+	void SanCodec::Codec2_Level2(byte* dst, uint32 offset, byte*& src, byte* offset1, byte* offset2) {
 		uint8 code = *src++;
 
 		if (code < 0xF8) {
-			const int16 t = SAN47_MOTION_VECTORS[code];
+			int16 t = SAN47_MOTION_VECTORS[code];
 			// 1.
-			CopyLine4x1(dst + offset, previous1 + offset + t);
+			CopyLine4x1(dst + offset, offset1 + offset + t);
 			offset += GS_BITMAP_PITCH;
 			// 2.
-			CopyLine4x1(dst + offset, previous1 + offset + t);
+			CopyLine4x1(dst + offset, offset1 + offset + t);
 			offset += GS_BITMAP_PITCH;
 			// 3.
-			CopyLine4x1(dst + offset, previous1 + offset + t);
+			CopyLine4x1(dst + offset, offset1 + offset + t);
 			offset += GS_BITMAP_PITCH;
 			// 4.
-			CopyLine4x1(dst + offset, previous1 + offset + t);
+			CopyLine4x1(dst + offset, offset1 + offset + t);
 		}
 		else if (code == 0xFF) {
-			Codec2_Level3(dst, offset, src, previous1, previous2);
+			Codec2_Level3(dst, offset, src, offset1, offset2);
 			offset += 2;
-			Codec2_Level3(dst, offset, src, previous1, previous2);
+			Codec2_Level3(dst, offset, src, offset1, offset2);
 			offset += (GS_BITMAP_PITCH * 2) - 2;
-			Codec2_Level3(dst, offset, src, previous1, previous2);
+			Codec2_Level3(dst, offset, src, offset1, offset2);
 			offset += 2;
-			Codec2_Level3(dst, offset, src, previous1, previous2);
+			Codec2_Level3(dst, offset, src, offset1, offset2);
 		}
 		else if (code == 0xFE) {
 			const uint8 t = *src++;
@@ -439,42 +507,44 @@ namespace gs
 			FillLine4x1(dst + offset, t);
 		}
 		else if (code == 0xFD) {
-			byte tmp = *src++;
-			int32 tmpPtr = ((int32) tmp) * 128;
-			byte l = SAN_TABLE_SMALL[tmpPtr + 96];
+
+			int32 tmp = *src++;
+			int32 tmpPtr = tmp * 128;
+			byte len = SAN_TABLE_SMALL[tmpPtr + 96];
 			byte val = *src++;
 			int32 tmpPtr2 = tmpPtr;
 
-			while(l--) {
-				uint16 offset2 = READ_LE_UINT16(SAN_TABLE_SMALL + tmpPtr2);
-				*(dst + offset + offset2) = val;
+			while(len--) {
+				int16 m = READ_LE_INT16(SAN_TABLE_SMALL + tmpPtr2);
+				*(dst + offset + m) = val;
 				tmpPtr2 += 2;
 			}
 
-			l = SAN_TABLE_SMALL[tmpPtr + 97];
+			len = SAN_TABLE_SMALL[tmpPtr + 97];
 			val = *src++;
-			tmpPtr2 += 128;
-			while(l--) {
-				uint16 offset2 = READ_LE_UINT16(SAN_TABLE_SMALL + tmpPtr2);
-				*(dst + offset + offset2) = val;
+			tmpPtr2 = tmpPtr + 32;
+			while(len--) {
+				int16 m = READ_LE_INT16(SAN_TABLE_SMALL + tmpPtr2);
+				*(dst + offset + m) = val;
 				tmpPtr2 += 2;
 			}
+
 		}
 		else if (code == 0xFC) {
 			// 1.
-			CopyLine4x1(dst + offset, previous1 + offset);
+			CopyLine4x1(dst + offset, offset2 + offset);
 			offset += GS_BITMAP_PITCH;
 			// 2.
-			CopyLine4x1(dst + offset, previous1 + offset);
+			CopyLine4x1(dst + offset, offset2 + offset);
 			offset += GS_BITMAP_PITCH;
 			// 3.
-			CopyLine4x1(dst + offset, previous1 + offset);
+			CopyLine4x1(dst + offset, offset2 + offset);
 			offset += GS_BITMAP_PITCH;
 			// 4.
-			CopyLine4x1(dst + offset, previous1 + offset);
+			CopyLine4x1(dst + offset, offset2 + offset);
 		}
 		else {
-			byte t = _params[code & 7];
+			byte t = _params[code - 0xF8];
 			// 1.
 			FillLine4x1(dst + offset, t);
 			offset += GS_BITMAP_PITCH;
@@ -489,88 +559,73 @@ namespace gs
 		}
 	}
 
-	void SanCodec::Codec2_Level1(byte* dst, uint32 offset, byte*& src, byte* previous1, byte* previous2) {
+	void SanCodec::Codec2_Level1(byte* dst, uint32 offset, byte*& src, byte* offset1, byte* offset2) {
 
 		uint8 code = *src++;
 
 		if (code < 0xF8) {
 			int32 t = SAN47_MOTION_VECTORS[code];
 			// 1.
-			CopyLine4x1(dst + offset, previous2 + offset + t);
-			CopyLine4x1(dst + offset + 4, previous2 + offset + t + 4);
+			CopyLine8x1(dst + offset, offset1 + offset + t);
 			offset += GS_BITMAP_PITCH;
 			// 2.
-			CopyLine4x1(dst + offset, previous2 + offset + t);
-			CopyLine4x1(dst + offset + 4, previous2 + offset + t + 4);
+			CopyLine8x1(dst + offset, offset1 + offset + t);
 			offset += GS_BITMAP_PITCH;
 			// 3.
-			CopyLine4x1(dst + offset, previous2 + offset + t);
-			CopyLine4x1(dst + offset + 4, previous2 + offset + t + 4);
+			CopyLine8x1(dst + offset, offset1 + offset + t);
 			offset += GS_BITMAP_PITCH;
 			// 4.
-			CopyLine4x1(dst + offset, previous2 + offset + t);
-			CopyLine4x1(dst + offset + 4, previous2 + offset + t + 4);
+			CopyLine8x1(dst + offset, offset1 + offset + t);
 			offset += GS_BITMAP_PITCH;
 			// 5.
-			CopyLine4x1(dst + offset, previous2 + offset + t);
-			CopyLine4x1(dst + offset + 4, previous2 + offset + t + 4);
+			CopyLine8x1(dst + offset, offset1 + offset + t);
 			offset += GS_BITMAP_PITCH;
 			// 6.
-			CopyLine4x1(dst + offset, previous2 + offset + t);
-			CopyLine4x1(dst + offset + 4, previous2 + offset + t + 4);
+			CopyLine8x1(dst + offset, offset1 + offset + t);
 			offset += GS_BITMAP_PITCH;
 			// 7.
-			CopyLine4x1(dst + offset, previous2 + offset + t);
-			CopyLine4x1(dst + offset + 4, previous2 + offset + t + 4);
+			CopyLine8x1(dst + offset, offset1 + offset + t);
 			offset += GS_BITMAP_PITCH;
 			// 8.
-			CopyLine4x1(dst + offset, previous2 + offset + t);
-			CopyLine4x1(dst + offset + 4, previous2 + offset + t + 4);
+			CopyLine8x1(dst + offset, offset1 + offset + t);
 		}
 		else if (code == 0xFF) {
-			Codec2_Level2(dst, offset, src, previous1, previous2);
+			Codec2_Level2(dst, offset, src, offset1, offset2);
 			offset += 4;
-			Codec2_Level2(dst, offset, src, previous1, previous2);
+			Codec2_Level2(dst, offset, src, offset1, offset2);
 			offset += (GS_BITMAP_PITCH * 4) - 4;
-			Codec2_Level2(dst, offset, src, previous1, previous2);
+			Codec2_Level2(dst, offset, src, offset1, offset2);
 			offset += 4;
-			Codec2_Level2(dst, offset, src, previous1, previous2);
+			Codec2_Level2(dst, offset, src, offset1, offset2);
 		}
 		else if (code == 0xFE) {
 			uint8 t = *src++;
 			// 1.
-			FillLine4x1(dst + offset, t);
-			FillLine4x1(dst + offset + 4, t);
+			FillLine8x1(dst + offset, t);
 			offset += GS_BITMAP_PITCH;
 			// 2.
-			FillLine4x1(dst + offset, t);
-			FillLine4x1(dst + offset + 4, t);
+			FillLine8x1(dst + offset, t);
 			offset += GS_BITMAP_PITCH;
 			// 3.
-			FillLine4x1(dst + offset, t);
-			FillLine4x1(dst + offset + 4, t);
+			FillLine8x1(dst + offset, t);
 			offset += GS_BITMAP_PITCH;
 			// 4.
-			FillLine4x1(dst + offset, t);
-			FillLine4x1(dst + offset + 4, t);
+			FillLine8x1(dst + offset, t);
 			offset += GS_BITMAP_PITCH;
 			// 5.
-			FillLine4x1(dst + offset, t);
-			FillLine4x1(dst + offset + 4, t);
+			FillLine8x1(dst + offset, t);
 			offset += GS_BITMAP_PITCH;
 			// 6.
-			FillLine4x1(dst + offset, t);
-			FillLine4x1(dst + offset + 4, t);
+			FillLine8x1(dst + offset, t);
 			offset += GS_BITMAP_PITCH;
 			// 7.
-			FillLine4x1(dst + offset, t);
-			FillLine4x1(dst + offset + 4, t);
+			FillLine8x1(dst + offset, t);
 			offset += GS_BITMAP_PITCH;
 			// 8.
-			FillLine4x1(dst + offset, t);
-			FillLine4x1(dst + offset + 4, t);
+			FillLine8x1(dst + offset, t);
 		}
 		else if (code == 0xFD) {
+
 			byte tmp = *src++;
 			int32 tmpPtr = ((int32) tmp) * 388;
 			byte l = SAN_TABLE_BIG[tmpPtr + 384];
@@ -578,100 +633,85 @@ namespace gs
 			int32 tmpPtr2 = tmpPtr;
 
 			while(l--) {
-				uint16 offset2 = READ_LE_UINT16(SAN_TABLE_BIG + tmpPtr2);
-				*(dst + offset + offset2) = val;
+				int16 m = READ_LE_INT16(SAN_TABLE_BIG + tmpPtr2);
+				*(dst + offset + m) = val;
 				tmpPtr2 += 2;
 			}
 
 			l = SAN_TABLE_BIG[tmpPtr + 385];
 			val = *src++;
-			tmpPtr2 += 128;
+			tmpPtr2 = tmpPtr + 128;
 			while(l--) {
-				uint16 offset2 = READ_LE_UINT16(SAN_TABLE_BIG + tmpPtr2);
-				*(dst + offset + offset2) = val;
+				int16 m = READ_LE_INT16(SAN_TABLE_BIG + tmpPtr2);
+				*(dst + offset + m) = val;
 				tmpPtr2 += 2;
 			}
+
 		}
 		else if (code == 0xFC) {
 			// 1.
-			CopyLine4x1(dst + offset, previous1 + offset);
-			CopyLine4x1(dst + offset + 4, previous1 + offset + 4);
+			CopyLine8x1(dst + offset, offset2 + offset);
 			offset += GS_BITMAP_PITCH;
 			// 2.
-			CopyLine4x1(dst + offset, previous1 + offset);
-			CopyLine4x1(dst + offset + 4, previous1 + offset + 4);
+			CopyLine8x1(dst + offset, offset2 + offset);
 			offset += GS_BITMAP_PITCH;
 			// 3.
-			CopyLine4x1(dst + offset, previous1 + offset);
-			CopyLine4x1(dst + offset + 4, previous1 + offset + 4);
+			CopyLine8x1(dst + offset, offset2 + offset);
 			offset += GS_BITMAP_PITCH;
 			// 4.
-			CopyLine4x1(dst + offset, previous1 + offset);
-			CopyLine4x1(dst + offset + 4, previous1 + offset + 4);
+			CopyLine8x1(dst + offset, offset2 + offset);
 			offset += GS_BITMAP_PITCH;
 			// 5.
-			CopyLine4x1(dst + offset, previous1 + offset);
-			CopyLine4x1(dst + offset + 4, previous1 + offset + 4);
+			CopyLine8x1(dst + offset, offset2 + offset);
 			offset += GS_BITMAP_PITCH;
 			// 6.
-			CopyLine4x1(dst + offset, previous1 + offset);
-			CopyLine4x1(dst + offset + 4, previous1 + offset + 4);
+			CopyLine8x1(dst + offset, offset2 + offset);
 			offset += GS_BITMAP_PITCH;
 			// 7.
-			CopyLine4x1(dst + offset, previous1 + offset);
-			CopyLine4x1(dst + offset + 4, previous1 + offset + 4);
+			CopyLine8x1(dst + offset, offset2 + offset);
 			offset += GS_BITMAP_PITCH;
 			// 8.
-			CopyLine4x1(dst + offset, previous1 + offset);
-			CopyLine4x1(dst + offset + 4, previous1 + offset + 4);
+			CopyLine8x1(dst + offset, offset2 + offset);
 		}
 		else {
-			byte t = _params[code & 7]; /* TODO: _paramPtr[_paramPtrPos + code]; */
+			byte t = _params[code - 0xF8];
 			// 1.
-			FillLine4x1(dst + offset, t);
-			FillLine4x1(dst + offset + 4, t);
+			FillLine8x1(dst + offset, t);
 			offset += GS_BITMAP_PITCH;
 			// 2.
-			FillLine4x1(dst + offset, t);
-			FillLine4x1(dst + offset + 4, t);
+			FillLine8x1(dst + offset, t);
 			offset += GS_BITMAP_PITCH;
 			// 3.
-			FillLine4x1(dst + offset, t);
-			FillLine4x1(dst + offset + 4, t);
+			FillLine8x1(dst + offset, t);
 			offset += GS_BITMAP_PITCH;
 			// 4.
-			FillLine4x1(dst + offset, t);
-			FillLine4x1(dst + offset + 4, t);
+			FillLine8x1(dst + offset, t);
 			offset += GS_BITMAP_PITCH;
 			// 5.
-			FillLine4x1(dst + offset, t);
-			FillLine4x1(dst + offset + 4, t);
+			FillLine8x1(dst + offset, t);
 			offset += GS_BITMAP_PITCH;
 			// 6.
-			FillLine4x1(dst + offset, t);
-			FillLine4x1(dst + offset + 4, t);
+			FillLine8x1(dst + offset, t);
 			offset += GS_BITMAP_PITCH;
 			// 7.
-			FillLine4x1(dst + offset, t);
-			FillLine4x1(dst + offset + 4, t);
+			FillLine8x1(dst + offset, t);
 			offset += GS_BITMAP_PITCH;
 			// 8.
-			FillLine4x1(dst + offset, t);
-			FillLine4x1(dst + offset + 4, t);
+			FillLine8x1(dst + offset, t);
 		}
 	}
 
-	void SanCodec::Codec2_Level0(byte* dst, byte* src, byte* previous1, byte* previous2) {
+	void SanCodec::Codec2_Level0(byte* dst, byte* src, byte* offset1, byte* offset2) {
 		uint8 bw = 80;
 		uint8 bh = 60;
-		const uint32 nextLine = 640 * 7;
+		const uint32 nextLine = GS_BITMAP_PITCH * 7;
 		uint32 offset =0;
 		do
 		{
 			uint8 tmp_bw = bw;
 			do
 			{
-				Codec2_Level1(dst, offset, src, previous2, previous2);
+				Codec2_Level1(dst, offset, src, offset1, offset2);
 				offset += 8;
 			} while ((--tmp_bw) != 0);
 			offset += nextLine;

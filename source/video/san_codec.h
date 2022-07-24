@@ -43,7 +43,8 @@ namespace gs
 		int16 _prevSequenceNum;
 		uint8 _tempBuffer[GS_BITMAP_SIZE];
 		uint8 _buffer[3][GS_BITMAP_SIZE];
-		uint8 _params[8];
+		uint8 _params[4];
+		uint8 _offset1, _offset2;
 
 		void _copyBuffers(uint8 dst, uint8 src);
 		uint8* _getBuffer(uint8 idx);
@@ -56,10 +57,10 @@ namespace gs
 
 
 #if FOBJ_CODEC2_ENABLED == 1
-		void Codec2_Level0(byte* dst, byte* src, byte* previous1, byte* previous2);
-		void Codec2_Level1(byte* dst, uint32 offset, byte*& src, byte* previous1, byte* previous2);
-		void Codec2_Level2(byte* dst, uint32 offset, byte*& src, byte* previous1, byte* previous2);
-		void Codec2_Level3(byte* dst, uint32 offset, byte*& src, byte* previous1, byte* previous2);
+		void Codec2_Level0(byte* dst, byte* src, byte* offset1, byte* offset2);
+		void Codec2_Level1(byte* dst, uint32 offset, byte*& src, byte* offset1, byte* offset2);
+		void Codec2_Level2(byte* dst, uint32 offset, byte*& src, byte* offset1, byte* offset2);
+		void Codec2_Level3(byte* dst, uint32 offset, byte*& src, byte* offset1, byte* offset2);
 #endif
 
 	public:
