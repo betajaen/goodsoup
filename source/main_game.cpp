@@ -71,7 +71,8 @@ namespace gs
 	int32 MOUSE_LMB_STATE;
 	int32 MOUSE_RMB_STATE;
 	uint8 KEY_EVENT;
-	bool FAST_MODE;
+	bool FAST_MODE = false;
+	bool DEBUG_SHOW_PALETTE = false;
 
 	void cleanup() {
 		closeTables();
@@ -262,23 +263,6 @@ namespace gs
 
 	void videoFrameHander(bool start, int32 videoId) {
 
-#if 0
-		uint32 palX = 0;
-		uint32 palY = 0;
-		uint32 palIdx =0;
-		for (uint8 i=0;i < 16;i++) {
-			palX = 0;
-			for(uint8 j=0;j < 16;j++) {
-
-				screenDrawBox(palIdx, palX, palY, 8, 8);
-				palIdx++;
-				palX += 8;
-			}
-
-			palY += 8;
-		}
-#endif
-
 		if (start) {
 			VIDEO->loadVideo(videoId);
 		}
@@ -342,6 +326,9 @@ namespace gs
 		} else if (GAME_STATE == GSK_Video && KEY_EVENT == KE_SkipCutscene) {
 			setNextGameState(GSK_Room, 0);
 		}
+		else if (KEY_EVENT == KE_DebugShowPalette) {
+			DEBUG_SHOW_PALETTE = !DEBUG_SHOW_PALETTE;
+		}
 
 		KEY_EVENT = 0;
 
@@ -385,6 +372,25 @@ namespace gs
 				}
 			}
 			break;
+		}
+
+		if (DEBUG_SHOW_PALETTE) {
+
+			uint32 palX = 0;
+			uint32 palY = 0;
+			uint32 palIdx =0;
+			for (uint8 i=0;i < 16;i++) {
+				palX = 0;
+				for(uint8 j=0;j < 16;j++) {
+
+					screenDrawBox(palIdx, palX, palY, 8, 8);
+					palIdx++;
+					palX += 8;
+				}
+
+				palY += 8;
+			}
+			
 		}
 
 	}

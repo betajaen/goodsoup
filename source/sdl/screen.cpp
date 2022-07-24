@@ -15,7 +15,7 @@
  *
  */
 
-#define SCALE 1
+#define SCALE 2
 
 #define GS_FILE_NAME "screen"
 
@@ -183,6 +183,10 @@ namespace gs
 
 						if (event.key.keysym.sym == SDLK_o) {
 							KEY_EVENT = KE_DebugDumpVerbs;
+						}
+
+						if (event.key.keysym.sym == SDLK_i) {
+							KEY_EVENT = KE_DebugShowPalette;
 						}
 
 						if (event.key.keysym.sym == SDLK_ESCAPE) {
