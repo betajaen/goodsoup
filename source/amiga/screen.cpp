@@ -66,6 +66,7 @@ namespace gs
 	struct ScreenBuffer* sScreenBuffer;
 	struct RastPort sRastPort;
 	SystemTimer sSystemTimer;
+	bool sPaletteDirty = false;
 
 	static const uint32 PutChar = 0x16c04e75;
 
@@ -88,6 +89,8 @@ namespace gs
 	GS_AMIGA_MENU(MENU_Game, GS_GAME_NAME, &MENUITEM_Quit);
 	
 	void screenPrintSystem(uint8 colour, uint16 x, uint16 y, const char* text);
+
+	static void stepFrame();
 
 	bool openScreen() {
 
@@ -137,6 +140,9 @@ namespace gs
 			error(GS_THIS, "Could open ScreenBuffer for %ldx%ldx%ld!", GS_SCREEN_WIDTH, GS_SCREEN_HEIGHT, GS_SCREEN_DEPTH);
 			return false;
 		}
+
+		sPalette[0] = 256L << 16 | 0;
+		LoadRGB32(&sScreen->ViewPort, &sPalette[0]);
 
 		InitRastPort(&sRastPort);
 		sRastPort.BitMap = sScreenBuffer->sb_BitMap;
@@ -247,7 +253,7 @@ namespace gs
 							}
 							else if (PAUSED && (msg->Code == 115 || msg->Code == 83)) {
 								debug(GS_THIS, "Frame Step");
-								frameHandler();
+								stepFrame();
 							}
 						}
 						break;
@@ -296,7 +302,7 @@ namespace gs
 
 				if (sSystemTimer.isReady()) {
 					if (PAUSED == false) {
-						frameHandler();
+						stepFrame();
 					}
 
 					sSystemTimer.start(GS_FRAME_DELAY_USEC);
@@ -307,7 +313,18 @@ namespace gs
 
 		sSystemTimer.close();
 	}
-	
+
+	static void stepFrame() {
+
+
+		frameHandler();
+
+		if (sPaletteDirty == true) {
+			sPaletteDirty = false;
+			LoadRGB32(&sScreen->ViewPort, &sPalette[0]);
+		}
+	}
+
 	void screenClear(uint8 colour) {
 		SetRast(&sRastPort, colour);
 	}
@@ -381,13 +398,12 @@ namespace gs
 		*dst = 0;
 
 		CopyMem(&sPalette[0], &sOriginalPalette[0], sizeof(sPalette));
-
-		LoadRGB32(&sScreen->ViewPort, &sPalette[0]);
+		sPaletteDirty = true;
 	}
 
 	void screenResetPalette() {
 		CopyMem(&sPalette[0], &sOriginalPalette[0], sizeof(sPalette));
-		LoadRGB32(&sScreen->ViewPort, &sPalette[0]);
+		sPaletteDirty = true;
 	}
 
 	void screenScalePalette(uint8 from, uint8 to, uint8 redScale, uint8 greenScale, uint8 blueScale) {
@@ -430,7 +446,7 @@ namespace gs
 #endif
 
 		}
-		LoadRGB32(&sScreen->ViewPort, &sPalette[0]);
+		sPaletteDirty = true;
 	}
 
 
