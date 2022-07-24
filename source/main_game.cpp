@@ -175,10 +175,19 @@ namespace gs
 			return 1;
 		}
 
+#if defined(GS_DEMO_MODE) && GS_DEMO_MODE != 0
+#if GS_DEMO_MODE == 1
+		NEXT_GAME_STATE = GSK_Video;
+		NEXT_GAME_STATE_PARAM = 1;
+		GAME_STATE = GSK_None;
+		SCREEN_EVENT_HANDLER_SHOULD_QUIT = false;
+#endif
+#else
 		NEXT_GAME_STATE = GSK_Boot;
 		NEXT_GAME_STATE_PARAM = 1;
 		GAME_STATE = GSK_None;
 		SCREEN_EVENT_HANDLER_SHOULD_QUIT = false;
+#endif
 
 		screenEventHandler();
 
@@ -278,7 +287,11 @@ namespace gs
 
 			if (VIDEO->getVideoStateKind() == VSK_Stopped) {
 				VIDEO->unloadVideo();
+#if defined(GS_DEMO_MODE) && GS_DEMO_MODE != 0
+				setNextGameState(GSK_Quit, 0);
+#else
 				setNextGameState(GSK_Room, 0);
+#endif
 			}
 		}
 

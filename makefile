@@ -9,6 +9,7 @@ ONE_FRAME = 0
 VM_DEBUG = 0
 CHECKED = 1
 FRAME_DELAY=1
+DEMO_MODE=0
 
 CFLAGS = -Isource -D__AMIGADATE__="\"$(DATESTR)\""
 
@@ -61,6 +62,8 @@ CFLAGS += -DGS_FRAME_DELAY=$(FRAME_DELAY)
 ifeq ($(IGNORE_NO_FEATURE), 1)
 CFLAGS += -DGS_IGNORE_NO_FEATURE
 endif
+
+CFLAGS += -DGS_DEMO_MODE=$(DEMO_MODE)
 
 OBJ +=	source/hash.o\
 		source/hashmap.o\
