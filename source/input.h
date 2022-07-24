@@ -29,7 +29,8 @@ namespace gs
 		KE_None = 0,
 		KE_DebugDumpStack = 1,
 		KE_DebugDumpVerbs = 2,
-		KE_SkipCutscene = 3
+		KE_DebugShowPalette = 3,
+		KE_SkipCutscene = 4
 	};
 
 }
