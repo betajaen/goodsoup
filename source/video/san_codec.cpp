@@ -210,13 +210,13 @@ namespace gs
 			case 3: {
 				// Copies* delta 1 to current.
 				_copyBuffers(_currentBuffer, _deltaBuffer[1]);
-				changed = true;
+				changed = false;
 			}
 			break;
 			case 4: {
 				// Copies delta 0 to current.
 				_copyBuffers(_currentBuffer, _deltaBuffer[0]);
-				changed = true;
+				changed = false;
 			}
 			break;
 #endif
@@ -292,15 +292,8 @@ namespace gs
 		while(_diskReader.pos() < frme.end()) {
 			TagPair tag = _diskReader.readSanTagPair();
 
-			//debug(GS_THIS, "Frame %ld %s %ld", _frameNum, tag.tagStr(), tag.length);
-
 			if (tag.isTag(GS_MAKE_ID('N','P','A','L'))) {
 				_readAndApplyPalette();
-				continue;
-			}
-
-			if (tag.isTag(GS_MAKE_ID('I','A','C','T'))) {
-				_diskReader.skip(tag.length);
 				continue;
 			}
 
@@ -318,6 +311,11 @@ namespace gs
 				_readAndApplyText(tag);
 				continue;
 			}
+/*
+			if (tag.isTag(GS_MAKE_ID('I','A','C','T'))) {
+				_diskReader.skip(tag.length);
+				continue;
+			}
 
 			if (tag.isTag(GS_MAKE_ID('S','T','O','R'))) {
 				_diskReader.skip(tag.length);
@@ -328,11 +326,9 @@ namespace gs
 				_diskReader.skip(tag.length);
 				continue;
 			}
+*/
 
-			error(GS_THIS, "Unhandled tag %s", tag.tagStr());
-			abort_quit_stop();
-			_frameNum = _frameCount;
-			return -1;
+			_diskReader.skip(tag.length);
 		}
 
 		_frameNum++;
@@ -349,82 +345,36 @@ namespace gs
 #if FOBJ_CODEC2_ENABLED == 1
 
 	inline static void FillLine2x1(byte* dst, byte src) {
-#if 0
-		*dst++ = src;
-		*dst++ = src;
-#else
 		uint16 t = src << 8 | src;
 		*((uint16*) dst) = t;
-#endif
 	}
 
 	inline static void FillLine4x1(byte* dst, byte src) {
-#if 0
-		*dst++ = src;
-		*dst++ = src;
-		*dst++ = src;
-		*dst = src;
-#else
 		uint32 t = src << 24 | src << 16 | src << 8 | src;
 		uint32* d = (uint32*) dst;
 		*d = t;
-#endif
 	}
 
 	inline static void FillLine8x1(byte* dst, byte src) {
-#if 0
-		*dst++ = src;
-		*dst++ = src;
-		*dst++ = src;
-		*dst++ = src;
-		*dst++ = src;
-		*dst++ = src;
-		*dst++ = src;
-		*dst = src;
-#else
 		uint32 t = src << 24 | src << 16 | src << 8 | src;
 		uint32* d = (uint32*) dst;
 		*d++ = t;
 		*d = t;
-#endif
 	}
 
 	inline static void CopyLine2x1(byte* dst, byte* src) {
-#if 0
-		*dst++ = *src++;
-		*dst = *src;
-#else
 		*((uint16*) dst) = *((uint16*) src);
-#endif
 	}
 
 	inline static void CopyLine4x1(byte* dst, byte* src) {
-#if 0
-		*dst++ = *src++;
-		*dst++ = *src++;
-		*dst++ = *src++;
-		*dst = *src;
-#else
 		*((uint32*) dst) = *((uint32*) src);
-#endif
 	}
 
 	inline static void CopyLine8x1(byte* dst, byte* src) {
-#if 0
-		*dst++ = *src++;
-		*dst++ = *src++;
-		*dst++ = *src++;
-		*dst++ = *src++;
-		*dst++ = *src++;
-		*dst++ = *src++;
-		*dst++ = *src++;
-		*dst = *src;
-#else
 		uint32* d = (uint32*) dst;
 		uint32* s = (uint32*) src;
 		*d++ = *s++;
 		*d = *s;
-#endif
 	}
 
 	void SanCodec::Codec2_Level3(byte* dst, uint32 offset, byte*& src, byte* offset1, byte* offset2) {
