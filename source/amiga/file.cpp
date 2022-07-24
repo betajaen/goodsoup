@@ -205,7 +205,7 @@ namespace gs
 		if (file == NULL)
 		{
 			Close(file);
-			return false;
+			return NULL;
 		}
 
 		byte* data = NULL;
