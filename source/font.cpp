@@ -31,6 +31,15 @@ namespace gs
 
 	static byte glyphBytes[64*64] = { 0 };
 
+	static void _clearGlyphBytes(uint8 col) {
+		const uint32 colour = col << 24 | col << 16 | col << 8 | col;
+		uint32* g = (uint32*) &glyphBytes[0];
+		uint32 len = sizeof(glyphBytes) / sizeof(uint32);
+		while(len--) {
+			*g++ = colour;
+		}
+	}
+
 	Font::Font(uint8 id) {
 
 		ReadFile file;
@@ -209,7 +218,7 @@ namespace gs
 		}
 	}
 
-	void drawSubtitles(uint32 x, uint32 y, const char* text) {
+	void drawSubtitles(uint32 x, uint32 y, const char* text, bool center) {
 		Font* font = FONT[0];
 		bool skipSlash = false;
 		uint32 originalX = x;

@@ -51,7 +51,7 @@ namespace gs
 
 	extern Font* FONT[5];
 
-	void drawSubtitles(uint32 x, uint32 y, const char* text);
+	void drawSubtitles(uint32 x, uint32 y, const char* text, bool center = false);
 }
 
 #endif

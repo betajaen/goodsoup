@@ -195,7 +195,7 @@ namespace gs {
 
 	void VmContext::_actorSay(uint16 actorNum, uint16 length, uint16 offset) {
 		info(GS_THIS, "%s", _script.ptr(offset));
-		drawSubtitles(0, GS_BITMAP_ROWS - 60, (const char*) _script.ptr(offset));
+		drawSubtitles(0, GS_BITMAP_ROWS - 60, (const char*) _script.ptr(offset), true);
 	}
 
 	bool VmContext::_getScriptData() {
