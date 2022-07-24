@@ -47,13 +47,36 @@ An CBM Amiga (or CBM Amiga Emulator) with the following features:-
 Status
 ------
 
-Goodsoup is version 0.5, it has most of the scripting code completed. It is capable
-of loading script and room files from the data files. It is capable of "booting" 
-the game by running the boot scripts, upto the difficulty selection screen.
+	Feature          |  Status
+	-----------------+--------------------
+	Actors           | Placeholder code.
+	AGA Support      | After RTG is completed and the game is mostly playable.
+	Audio            | None.
+	Custom Cursors   | Future.
+	Debugging        | Done.
+	File Formats     | Complete.
+	Fonts            | Nearly Done - Read Fonts. Printing in Progress.
+	Gameplay         | Little.
+	Input            | In Progress.
+	Inventory        | Placeholder code.
+	Objects          | In Progress.
+	RTG Support      | In Progress.
+	Save Games       | None
+	Scripting        | Nearly Done.
+	Translations     | None.
+	Video            | Nearly Done (No Audio, Subtitles Iffy, Plays too fast).
 
-- Graphics are primitive are currently being worked on.
-- Input will be worked on in a future milestone.
-- Audio will be worked on in a future milestone.
+General Notes:
+
+	As of 24-July-2022
+
+	The game is capable of loading the boot script. It then displays the difficulty selection
+	dialogue. The game is hardcoded to select the easy option on a mouse click, for which it
+	then plays the Monkey Screaming CMI screen. It then plays the opening SAN video, which
+	can be skipped by the Escape key. It will then show the chapter one title card, and then
+	fade into the scene where Guybrush and Wally are in the Canon room. Wally, Guybrush, the
+	canon and some objects are not shown on the screen, but Wally is appearing to be talking
+	as the scripts are running in this room.
 
 Installation
 ------------
