@@ -114,9 +114,6 @@ namespace gs
 		debug_write_str(GOODSOUP_VERSION_STR);
 		debug_write_char('\n');
 
-#if GS_TEST == 1
-		return test::run();
-#else
 
 		info(GS_THIS, "%s\n", &GOODSOUP_VERSION_STR[6]);
 
@@ -139,10 +136,13 @@ namespace gs
 		COSTUMES = newObject<CostumeState>();
 		VIDEO = newObject<VideoContext>();
 
+#if defined(GS_DEMO_MODE) && GS_DEMO_MODE != 0
+#else
 		if (INDEX->readFromFile(GS_GAME_PATH GS_INDEX_FILENAME) == false) {
 			cleanup();
 			return 1;
 		}
+#endif
 
 		if (openTables() == false) {
 			cleanup();
@@ -196,7 +196,6 @@ namespace gs
 		closeScreen();
 
 		return 0;
-#endif
 	}
 
 	uint8 col = 0;
@@ -390,7 +389,7 @@ namespace gs
 
 				palY += 8;
 			}
-			
+
 		}
 
 	}
