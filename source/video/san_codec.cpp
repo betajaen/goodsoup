@@ -110,7 +110,9 @@ namespace gs
 		}
 		else {
 			_diskReader.skip(4);
-			_diskReader.readBytes(&_deltaPalette[0], sizeof(_deltaPalette));
+			for(uint16 i=0;i < 768;i++) {
+				_deltaPalette[i] = _diskReader.readUInt16LE();
+			}
 			_diskReader.readBytes(&_palette.palette[0], sizeof(_palette.palette));
 			screenSetPalette(&_palette);
 		}
