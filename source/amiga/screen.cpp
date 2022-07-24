@@ -262,6 +262,7 @@ namespace gs
 									step = false;
 								}
 								else if (itemNum == 0) {
+									togglePause();
 									setNextGameState(GSK_Quit, 0);
 								}
 							}
