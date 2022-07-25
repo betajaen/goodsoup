@@ -124,6 +124,12 @@ namespace gs
 
 	void SanCodec::_readAndApplyText(const TagPair& text) {
 
+		if (_numTexts == MAX_TEXT_PER_FRAME) {
+			uint16 length = text.length;
+			_diskReader.skip(length);
+			return;
+		}
+
 		TextDrawCall& call = _texts[_numTexts];
 		_numTexts++;
 
@@ -142,6 +148,7 @@ namespace gs
 		if (_textLength + length >= sizeof(_textData)) {
 			warn(GS_THIS, "Out of dialogue text space!");
 			_numTexts--;
+			_diskReader.skip(length);
 			return;
 		}
 #endif
