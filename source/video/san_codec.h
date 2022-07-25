@@ -45,6 +45,9 @@ namespace gs
 		uint8 _buffer[3][GS_BITMAP_SIZE];
 		uint8 _params[4];
 		uint8 _offset1, _offset2;
+		uint16 _textX, _textY, _textFlags;
+		uint8 _rotationOp;
+		bool _hasText, _hasFrame;
 
 		void _copyBuffers(uint8 dst, uint8 src);
 		uint8* _getBuffer(uint8 idx);

@@ -181,14 +181,12 @@ namespace gs
 			_clearBuffer(_deltaBuffer[1], header[11]);
 		}
 
-		bool changed = false;
-
 		switch(header[FOBJ_HDR_OP]) {
 
 			case 0: {	// "Key Frame"
 				uint8* buffer = _getBuffer(_currentBuffer);
 				_diskReader.readBytes(buffer, GS_BITMAP_SIZE);
-				changed= true;
+				_hasFrame = true;
 			}
 			break;
 #if FOBJ_CODEC2_ENABLED == 1
@@ -205,20 +203,20 @@ namespace gs
 					_diskReader.readBytes(src, dataLength);
 					uint8 *buffer = _getBuffer(_currentBuffer);
 					Codec2_Level0(buffer, src, _getBuffer(_deltaBuffer[1]), _getBuffer(_deltaBuffer[0]));
-					changed = true;
+					_hasFrame = true;
 				}
 			}
 			break;
 			case 3: {
 				// Copies* delta 1 to current.
 				_copyBuffers(_currentBuffer, _deltaBuffer[1]);
-				changed = false;
+				_hasFrame = false;
 			}
 			break;
 			case 4: {
 				// Copies delta 0 to current.
 				_copyBuffers(_currentBuffer, _deltaBuffer[0]);
-				changed = false;
+				_hasFrame = false;
 			}
 			break;
 #endif
@@ -236,24 +234,13 @@ namespace gs
 				uint8* buffer = _getBuffer(_currentBuffer);
 				_diskReader.readBytes(&_tempBuffer[0], length);
 				decodeBomp(buffer, &_tempBuffer[0], length);
-				changed = true;
+				_hasFrame = true;
 			}
 			break;
 		}
 
-		if (changed == true) {
-			uint8 *buffer = _getBuffer(_currentBuffer);
-			screenBlitCopy(buffer);
-		}
-
 		if (seqNum == _prevSequenceNum + 1) {
-			const uint8 rotation = header[FOBJ_HDR_ROTATION_OP];
-			if (rotation != 0) {
-				if (rotation == 2) {
-					SWAP_BUFFER(_deltaBuffer[0], _deltaBuffer[1]);
-				}
-				SWAP_BUFFER(_currentBuffer, _deltaBuffer[1]);
-			}
+			_rotationOp = header[FOBJ_HDR_ROTATION_OP];
 		}
 
 		_prevSequenceNum = seqNum;
@@ -261,9 +248,9 @@ namespace gs
 	}
 
 	void SanCodec::_readAndApplyText(const TagPair& text) {
-		uint16 x = _diskReader.readUInt16LE();
-		uint16 y = _diskReader.readUInt16LE();
-		uint16 flags = _diskReader.readUInt16LE();
+		_textX = _diskReader.readUInt16LE();
+		_textY  = _diskReader.readUInt16LE();
+		_textFlags = _diskReader.readUInt16LE();
 		uint16 x0 = _diskReader.readUInt16LE();
 		uint16 y0 = _diskReader.readUInt16LE();
 		uint16 right = _diskReader.readUInt16LE();
@@ -277,7 +264,7 @@ namespace gs
 
 		_diskReader.readBytes(_tempText.ptr(0), length);
 
-		drawSubtitles(x, y, _tempText.ptr(0));
+		_hasText = true;
 	}
 
 	int32 SanCodec::presentFrame() {
@@ -290,6 +277,8 @@ namespace gs
 			abort_quit_stop();
 		}
 #endif
+
+		_hasFrame = false;
 
 		while(_diskReader.pos() < frme.end()) {
 			TagPair tag = _diskReader.readSanTagPair();
@@ -331,6 +320,25 @@ namespace gs
 */
 
 			_diskReader.skip(tag.length);
+		}
+
+
+		if (_hasFrame == true) {
+			uint8 *buffer = _getBuffer(_currentBuffer);
+			screenBlitCopy(buffer);
+		}
+
+		if (_hasText) {
+			_hasText = false;
+			drawSubtitles2(_getBuffer(_currentBuffer), _textX, _textY, _tempText.ptr(0), false);
+		}
+
+		if (_rotationOp != 0) {
+			if (_rotationOp == 2) {
+				SWAP_BUFFER(_deltaBuffer[0], _deltaBuffer[1]);
+			}
+			SWAP_BUFFER(_currentBuffer, _deltaBuffer[1]);
+			_rotationOp = 0;
 		}
 
 		_frameNum++;
