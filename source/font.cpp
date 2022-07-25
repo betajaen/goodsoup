@@ -40,6 +40,25 @@ namespace gs
 		}
 	}
 
+	static void _grabGlyph(byte* src, uint32 stride, uint32 x, uint32 y, uint32 w, uint32 h) {
+		/* TODO: Optimise */
+
+		byte* dst = &glyphBytes[0];
+		byte* s = src + x + (y * stride);
+
+		while(h--) {
+			byte* nextSrc = s + stride;
+
+			uint16 l = w;
+
+			while(l--) {
+				*dst++ = *s++;
+			}
+
+			s = nextSrc;
+		}
+	}
+
 	Font::Font(uint8 id) {
 
 		ReadFile file;
@@ -209,8 +228,8 @@ namespace gs
 
 			FontChar& fontChar = _chars[ch];
 
-			screenGrab(x,y, fontChar._rle._width, fontChar._rle._height, &glyphBytes[0]);
-
+			_clearGlyphBytes(5);
+			// screenGrab(x,y, fontChar._rle._width, fontChar._rle._height, &glyphBytes[0]);
 			drawRLEImage2(0,0,fontChar._rle, _data.ptr(0), &glyphBytes[0], 32, colours);
 			screenBlitBitmap(x,y, fontChar._rle._width, fontChar._rle._height, &glyphBytes[0]);
 
@@ -294,13 +313,103 @@ namespace gs
 				continue;
 			}
 
-			screenGrab(x,y, fontChar._rle._width, fontChar._rle._height, &glyphBytes[0]);
+			_clearGlyphBytes(5);
+			//screenGrab(x,y, fontChar._rle._width, fontChar._rle._height, &glyphBytes[0]);
 			drawRLEImage2(0,0,fontChar._rle, font->_data.ptr(0), &glyphBytes[0], 32, colours);
 			screenBlitBitmap(x,y, fontChar._rle._width, fontChar._rle._height, &glyphBytes[0]);
 			x += fontChar._rle._width;
 
 		}
 
+
 	}
 
+	void drawSubtitles2(byte* src, uint32 x, uint32 y, const char* text, bool center) {
+
+		Font* font = FONT[0];
+		bool skipSlash = false;
+		uint32 originalX = x;
+		uint32 originalY = y;
+
+		uint8 colours[2] = {
+				0xFF,
+				0x00
+		};
+
+		while(true) {
+
+			if (x > GS_BITMAP_PITCH || y > GS_BITMAP_ROWS)
+				return;
+
+			char ch = *text;
+			text++;
+
+			if (ch == 0)
+				return;
+
+			if (ch == '/') {
+
+				text++;
+
+				while(true) {
+					char ch = *text;
+					text++;
+
+					if (ch == 0)
+						return;
+
+					if (ch == '/') {
+						break;
+					}
+				}
+
+				continue;
+			}
+
+			if (ch == '^') {
+				ch = *text;
+				if (ch == 'f') {
+					uint8 fontNum = (text[2] - '0');
+					if (fontNum < 5) {
+						font = FONT[fontNum];
+
+						if (font == NULL) {
+							font = FONT[0];
+						}
+					}
+					text += 3;
+				}
+				else if (ch == 'c') {
+					// colours[0] = (text[2] - '0') + (text[3] - '0') * 10;
+					text += 4;
+				}
+				continue;
+			}
+
+			if (ch >= font->_numChars)
+				continue;
+
+			FontChar& fontChar = font->_chars[ch];
+
+			if (ch < 32) {
+				if (ch == '\r') {
+					y += fontChar._rle._height;
+				}
+				else if (ch == '\n') {
+					x = originalX;
+				}
+				continue;
+			}
+
+			_clearGlyphBytes(5);
+			_grabGlyph(src, GS_BITMAP_PITCH, x, y, fontChar._rle._width, fontChar._rle._height);
+			//screenGrab(x,y, fontChar._rle._width, fontChar._rle._height, &glyphBytes[0]);
+			drawRLEImage2(0,0,fontChar._rle, font->_data.ptr(0), &glyphBytes[0], 32, colours);
+			screenBlitBitmap(x,y, fontChar._rle._width, fontChar._rle._height, &glyphBytes[0]);
+			x += fontChar._rle._width;
+
+		}
+
+
+	}
 }
