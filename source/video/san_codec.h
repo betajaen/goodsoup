@@ -24,12 +24,20 @@
 #include "../room.h"	// For RoomPaletteData
 
 #define FOBJ_CODEC2_ENABLED 1
+#define MAX_TEXT_PER_FRAME 16
 
 namespace gs
 {
 
 	class SanCodec
 	{
+		struct TextDrawCall {
+			const char*  _text;
+			uint32 _hash;
+			int16  _x, _y;
+			uint8  _center, _wrap, _font, _col;
+		};
+
 		DiskReader _diskReader;
 
 		uint16 _frameCount;
@@ -45,7 +53,8 @@ namespace gs
 		uint8 _buffer[3][GS_BITMAP_SIZE];
 		uint8 _params[4];
 		uint8 _offset1, _offset2;
-		uint16 _textX, _textY, _textFlags;
+		TextDrawCall _texts[MAX_TEXT_PER_FRAME];
+		uint8 _numTexts;
 		uint8 _rotationOp;
 		bool _hasText, _hasFrame;
 

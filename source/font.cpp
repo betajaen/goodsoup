@@ -24,6 +24,7 @@
 #include "screen.h"
 #include "codecs/nut.h"
 #include "profile.h"
+#include "hash.h"
 
 namespace gs
 {
@@ -237,154 +238,130 @@ namespace gs
 		}
 	}
 
-	void drawSubtitles(uint32 x, uint32 y, const char* text, bool center) {
-		Font* font = FONT[0];
-		bool skipSlash = false;
-		uint32 originalX = x;
-		uint32 originalY = y;
-
-		uint8 colours[2] = {
-				0,
-				0xFF
-		};
-
-		while(true) {
-
-			if (x > GS_BITMAP_PITCH || y > GS_BITMAP_ROWS)
-				return;
-
+	inline uint8 readNum(const char*& text) {
+		uint8 num = 0;
+		uint8 count = 3;
+		while(count--) {
 			char ch = *text;
+			if (ch < '0' || ch > '9')
+				return num;
+			num *= 10;
+			num += ch - '0';
+			text++;
+		}
+	}
+
+	int16 Font::calculateFontWidth(const char* text) {
+#if defined(GS_CHECKED) && GS_CHECKED == 1
+		if (text == NULL)
+			return 0;
+#endif
+
+		int16 width = 0;
+		while(*text != 0) {
+			FontChar& fontChar = _chars[*text];
+			width += fontChar._rle._width;
+			text++;
+		}
+
+		return width;
+	}
+
+	const char* parseFormattedDialogue(const char* text, uint32& out_translationHash, uint8& out_fontNum, uint8& out_Colour) {
+#if defined(GS_CHECKED) && GS_CHECKED == 1
+		if (text == NULL)
+			return NULL;
+#endif
+
+		if (*text == '\0')
+			return text;
+
+		debug(GS_THIS, "%s", text);
+
+		if (*text == '/') {
+			HashBuilder hb;
 			text++;
 
-			if (ch == 0)
-				return;
-
-			if (ch == '/') {
-
+			while(*text != '\0' && *text != '/') {
+				hb.feed(*text);
 				text++;
-
-				while(true) {
-					char ch = *text;
-					text++;
-
-					if (ch == 0)
-						return;
-
-					if (ch == '/') {
-						break;
-					}
-				}
-
-				continue;
 			}
 
-			if (ch == '^') {
-				ch = *text;
-				if (ch == 'f') {
-					uint8 fontNum = (text[2] - '0');
-					if (fontNum < 5) {
-						font = FONT[fontNum];
+			out_translationHash = hb.hash;
 
-						if (font == NULL) {
-							font = FONT[0];
-						}
-					}
-					text += 3;
-				}
-				else if (ch == 'c') {
-					colours[1] = (text[2] - '0') + (text[3] - '0') * 10;
-					text += 4;
-				}
-				continue;
-			}
+			if (*text == '\0')
+				return text;
 
-			if (ch >= font->_numChars)
-				continue;
-
-			FontChar& fontChar = font->_chars[ch];
-
-			if (ch < 32) {
-				if (ch == '\r') {
-					y += fontChar._rle._height;
-				}
-				else if (ch == '\n') {
-					x = originalX;
-				}
-				continue;
-			}
-
-			_clearGlyphBytes(5);
-			//screenGrab(x,y, fontChar._rle._width, fontChar._rle._height, &glyphBytes[0]);
-			drawRLEImage2(0,0,fontChar._rle, font->_data.ptr(0), &glyphBytes[0], 32, colours);
-			screenBlitBitmap(x,y, fontChar._rle._width, fontChar._rle._height, &glyphBytes[0]);
-			x += fontChar._rle._width;
-
+			text++;
 		}
 
 
+		for(uint8 i=0;i < 2;i++) {
+
+			if (*text == '^') {
+				text++;
+#if defined(GS_CHECKED) && GS_CHECKED == 1
+				if (*text == '\0')
+					return text;
+#endif
+				if (*text == 'f') {
+					text++;
+					out_fontNum = readNum(text);
+#if defined(GS_CHECKED) && GS_CHECKED == 1
+					if (*text == '\0')
+						return text;
+#endif
+				}
+
+				else if (*text == 'c') {
+					text++;
+					out_Colour = readNum(text);
+#if defined(GS_CHECKED) && GS_CHECKED == 1
+					if (*text == '\0')
+						return text;
+#endif
+				}
+			}
+		}
+
+		debug(GS_THIS, "Font Number = %ld, Colour = %ld", (uint32) out_fontNum, (uint32) out_Colour);
+
+		return text;
 	}
 
-	void drawSubtitles2(byte* src, uint32 x, uint32 y, const char* text, bool center) {
+	void drawSubtitles(uint32 x, uint32 y, const char* text, bool center) {
+		/* REMOVED */
+	}
 
-		Font* font = FONT[0];
-		bool skipSlash = false;
-		uint32 originalX = x;
-		uint32 originalY = y;
+	void drawSubtitlesFrom(byte* background, int16 x, int16 y, const char* text, bool center, uint8 fontNum, uint8 colourNum) {
+
+		if (fontNum >= MAX_FONTS) {
+			warn(GS_THIS, "Cannot display dialogue %s with given font num %ld", text, (uint32) fontNum);
+			return;
+		}
+
+		Font* font = FONT[fontNum];
+		int16 originalX = x;
 
 		uint8 colours[2] = {
-				0xFF,
+				colourNum,
 				0x00
 		};
 
-		while(true) {
+		uint32 width = 0;
+		if (center) {
+			width = font->calculateFontWidth(text);
+		}
 
-			if (x > GS_BITMAP_PITCH || y > GS_BITMAP_ROWS)
-				return;
+		originalX -= width;
+
+		while(true) {
 
 			char ch = *text;
 			text++;
 
 			if (ch == 0)
 				return;
-
-			if (ch == '/') {
-
-				text++;
-
-				while(true) {
-					char ch = *text;
-					text++;
-
-					if (ch == 0)
-						return;
-
-					if (ch == '/') {
-						break;
-					}
-				}
-
-				continue;
-			}
-
-			if (ch == '^') {
-				ch = *text;
-				if (ch == 'f') {
-					uint8 fontNum = (text[2] - '0');
-					if (fontNum < 5) {
-						font = FONT[fontNum];
-
-						if (font == NULL) {
-							font = FONT[0];
-						}
-					}
-					text += 3;
-				}
-				else if (ch == 'c') {
-					// colours[0] = (text[2] - '0') + (text[3] - '0') * 10;
-					text += 4;
-				}
-				continue;
-			}
 
 			if (ch >= font->_numChars)
 				continue;
@@ -401,11 +378,16 @@ namespace gs
 				continue;
 			}
 
-			_clearGlyphBytes(5);
-			_grabGlyph(src, GS_BITMAP_PITCH, x, y, fontChar._rle._width, fontChar._rle._height);
-			//screenGrab(x,y, fontChar._rle._width, fontChar._rle._height, &glyphBytes[0]);
-			drawRLEImage2(0,0,fontChar._rle, font->_data.ptr(0), &glyphBytes[0], 32, colours);
-			screenBlitBitmap(x,y, fontChar._rle._width, fontChar._rle._height, &glyphBytes[0]);
+			int16 r = x + fontChar._rle._width;
+			int16 b = y + fontChar._rle._height;
+			bool inBounds = (x >=0 && r < GS_BITMAP_PITCH && y > 0 && b < GS_BITMAP_ROWS);
+
+			if (inBounds) {
+				_grabGlyph(background, GS_BITMAP_PITCH, x, y, fontChar._rle._width, fontChar._rle._height);
+				drawRLEImage2(0, 0, fontChar._rle, font->_data.ptr(0), &glyphBytes[0], 32, colours);
+				screenBlitBitmap(x, y, fontChar._rle._width, fontChar._rle._height, &glyphBytes[0]);
+			}
+
 			x += fontChar._rle._width;
 
 		}

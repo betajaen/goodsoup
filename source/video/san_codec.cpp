@@ -39,7 +39,8 @@ namespace gs
 #define FOBJ_HDR_BOMP_LENGTH 12
 #define FOBJ_HDR_PARAMS 6
 
-	static Buffer<char, uint16> _tempText;
+	char  _textData[1024];
+	uint16 _textLength = 0;
 
 #define SWAP_BUFFER(A, B) do { uint8 t = A; A = B; B = t; } while(0)
 
@@ -77,6 +78,8 @@ namespace gs
 		_deltaBuffer[0] = 0;
 		_deltaBuffer[1] = 1;
 		_prevSequenceNum = -1;
+		_numTexts = 0;
+		_textLength = 0;
 	}
 
 	SanCodec::~SanCodec() {
@@ -117,6 +120,40 @@ namespace gs
 			screenSetPalette(&_palette);
 		}
 
+	}
+
+	void SanCodec::_readAndApplyText(const TagPair& text) {
+
+		TextDrawCall& call = _texts[_numTexts];
+		_numTexts++;
+
+		call._x = _diskReader.readInt16LE();
+		call._y  = _diskReader.readUInt16LE();
+		uint16 flags = _diskReader.readUInt16LE() & 7;
+		uint16 x0 = _diskReader.readUInt16LE();
+		uint16 y0 = _diskReader.readUInt16LE();
+		uint16 right = _diskReader.readUInt16LE();
+
+		_diskReader.skip(4);
+		uint16 length = text.length - 16;
+
+
+#if defined(GS_CHECKED) && GS_CHECKED == 1
+		if (_textLength + length >= sizeof(_textData)) {
+			warn(GS_THIS, "Out of dialogue text space!");
+			_numTexts--;
+			return;
+		}
+#endif
+
+		_diskReader.readBytes(&_textData[_textLength], length);
+		call._text = parseFormattedDialogue((const char*) &_textData[_textLength], call._hash, call._font, call._col);
+		call._center = flags & 1;
+		call._wrap = 0;
+
+		_textLength += length;
+
+		_hasText = true;
 	}
 
 	void SanCodec::_copyBuffers(uint8 dst, uint8 src) {
@@ -167,9 +204,6 @@ namespace gs
 		if (header[FOBJ_HDR_EXTENDED] & 1) {
 			_diskReader.skip(0x8080);
 		}
-
-		//_offset1 = _deltaBuffer[1];
-		//_offset2 = _deltaBuffer[0];
 
 		_offset1 = _deltaBuffer[1];
 		_offset2 = _deltaBuffer[0];
@@ -247,25 +281,6 @@ namespace gs
 		_diskReader.seekEndOf(fobj);
 	}
 
-	void SanCodec::_readAndApplyText(const TagPair& text) {
-		_textX = _diskReader.readUInt16LE();
-		_textY  = _diskReader.readUInt16LE();
-		_textFlags = _diskReader.readUInt16LE();
-		uint16 x0 = _diskReader.readUInt16LE();
-		uint16 y0 = _diskReader.readUInt16LE();
-		uint16 right = _diskReader.readUInt16LE();
-
-		_diskReader.skip(4);
-		uint16 length = text.length - 16;
-
-		if (_tempText.getSize() < length) {
-			_tempText.setSize(8 + length);
-		}
-
-		_diskReader.readBytes(_tempText.ptr(0), length);
-
-		_hasText = true;
-	}
 
 	int32 SanCodec::presentFrame() {
 
@@ -330,7 +345,14 @@ namespace gs
 
 		if (_hasText) {
 			_hasText = false;
-			drawSubtitles2(_getBuffer(_currentBuffer), _textX, _textY, _tempText.ptr(0), false);
+
+			for(uint8 i=0;i < _numTexts;i++) {
+				TextDrawCall& call = _texts[i];
+				drawSubtitlesFrom(_getBuffer(_currentBuffer), call._x, call._y, call._text , call._center, call._font, call._col);
+			}
+
+			_numTexts = 0;
+			_textLength = 0;
 		}
 
 		if (_rotationOp != 0) {

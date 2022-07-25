@@ -47,12 +47,15 @@ namespace gs
 		~Font();
 
 		void drawText(uint32 x, uint32 y, const char* text);
+		int16 calculateFontWidth(const char* text);
 	};
 
 	extern Font* FONT[5];
 
+	const char* parseFormattedDialogue(const char* text, uint32& out_translationHash, uint8& out_fontNum, uint8& out_Colour);
+
 	void drawSubtitles(uint32 x, uint32 y, const char* text, bool center = false);
-	void drawSubtitles2(byte* dst, uint32 x, uint32 y, const char* text, bool center);
+	void drawSubtitlesFrom(byte* background, int16 x, int16 y, const char* text, bool center, uint8 fontNum, uint8 colourNum);
 }
 
 #endif
