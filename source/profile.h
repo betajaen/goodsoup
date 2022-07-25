@@ -59,7 +59,8 @@ namespace gs
 		NUM_AARY = 142,
 		NUM_DISKS = 2,
 		NUM_ACTORS = 80,
-		OBJECT_MIN = 100
+		OBJECT_MIN = 100,
+		MAX_FONTS = 5
 	};
 
 }
