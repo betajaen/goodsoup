@@ -162,9 +162,7 @@ namespace gs
 	uint16 ReadFile::readUInt16BE() {
 		uint16 val;
 		_pos += (uint32)SDL_RWread(_file, &val, sizeof(val), 1) * sizeof(val);
-		debug(GS_THIS, "16 before = %ld", val);
 		val = FROM_BE_16(val);
-		debug(GS_THIS, "16 after = %ld", val);
 		return val;
 	}
 
