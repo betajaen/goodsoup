@@ -34,9 +34,6 @@ namespace gs
 
 	class Font
 	{
-
-		void _readNutFont(DiskReader reader);
-
 	public:
 
 		uint16               _numChars;

@@ -60,8 +60,46 @@ namespace gs
 		}
 	}
 
-	Font::Font(uint8 id) {
+	static void saveFontRLEFile(const Font& font, uint8 id, uint32 dataSize) {
+		WriteFile file;
+		String path = String::format(GS_GAME_PATH "FONT%ld.GSF", id);
+		file.open(path.string());
 
+		if (file.isOpen() == false) {
+			error(GS_THIS, "Cannot open font file to save to!");
+			abort_quit_stop();
+			return;
+		}
+
+		file.writeUInt16BE(font._numChars);
+		file.writeBytes(&font._chars[0], sizeof(FontChar) * font._numChars);
+		file.writeUInt32BE(dataSize);
+		file.writeBytes(font._data.ptr(0), dataSize);
+		file.close();
+	}
+
+	static bool loadFontRLEFile(Font& font, uint8 id) {
+		ReadFile file;
+		String path = String::format(GS_GAME_PATH "FONT%ld.GSF", id);
+		file.open(path.string(), false);
+
+		if (file.isOpen() == false) {
+			return false;
+		}
+
+		font._numChars = file.readUInt16BE();
+		file.readBytes(&font._chars[0], sizeof(FontChar) * font._numChars);
+		uint32 dataSize = file.readUInt32BE();
+		font._data.setSize(dataSize);
+		file.readBytes(font._data.ptr(0), dataSize);
+		file.close();
+
+		return true;
+	}
+
+	static uint32 _parseNutFont(Font& font, DiskReader reader);
+
+	static uint32 loadFontNUTFile(Font& font, uint8 id) {
 		ReadFile file;
 
 		String path = String::format(GS_GAME_PATH "RESOURCE/FONT%ld.NUT", id);
@@ -71,17 +109,13 @@ namespace gs
 		if (file.isOpen() == false) {
 			error(GS_THIS, "Cannot open font file!");
 			abort_quit_stop();
-			return;
+			return 0;
 		}
 
-		_readNutFont(DiskReader(file));
+		return _parseNutFont(font, DiskReader(file));
 	}
 
-	Font::~Font() {
-		_data.release();
-	}
-
-	void Font::_readNutFont(DiskReader reader) {
+	static uint32 _parseNutFont(Font& font, DiskReader reader) {
 
 		Buffer<uint8, uint16> _tempCharBuffer;
 
@@ -91,7 +125,7 @@ namespace gs
 		if (animTag.isTag(GS_MAKE_ID('A','N','I','M')) == false) {
 			error(GS_THIS, "This is not an NUT file! Missing ANIM tag got %s", animTag.tagStr());
 			abort_quit_stop();
-			return;
+			return 0;
 		}
 #endif
 
@@ -101,17 +135,17 @@ namespace gs
 		if (animHeader.isTag(GS_MAKE_ID('A','H','D','R')) == false) {
 			error(GS_THIS, "This is not an NUT file! Missing ANHD tag got %s!", animHeader.tagStr());
 			abort_quit_stop();
-			return;
+			return 0;
 		}
 #endif
 
 		reader.skip(2);
-		_numChars = reader.readUInt16LE();
+		font._numChars = reader.readUInt16LE();
 
-		if (_numChars > 256) {
-			error(GS_THIS, "NUT file has too many characters %ld", _numChars);
+		if (font._numChars > 256) {
+			error(GS_THIS, "NUT file has too many characters %ld", font._numChars);
 			abort_quit_stop();
-			return;
+			return 0;
 		}
 
 		reader.seekEndOf(animHeader);
@@ -123,7 +157,7 @@ namespace gs
 		// Calculate data size.
 		uint32 largestWidth = 0, largestHeight = 0;
 
-		for(uint16 i=0;i < _numChars;i++) {
+		for(uint16 i=0;i < font._numChars;i++) {
 
 			TagPair frme = reader.readSanTagPair();
 
@@ -131,7 +165,7 @@ namespace gs
 			if (frme.isTag(GS_MAKE_ID('F','R','M','E')) == false) {
 				error(GS_THIS, "This is not an NUT file! Missing FRME tag got %s!", frme.tagStr());
 				abort_quit_stop();
-				return;
+				return 0;
 			}
 #endif
 
@@ -141,7 +175,7 @@ namespace gs
 			if (fobj.isTag(GS_MAKE_ID('F','O','B','J')) == false) {
 				error(GS_THIS, "This is not an NUT file! Missing FOBJ tag got %s!", fobj.tagStr());
 				abort_quit_stop();
-				return;
+				return 0;
 			}
 #endif
 
@@ -162,53 +196,79 @@ namespace gs
 				largestHeight = height;
 			}
 
-			_chars[i]._rle._width = width;
-			_chars[i]._rle._height = height;
-			_chars[i]._rle._offsets[0] = 0;
-			_chars[i]._rle._offsets[1] = 0;
-			_chars[i]._size = width * height;
+			font._chars[i]._rle._width = width;
+			font._chars[i]._rle._height = height;
+			font._chars[i]._rle._offsets[0] = 0;
+			font._chars[i]._rle._offsets[1] = 0;
+			font._chars[i]._size = width * height;
 
-			dataSize += _chars[i]._size;
+			dataSize += font._chars[i]._size;
 			reader.seekEndOf(fobj);
 		}
 
 
-		_tempCharBuffer.setSize(tempDataSize, MF_Clear);
+		_tempCharBuffer.setSize(tempDataSize, MF_Clear);	// Estimated
 
 		uint32 dstOffset = 0;
-		_data.setSize(dataSize, MF_Clear);
+		font._data.setSize(dataSize, MF_Clear);
 
 		Buffer<byte, uint16> _tempGlyphBuffer;
 		_tempGlyphBuffer.setSize(largestWidth * largestHeight);
 
-
 		reader.seekEndOf(animHeader);
 
-		for(uint16 i=0;i < _numChars-10;i++) {
+		uint32 actualDataSize = 0;
+
+		for(uint16 i=0;i < font._numChars-10;i++) {
 			TagPair frme = reader.readSanTagPair();
 			TagPair fobj = reader.readSanTagPair();
 
-			FontChar& fontChar = _chars[i];
+			FontChar& fontChar = font._chars[i];
 			reader.readBytes(_tempCharBuffer.ptr(0), fobj.length);
 
 			if (_tempCharBuffer.get_unchecked(0) == 44) {
 
 				byte* src = _tempCharBuffer.ptr(14);
 				uint32 originalDstOffset = dstOffset;
-				dstOffset += decodeNutFrame44ToRLE2(src, _data.ptr(dstOffset), _tempGlyphBuffer.ptr(0), fontChar._rle);
+				dstOffset += decodeNutFrame44ToRLE2(src, font._data.ptr(dstOffset), _tempGlyphBuffer.ptr(0), fontChar._rle);
 
+				// Clear image
 				for(uint16 i=0;i < _tempGlyphBuffer.getSize();i++) {
 					_tempGlyphBuffer.set_unchecked(i, 0);
 				}
 
+				// Append offsets to font char
 				for(uint8 i=0;i < 2;i++) {
 					fontChar._rle._offsets[i] += originalDstOffset;
 				}
-			}
 
+				actualDataSize = fontChar._rle._offsets[1];
+			}
+		}
+
+		return actualDataSize;
+	}
+
+
+	Font::Font(uint8 id) {
+
+		if (loadFontRLEFile(*this, id)) {
+			return;
+		}
+
+		uint32 dataSize = loadFontNUTFile(*this, id);
+
+		if (dataSize != 0) {
+			saveFontRLEFile(*this, id, dataSize);
 		}
 
 	}
+
+	Font::~Font() {
+		_numChars = 0;
+		_data.release();
+	}
+
 
 	void Font::drawText(uint32 x, uint32 y, const char* text) {
 
@@ -276,8 +336,6 @@ namespace gs
 		if (*text == '\0')
 			return text;
 
-		debug(GS_THIS, "%s", text);
-
 		if (*text == '/') {
 			HashBuilder hb;
 			text++;
@@ -323,8 +381,6 @@ namespace gs
 				}
 			}
 		}
-
-		debug(GS_THIS, "Font Number = %ld, Colour = %ld", (uint32) out_fontNum, (uint32) out_Colour);
 
 		return text;
 	}
