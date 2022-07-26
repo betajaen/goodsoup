@@ -274,6 +274,21 @@ namespace gs
         SDL_RWwrite(_file, buffer, length, 1);
     }
 
+	bool writeFileFromMemory(const char* path, uint32 length, const void* data) {
+
+		SDL_RWops* file = SDL_RWFromFile(path, "rb");
+		if (file == NULL)
+		{
+			SDL_RWclose(file);
+			return false;
+		}
+
+		SDL_RWwrite(file, data, length, 1);
+
+		SDL_RWclose(file);
+
+		return true;
+	}
 
 
 }

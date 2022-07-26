@@ -204,7 +204,6 @@ namespace gs
 		BPTR file = Open(path, MODE_OLDFILE);
 		if (file == NULL)
 		{
-			Close(file);
 			return NULL;
 		}
 
@@ -219,4 +218,17 @@ namespace gs
 		return data;
 	}
 
+	bool writeFileFromMemory(const char* path, uint32 length, const void* data) {
+
+		BPTR file = Open(path, MODE_NEWFILE);
+
+		if (file == NULL) {
+			return false;
+		}
+
+		Write(file, data, length);
+		Close(file);
+
+		return true;
+	}
 }

@@ -64,4 +64,5 @@ namespace gs
 
 	byte* readFileIntoMemory(const char* path, uint32& length);
 
+	bool writeFileFromMemory(const char* path, uint32 length, const void* data);
 }
