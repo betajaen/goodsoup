@@ -261,10 +261,10 @@ namespace gs
 			}
 			break;
 #endif
-#if defined(GS_CHECKED) && GS_CHECKED == 1
 			case 5: {	// BOMP Compressed Frame
 				uint32 length = READ_LE_UINT32(&header[FOBJ_HDR_BOMP_LENGTH]);
 
+#if defined(GS_CHECKED) && GS_CHECKED == 1
 				if (length > GS_BITMAP_SIZE) {
 					error(GS_THIS, "BOMP Frame Length to large! %ld", length);
 					abort_quit_stop();
