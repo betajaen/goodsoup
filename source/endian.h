@@ -49,27 +49,10 @@ namespace gs
 
 
 
-#if defined(GS_LITTLE)
+#if defined(GS_AMIGA)
 
-#define READ_UINT16(a) READ_LE_UINT16(a)
-#define READ_UINT32(a) READ_LE_UINT32(a)
-
-#define WRITE_UINT16(a, v) WRITE_LE_UINT16(a, v)
-#define WRITE_UINT32(a, v) WRITE_LE_UINT32(a, v)
-
-#define FROM_LE_32(a) ((uint32)(a))
-#define FROM_LE_16(a) ((uint16)(a))
-
-#define FROM_BE_32(a) SWAP_BYTES_32(((uint32)(a)))
-#define FROM_BE_16(a) SWAP_BYTES_32(((uint16)(a)))
-
-#define TO_LE_32(a) ((uint32)(a))
-#define TO_LE_16(a) ((uint16)(a))
-
-#define TO_BE_32(a) SWAP_BYTES_32(a)
-#define TO_BE_16(a) SWAP_BYTES_16(a)
-
-#elif defined(GS_BIG)
+#define GS_MAKE_ID(a,b,c,d)	\
+	((uint32) (a)<<24 | (uint32) (b)<<16 | (uint32) (c)<<8 | (uint32) (d))
 
 #define READ_UINT16(a) READ_BE_UINT16(a)
 #define READ_UINT32(a) READ_BE_UINT32(a)
@@ -89,38 +72,6 @@ namespace gs
 #define TO_BE_32(a) ((uint32)(a))
 #define TO_BE_16(a) ((uint16)(a))
 
-#else
-#error No endianness defined
-#endif
-
-
-	
-#if defined(GS_LITTLE)
-	inline uint16 READ_LE_UINT16(const void *ptr) {
-		return *(const uint16 *)(ptr);
-	}
-	inline uint32 READ_LE_UINT32(const void *ptr) {
-		return *(const uint32 *)(ptr);
-	}
-	inline void WRITE_LE_UINT16(void *ptr, uint16 value) {
-		*(uint16 *)(ptr) = value;
-	}
-	inline void WRITE_LE_UINT32(void *ptr, uint32 value) {
-		*(uint32 *)(ptr) = value;
-	}
-	inline uint16 READ_LE_INT16(const void *ptr) {
-		return *(const uint16 *)(ptr);
-	}
-	inline uint32 READ_LE_INT32(const void *ptr) {
-		return *(const uint32 *)(ptr);
-	}
-	inline void WRITE_LE_INT16(void *ptr, int16 value) {
-		*(uint16 *)(ptr) = value;
-	}
-	inline void WRITE_LE_INT32(void *ptr, int32 value) {
-		*(uint32 *)(ptr) = value;
-	}
-#elif defined(GS_BIG)
 	inline uint16 READ_LE_UINT16(const void *ptr) {
 		const byte *b = (const byte *)ptr;
 		return (b[1] << 8) + b[0];
@@ -161,58 +112,7 @@ namespace gs
 		b[2] = (byte)(value >> 16);
 		b[3] = (byte)(value >> 24);
 	}
-#else
-#error No endianness defined
-#endif
 
-
-
-
-#if defined(GS_LITTLE)
-	inline uint16 READ_BE_UINT16(const void *ptr) {
-		const byte *b = (const byte *)ptr;
-		return (b[0] << 8) + b[1];
-	}
-	inline uint32 READ_BE_UINT32(const void *ptr) {
-		const byte *b = (const byte*)ptr;
-		return (b[0] << 24) + (b[1] << 16) + (b[2] << 8) + (b[3]);
-	}
-	inline void WRITE_BE_UINT16(void *ptr, uint16 value) {
-		byte *b = (byte *)ptr;
-		b[0] = (byte)(value >> 8);
-		b[1] = (byte)(value >> 0);
-	}
-	inline void WRITE_BE_UINT32(void *ptr, uint32 value) {
-		byte *b = (byte *)ptr;
-		b[0] = (byte)(value >> 24);
-		b[1] = (byte)(value >> 16);
-		b[2] = (byte)(value >>  8);
-		b[3] = (byte)(value >>  0);
-	}
-
-	
-	inline int16 READ_BE_INT16(const void *ptr) {
-		const byte *b = (const byte *)ptr;
-		return (b[0] << 8) + b[1];
-	}
-	inline int32 READ_BE_INT32(const void *ptr) {
-		const byte *b = (const byte*)ptr;
-		return (b[0] << 24) + (b[1] << 16) + (b[2] << 8) + (b[3]);
-	}
-	inline void WRITE_BE_INT16(void *ptr, int16 value) {
-		byte *b = (byte *)ptr;
-		b[0] = (byte)(value >> 8);
-		b[1] = (byte)(value >> 0);
-	}
-	inline void WRITE_BE_INT32(void *ptr, int32 value) {
-		byte *b = (byte *)ptr;
-		b[0] = (byte)(value >> 24);
-		b[1] = (byte)(value >> 16);
-		b[2] = (byte)(value >>  8);
-		b[3] = (byte)(value >>  0);
-	}
-
-#elif defined(GS_BIG)
 	inline uint16 READ_BE_UINT16(const void *ptr) {
 		return *(const uint16 *)(ptr);
 	}
@@ -238,8 +138,96 @@ namespace gs
 	inline void WRITE_BE_INT32(void *ptr, int32 value) {
 		*(uint32 *)(ptr) = value;
 	}
+
 #else
-#error No endianness defined
+
+	#define GS_MAKE_ID(a,b,c,d)	\
+	((uint32) (d)<<24 | (uint32) (c)<<16 | (uint32) (b)<<8 | (uint32) (a))
+
+#define READ_UINT16(a) READ_LE_UINT16(a)
+#define READ_UINT32(a) READ_LE_UINT32(a)
+
+#define WRITE_UINT16(a, v) WRITE_LE_UINT16(a, v)
+#define WRITE_UINT32(a, v) WRITE_LE_UINT32(a, v)
+
+#define FROM_LE_32(a) ((uint32)(a))
+#define FROM_LE_16(a) ((uint16)(a))
+
+#define FROM_BE_32(a) SWAP_BYTES_32(((uint32)(a)))
+#define FROM_BE_16(a) SWAP_BYTES_16(((uint16)(a)))
+
+#define TO_LE_32(a) ((uint32)(a))
+#define TO_LE_16(a) ((uint16)(a))
+
+#define TO_BE_32(a) SWAP_BYTES_32(a)
+#define TO_BE_16(a) SWAP_BYTES_16(a)
+
+inline uint16 READ_LE_UINT16(const void *ptr) {
+		return *(const uint16 *)(ptr);
+	}
+	inline uint32 READ_LE_UINT32(const void *ptr) {
+		return *(const uint32 *)(ptr);
+	}
+	inline void WRITE_LE_UINT16(void *ptr, uint16 value) {
+		*(uint16 *)(ptr) = value;
+	}
+	inline void WRITE_LE_UINT32(void *ptr, uint32 value) {
+		*(uint32 *)(ptr) = value;
+	}
+	inline uint16 READ_LE_INT16(const void *ptr) {
+		return *(const uint16 *)(ptr);
+	}
+	inline uint32 READ_LE_INT32(const void *ptr) {
+		return *(const uint32 *)(ptr);
+	}
+	inline void WRITE_LE_INT16(void *ptr, int16 value) {
+		*(uint16 *)(ptr) = value;
+	}
+	inline void WRITE_LE_INT32(void *ptr, int32 value) {
+		*(uint32 *)(ptr) = value;
+	}
+	inline uint16 READ_BE_UINT16(const void *ptr) {
+		const byte *b = (const byte *)ptr;
+		return (b[0] << 8) + b[1];
+	}
+	inline uint32 READ_BE_UINT32(const void *ptr) {
+		const byte *b = (const byte*)ptr;
+		return (b[0] << 24) + (b[1] << 16) + (b[2] << 8) + (b[3]);
+	}
+	inline void WRITE_BE_UINT16(void *ptr, uint16 value) {
+		byte *b = (byte *)ptr;
+		b[0] = (byte)(value >> 8);
+		b[1] = (byte)(value >> 0);
+	}
+	inline void WRITE_BE_UINT32(void *ptr, uint32 value) {
+		byte *b = (byte *)ptr;
+		b[0] = (byte)(value >> 24);
+		b[1] = (byte)(value >> 16);
+		b[2] = (byte)(value >>  8);
+		b[3] = (byte)(value >>  0);
+	}
+
+
+	inline int16 READ_BE_INT16(const void *ptr) {
+		const byte *b = (const byte *)ptr;
+		return (b[0] << 8) + b[1];
+	}
+	inline int32 READ_BE_INT32(const void *ptr) {
+		const byte *b = (const byte*)ptr;
+		return (b[0] << 24) + (b[1] << 16) + (b[2] << 8) + (b[3]);
+	}
+	inline void WRITE_BE_INT16(void *ptr, int16 value) {
+		byte *b = (byte *)ptr;
+		b[0] = (byte)(value >> 8);
+		b[1] = (byte)(value >> 0);
+	}
+	inline void WRITE_BE_INT32(void *ptr, int32 value) {
+		byte *b = (byte *)ptr;
+		b[0] = (byte)(value >> 24);
+		b[1] = (byte)(value >> 16);
+		b[2] = (byte)(value >>  8);
+		b[3] = (byte)(value >>  0);
+	}
 #endif
 
 	inline uint32 READ_LE_UINT24(const void *ptr) {
@@ -253,14 +241,6 @@ namespace gs
 	}
 
 }
-
-#if defined(GS_LITTLE)
-#define GS_MAKE_ID(a,b,c,d)	\
-	((uint32) (d)<<24 | (uint32) (c)<<16 | (uint32) (b)<<8 | (uint32) (a))
-#else
-#define GS_MAKE_ID(a,b,c,d)	\
-	((uint32) (a)<<24 | (uint32) (b)<<16 | (uint32) (c)<<8 | (uint32) (d))
-#endif
 
 #endif
 
