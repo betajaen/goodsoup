@@ -28,7 +28,7 @@ namespace gs
 		ReadFile();
 		~ReadFile();
 
-		void open(const char* path);
+		void open(const char* path, bool throwErrorIsNotOpen = true);
 		void close();
 
 		bool isOpen() const;
@@ -58,6 +58,35 @@ namespace gs
 	protected:
 		ULONG      _file;
 		uint32     _length, _pos;
+	};
+
+	class WriteFile
+	{
+	public:
+
+		WriteFile();
+		~WriteFile();
+
+		void open(const char* path);
+		void close();
+
+		bool isOpen();
+
+		void writeByte(byte byte);
+		void writeBytes(const void* data, uint32 length);
+
+		void writeUInt16LE(uint16 value);
+		void writeUInt16BE(uint16 value);
+		void writeUInt32LE(uint32 value);
+		void writeUInt32BE(uint32 value);
+
+		void writeInt16LE(int16 value);
+		void writeInt16BE(int16 value);
+		void writeInt32LE(int32 value);
+		void writeInt32BE(int32 value);
+
+	protected:
+		ULONG _file;
 	};
 
 	bool fileExists(const char* path);

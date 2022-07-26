@@ -40,7 +40,7 @@ namespace gs
 		close();
 	}
 
-	void ReadFile::open(const char* path) {
+	void ReadFile::open(const char* path, bool throwErrorIsNotOpen) {
 		if (_file) {
 			Close(_file);
 		}
@@ -55,7 +55,9 @@ namespace gs
 			debug(GS_THIS, "(0x%lx, %s, %ld) Opened.", this, path, _length);
 		}
 		else {
-			error(GS_THIS, "(0x%lx, %s) Did not open file.", this, path);
+			if (throwErrorIsNotOpen) {
+				error(GS_THIS, "(0x%lx, %s) Did not open file.", this, path);
+			}
 		}
 	}
 
@@ -70,7 +72,7 @@ namespace gs
 	}
 
 	bool ReadFile::isOpen() const {
-		return _file;
+		return _file != NULL;
 	}
 
 	bool ReadFile::isEof() const {
@@ -130,56 +132,58 @@ namespace gs
 	int16 ReadFile::readInt16LE() {
 		int16 val;
 		_pos += (uint32)Read(_file, &val, sizeof(val));
-		val = TO_LE_16(val);
+		val = FROM_LE_16(val);
 		return val;
 	}
 
 	int16 ReadFile::readInt16BE() {
 		int16 val;
 		_pos += (uint32)Read(_file, &val, sizeof(val));
-		val = TO_BE_16(val);
+		val = FROM_BE_16(val);
 		return val;
 	}
 
 	int32 ReadFile::readInt32LE() {
 		int32 val;
 		_pos += (uint32)Read(_file, &val, sizeof(val));
-		val = TO_LE_32(val);
+		val = FROM_LE_32(val);
 		return val;
 	}
 
 	int32 ReadFile::readInt32BE() {
 		int32 val;
 		_pos += (uint32)Read(_file, &val, sizeof(val));
-		val = TO_BE_32(val);
+		val = FROM_BE_32(val);
 		return val;
 	}
 
 	uint16 ReadFile::readUInt16LE() {
 		uint16 val;
 		_pos += (uint32)Read(_file, &val, sizeof(val));
-		val = TO_LE_16(val);
+		val = FROM_LE_16(val);
 		return val;
 	}
 
 	uint16 ReadFile::readUInt16BE() {
 		uint16 val;
 		_pos += (uint32)Read(_file, &val, sizeof(val));
-		val = TO_BE_16(val);
+		debug(GS_THIS, "16 before = %ld", val);
+		val = FROM_BE_16(val);
+		debug(GS_THIS, "16 after = %ld", val);
 		return val;
 	}
 
 	uint32 ReadFile::readUInt32LE() {
 		uint32 val;
 		_pos += (uint32)Read(_file, &val, sizeof(val));
-		val = TO_LE_32(val);
+		val = FROM_LE_32(val);
 		return val;
 	}
 
 	uint32 ReadFile::readUInt32BE() {
 		uint32 val;
 		_pos += (uint32)Read(_file, &val, sizeof(val));
-		val = TO_BE_32(val);
+		val = FROM_BE_32(val);
 		return val;
 	}
 
@@ -231,4 +235,89 @@ namespace gs
 
 		return true;
 	}
+
+	WriteFile::WriteFile()
+		: _file(0) {
+
+	}
+
+	WriteFile::~WriteFile() {
+		close();
+	}
+
+	void WriteFile::open(const char* path) {
+		if (_file) {
+			Close(_file);
+		}
+
+		_file = Open(path, MODE_NEWFILE);
+	}
+
+	void WriteFile::close() {
+		if (_file) {
+			Close(_file);
+			_file = NULL;
+		}
+	}
+
+	bool WriteFile::isOpen() {
+		return _file != NULL;
+	}
+
+	void WriteFile::writeByte(byte byte) {
+		Write(_file, &byte, 1);
+	}
+
+	void WriteFile::writeBytes(const void* data, uint32 length) {
+		Write(_file, data, length);
+	}
+
+	void WriteFile::writeUInt16LE(uint16 value) {
+		byte w[sizeof(uint16)];
+		WRITE_LE_UINT16(&w, value);
+		Write(_file, &w[0], sizeof(uint16));
+	}
+
+	void WriteFile::writeUInt16BE(uint16 value) {
+		byte w[sizeof(uint16)];
+		WRITE_BE_UINT16(&w, value);
+		Write(_file, &w[0], sizeof(uint16));
+	}
+
+	void WriteFile::writeUInt32LE(uint32 value) {
+		byte w[sizeof(uint32)];
+		WRITE_LE_UINT32(&w, value);
+		Write(_file, &w[0], sizeof(uint32));
+	}
+
+	void WriteFile::writeUInt32BE(uint32 value) {
+		byte w[sizeof(uint32)];
+		WRITE_BE_UINT32(&w, value);
+		Write(_file, &w[0], sizeof(uint32));
+	}
+
+	void WriteFile::writeInt16LE(int16 value) {
+		byte w[sizeof(uint16)];
+		WRITE_LE_INT16(&w, value);
+		Write(_file, &w[0], sizeof(uint16));
+	}
+
+	void WriteFile::writeInt16BE(int16 value) {
+		byte w[sizeof(uint16)];
+		WRITE_BE_INT16(&w, value);
+		Write(_file, &w[0], sizeof(uint16));
+	}
+
+	void WriteFile::writeInt32LE(int32 value) {
+		byte w[sizeof(uint32)];
+		WRITE_LE_INT32(&w, value);
+		Write(_file, &w[0], sizeof(uint32));
+	}
+
+	void WriteFile::writeInt32BE(int32 value) {
+		byte w[sizeof(uint32)];
+		WRITE_BE_INT32(&w, value);
+		Write(_file, &w[0], sizeof(uint32));
+	}
+
 }
