@@ -253,6 +253,10 @@ namespace gs
 		FreeMem(header, header->_totalSize);
 	}
 
+	void copyMem(void* dst, void* src, uint32 size) {
+		CopyMem(dst, src, size);
+	}
+
 	void clearMemory(void* mem, uint32 size)
 	{
 		if (mem == NULL)
@@ -287,6 +291,7 @@ namespace gs
 		}
 
 		byte* bytes = (byte*)mem;
+
 		for (uint32 i = 0; i < size; i++) {
 			bytes[i] = 0;
 		}

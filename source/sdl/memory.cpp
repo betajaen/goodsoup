@@ -230,6 +230,10 @@ namespace gs
 		SDL_free(header);
 	}
 
+	void copyMem(void* dst, void* src, uint32 size) {
+		SDL_memcpy(dst, src, size);
+	}
+
 	void clearMemory(void* mem, uint32 size)
 	{
 		if (mem == NULL)
