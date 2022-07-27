@@ -23,12 +23,10 @@
 
 namespace gs
 {
-	// Decode NUT Font Frame, Codec 44
-	// src should point to the 14th byte in the FRME data section.
-	// Return is number of bytes written to dst.
-	uint32 decodeNutFrame44ToBitmap(byte* src, byte* dst, uint16 width, uint16 height);
-
 	uint32 decodeNutFrame44ToRLE2(byte* nutSrc, byte* rleDst, byte* tempGlyphBuffer, RLEImage2& rle);
+
+	bool   convertNutFontToRleFont(uint8 id);
+
 }
 
 

@@ -59,33 +59,33 @@ namespace gs
 		return src;
 	}
 
-	void drawRLEImage1(uint32 x, uint32 y, const RLEImage1& info, byte* srcData, byte* dstData, uint32 dstPitch, uint8 colour) {
+	void drawRLEImage1(uint16 x, uint16 y, const RLEImage1& info, byte* srcData, byte* dstData, uint16 dstPitch, uint8 colour) {
 
-		uint8* d = dstData + x + (y * dstPitch);
+		uint8* d = dstData + x + (y * (uint32) dstPitch);
 
 		drawRLEimpl(d, dstPitch, srcData + info._offset, colour);
 	}
 
-	void drawRLEImage2(uint32 x, uint32 y, const RLEImage2& info, byte* srcData, byte* dstData, uint32 dstPitch, uint8 colours[2]) {
+	void drawRLEImage2(uint16 x, uint16 y, const RLEImage2& info, byte* srcData, byte* dstData, uint16 dstPitch, uint8 colours[2]) {
 
-		uint8* d = dstData + x + (y * dstPitch);
+		uint8* d = dstData + x + (y * (uint32) dstPitch);
 
 		drawRLEimpl(d, dstPitch, srcData + info._offsets[0], colours[0]);
 		drawRLEimpl(d, dstPitch, srcData + info._offsets[1], colours[1]);
 	}
 
-	void drawRLEImage3(uint32 x, uint32 y, const RLEImage3& info, byte* srcData, byte* dstData, uint32 dstPitch, uint8 colours[3]) {
+	void drawRLEImage3(uint16 x, uint16 y, const RLEImage3& info, byte* srcData, byte* dstData, uint16 dstPitch, uint8 colours[3]) {
 
-		uint8* d = dstData + x + (y * dstPitch);
+		uint8* d = dstData + x + (y * (uint32) dstPitch);
 
 		drawRLEimpl(d, dstPitch, srcData + info._offsets[0], colours[0]);
 		drawRLEimpl(d, dstPitch, srcData + info._offsets[1], colours[1]);
 		drawRLEimpl(d, dstPitch, srcData + info._offsets[2], colours[2]);
 	}
 
-	void drawRLEImage4(uint32 x, uint32 y, const RLEImage4& info, byte* srcData, byte* dstData, uint32 dstPitch, uint8 colours[4]) {
+	void drawRLEImage4(uint16 x, uint16 y, const RLEImage4& info, byte* srcData, byte* dstData, uint16 dstPitch, uint8 colours[4]) {
 
-		uint8* d = dstData + x + (y * dstPitch);
+		uint8* d = dstData + x + (y * (uint32) dstPitch);
 
 		drawRLEimpl(d, dstPitch, srcData + info._offsets[0], colours[0]);
 		drawRLEimpl(d, dstPitch, srcData + info._offsets[1], colours[1]);

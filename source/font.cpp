@@ -73,7 +73,7 @@ namespace gs
 
 		file.writeUInt16BE(font._numChars);
 		file.writeBytes(&font._chars[0], sizeof(FontChar) * font._numChars);
-		file.writeUInt32BE(dataSize);
+		file.writeUInt16BE(dataSize);
 		file.writeBytes(font._data.ptr(0), dataSize);
 		file.close();
 	}
@@ -89,7 +89,11 @@ namespace gs
 
 		font._numChars = file.readUInt16BE();
 		file.readBytes(&font._chars[0], sizeof(FontChar) * font._numChars);
-		uint32 dataSize = file.readUInt32BE();
+#if GS_BIG
+		uint16 dataSize = file.readUInt16BE();
+#else
+		uint16 dataSize = file.readUInt16BE();
+#endif
 		font._data.setSize(dataSize);
 		file.readBytes(font._data.ptr(0), dataSize);
 		file.close();
@@ -99,168 +103,20 @@ namespace gs
 
 	static uint32 _parseNutFont(Font& font, DiskReader reader);
 
-	static uint32 loadFontNUTFile(Font& font, uint8 id) {
-		ReadFile file;
-
-		String path = String::format(GS_GAME_PATH "RESOURCE/FONT%ld.NUT", id);
-		file.open(path.string());
-
-
-		if (file.isOpen() == false) {
-			error(GS_THIS, "Cannot open font file!");
-			abort_quit_stop();
-			return 0;
-		}
-
-		return _parseNutFont(font, DiskReader(file));
-	}
-
-	static uint32 _parseNutFont(Font& font, DiskReader reader) {
-
-		Buffer<uint8, uint16> _tempCharBuffer;
-
-		TagPair animTag = reader.readSanTagPair();
-
-#if defined(GS_CHECKED) && GS_CHECKED == 1
-		if (animTag.isTag(GS_MAKE_ID('A','N','I','M')) == false) {
-			error(GS_THIS, "This is not an NUT file! Missing ANIM tag got %s", animTag.tagStr());
-			abort_quit_stop();
-			return 0;
-		}
-#endif
-
-		TagPair animHeader = reader.readSanTagPair();
-
-#if defined(GS_CHECKED) && GS_CHECKED == 1
-		if (animHeader.isTag(GS_MAKE_ID('A','H','D','R')) == false) {
-			error(GS_THIS, "This is not an NUT file! Missing ANHD tag got %s!", animHeader.tagStr());
-			abort_quit_stop();
-			return 0;
-		}
-#endif
-
-		reader.skip(2);
-		font._numChars = reader.readUInt16LE();
-
-		if (font._numChars > 256) {
-			error(GS_THIS, "NUT file has too many characters %ld", font._numChars);
-			abort_quit_stop();
-			return 0;
-		}
-
-		reader.seekEndOf(animHeader);
-
-
-		uint32 dataSize = 0;
-		uint32 tempDataSize = 0;
-
-		// Calculate data size.
-		uint32 largestWidth = 0, largestHeight = 0;
-
-		for(uint16 i=0;i < font._numChars;i++) {
-
-			TagPair frme = reader.readSanTagPair();
-
-#if defined(GS_CHECKED) && GS_CHECKED == 1
-			if (frme.isTag(GS_MAKE_ID('F','R','M','E')) == false) {
-				error(GS_THIS, "This is not an NUT file! Missing FRME tag got %s!", frme.tagStr());
-				abort_quit_stop();
-				return 0;
-			}
-#endif
-
-			TagPair fobj = reader.readSanTagPair();
-
-#if defined(GS_CHECKED) && GS_CHECKED == 1
-			if (fobj.isTag(GS_MAKE_ID('F','O','B','J')) == false) {
-				error(GS_THIS, "This is not an NUT file! Missing FOBJ tag got %s!", fobj.tagStr());
-				abort_quit_stop();
-				return 0;
-			}
-#endif
-
-			uint32 imgSize = fobj.length;
-			reader.skip(6);
-			uint16 width = reader.readUInt16LE();	// 8-10
-			uint16 height = reader.readUInt16LE();	// 11-12
-
-			if (imgSize > tempDataSize) {
-				tempDataSize = imgSize;
-			}
-
-			if (largestWidth < width) {
-				largestWidth = width;
-			}
-
-			if (largestHeight < height) {
-				largestHeight = height;
-			}
-
-			font._chars[i]._rle._width = width;
-			font._chars[i]._rle._height = height;
-			font._chars[i]._rle._offsets[0] = 0;
-			font._chars[i]._rle._offsets[1] = 0;
-			font._chars[i]._size = width * height;
-
-			dataSize += font._chars[i]._size;
-			reader.seekEndOf(fobj);
-		}
-
-
-		_tempCharBuffer.setSize(tempDataSize, MF_Clear);	// Estimated
-
-		uint32 dstOffset = 0;
-		font._data.setSize(dataSize, MF_Clear);
-
-		Buffer<byte, uint16> _tempGlyphBuffer;
-		_tempGlyphBuffer.setSize(largestWidth * largestHeight);
-
-		reader.seekEndOf(animHeader);
-
-		uint32 actualDataSize = 0;
-
-		for(uint16 i=0;i < font._numChars-10;i++) {
-			TagPair frme = reader.readSanTagPair();
-			TagPair fobj = reader.readSanTagPair();
-
-			FontChar& fontChar = font._chars[i];
-			reader.readBytes(_tempCharBuffer.ptr(0), fobj.length);
-
-			if (_tempCharBuffer.get_unchecked(0) == 44) {
-
-				byte* src = _tempCharBuffer.ptr(14);
-				uint32 originalDstOffset = dstOffset;
-				dstOffset += decodeNutFrame44ToRLE2(src, font._data.ptr(dstOffset), _tempGlyphBuffer.ptr(0), fontChar._rle);
-
-				// Clear image
-				for(uint16 i=0;i < _tempGlyphBuffer.getSize();i++) {
-					_tempGlyphBuffer.set_unchecked(i, 0);
-				}
-
-				// Append offsets to font char
-				for(uint8 i=0;i < 2;i++) {
-					fontChar._rle._offsets[i] += originalDstOffset;
-				}
-
-				actualDataSize = fontChar._rle._offsets[1];
-			}
-		}
-
-		return actualDataSize;
-	}
-
-
 	Font::Font(uint8 id) {
 
 		if (loadFontRLEFile(*this, id)) {
 			return;
 		}
 
-		uint32 dataSize = loadFontNUTFile(*this, id);
-
-		if (dataSize != 0) {
-			saveFontRLEFile(*this, id, dataSize);
+		if (convertNutFontToRleFont(id) == false) {
+			return;
 		}
+
+		if (loadFontRLEFile(*this, id)) {
+			return;
+		}
+
 
 	}
 
@@ -400,9 +256,14 @@ namespace gs
 		int16 originalX = x;
 
 		uint8 colours[2] = {
-				colourNum,
+				0xFF,
 				0x00
 		};
+
+		if (fontNum == 0) {
+			colours[0] = 0xFF;
+			colours[1] = 0x00;
+		}
 
 		uint32 width = 0;
 		if (center) {

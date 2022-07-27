@@ -25,28 +25,28 @@ namespace gs
 
 	struct RLEImage1 {
 		uint8  _width, _height;
-		uint32 _offset;
+		uint16 _offset;
 	};
 
 	struct RLEImage2 {
 		uint8  _width, _height;
-		uint32 _offsets[2];
+		uint16 _offsets[2];
 	};
 
 	struct RLEImage3 {
 		uint8  _width, _height;
-		uint32 _offsets[3];
+		uint16 _offsets[3];
 	};
 
 	struct RLEImage4 {
 		uint8  _width, _height;
-		uint32 _offsets[4];
+		uint16 _offsets[4];
 	};
 
-	void drawRLEImage1(uint32 x, uint32 y, const RLEImage1& info, byte* srcData, byte* dstData, uint32 dstPitch, uint8 colour);
-	void drawRLEImage2(uint32 x, uint32 y, const RLEImage2& info, byte* srcData, byte* dstData, uint32 dstPitch, uint8 colour[2]);
-	void drawRLEImage3(uint32 x, uint32 y, const RLEImage3& info, byte* srcData, byte* dstData, uint32 dstPitch, uint8 colour[3]);
-	void drawRLEImage4(uint32 x, uint32 y, const RLEImage4& info, byte* srcData, byte* dstData, uint32 dstPitch, uint8 colour[4]);
+	void drawRLEImage1(uint16 x, uint16 y, const RLEImage1& info, byte* srcData, byte* dstData, uint16 dstPitch, uint8 colour);
+	void drawRLEImage2(uint16 x, uint16 y, const RLEImage2& info, byte* srcData, byte* dstData, uint16 dstPitch, uint8 colour[2]);
+	void drawRLEImage3(uint16 x, uint16 y, const RLEImage3& info, byte* srcData, byte* dstData, uint16 dstPitch, uint8 colour[3]);
+	void drawRLEImage4(uint16 x, uint16 y, const RLEImage4& info, byte* srcData, byte* dstData, uint16 dstPitch, uint8 colour[4]);
 }
 
 
