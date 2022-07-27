@@ -24,4 +24,111 @@
 #include "sdl/types_sdl.h"
 #endif
 
+
+#if defined(GS_CHECKED) && GS_CHECKED == 1
+
+
+	#define CHECK_IF(COND, MSG) \
+		do { \
+			if (COND) {\
+				error(GS_THIS, MSG);\
+				abort_quit_stop();\
+				return;\
+			}\
+		} while(0)
+
+	#define CHECK_IF_1(COND, MSG, A1) \
+		do { \
+			if (COND) {\
+				error(GS_THIS, MSG, A1);\
+				abort_quit_stop();\
+				return;\
+			}\
+		} while(0)
+
+	#define CHECK_IF_2(COND, MSG, A1, A2) \
+		do { \
+			if (COND) {\
+				error(GS_THIS, MSG, A1, A2);\
+				abort_quit_stop();\
+				return;\
+			}\
+		} while(0)
+
+	#define CHECK_IF_3(COND, MSG, A1, A2, A3) \
+		do { \
+			if (COND) {\
+				error(GS_THIS, MSG, A1, A2, A3);\
+				abort_quit_stop();\
+				return;\
+			}\
+		} while(0)
+
+	#define CHECK_IF_4(COND, MSG, A1, A2, A3, A4) \
+		do { \
+			if (COND) {\
+				error(GS_THIS, MSG, A1, A2, A3, A4);\
+				abort_quit_stop();\
+				return;\
+			}\
+		} while(0)
+
+	#define CHECK_IF_RETURN(COND, RETURN, MSG) \
+		do { \
+			if (COND) {\
+				error(GS_THIS, MSG);\
+				abort_quit_stop();\
+				return RETURN;\
+			}\
+		} while(0)
+
+	#define CHECK_IF_RETURN_1(COND, RETURN, MSG, A1) \
+		do { \
+			if (COND) {\
+				error(GS_THIS, MSG, A1);\
+				abort_quit_stop();\
+				return RETURN;\
+			}\
+		} while(0)
+
+	#define CHECK_IF_RETURN_2(COND, RETURN, MSG, A1, A2) \
+		do { \
+			if (COND) {\
+				error(GS_THIS, MSG, A1, A2);\
+				abort_quit_stop();\
+				return RETURN;\
+			}\
+		} while(0)
+
+	#define CHECK_IF_RETURN_3(COND, RETURN, MSG, A1, A2, A3) \
+		do { \
+			if (COND) {\
+				error(GS_THIS, MSG, A1, A2, A3);\
+				abort_quit_stop();\
+				return RETURN;\
+			}\
+		} while(0)
+
+	#define CHECK_IF_RETURN_4(COND, RETURN, MSG, A1, A2, A3, A4) \
+		do { \
+			if (COND) {\
+				error(GS_THIS, MSG, A1, A2, A3, A4);\
+				abort_quit_stop();\
+				return RETURN;\
+			}\
+		} while(0)
+#else
+	#define CHECK_IF(COND, MSG)
+	#define CHECK_IF_1(COND, MSG, A1)
+	#define CHECK_IF_2(COND, MSG, A1, A2)
+	#define CHECK_IF_3(COND, MSG, A1, A2, A3)
+	#define CHECK_IF_3(COND, MSG, A1, A2, A3, A4)
+	#define CHECK_IF_RETURN(COND, RETURN, MSG)
+	#define CHECK_IF_RETURN_1(COND, RETURN, MSG, A1)
+	#define CHECK_IF_RETURN_2(COND, RETURN, MSG, A1, A2)
+	#define CHECK_IF_RETURN_3(COND, RETURN, MSG, A1, A2, A3)
+	#define CHECK_IF_RETURN_4(COND, RETURN, MSG, A1, A2, A3, A4)
+#endif
+
+
 #endif
