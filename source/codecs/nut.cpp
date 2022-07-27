@@ -153,6 +153,7 @@ namespace gs
 
 				uint8 count = 0;
 				uint8 type = 0;
+				uint8 bHasColourThisLine = 0;
 
 				for(uint16 x=0;x < rle._width;x++) {
 					uint8 thisType = (*img == colourIdx ? 1 : 0);
@@ -177,20 +178,22 @@ namespace gs
 					else {
 						*writeRle = (int8) count;
 						writeRle++;
+						bHasColourThisLine = 1;
 					}
 
 					count = 1;
 					type = thisType;
 				}
 
-				if (count > 0) {
-					if (type == 0) {
-						*writeRle = -((int8) count);
-						writeRle++;
-					}
-					else {
-						*writeRle = (int8) count;
-						writeRle++;
+				if (bHasColourThisLine == 1) {
+					if (count > 0) {
+						if (type == 0) {
+							*writeRle = -((int8) count);
+							writeRle++;
+						} else {
+							*writeRle = (int8) count;
+							writeRle++;
+						}
 					}
 				}
 

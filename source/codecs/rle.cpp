@@ -39,7 +39,7 @@ namespace gs
 			}
 
 			else if (s == 0) {
-				d = nextLine;
+				dst = nextLine;
 				nextLine = dst + dstPitch;
 			}
 
