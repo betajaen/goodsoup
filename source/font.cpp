@@ -440,7 +440,7 @@ namespace gs
 
 			if (inBounds) {
 				_grabGlyph(background, GS_BITMAP_PITCH, x, y, fontChar._rle._width, fontChar._rle._height);
-				drawRLEImage2(0, 0, fontChar._rle, font->_data.ptr(0), &glyphBytes[0], 32, colours);
+				drawRLEImage2(0, 0, fontChar._rle, font->_data.ptr(0), &glyphBytes[0], fontChar._rle._width, colours);
 				screenBlitBitmap(x, y, fontChar._rle._width, fontChar._rle._height, &glyphBytes[0]);
 			}
 
