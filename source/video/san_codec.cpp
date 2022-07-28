@@ -356,7 +356,7 @@ namespace gs
 
 			for(uint8 i=0;i < _numTexts;i++) {
 				TextDrawCall& call = _texts[i];
-				drawSubtitlesFrom(_getBuffer(_currentBuffer), call._x, call._y, call._text , call._center, call._font, call._col);
+				drawSubtitlesFrom(_getBuffer(_currentBuffer), call._x, call._y, call._text , call._center, call._wrap, call._font, call._col);
 			}
 
 			_numTexts = 0;

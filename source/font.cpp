@@ -245,7 +245,119 @@ namespace gs
 		/* REMOVED */
 	}
 
-	void drawSubtitlesFrom(byte* background, int16 x, int16 y, const char* text, bool center, uint8 fontNum, uint8 colourNum) {
+#define MAX_LINES 16
+
+	static int16 linesX[MAX_LINES];
+	static int16 linesY[MAX_LINES];
+	static uint8  linesLengths[MAX_LINES];
+	static const char* linesText[MAX_LINES];
+	static uint8  numLines = 0;
+	static Font*  lineFont;
+
+	static void prepareLines(int16 x, int16 y, const char* text, bool wrap, bool centre) {
+
+		if (wrap == false) {
+			numLines = 1;
+			linesX[0] = 0;
+			linesY[0] = y;
+			linesLengths[0] = 0xFF;
+			linesText[0] = text;
+			uint8 length = 0;
+
+			int16 width = 0;
+			int16 height = lineFont->_chars['M']._rle._height;
+
+			for(uint8 i=0;i < 255;i++) {
+
+				char ch = text[i];
+
+				if (ch == 0)
+					break;
+
+				length++;
+				FontChar &fontChar = lineFont->_chars[ch];
+				width += fontChar._rle._width;
+			}
+
+			linesLengths[0] = length;
+
+			linesX[0] = centre ? (x - width / 2) : x;
+
+			int16 x0 = x;
+			int16 y0 = y;
+			int16 x1 = width;
+			int16 y1 = y + height;
+
+			bool inBounds = (x0 >= 0 && x0 < GS_BITMAP_PITCH && y0 > 0 && y1 < GS_BITMAP_ROWS);
+
+			debug(GS_THIS, "%ld %ld %ld %ld -> %ld", x0, y0, x1, y1, inBounds);
+
+			if (inBounds == false) {
+				numLines = 0;
+			}
+		}
+		else {
+			numLines = 0;
+
+		}
+	}
+
+	void drawSubtitlesFrom(byte* background, int16 x, int16 y, const char* text, bool center, bool wrap, uint8 fontNum, uint8 colourNum) {
+
+		CHECK_IF(fontNum >= MAX_FONTS, "Out of range for font");
+
+		lineFont = FONT[fontNum];
+		prepareLines(x, y, text, wrap, center);
+
+		uint8 colours[2] = {
+				0xFF,
+				0x00
+		};
+
+		for(uint8 i=0;i < numLines;i++) {
+			uint16 x = linesX[i];
+			uint16 y = linesY[i];
+			uint8 length = linesLengths[i];
+			const char* str = linesText[i];
+
+			/* TODO: Grab background for entire line */
+
+			for(uint8 j=0;j < length;j++) {
+				char ch = str[j];
+				if (ch == 0)
+					break;
+
+				if (ch < 32)
+					continue;
+
+				FontChar& fontChar = lineFont->_chars[ch];
+				int16 r = x + fontChar._rle._width;
+				int16 b = y + fontChar._rle._height;
+
+
+				bool inBounds = (x >=0 && r < GS_BITMAP_PITCH && y > 0 && b < GS_BITMAP_ROWS);
+
+				if (inBounds == false) {
+					break;
+				}
+
+				/* TODO: just draw RLE image at x,y on image */
+
+				_grabGlyph(background, GS_BITMAP_PITCH, x, y, fontChar._rle._width, fontChar._rle._height);
+				drawRLEImage2(0, 0, fontChar._rle, lineFont->_data.ptr(0), &glyphBytes[0], fontChar._rle._width, colours);
+				screenBlitBitmap(x, y, fontChar._rle._width, fontChar._rle._height, &glyphBytes[0]);
+
+				x += fontChar._rle._width;
+			}
+
+			/* TODO: Copy entire text onto image as is */
+
+		}
+
+	}
+
+#if 0
+	void drawSubtitlesFrom_OLD(byte* background, int16 x, int16 y, const char* text, bool center, bool wrap, uint8 fontNum, uint8 colourNum) {
 
 		if (fontNum >= MAX_FONTS) {
 			warn(GS_THIS, "Cannot display dialogue %s with given font num %ld", text, (uint32) fontNum);
@@ -254,6 +366,7 @@ namespace gs
 
 		Font* font = FONT[fontNum];
 		int16 originalX = x;
+		uint8 lineNum = 0;
 
 		uint8 colours[2] = {
 				0xFF,
@@ -265,12 +378,12 @@ namespace gs
 			colours[1] = 0x00;
 		}
 
-		uint32 width = 0;
 		if (center) {
-			width = font->calculateFontWidth(text);
+			lineWidths[0] = font->calculateFontWidth(text);
+			numLines = 1;
 		}
 
-		x = originalX -= width / 2;
+		x = originalX -= lineWidths[0] / 2;
 
 		while(true) {
 
@@ -308,7 +421,7 @@ namespace gs
 			x += fontChar._rle._width;
 
 		}
-
-
 	}
+#endif
+
 }

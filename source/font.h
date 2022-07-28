@@ -51,7 +51,7 @@ namespace gs
 	const char* parseFormattedDialogue(const char* text, uint32& out_translationHash, uint8& out_fontNum, uint8& out_Colour);
 
 	void drawSubtitles(uint32 x, uint32 y, const char* text, bool center = false);
-	void drawSubtitlesFrom(byte* background, int16 x, int16 y, const char* text, bool center, uint8 fontNum, uint8 colourNum);
+	void drawSubtitlesFrom(byte* background, int16 x, int16 y, const char* text, bool center, bool wrap, uint8 fontNum, uint8 colourNum);
 }
 
 #endif
