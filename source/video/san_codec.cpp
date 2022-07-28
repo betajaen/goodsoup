@@ -135,7 +135,7 @@ namespace gs
 
 		call._x = _diskReader.readInt16LE();
 		call._y  = _diskReader.readUInt16LE();
-		uint16 flags = _diskReader.readUInt16LE() & 7;
+		uint16 flags = _diskReader.readUInt16LE();
 		uint16 x0 = _diskReader.readUInt16LE();
 		uint16 y0 = _diskReader.readUInt16LE();
 		uint16 right = _diskReader.readUInt16LE();
@@ -155,8 +155,9 @@ namespace gs
 
 		_diskReader.readBytes(&_textData[_textLength], length);
 		call._text = parseFormattedDialogue((const char*) &_textData[_textLength], call._hash, call._font, call._col);
-		call._center = flags & 1;
-		call._wrap = 0;
+
+		call._center = flags == 13 || flags == 9 || flags == 1;
+		call._wrap = flags == 13;
 
 		_textLength += length;
 

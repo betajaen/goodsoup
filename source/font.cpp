@@ -270,7 +270,7 @@ namespace gs
 			width = font->calculateFontWidth(text);
 		}
 
-		originalX -= width;
+		x = originalX -= width / 2;
 
 		while(true) {
 
