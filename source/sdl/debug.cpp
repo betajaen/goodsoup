@@ -146,7 +146,7 @@ namespace gs
 	}
 	
 	void debug_write_hex(uint32 uint32_value) {
-		fprintf(stdout, "0x%lx", uint32_value);
+		fprintf(stdout, "%lx", uint32_value);
 	}
 	void debug_write_str_int(const char* str_value, int32 value) {
 		fprintf(stdout, "%s : %ld", str_value, value);
