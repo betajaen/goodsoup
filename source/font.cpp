@@ -105,9 +105,9 @@ namespace gs
 
 	Font::Font(uint8 id) {
 
-		if (loadFontRLEFile(*this, id)) {
-			return;
-		}
+		// if (loadFontRLEFile(*this, id)) {
+		// 	return;
+		// }
 
 		if (convertNutFontToRleFont(id) == false) {
 			return;
@@ -257,7 +257,10 @@ namespace gs
 	static Font*  lineFont;
 	static uint8  lineColour[2];
 
-	static void prepareLines(int16 x, int16 y, const char* text, bool wrap, bool centre) {
+	static void prepareLines(uint8 fontNum, int16 x, int16 y, const char* text, bool wrap, bool centre) {
+
+		CHECK_IF(fontNum >= MAX_FONTS, "Out of range for font");
+		lineFont = FONT[fontNum];
 
 		if (wrap == false) {
 			numLines = 1;
@@ -363,7 +366,7 @@ namespace gs
 			}
 		}
 
-		debug(GS_THIS, "%ld %ld %s", wrap, centre, text);
+		debug(GS_THIS, "F%ld W%ld C%ld %s", fontNum , wrap, centre, text);
 
 	}
 
@@ -406,8 +409,7 @@ namespace gs
 
 			/* TODO: Copy entire text onto image as is */
 
-		}
-	}
+		}	}
 
 	void drawSubtitlesFromAgain(byte* background) {
 		_drawSubtitlesImpl(background);
@@ -415,10 +417,7 @@ namespace gs
 
 	void drawSubtitlesFrom(byte* background, int16 x, int16 y, const char* text, bool center, bool wrap, uint8 fontNum, uint8 colourNum) {
 
-		CHECK_IF(fontNum >= MAX_FONTS, "Out of range for font");
-
-		lineFont = FONT[fontNum];
-		prepareLines(x, y, text, wrap, center);
+		prepareLines(fontNum, x, y, text, wrap, center);
 
 		lineColour[0] = 0xFF;
 		lineColour[1] = 0x00;

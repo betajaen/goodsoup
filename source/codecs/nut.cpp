@@ -223,7 +223,7 @@ namespace gs
 	}
 
 
-	uint32 decodeNutFrame44ToRLE64(byte* nutSrc, byte* rleDst, byte* tempGlyphBuffer, uint16 width, uint16 height) {
+	uint32 decodeNutFrame44ToRLE64(byte* nutSrc, byte* rleDst, byte* tempGlyphBuffer, uint16 width, uint16 height, int8 colourShift) {
 
 		int16 len, t, s;
 		byte *nextSrc, *x;
@@ -290,8 +290,11 @@ namespace gs
 			uint8 colourIdx = i + 1;
 			byte *img = originalTempGlyphBuffer;
 
-			*writeRle = 0x40 | i;	// Set Colour and X=0, Y=0.
+			byte* before = writeRle;
+
+			*writeRle = 0x40 | (i + colourShift);	// Set Colour and X=0, Y=0.
 			writeRle++;
+			uint8 wrotePixels = 0;
 
 			for (uint16 y = 0; y < height; y++) {
 
@@ -320,6 +323,7 @@ namespace gs
 					} else {
 						*writeRle = count;
 						writeRle++;
+						wrotePixels = 1;
 					}
 
 					count = 1;
@@ -334,11 +338,17 @@ namespace gs
 					} else if (type == 1) {
 						*writeRle = count;			// 0x00 | count
 						writeRle++;
+						wrotePixels = 1;
 					}
 				}
 
 				*writeRle = 0xC0 | 0x01;	// Skip one line.
 				writeRle++;
+
+			}
+
+			if (wrotePixels == 0) {
+				writeRle = before;
 			}
 
 		}
@@ -467,7 +477,14 @@ namespace gs
 
 			// Read NUT Image into temporary buffer, then decode to the end of rleFontImageData
 			nutReader.readBytes(characterNutData.ptr(0), fobj.length - 14);
-			uint16 size = decodeNutFrame44ToRLE64(characterNutData.ptr(0), rleFontImageData.ptr(rleFontImageDataSize), characterImageData.ptr(0),  width, height);
+			int8 colourShift = 0;
+
+			// In COMI - FONT0.NUT is only 1bpp which by default is shadow (1). Shift it to the primary.
+			if (id == 0) {
+				colourShift = -1;
+			}
+
+			uint16 size = decodeNutFrame44ToRLE64(characterNutData.ptr(0), rleFontImageData.ptr(rleFontImageDataSize), characterImageData.ptr(0),  width, height, colourShift);
 
 			// For RLEImage2:-
 			rleFile.writeByte(width & 0xFF);			// Write Width (as byte)
