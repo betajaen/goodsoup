@@ -55,6 +55,7 @@ namespace gs
 		uint8 _offset1, _offset2;
 		TextDrawCall _texts[MAX_TEXT_PER_FRAME];
 		uint8 _numTexts;
+		uint32 _lastTextHash;
 		uint8 _rotationOp;
 		bool _hasText, _hasFrame;
 

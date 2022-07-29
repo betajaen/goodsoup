@@ -253,6 +253,7 @@ namespace gs
 	static const char* linesText[MAX_LINES];
 	static uint8  numLines = 0;
 	static Font*  lineFont;
+	static uint8  lineColour[2];
 
 	static void prepareLines(int16 x, int16 y, const char* text, bool wrap, bool centre) {
 
@@ -290,7 +291,7 @@ namespace gs
 
 			bool inBounds = (x0 >= 0 && x0 < GS_BITMAP_PITCH && y0 > 0 && y1 < GS_BITMAP_ROWS);
 
-			debug(GS_THIS, "%ld %ld %ld %ld -> %ld", x0, y0, x1, y1, inBounds);
+			// debug(GS_THIS, "%ld %ld %ld %ld -> %ld", x0, y0, x1, y1, inBounds);
 
 			if (inBounds == false) {
 				numLines = 0;
@@ -302,17 +303,7 @@ namespace gs
 		}
 	}
 
-	void drawSubtitlesFrom(byte* background, int16 x, int16 y, const char* text, bool center, bool wrap, uint8 fontNum, uint8 colourNum) {
-
-		CHECK_IF(fontNum >= MAX_FONTS, "Out of range for font");
-
-		lineFont = FONT[fontNum];
-		prepareLines(x, y, text, wrap, center);
-
-		uint8 colours[2] = {
-				0xFF,
-				0x00
-		};
+	static void _drawSubtitlesImpl(byte* background) {
 
 		for(uint8 i=0;i < numLines;i++) {
 			uint16 x = linesX[i];
@@ -344,7 +335,7 @@ namespace gs
 				/* TODO: just draw RLE image at x,y on image */
 
 				_grabGlyph(background, GS_BITMAP_PITCH, x, y, fontChar._rle._width, fontChar._rle._height);
-				drawRLEImage2(0, 0, fontChar._rle, lineFont->_data.ptr(0), &glyphBytes[0], fontChar._rle._width, colours);
+				drawRLEImage2(0, 0, fontChar._rle, lineFont->_data.ptr(0), &glyphBytes[0], fontChar._rle._width, lineColour);
 				screenBlitBitmap(x, y, fontChar._rle._width, fontChar._rle._height, &glyphBytes[0]);
 
 				x += fontChar._rle._width;
@@ -353,8 +344,25 @@ namespace gs
 			/* TODO: Copy entire text onto image as is */
 
 		}
-
 	}
+
+	void drawSubtitlesFromAgain(byte* background) {
+		_drawSubtitlesImpl(background);
+	}
+
+	void drawSubtitlesFrom(byte* background, int16 x, int16 y, const char* text, bool center, bool wrap, uint8 fontNum, uint8 colourNum) {
+
+		CHECK_IF(fontNum >= MAX_FONTS, "Out of range for font");
+
+		lineFont = FONT[fontNum];
+		prepareLines(x, y, text, wrap, center);
+
+		lineColour[0] = 0xFF;
+		lineColour[1] = 0x00;
+
+		_drawSubtitlesImpl(background);
+	}
+
 
 #if 0
 	void drawSubtitlesFrom_OLD(byte* background, int16 x, int16 y, const char* text, bool center, bool wrap, uint8 fontNum, uint8 colourNum) {

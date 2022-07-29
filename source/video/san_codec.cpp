@@ -80,6 +80,7 @@ namespace gs
 		_prevSequenceNum = -1;
 		_numTexts = 0;
 		_textLength = 0;
+		_lastTextHash = 0;
 	}
 
 	SanCodec::~SanCodec() {
@@ -354,9 +355,19 @@ namespace gs
 		if (_hasText) {
 			_hasText = false;
 
-			for(uint8 i=0;i < _numTexts;i++) {
-				TextDrawCall& call = _texts[i];
-				drawSubtitlesFrom(_getBuffer(_currentBuffer), call._x, call._y, call._text , call._center, call._wrap, call._font, call._col);
+			if (_numTexts == 1 && _texts[0]._hash == _lastTextHash) {
+				drawSubtitlesFromAgain(_getBuffer(_currentBuffer));
+			}
+			else {
+
+				for(uint8 i=0;i < _numTexts;i++) {
+					TextDrawCall& call = _texts[i];
+					drawSubtitlesFrom(_getBuffer(_currentBuffer), call._x, call._y, call._text , call._center, call._wrap, call._font, call._col);
+				}
+
+				if (_numTexts == 1) {
+					_lastTextHash = _texts[0]._hash;
+				}
 			}
 
 			_numTexts = 0;
