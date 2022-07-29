@@ -228,7 +228,7 @@ namespace gs
 			return false;
 		}
 
-		Write(file, data, length);
+		Write(file, (APTR) data, length);
 		Close(file);
 
 		return true;
@@ -267,7 +267,7 @@ namespace gs
 	}
 
 	void WriteFile::writeBytes(const void* data, uint32 length) {
-		Write(_file, data, length);
+		Write(_file, (APTR) data, length);
 	}
 
 	void WriteFile::writeUInt16LE(uint16 value) {
