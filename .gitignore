@@ -20,3 +20,4 @@ Goodsoup.info
 goodsoup.lha
 *.log
 *.GSF
+.fuse_hidden*
