@@ -47,6 +47,14 @@ namespace gs
 	void drawRLEImage2(uint16 x, uint16 y, const RLEImage2& info, byte* srcData, byte* dstData, uint16 dstPitch, uint8 colour[2]);
 	void drawRLEImage3(uint16 x, uint16 y, const RLEImage3& info, byte* srcData, byte* dstData, uint16 dstPitch, uint8 colour[3]);
 	void drawRLEImage4(uint16 x, uint16 y, const RLEImage4& info, byte* srcData, byte* dstData, uint16 dstPitch, uint8 colour[4]);
+
+	struct RLEImage64 {
+		uint8	_width, _height;
+		uint16	_offset;
+	};
+
+	void drawRLEImage64(uint16 x, uint16 y, const RLEImage64& img, byte* srcData, byte* dstData, uint16 dstPitch, uint8* colour);
+
 }
 
 

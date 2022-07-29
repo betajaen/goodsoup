@@ -72,7 +72,7 @@ namespace gs
 		}
 
 		file.writeUInt16BE(font._numChars);
-		file.writeBytes(&font._chars[0], sizeof(FontChar) * font._numChars);
+		file.writeBytes(&font._chars[0], sizeof(RLEImage64) * font._numChars);
 		file.writeUInt16BE(dataSize);
 		file.writeBytes(font._data.ptr(0), dataSize);
 		file.close();
@@ -88,11 +88,11 @@ namespace gs
 		}
 
 		font._numChars = file.readUInt16BE();
-		file.readBytes(&font._chars[0], sizeof(FontChar) * font._numChars);
+		file.readBytes(&font._chars[0], sizeof(RLEImage64) * font._numChars);
 #if GS_BIG
 		uint16 dataSize = file.readUInt16BE();
 #else
-		uint16 dataSize = file.readUInt16BE();
+		uint16 dataSize = file.readUInt16LE();
 #endif
 		font._data.setSize(dataSize);
 		file.readBytes(font._data.ptr(0), dataSize);
@@ -143,14 +143,15 @@ namespace gs
 			if (x > GS_BITMAP_PITCH || y > GS_BITMAP_ROWS)
 				return;
 
-			FontChar& fontChar = _chars[ch];
+			RLEImage64& fontImg = _chars[ch];
+
 
 			_clearGlyphBytes(5);
-			// screenGrab(x,y, fontChar._rle._width, fontChar._rle._height, &glyphBytes[0]);
-			drawRLEImage2(0,0,fontChar._rle, _data.ptr(0), &glyphBytes[0], 32, colours);
-			screenBlitBitmap(x,y, fontChar._rle._width, fontChar._rle._height, &glyphBytes[0]);
+			// screenGrab(x,y, fontImg._width, fontImg._height, &glyphBytes[0]);
+			drawRLEImage64(0,0,fontImg, _data.ptr(0), &glyphBytes[0], 32, colours);
+			screenBlitBitmap(x,y, fontImg._width, fontImg._height, &glyphBytes[0]);
 
-			x += fontChar._rle._width;
+			x += fontImg._width;
 		}
 	}
 
@@ -175,8 +176,8 @@ namespace gs
 
 		int16 width = 0;
 		while(*text != 0) {
-			FontChar& fontChar = _chars[*text];
-			width += fontChar._rle._width;
+			RLEImage64& fontImg = _chars[*text];
+			width += fontImg._width;
 			text++;
 		}
 
@@ -267,7 +268,7 @@ namespace gs
 			uint8 length = 0;
 
 			int16 width = 0;
-			int16 height = lineFont->_chars['M']._rle._height;
+			int16 height = lineFont->_chars['M']._height;
 
 			for(uint8 i=0;i < 255;i++) {
 
@@ -277,8 +278,8 @@ namespace gs
 					break;
 
 				length++;
-				FontChar &fontChar = lineFont->_chars[ch];
-				width += fontChar._rle._width;
+				RLEImage64 &fontImg = lineFont->_chars[ch];
+				width += fontImg._width;
 			}
 
 			linesWidth[0] = width;
@@ -304,7 +305,7 @@ namespace gs
 			const char* it = begin;
 
 			int16 width = 0;
-			int16 height = lineFont->_chars['M']._rle._height;
+			int16 height = lineFont->_chars['M']._height;
 			uint8 length = 0;
 			uint8 spaceLength = 0;
 
@@ -333,8 +334,8 @@ namespace gs
 					spaceLength = length;
 				}
 
-				FontChar &fontChar = lineFont->_chars[ch];
-				width += fontChar._rle._width;
+				RLEImage64 &fontImg = lineFont->_chars[ch];
+				width += fontImg._width;
 
 				if (width > GS_BITMAP_PITCH) {
 					linesX[numLines] = 0;
@@ -384,10 +385,9 @@ namespace gs
 				if (ch < 32)
 					continue;
 
-				FontChar& fontChar = lineFont->_chars[ch];
-				int16 r = x + fontChar._rle._width;
-				int16 b = y + fontChar._rle._height;
-
+				RLEImage64& fontImg = lineFont->_chars[ch];
+				int16 r = x + fontImg._width;
+				int16 b = y + fontImg._height;
 
 				bool inBounds = (x >=0 && r < GS_BITMAP_PITCH && y > 0 && b < GS_BITMAP_ROWS);
 
@@ -397,11 +397,11 @@ namespace gs
 
 				/* TODO: just draw RLE image at x,y on image */
 
-				_grabGlyph(background, GS_BITMAP_PITCH, x, y, fontChar._rle._width, fontChar._rle._height);
-				drawRLEImage2(0, 0, fontChar._rle, lineFont->_data.ptr(0), &glyphBytes[0], fontChar._rle._width, lineColour);
-				screenBlitBitmap(x, y, fontChar._rle._width, fontChar._rle._height, &glyphBytes[0]);
+				_grabGlyph(background, GS_BITMAP_PITCH, x, y, fontImg._width, fontImg._height);
+				drawRLEImage64(0, 0, fontImg, lineFont->_data.ptr(0), &glyphBytes[0], fontImg._width, lineColour);
+				screenBlitBitmap(x, y, fontImg._width, fontImg._height, &glyphBytes[0]);
 
-				x += fontChar._rle._width;
+				x += fontImg._width;
 			}
 
 			/* TODO: Copy entire text onto image as is */
@@ -425,74 +425,5 @@ namespace gs
 
 		_drawSubtitlesImpl(background);
 	}
-
-
-#if 0
-	void drawSubtitlesFrom_OLD(byte* background, int16 x, int16 y, const char* text, bool center, bool wrap, uint8 fontNum, uint8 colourNum) {
-
-		if (fontNum >= MAX_FONTS) {
-			warn(GS_THIS, "Cannot display dialogue %s with given font num %ld", text, (uint32) fontNum);
-			return;
-		}
-
-		Font* font = FONT[fontNum];
-		int16 originalX = x;
-		uint8 lineNum = 0;
-
-		uint8 colours[2] = {
-				0xFF,
-				0x00
-		};
-
-		if (fontNum == 0) {
-			colours[0] = 0xFF;
-			colours[1] = 0x00;
-		}
-
-		if (center) {
-			lineWidths[0] = font->calculateFontWidth(text);
-			numLines = 1;
-		}
-
-		x = originalX -= lineWidths[0] / 2;
-
-		while(true) {
-
-			char ch = *text;
-			text++;
-
-			if (ch == 0)
-				return;
-
-			if (ch >= font->_numChars)
-				continue;
-
-			FontChar& fontChar = font->_chars[ch];
-
-			if (ch < 32) {
-				if (ch == '\r') {
-					y += fontChar._rle._height;
-				}
-				else if (ch == '\n') {
-					x = originalX;
-				}
-				continue;
-			}
-
-			int16 r = x + fontChar._rle._width;
-			int16 b = y + fontChar._rle._height;
-			bool inBounds = (x >=0 && r < GS_BITMAP_PITCH && y > 0 && b < GS_BITMAP_ROWS);
-
-			if (inBounds) {
-				_grabGlyph(background, GS_BITMAP_PITCH, x, y, fontChar._rle._width, fontChar._rle._height);
-				drawRLEImage2(0, 0, fontChar._rle, font->_data.ptr(0), &glyphBytes[0], fontChar._rle._width, colours);
-				screenBlitBitmap(x, y, fontChar._rle._width, fontChar._rle._height, &glyphBytes[0]);
-			}
-
-			x += fontChar._rle._width;
-
-		}
-	}
-#endif
 
 }

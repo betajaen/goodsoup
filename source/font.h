@@ -26,18 +26,13 @@
 namespace gs
 {
 
-	struct FontChar
-	{
-		RLEImage2 _rle;
-	};
-
 	class Font
 	{
 	public:
 
 		uint16               _numChars;
 		Buffer<byte, uint16> _data;
-		FontChar 	 		 _chars[256];
+		RLEImage64 	 		 _chars[256];
 
 		Font(uint8 id);
 		~Font();

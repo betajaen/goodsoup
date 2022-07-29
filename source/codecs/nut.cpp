@@ -222,6 +222,179 @@ namespace gs
 		return ((byte*) writeRle) - originalRleDst;
 	}
 
+
+	uint32 decodeNutFrame44ToRLE64(byte* nutSrc, byte* rleDst, byte* tempGlyphBuffer, uint16 width, uint16 height) {
+
+		int16 len, t, s;
+		byte *nextSrc, *x;
+		byte *originalRleDst = rleDst;
+		byte *originalTempGlyphBuffer = tempGlyphBuffer;
+		byte *writeRle = rleDst;
+
+		for (uint16 y = 0; y < height; y++) {
+
+			t = READ_LE_UINT16(nutSrc);
+			nutSrc += 2;
+			nextSrc = nutSrc + t;
+
+			if (t == 0)
+				continue;
+
+			len = width;
+			x = tempGlyphBuffer;
+
+			do {
+
+				// Offset
+				t = READ_LE_INT16(nutSrc);
+				nutSrc += 2;
+				len -= t;
+
+				if (len <= 0)
+					break;
+
+				x += t;
+
+				// Matte
+				t = READ_LE_INT16(nutSrc) + 1;
+				nutSrc += 2;
+				len -= t;
+
+				if (len < 0) {
+					t += len;
+				}
+
+
+				while (t--) {
+					s = *nutSrc;
+					s = 1 + ((s - 0xE0) & 1);    // Colours seen are 0, 1, 224, 225
+					// So if you do:
+					//				x - 224
+					//				then & 1
+					//				it will be limited to 0..1
+					//
+					// histogram[s & 0xFF] = 1;
+					*x = s;
+					x++;
+					nutSrc++;
+				}
+
+			} while (len > 0);
+
+
+			tempGlyphBuffer += width;
+			nutSrc = nextSrc;
+		}
+
+		for (uint8 i = 0; i < 2; i++) {
+			uint8 colourIdx = i + 1;
+			byte *img = originalTempGlyphBuffer;
+
+			*writeRle = 0x40 | i;	// Set Colour and X=0, Y=0.
+			writeRle++;
+
+			for (uint16 y = 0; y < height; y++) {
+
+				uint8 count = 0;
+				uint8 type = 0;
+
+				for (uint16 x = 0; x < width; x++) {
+					uint8 thisType = (*img == colourIdx ? 1 : 0);
+					img++;
+
+					if (x == 0) {
+						count = 1;
+						type = thisType;
+						continue;
+					}
+
+					if (thisType == type) {
+						count++;
+						continue;
+					}
+
+
+					if (type == 0) {
+						*writeRle = 0x80 | count;
+						writeRle++;
+					} else {
+						*writeRle = count;
+						writeRle++;
+					}
+
+					count = 1;
+					type = thisType;
+				}
+
+
+				if (count > 0) {
+					if (type == 0 && count != width) {
+						*writeRle = 0x80 | count;	// 0x80 | count
+						writeRle++;
+					} else if (type == 1) {
+						*writeRle = count;			// 0x00 | count
+						writeRle++;
+					}
+				}
+
+				*writeRle = 0xC0 | 0x01;	// Skip one line.
+				writeRle++;
+			}
+
+		}
+
+		*writeRle = 0xFF;	// End
+		writeRle++;
+
+#if 0
+		if (print == 1) {
+			// for(uint16 i=0;i < 256;i++) {
+			// 	byte count = histogram[i];
+			// 	if (count != 0) {
+			// 		debug(GS_THIS, "[%i]", i);
+			// 	}
+			// }
+
+			debug_write_char('\n');
+			debug_write_int(width);
+			debug_write_char('x');
+			debug_write_int(height);
+
+			debug_write_char('\n');
+
+
+			byte *dd = originalTempGlyphBuffer;
+			for (uint16 y = 0; y < height; y++) {
+				for (uint16 x = 0; x < width; x++) {
+					byte t = (*dd);
+					if (t == 0) {
+						debug_write_char('.');
+					} else {
+						debug_write_char('0' + t);
+					}
+
+					dd++;
+				}
+				debug_write_char('\n');
+			}
+			debug_write_char('\n');
+
+			debug_write_char('\n');
+			byte *tv = (byte *) originalRleDst;
+
+			while (tv < writeRle) {
+				debug_write_hex(*tv);
+				debug_write_char(' ');
+				tv++;
+			}
+
+			debug_write_char('\n');
+		}
+#endif
+
+		return (writeRle - originalRleDst);
+	}
+
 	bool convertNutFontToRleFont(uint8 id) {
 
 		print = (id == 1) ? 1 : 0;
@@ -294,18 +467,16 @@ namespace gs
 
 			// Read NUT Image into temporary buffer, then decode to the end of rleFontImageData
 			nutReader.readBytes(characterNutData.ptr(0), fobj.length - 14);
-			uint16 offsets[2];
-			uint16 size = decodeNutFrame44ToRLE2(characterNutData.ptr(0), rleFontImageData.ptr(rleFontImageDataSize), characterImageData.ptr(0),  width, height, offsets);
+			uint16 size = decodeNutFrame44ToRLE64(characterNutData.ptr(0), rleFontImageData.ptr(rleFontImageDataSize), characterImageData.ptr(0),  width, height);
 
 			// For RLEImage2:-
 			rleFile.writeByte(width & 0xFF);			// Write Width (as byte)
 			rleFile.writeByte(height & 0xFF);			// Write Height (as byte)
+
 #if defined(GS_BIG)
-			rleFile.writeUInt16BE(offsets[0] + rleFontImageDataSize);
-			rleFile.writeUInt16BE(offsets[1] + rleFontImageDataSize);
+			rleFile.writeUInt16BE(rleFontImageDataSize);
 #else
-			rleFile.writeUInt16LE(offsets[0] + rleFontImageDataSize);
-			rleFile.writeUInt16LE(offsets[1] + rleFontImageDataSize);
+			rleFile.writeUInt16LE(rleFontImageDataSize);
 #endif
 			// Advance data a size.
 			rleFontImageDataSize += size;
@@ -322,7 +493,7 @@ namespace gs
 #if defined(GS_BIG)
 		rleFile.writeUInt16BE(rleFontImageDataSize);
 #else
-		rleFile.writeUInt16BE(rleFontImageDataSize);
+		rleFile.writeUInt16LE(rleFontImageDataSize);
 #endif
 		rleFile.writeBytes(rleFontImageData.ptr(0), rleFontImageDataSize);
 

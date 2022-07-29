@@ -93,4 +93,62 @@ namespace gs
 		drawRLEimpl(d, dstPitch, srcData + info._offsets[3], colours[3]);
 	}
 
+
+	// Codes
+	//  11 111111	- Stop
+	//	00 00000N	- For N: Set Pixel(X,Y) to C, X++
+	//  01 00000N   - X = 0,  Y = 0, C = N
+	//  10 00000N   - X+=N, Y = Y
+	//  11 00000N   - X= 0, Y += N
+
+	void drawRLEImage64(uint16 x, uint16 y, const RLEImage64& img, byte* srcBegin, byte* dstData, uint16 dstPitch, uint8* colour) {
+
+		uint8* origin = dstData + x + (y * (uint32) dstPitch);
+		byte* src = srcBegin + (uint32) img._offset;
+		byte* nextLine = origin + dstPitch;
+		byte* dst = origin;
+		byte code, op, value;
+		uint8 col = colour[0];
+
+		while(true) {
+			code = *src;
+			src++;
+
+			if (code == 0xFF) {
+				break;
+			}
+
+			op = code & 0xC0;
+			value = code & 0x3F;
+
+			switch(op) {
+				case 0x00: { // 00
+					while(value--) {
+						*dst = col;
+						dst++;
+					}
+				}
+				continue;
+				case 0x40: { // 01
+					col = colour[value];
+					dst = origin;
+					nextLine = origin + dstPitch;
+				}
+				continue;
+				case 0x80: { // 10
+					dst += value;
+				}
+				continue;
+				case 0xC0: { // 11
+					while(value--) {
+						dst = nextLine;
+						nextLine = dst + dstPitch;
+					}
+				}
+				continue;
+			}
+		}
+
+	}
+
 }
