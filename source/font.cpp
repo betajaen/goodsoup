@@ -250,6 +250,7 @@ namespace gs
 	static int16 linesX[MAX_LINES];
 	static int16 linesY[MAX_LINES];
 	static uint8  linesLengths[MAX_LINES];
+	static uint16 linesWidth[MAX_LINES];
 	static const char* linesText[MAX_LINES];
 	static uint8  numLines = 0;
 	static Font*  lineFont;
@@ -280,6 +281,7 @@ namespace gs
 				width += fontChar._rle._width;
 			}
 
+			linesWidth[0] = width;
 			linesLengths[0] = length;
 
 			linesX[0] = centre ? (x - width / 2) : x;
@@ -291,16 +293,77 @@ namespace gs
 
 			bool inBounds = (x0 >= 0 && x0 < GS_BITMAP_PITCH && y0 > 0 && y1 < GS_BITMAP_ROWS);
 
-			// debug(GS_THIS, "%ld %ld %ld %ld -> %ld", x0, y0, x1, y1, inBounds);
-
 			if (inBounds == false) {
 				numLines = 0;
 			}
 		}
 		else {
 			numLines = 0;
+			const char* begin = text;
+			const char* space = begin;
+			const char* it = begin;
 
+			int16 width = 0;
+			int16 height = lineFont->_chars['M']._rle._height;
+			uint8 length = 0;
+			uint8 spaceLength = 0;
+
+			while(true) {
+				char ch = *it;
+				if (ch == 0) {
+					linesX[numLines] = 0;
+					linesY[numLines] = y;
+					linesLengths[numLines] = spaceLength;
+					linesText[numLines] = begin;
+					linesWidth[numLines] = width;
+					y += height;
+					numLines++;
+					break;
+				}
+
+				length++;
+
+				if (ch < 32) {
+					it++;
+					continue;
+				}
+
+				if (ch == ' ') {
+					space = it;
+					spaceLength = length;
+				}
+
+				FontChar &fontChar = lineFont->_chars[ch];
+				width += fontChar._rle._width;
+
+				if (width > GS_BITMAP_PITCH) {
+					linesX[numLines] = 0;
+					linesY[numLines] = y;
+					linesLengths[numLines] = spaceLength;
+					linesText[numLines] = begin;
+					linesWidth[numLines] = width;
+					y += height;
+					length = 0;
+					width = 0;
+					numLines++;
+					it = space;
+					begin = space;
+				}
+
+				it++;
+			}
+
+			// Shift up.
+			if (y > GS_BITMAP_PITCH) {
+				int16 diff = GS_BITMAP_PITCH - y;
+				for(uint8 i=0;i < numLines;i++) {
+					linesY[i] += diff;
+				}
+			}
 		}
+
+		debug(GS_THIS, "%ld %ld %s", wrap, centre, text);
+
 	}
 
 	static void _drawSubtitlesImpl(byte* background) {
