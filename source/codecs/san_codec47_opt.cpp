@@ -95,58 +95,45 @@ namespace gs
 		uint8 code = *src++;
 
 		if (code < 0xF8) {
-#if 0
 			int32 t = SAN47_MOTION_VECTORS[code];
-			uint16* motionSrc = (uint16*)(((byte*) offset1) + t);
 
-			COPY_2x1(dst, motionSrc); // 1.
-			COPY_2x1(dst, motionSrc); // 2.
-#else
-			int16 t = SAN47_MOTION_VECTORS[code];
-			// 1.
-			CopyLine2x1(dst, (uint16*) ((byte*)offset1) + t);
-			dst += PITCH_16;
-			offset1 += PITCH_16;
-			// 2.
-			CopyLine2x1(dst, (uint16*) ((byte*)offset1) + t);
-#endif
+			// Note: Non-Aligned read! (offset1)
+			offset1 = (uint16*) (( (byte*) offset1) + t);
+
+			*dst++ = *offset1++; // 1.
+			*dst = *offset1;
+			dst += 319;
+
+			*dst++ = *offset1++; // 2.
+			*dst = *offset1;
 		}
 		else if (code == 0xFF) {
-#if 1
-
 			*dst = * ((uint16*) src);
 			src += 2;
-			dst += PITCH_16;
+			dst += 320;
 			*dst = * ((uint16*) src);
 			src += 2;
-#else
-			CopyLine2x1(dst, (uint16*) src);
-			dst++;
-			CopyLine2x1(dst, (uint16*) (src + 2));
-			src += 4;
-#endif
 		}
 		else if (code == 0xFE) {
 			uint8 t = *src++;
-			uint16 c = t;
-			c <<= 8;
-			c |= t;
-
-			FILL_2x1(dst, c); // 1.
-			FILL_2x1(dst, c); // 2.
+			uint16 c = t << 8 | t;
+			*dst = c;
+			dst += 320;
+			*dst = c;
 		}
 		else if (code == 0xFC) {
 			*dst = *offset2;
-			dst += PITCH_16;
-			offset2 += PITCH_16;
+			dst += 320;
+			offset2 += 320;
 			*dst = *offset2;
 		}
 		else {
 			byte t = params[code - 0xF8];
 			uint16 c = t << 8 | t;
 
-			FILL_2x1(dst, c); // 1.
-			FILL_2x1(dst, c); // 2.
+			*dst = c;
+			dst += 320;
+			*dst = c;
 		}
 	}
 
@@ -154,13 +141,42 @@ namespace gs
 		uint8 code = *src++;
 
 		if (code < 0xF8) {
-			int32 t = SAN47_MOTION_VECTORS[code];
-			uint32* motionSrc = (uint32*)(((byte*) offset1) + t);
 
-			COPY_4x1(dst, motionSrc); // 1.
-			COPY_4x1(dst, motionSrc); // 2.
-			COPY_4x1(dst, motionSrc); // 3.
-			COPY_4x1(dst, motionSrc); // 4.
+			int32 t = SAN47_MOTION_VECTORS[code];
+			byte* bOffset1 = (byte*) offset1;
+			bOffset1 += t;
+			byte* bDst = (byte*) dst;
+
+			// 1.
+			*bDst++ = *bOffset1++;
+			*bDst++ = *bOffset1++;
+			*bDst++ = *bOffset1++;
+			*bDst   = *bOffset1;
+			bDst += 637;
+			bOffset1 += 637;
+
+			// 2.
+			*bDst++ = *bOffset1++;
+			*bDst++ = *bOffset1++;
+			*bDst++ = *bOffset1++;
+			*bDst   = *bOffset1;
+			bDst += 637;
+			bOffset1 += 637;
+
+			// 3.
+			*bDst++ = *bOffset1++;
+			*bDst++ = *bOffset1++;
+			*bDst++ = *bOffset1++;
+			*bDst   = *bOffset1;
+			bDst += 637;
+			bOffset1 += 637;
+
+			// 4.
+			*bDst++ = *bOffset1++;
+			*bDst++ = *bOffset1++;
+			*bDst++ = *bOffset1++;
+			*bDst   = *bOffset1;
+
 		}
 		else if (code == 0xFF) {
 			
@@ -172,24 +188,28 @@ namespace gs
 			dst_16++;
 			offset1_16++;
 			offset2_16++;
-			decode_2x((uint16*) dst, src, (uint16*) offset1, (uint16*) offset2, params);
-			dst_16 += 639;
+			decode_2x(dst_16, src, offset1_16, offset2_16, params);
+			dst_16 += 639;		// P*2-1
 			offset1_16 += 639;
 			offset2_16 += 639;
-			decode_2x((uint16*) dst, src, (uint16*) offset1, (uint16*) offset2, params);
+			decode_2x(dst_16, src, offset1_16, offset2_16, params);
 			dst_16++;
 			offset1_16++;
 			offset2_16++;
-			decode_2x((uint16*) dst, src, (uint16*) offset1, (uint16*) offset2, params);
+			decode_2x(dst_16, src, offset1_16, offset2_16, params);
 		}
 		else if (code == 0xFE) {
 			uint8 t = *src++;
 			uint32 c = t << 24 | t << 16 | t << 8 | t;
 
-			FILL_4x1(dst, c); // 1.
-			FILL_4x1(dst, c); // 2.
-			FILL_4x1(dst, c); // 3.
-			FILL_4x1(dst, c); // 4.
+			*dst = c;
+			dst += 160;
+			*dst = c;
+			dst += 160;
+			*dst = c;
+			dst += 160;
+			*dst = c;
+
 		}
 		else if (code == 0xFD) {
 			byte* bDst = (byte*) dst;
@@ -216,19 +236,29 @@ namespace gs
 
 		}
 		else if (code == 0xFC) {
-			COPY_4x1(dst, offset2); // 1.
-			COPY_4x1(dst, offset2); // 2.
-			COPY_4x1(dst, offset2); // 3.
-			COPY_4x1(dst, offset2); // 4.
+			*dst = *offset2;
+			dst += 160;
+			offset2 += 160;
+			*dst = *offset2;
+			dst += 160;
+			offset2 += 160;
+			*dst = *offset2;
+			dst += 160;
+			offset2 += 160;
+			*dst = *offset2;
 		}
 		else {
 			byte t = params[code - 0xF8];
 			uint32 c = t << 24 | t << 16 | t << 8 | t;
 
-			FILL_4x1(dst, c); // 1.
-			FILL_4x1(dst, c); // 2.
-			FILL_4x1(dst, c); // 3.
-			FILL_4x1(dst, c); // 4.
+			*dst = c;
+			dst += 160;
+			*dst = c;
+			dst += 160;
+			*dst = c;
+			dst += 160;
+			*dst = c;
+			dst += 160;
 		}
 	}
 
@@ -237,9 +267,7 @@ namespace gs
 		uint8 code = *src++;
 
 		if (code < 0xF8) {
-
 			int32 t = SAN47_MOTION_VECTORS[code];
-
 			byte* tOff = ((byte*) offset1) + t;
 			uint32* tOff32 = (uint32*) tOff;
 
@@ -259,7 +287,7 @@ namespace gs
 			++offset1;
 			++offset2;
 			decode_4x(dst, src, offset1, offset2, params);
-			dst += 639;
+			dst += 639;		// P*4 - 1
 			offset1 += 639;
 			offset2 += 639;
 			decode_4x(dst, src, offset1, offset2, params);
@@ -270,13 +298,7 @@ namespace gs
 		}
 		else if (code == 0xFE) {
 			uint8 t = *src++;
-			uint32 c = t;
-			c <<= 8;
-			c |= t;
-			c <<= 8;
-			c |= t;
-			c <<= 8;
-			c |= t;
+			uint32 c = t << 24 | t << 16 | t << 8 | t;
 
 			FILL_8x1(dst, c); // 1.
 			FILL_8x1(dst, c); // 2.
@@ -324,13 +346,7 @@ namespace gs
 		}
 		else {
 			byte t = params[code - 0xF8];
-			uint32 c = t;
-			c <<= 8;
-			c |= t;
-			c <<= 8;
-			c |= t;
-			c <<= 8;
-			c |= t;
+			uint32 c = t << 24 | t << 16 | t << 8 | t;
 
 			FILL_8x1(dst, c); // 1.
 			FILL_8x1(dst, c); // 2.
