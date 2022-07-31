@@ -31,24 +31,6 @@ namespace gs
 	extern byte* SAN_TABLE_BIG;
 	extern byte* SAN_TABLE_SMALL;
 
-#define COPY_2x1(D, S) \
-	*D = *S;\
-	D += PITCH_16;\
-	S += PITCH_16;
-
-#define FILL_2x1(D, C) \
-	*D = C;\
-	D += PITCH_16;
-
-#define COPY_4x1(D, S) \
-	*D = *S;\
-	D += PITCH_32;\
-	S += PITCH_32;
-
-#define FILL_4x1(D, C) \
-	*D = C;\
-	D += PITCH_32;
-
 #define COPY_8x1(D, S) \
 	*D = *S;\
 	*(D+1) = *(S+1);\
@@ -95,17 +77,14 @@ namespace gs
 		uint8 code = *src++;
 
 		if (code < 0xF8) {
+			// Note: Non-Aligned read! (tOff1)
 			int32 t = SAN47_MOTION_VECTORS[code];
+			uint16* tOff1 = (uint16*) (( (byte*) offset1) + t);
 
-			// Note: Non-Aligned read! (offset1)
-			offset1 = (uint16*) (( (byte*) offset1) + t);
-
-			*dst++ = *offset1++; // 1.
-			*dst = *offset1;
-			dst += 319;
-
-			*dst++ = *offset1++; // 2.
-			*dst = *offset1;
+			*dst = *tOff1; // 1.
+			dst += 320;
+			tOff1 += 320;
+			*dst = *tOff1; // 2.
 		}
 		else if (code == 0xFF) {
 			*dst = * ((uint16*) src);
@@ -142,40 +121,22 @@ namespace gs
 
 		if (code < 0xF8) {
 
+			// Note: Non-Aligned read! (tOff1)
 			int32 t = SAN47_MOTION_VECTORS[code];
-			byte* bOffset1 = (byte*) offset1;
-			bOffset1 += t;
-			byte* bDst = (byte*) dst;
+			uint32* tOff1 = (uint32*) (( (byte*) offset1) + t);
 
-			// 1.
-			*bDst++ = *bOffset1++;
-			*bDst++ = *bOffset1++;
-			*bDst++ = *bOffset1++;
-			*bDst   = *bOffset1;
-			bDst += 637;
-			bOffset1 += 637;
-
-			// 2.
-			*bDst++ = *bOffset1++;
-			*bDst++ = *bOffset1++;
-			*bDst++ = *bOffset1++;
-			*bDst   = *bOffset1;
-			bDst += 637;
-			bOffset1 += 637;
-
-			// 3.
-			*bDst++ = *bOffset1++;
-			*bDst++ = *bOffset1++;
-			*bDst++ = *bOffset1++;
-			*bDst   = *bOffset1;
-			bDst += 637;
-			bOffset1 += 637;
-
-			// 4.
-			*bDst++ = *bOffset1++;
-			*bDst++ = *bOffset1++;
-			*bDst++ = *bOffset1++;
-			*bDst   = *bOffset1;
+			*dst = *tOff1;
+			dst += 160;
+			tOff1 += 160;
+			*dst = *tOff1;
+			dst += 160;
+			tOff1 += 160;
+			*dst = *tOff1;
+			dst += 160;
+			tOff1 += 160;
+			*dst = *tOff1;
+			dst += 160;
+			tOff1 += 160;
 
 		}
 		else if (code == 0xFF) {
