@@ -26,6 +26,8 @@
 #include "profile.h"
 #include "hash.h"
 
+#define GS_TEXT_SAFE_PITCH (GS_BITMAP_PITCH - 40)
+
 namespace gs
 {
 	Font* FONT[5] = { NULL} ;
@@ -166,6 +168,7 @@ namespace gs
 			num += ch - '0';
 			text++;
 		}
+		return num;
 	}
 
 	int16 Font::calculateFontWidth(const char* text) {
@@ -308,23 +311,39 @@ namespace gs
 			const char* it = begin;
 
 			int16 width = 0;
-			int16 height = lineFont->_chars['M']._height;
+			int16 lineHeight = lineFont->_chars['M']._height;
 			uint8 length = 0;
 			uint8 spaceLength = 0;
+			int16 y0 = y;
+			int16 y1 = y + lineHeight;
+			bool trim = false;
+
 
 			while(true) {
 				char ch = *it;
+
 				if (ch == 0) {
-					linesX[numLines] = 0;
+					linesX[numLines] = x;
 					linesY[numLines] = y;
-					linesLengths[numLines] = spaceLength;
+					linesLengths[numLines] = 0xFF;
 					linesText[numLines] = begin;
 					linesWidth[numLines] = width;
-					y += height;
+					y += lineHeight;
+					y1 += lineHeight;
 					numLines++;
+					debug(GS_THIS, "end line");
 					break;
 				}
 
+				// do trim on new lines
+				if (trim && ch == ' ') {
+					length = 0;
+					it++;
+					begin = it;
+					continue;
+				}
+
+				trim = false;
 				length++;
 
 				if (ch < 32) {
@@ -333,40 +352,70 @@ namespace gs
 				}
 
 				if (ch == ' ') {
-					space = it;
-					spaceLength = length;
+					// does the space come after a . or , if so we should use that.
+					if (length > 1 && (it[-1] == '.' || it[-1] == ',')) {
+						space = it-1;
+						spaceLength = length;
+					}
+					else {
+						space = it;
+						spaceLength = length;
+					}
+
 				}
 
 				RLEImage64 &fontImg = lineFont->_chars[ch];
 				width += fontImg._width;
 
-				if (width > GS_BITMAP_PITCH) {
-					linesX[numLines] = 0;
+				if (width > GS_TEXT_SAFE_PITCH) {
+					linesX[numLines] = x;
 					linesY[numLines] = y;
 					linesLengths[numLines] = spaceLength;
 					linesText[numLines] = begin;
 					linesWidth[numLines] = width;
-					y += height;
+					y += lineHeight;
+					y1 += lineHeight;
 					length = 0;
 					width = 0;
 					numLines++;
-					it = space;
-					begin = space;
+					it = space+1;
+					begin = space+1;
+					trim = true;
+					continue;
 				}
 
 				it++;
 			}
 
-			// Shift up.
-			if (y > GS_BITMAP_PITCH) {
-				int16 diff = GS_BITMAP_PITCH - y;
+			// Center? - Center to screen
+			if (centre) {
+
+				// Temp. 
+				if (x <= GS_BITMAP_PITCH / 2) {
+					x = GS_BITMAP_PITCH / 2;
+				}
+
 				for(uint8 i=0;i < numLines;i++) {
-					linesY[i] += diff;
+					linesX[i] = x - linesWidth[i] / 2;
 				}
 			}
+
+			// Shift up.
+			if (y1 > GS_BITMAP_ROWS) {
+				int16 diff = y1 - GS_BITMAP_ROWS;
+				for (uint8 i = 0; i < numLines; i++) {
+					linesY[i] -= diff;
+				}
+			}
+
+
 		}
 
-		debug(GS_THIS, "F%ld W%ld C%ld %s", fontNum , wrap, centre, text);
+		debug(GS_THIS, "F%ld W%ld C%ld L%d", fontNum , wrap, centre, numLines);
+
+		for(uint8 i=0;i < numLines;i++) {
+			debug(GS_THIS, "L%ld X%ld Y%ld \"%s\"", i, linesX[i], linesY[i], linesText[i]);
+		}
 
 	}
 
@@ -392,7 +441,7 @@ namespace gs
 				int16 r = x + fontImg._width;
 				int16 b = y + fontImg._height;
 
-				bool inBounds = (x >=0 && r < GS_BITMAP_PITCH && y > 0 && b < GS_BITMAP_ROWS);
+				bool inBounds = (x >=0 && r < GS_BITMAP_PITCH && y >= 0 && b < GS_BITMAP_ROWS);
 
 				if (inBounds == false) {
 					break;
