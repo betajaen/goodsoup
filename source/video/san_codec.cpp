@@ -182,6 +182,39 @@ namespace gs
 		_hasText = true;
 	}
 
+	void SanCodec::_readAndApplyIACT(const TagPair& iact) {
+		uint16 code = _diskReader.readUInt16LE(); // 2
+		uint16 flags = _diskReader.readUInt16LE(); // 4
+
+		if (code !=8 && flags == 0x2E) {
+			NO_FEATURE(GS_THIS, "IACT Code=%ld, Flags=%lx", code, flags);
+			_diskReader.seekEndOf(iact);
+			return;
+		}
+
+		_diskReader.skip(2); // 6
+		uint16 trackFlags = _diskReader.readUInt16LE(); // 8
+		uint16 trackId = _diskReader.readUInt16LE(); // 10
+		uint16 index = _diskReader.readUInt16LE(); // 12
+		uint16 numFrames = _diskReader.readUInt16LE(); // 14
+		uint32 size = iact.length - 14;
+
+#if defined(GS_CHECKED) && GS_CHECKED == 1
+		if (size > 65535) {
+			warn(GS_THIS, "IACT size %ld is too large for buffer!", size);
+			_diskReader.seekEndOf(iact);
+			return;
+		}
+#endif
+
+		_iactSize = size;
+		_diskReader.readBytes(&_iact[0], _iactSize);
+
+		debug(GS_THIS, "Track Id = %ld, Index = %ld, NumFrames = %ld, Size = %ld", trackId, index, numFrames, _iactSize);
+
+		//_diskReader.seekEndOf(iact);
+	}
+
 	void SanCodec::_copyBuffers(uint8 dst, uint8 src) {
 		uint32* dstBuffer = (uint32*) _getBuffer(dst);
 		uint32* srcBuffer = (uint32*) _getBuffer(src);
@@ -350,12 +383,12 @@ namespace gs
 				_readAndApplyText(tag);
 				continue;
 			}
-/*
+
 			if (tag.isTag(GS_MAKE_ID('I','A','C','T'))) {
-				_diskReader.skip(tag.length);
+				_readAndApplyIACT(tag);
 				continue;
 			}
-
+/*
 			if (tag.isTag(GS_MAKE_ID('S','T','O','R'))) {
 				_diskReader.skip(tag.length);
 				continue;
