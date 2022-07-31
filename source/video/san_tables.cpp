@@ -15,15 +15,17 @@
  *
  */
 
+#if GS_SAN_CODEC47 >= 1
+
 #define GS_FILE_NAME "san_tables"
 
 #include "../types.h"
 #include "../file.h"
 #include "../memory.h"
 
-
 namespace gs
 {
+
 	int16 SAN47_MOTION_VECTORS[256] = {
 		0,-27521,-27514,-26889,-26227,-25616,-24941,-23063,
 		-21734,-21122,-21116,-20509,-20489,-19829,-18576,-18528,
@@ -82,3 +84,4 @@ namespace gs
 	}
 
 }
+#endif

@@ -10,6 +10,7 @@ VM_DEBUG = 0
 CHECKED = 1
 FRAME_DELAY=1
 DEMO_MODE=0
+SAN_CODEC47=1
 
 CFLAGS = -Isource -D__AMIGADATE__="\"$(DATESTR)\""
 
@@ -56,6 +57,7 @@ CFLAGS += -DGS_VM_DEBUG=$(VM_DEBUG)
 CFLAGS += -DGS_ONE_FRAME=$(ONE_FRAME)
 CFLAGS += -DGS_CHECKED=$(CHECKED)
 CFLAGS += -DGS_FRAME_DELAY=$(FRAME_DELAY)
+CFLAGS += -DGS_SAN_CODEC47=$(SAN_CODEC47)
 
 ifeq ($(IGNORE_NO_FEATURE), 1)
 CFLAGS += -DGS_IGNORE_NO_FEATURE
@@ -100,12 +102,14 @@ OBJ +=	source/main_game.o\
 		source/costume.o\
 		source/video/video.o\
 		source/video/san_codec.o\
-		source/video/san_tables.o\
 		source/draw.o\
 		source/codecs/bomp.o\
 		source/codecs/nut.o\
 		source/codecs/rle.o\
-		source/font.o
+		source/font.o\
+		source/codecs/san_codec47_basic.o\
+		source/codecs/san_codec47_opt.o\
+		source/video/san_tables.o
 
 all: $(OBJ)
 	$(CC) -o $(PROGRAM) $(OBJ) $(CFLAGS)
