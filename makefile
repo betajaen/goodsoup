@@ -109,7 +109,8 @@ OBJ +=	source/main_game.o\
 		source/font.o\
 		source/codecs/san_codec47_basic.o\
 		source/codecs/san_codec47_opt.o\
-		source/video/san_tables.o
+		source/video/san_tables.o\
+		source/audio.o
 
 all: $(OBJ)
 	$(CC) -o $(PROGRAM) $(OBJ) $(CFLAGS)
