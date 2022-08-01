@@ -22,6 +22,7 @@
 #include "../codecs/bomp.h"
 #include "../font.h"
 #include "../memory.h"
+#include "../endian.h"
 
 namespace gs
 {
@@ -183,8 +184,20 @@ namespace gs
 	}
 
 	void SanCodec::_readAndApplyIACT(const TagPair& iact) {
-		uint16 code = _diskReader.readUInt16LE(); // 2
-		uint16 flags = _diskReader.readUInt16LE(); // 4
+
+#if defined(GS_CHECKED) && GS_CHECKED == 1
+		if (iact.length> 65535) {
+			warn(GS_THIS, "IACT size %ld is too large for buffer!", iact.length);
+			_diskReader.seekEndOf(iact);
+			return;
+		}
+#endif
+
+		_iactSize = iact.length;
+		_diskReader.readBytes(&_iact[0], _iactSize);
+
+		uint16 code = READ_LE_UINT16(&_iact[0]); // 2
+		uint16 flags = READ_LE_UINT16(&_iact[2]); // 4
 
 		if (code !=8 && flags == 0x2E) {
 			NO_FEATURE(GS_THIS, "IACT Code=%ld, Flags=%lx", code, flags);
@@ -192,25 +205,10 @@ namespace gs
 			return;
 		}
 
-		_diskReader.skip(2); // 6
-		uint16 trackFlags = _diskReader.readUInt16LE(); // 8
-		uint16 trackId = _diskReader.readUInt16LE(); // 10
-		uint16 index = _diskReader.readUInt16LE(); // 12
-		uint16 numFrames = _diskReader.readUInt16LE(); // 14
-		uint32 size = iact.length - 14;
+		uint16 dataSize = _iactSize - 18;
+		byte* data = &_iact[18];
 
-#if defined(GS_CHECKED) && GS_CHECKED == 1
-		if (size > 65535) {
-			warn(GS_THIS, "IACT size %ld is too large for buffer!", size);
-			_diskReader.seekEndOf(iact);
-			return;
-		}
-#endif
-
-		_iactSize = size;
-		_diskReader.readBytes(&_iact[0], _iactSize);
-
-		debug(GS_THIS, "Track Id = %ld, Index = %ld, NumFrames = %ld, Size = %ld", trackId, index, numFrames, _iactSize);
+		debug(GS_THIS, "IACT Size = %ld", dataSize);
 
 		//_diskReader.seekEndOf(iact);
 	}
