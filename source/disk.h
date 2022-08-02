@@ -132,8 +132,8 @@ namespace gs
 			return _file.pos();
 		}
 
-		inline void skip(uint32 length) {
-			_file.skip(length);
+		inline void skip(int32 offset) {
+			_file.skip(offset);
 		}
 
 		inline TagPair readTagPair() {
