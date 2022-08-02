@@ -73,6 +73,7 @@ namespace gs
 		void _readFrameObjectAndApply(const TagPair& fobj);
 		void _readAndApplyText(const TagPair& text);
 		void _readAndApplyIACT(const TagPair& iact);
+		void _applyAudio();
 
 
 #if FOBJ_CODEC2_ENABLED == 1

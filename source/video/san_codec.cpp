@@ -185,6 +185,45 @@ namespace gs
 		_hasText = true;
 	}
 
+	void SanCodec::_applyAudio() {
+		byte* src = &_iactOutput[2];
+		byte* dst = &_iactFrame[0];
+		byte v;
+		byte v1 = *src++;
+		byte v2 = v1 >> 4;
+		v1 &= 0x0F;
+		uint16 length = 1024;
+		while(length--) {
+			v = *src++;
+			/* TODO:  ENDIAN!! */
+			if (v == 0x80) {
+				*dst++ = *src++;
+				*dst++ = *src++;
+			}
+			else
+			{
+				uint16 m = v << v2;
+				*dst++ = m >> 8;
+				*dst++ = m & 0xFF;
+			}
+			v = *src++;
+			/* TODO:  ENDIAN!! */
+			if (v == 0x80) {
+				*dst++ = *src++;
+				*dst++ = *src++;
+			}
+			else
+			{
+				uint16 m = v << v1;
+				*dst++ = m >> 8;
+				*dst++ = m & 0xFF;
+			}
+		}
+
+		// debug(GS_THIS, "Push Audio %ld", (dst - &_iactFrame[0]));
+		audioPush16(_iactFrame, 4096, 22050);
+	}
+
 	void SanCodec::_readAndApplyIACT(const TagPair& iact) {
 
 #if defined(GS_CHECKED) && GS_CHECKED == 1
@@ -214,27 +253,27 @@ namespace gs
 
 		while(dataSize > 0) {
 
-			debug(GS_THIS, "dataSize = %ld", dataSize);
+			//debug(GS_THIS, "dataSize = %ld", dataSize);
 
 			if (_iactPos >= 2) {
 				int32 len = READ_BE_UINT16(output) + 2;
-				debug(GS_THIS, "len %ld", len);
+				//debug(GS_THIS, "len %ld", len);
 				len -= _iactPos;
 
 				if (len > dataSize) {
-					debug(GS_THIS, ">> %ld", dataSize);
+					//debug(GS_THIS, ">> %ld", dataSize);
 					copyMem(output + _iactPos, src, dataSize);
 					_iactPos += dataSize;
 					dataSize = 0;
 				}
 				else {
-					debug(GS_THIS, ">> %ld", len);
+					//debug(GS_THIS, ">> %ld", len);
 					copyMem(output + _iactPos, src, len);
 
 
+					_applyAudio();
 
-					debug(GS_THIS, "Push Audio");
-					audioPush16(_iactFrame, 4096, 22050);
+
 					dataSize -= len;
 					src += len;
 					_iactPos = 0;
@@ -252,7 +291,7 @@ namespace gs
 			}
 		}
 
-		debug(GS_THIS, "IACT Size = %ld", dataSize);
+		//debug(GS_THIS, "IACT Size = %ld", dataSize);
 
 	}
 
