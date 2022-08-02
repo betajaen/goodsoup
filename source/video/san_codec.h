@@ -51,7 +51,10 @@ namespace gs
 		int16 _prevSequenceNum;
 		uint8 _tempBuffer[GS_BITMAP_SIZE];
 		uint8 _buffer[3][GS_BITMAP_SIZE];
-		uint8 _iact[65536];
+		uint8 _iactData[65536];
+		uint8 _iactOutput[4096];
+		uint8 _iactFrame[4096];
+		uint16 _iactPos;
 		uint16 _iactSize;
 		uint8 _params[4];
 		uint8 _offset1, _offset2;

@@ -23,6 +23,7 @@
 #include "../font.h"
 #include "../memory.h"
 #include "../endian.h"
+#include "../audio.h"
 
 namespace gs
 {
@@ -99,6 +100,7 @@ namespace gs
 		_numTexts = 0;
 		_textLength = 0;
 		_lastTextHash = 0;
+		_iactPos = 0;
 	}
 
 	SanCodec::~SanCodec() {
@@ -194,23 +196,64 @@ namespace gs
 #endif
 
 		_iactSize = iact.length;
-		_diskReader.readBytes(&_iact[0], _iactSize);
+		_diskReader.readBytes(&_iactData[0], _iactSize);
 
-		uint16 code = READ_LE_UINT16(&_iact[0]); // 2
-		uint16 flags = READ_LE_UINT16(&_iact[2]); // 4
+		uint16 code = READ_LE_UINT16(&_iactData[0]); // 2
+		uint16 flags = READ_LE_UINT16(&_iactData[2]); // 4
 
+		// unknown 6
 		if (code !=8 && flags == 0x2E) {
 			NO_FEATURE(GS_THIS, "IACT Code=%ld, Flags=%lx", code, flags);
 			_diskReader.seekEndOf(iact);
 			return;
 		}
 
-		uint16 dataSize = _iactSize - 18;
-		byte* data = &_iact[18];
+		int32 dataSize = _iactSize - 18;
+		byte* src = &_iactData[18];
+		byte* output = &_iactOutput[0];
+
+		while(dataSize > 0) {
+
+			debug(GS_THIS, "dataSize = %ld", dataSize);
+
+			if (_iactPos >= 2) {
+				int32 len = READ_BE_UINT16(output) + 2;
+				debug(GS_THIS, "len %ld", len);
+				len -= _iactPos;
+
+				if (len > dataSize) {
+					debug(GS_THIS, ">> %ld", dataSize);
+					copyMem(output + _iactPos, src, dataSize);
+					_iactPos += dataSize;
+					dataSize = 0;
+				}
+				else {
+					debug(GS_THIS, ">> %ld", len);
+					copyMem(output + _iactPos, src, len);
+
+
+
+					debug(GS_THIS, "Push Audio");
+					audioPush16(_iactFrame, 4096, 22050);
+					dataSize -= len;
+					src += len;
+					_iactPos = 0;
+				}
+			}
+			else {
+				if (dataSize > 1 && _iactPos == 0) {
+					output[0] = *src++;
+					_iactPos = 1;
+					dataSize--;
+				}
+				output[_iactPos] = *src++;
+				_iactPos++;
+				dataSize--;
+			}
+		}
 
 		debug(GS_THIS, "IACT Size = %ld", dataSize);
 
-		//_diskReader.seekEndOf(iact);
 	}
 
 	void SanCodec::_copyBuffers(uint8 dst, uint8 src) {
@@ -383,7 +426,18 @@ namespace gs
 			}
 
 			if (tag.isTag(GS_MAKE_ID('I','A','C','T'))) {
+
+				// Note: There seems to be an exception to tag lengths with IACT. Either the others are
+				// wrong (and not always rounded up to the nearest 2), or this is. But this seems
+				// to fix this.
+				uint32 originalLength = tag.length;
+				_diskReader.skip(-4);
+				tag.length = _diskReader.readUInt32BE();
+
 				_readAndApplyIACT(tag);
+
+				tag.length = originalLength;
+				_diskReader.seekEndOf(tag);
 				continue;
 			}
 /*
