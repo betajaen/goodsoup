@@ -61,6 +61,9 @@ namespace gs
 {
 	typedef VOID(*PUTCHARPROC)();
 
+	void openAudio();
+	void closeAudio();
+
 	struct Screen* sScreen;
 	struct Window* sWindow;
 	struct ScreenBuffer* sScreenBuffer;
@@ -176,10 +179,14 @@ namespace gs
 
 		openAmigaCursor(sWindow);
 
+		openAudio();
+
 		return true;
 	}
 
 	bool closeScreen() {
+
+		closeAudio();
 
 		closeAmigaCursor();
 		
