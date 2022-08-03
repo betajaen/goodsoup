@@ -22,11 +22,21 @@
 
 namespace gs
 {
+	struct AudioSample {
+		AudioSample() {
+			next = NULL;
+		}
+
+		AudioSample* next;
+		uint8 data[4096];
+	};
 
 	void openAudio();
 	void closeAudio();
 
-	void audioPush16(const void* data, uint32 length);
+	AudioSample* allocateAudioSample();
+	void pushAudioSample(AudioSample* sample);
+
 
 }
 

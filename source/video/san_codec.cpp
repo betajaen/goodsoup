@@ -192,7 +192,9 @@ namespace gs
 	void SanCodec::_applyAudio() {
 		byte* src = &_iactOutput[0];
 		src += 2;
-		byte* dst = &_iactFrame[0];
+
+		AudioSample* sample = allocateAudioSample();
+		byte* dst = &sample->data[0];
 		byte v;
 		byte e1 = *src++;
 		byte e2 = e1 / 16;
@@ -231,7 +233,7 @@ namespace gs
 			}
 		} while(length--);
 
-		audioPush16(&_iactFrame[0], 4096);
+		pushAudioSample(sample);
 	}
 
 	void SanCodec::_readAndApplyIACT(const TagPair& iact) {

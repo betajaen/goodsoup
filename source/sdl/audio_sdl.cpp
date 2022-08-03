@@ -20,54 +20,51 @@
 #include "../types.h"
 #include "../buffer.h"
 #include "../profile.h"
+#include "../pool.h"
+#include "../audio.h"
 #include <SDL2/SDL.h>
+
+
 
 namespace gs
 {
-	struct AudioBuffer {
-
-		AudioBuffer() {
-			data = NULL;
-			length = 0;
-			capacity = 0;
-		}
-
-		byte* data;
-		uint32 length;
-		uint32 capacity;
-	};
-
-	AudioBuffer sAudioBuffers[2];
-	uint8 sWriteBuffer;
-
 	SDL_AudioDeviceID sAudioDevice;
 
-	AudioBuffer* swapAudioBuffers() {
-		AudioBuffer* read = &sAudioBuffers[sWriteBuffer];
+	AllocatedPool<AudioSample, uint8> sPool;
+	AudioSample* sHeadSample = NULL;
+	AudioSample* sTailSample = NULL;
+	bool lock = false;
 
-		sWriteBuffer = 1 - sWriteBuffer;
-		AudioBuffer* write = &sAudioBuffers[sWriteBuffer];
-		write->length = 0;
-
-		return read;
-	}
 
 	void audioCallback(void* userdata, uint8* stream, int len)
 	{
-		//debug(GS_THIS, "Callback");
+		uint32 totalLength = 0;
+		while(totalLength <= len) {
+			lock = true;
+			AudioSample* sample = sHeadSample;
+			if (sample == NULL) {
+				break;
+			}
 
-		AudioBuffer*  read = swapAudioBuffers();
+			sHeadSample = sample->next;
 
-		uint32 maxCopy = SDL_min(read->length, len);
+			copyMem(stream + totalLength, &sample->data[0], 4096);
+			totalLength += 4096;
 
-		//printf("MaxCopy = %ld  Read=%ld,  Want=%ld", maxCopy, read->length, len);
+			sample->next = NULL;
+			sPool.release_unchecked(sample);
+		}
 
-		copyMem(stream, read->data, maxCopy);
-		read->length = 0;
-
+		if (sHeadSample == NULL) {
+			sTailSample = NULL;
+		}
+		lock = false;
 	}
 
 	void openAudio() {
+
+		sHeadSample = NULL;
+		sTailSample = NULL;
 
 		SDL_AudioSpec want, have;
 
@@ -75,7 +72,7 @@ namespace gs
 		want.freq = GS_AUDIO_FREQUENCY_HZ;
 		want.format = AUDIO_S16MSB;
 		want.channels = 2;
-		want.samples = GS_AUDIO_SAMPLES_PER_SECOND;
+		want.samples = GS_AUDIO_SAMPLES_SIZE;
 		want.callback =  &audioCallback;
 
 		int count = SDL_GetNumAudioDevices(0);
@@ -92,43 +89,53 @@ namespace gs
 					&have,
 					0);
 
-			if (sAudioDevice > 0) {
-				info(GS_THIS, "Got Audio Device %lx for %ldHz Format=%lx Channels=%ld Samples=%ld", sAudioDevice, have.freq, have.format, have.channels, have.samples);
+			if (want.format != have.format) {
+				error(GS_THIS, "Incompatible requested Audio format!");
+				abort_quit_stop();
+				return;
+			}
+
+			if (want.freq != have.freq) {
+				error(GS_THIS, "Incompatible requested Audio frequency!");
+				abort_quit_stop();
+				return;
+			}
+
+			if (want.samples != have.samples) {
+				error(GS_THIS, "Incompatible requested Audio samples per second!");
+				abort_quit_stop();
+				return;
 			}
 
 			break;
 		}
-
-
-
-		uint32 capacity = have.size;
-
-		info(GS_THIS, "Audio Buffer Size = %ld", capacity);
-
-		sWriteBuffer = 0;
-		sAudioBuffers[0].length = 0;
-		sAudioBuffers[0].capacity = capacity;
-		sAudioBuffers[0].data = (byte*) allocateMemory(1, capacity, MF_Clear);
-		sAudioBuffers[1].length = 0;
-		sAudioBuffers[1].capacity = capacity;
-		sAudioBuffers[1].data = (byte*) allocateMemory(1, capacity, MF_Clear);
 
 		SDL_PauseAudioDevice(sAudioDevice, 0);
 	}
 
 	void closeAudio() {
 		SDL_CloseAudioDevice(sAudioDevice);
-
-		releaseMemory(sAudioBuffers[1].data);
-		releaseMemory(sAudioBuffers[0].data);
+		sPool.clear();
+		sHeadSample = NULL;
+		sTailSample = NULL;
 	}
 
-	void audioPush16(const void* data, uint32 length) {
-		AudioBuffer* write = &sAudioBuffers[sWriteBuffer];
+	AudioSample* allocateAudioSample() {
+		return sPool.acquire();
+	}
 
-		if ((write->length + length) <= write->capacity) {
-			copyMem(write->data + write->length, (void*) data, length);
-			write->length += length;
+	void pushAudioSample(AudioSample* sample) {
+
+		if (lock) {
+			while(true) ;
+		}
+
+		if (sTailSample == NULL) {
+			sHeadSample = sTailSample = sample;
+		}
+		else {
+			sTailSample->next = sample;
+			sTailSample = sample;
 		}
 	}
 

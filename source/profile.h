@@ -33,6 +33,8 @@
 #define GS_FRAME_DELAY_MSEC (1000 / GS_MAXIMUM_FRAMES_PER_SECOND)
 #define GS_AUDIO_FREQUENCY_HZ 22050
 #define GS_AUDIO_SAMPLES_PER_SECOND 8192
+#define GS_AUDIO_SAMPLES_SIZE 2048				// (22050 * 1/16th second) =~ 2048
+#define GS_AUDIO_SAMPLE_BUFFER_SIZE_BYTES 8192	// 2048 Samples * 2 Channels * 2 Bytes Per Sample
 
 namespace gs
 {
