@@ -29,11 +29,13 @@
 #include "../input.h"
 #include "../table.h"
 #include "../image.h"
+#include "../audio.h"
 
 #include <SDL2/SDL.h>
 
 namespace gs
 {
+
 	SDL_Window* sWindow = NULL;
 	SDL_Surface* sWindowSurface = NULL;
 	SDL_Surface* sSurface = NULL;
@@ -121,11 +123,14 @@ namespace gs
 
 		sTempSurface = SDL_CreateRGBSurface(0, GS_SCREEN_WIDTH, GS_SCREEN_HEIGHT, 24, 0,0,0,0);
 
+		openAudio();
+
 		return true;
 	}
 
 	bool closeScreen() {
 
+		closeAudio();
 
 		if (sSurface) {
 			SDL_FreeSurface(sSurface);

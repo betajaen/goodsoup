@@ -185,43 +185,53 @@ namespace gs
 		_hasText = true;
 	}
 
+	// ABABABABABA
+	// AAAAAABBBBB
+
+
 	void SanCodec::_applyAudio() {
-		byte* src = &_iactOutput[2];
+		byte* src = &_iactOutput[0];
+		src += 2;
 		byte* dst = &_iactFrame[0];
 		byte v;
-		byte v1 = *src++;
-		byte v2 = v1 >> 4;
-		v1 &= 0x0F;
-		uint16 length = 1024;
-		while(length--) {
-			v = *src++;
-			/* TODO:  ENDIAN!! */
-			if (v == 0x80) {
-				*dst++ = *src++;
-				*dst++ = *src++;
-			}
-			else
-			{
-				uint16 m = v << v2;
-				*dst++ = m >> 8;
-				*dst++ = m & 0xFF;
-			}
-			v = *src++;
-			/* TODO:  ENDIAN!! */
-			if (v == 0x80) {
-				*dst++ = *src++;
-				*dst++ = *src++;
-			}
-			else
-			{
-				uint16 m = v << v1;
-				*dst++ = m >> 8;
-				*dst++ = m & 0xFF;
-			}
-		}
+		byte e1 = *src++;
+		byte e2 = e1 / 16;
+		e1 &= 0x0F;
 
-		// debug(GS_THIS, "Push Audio %ld", (dst - &_iactFrame[0]));
-		audioPush16(_iactFrame, 4096, 22050);
+		int16 v1 = e1;
+		int16 v2 = e2;
+
+		uint16 length = 1024;
+		do {
+			// Left Channel
+			v = *src++;
+			if (v == 0x80) {
+				*dst++ = *src++;
+				*dst++ = *src++;
+			}
+			else
+			{
+				int16 m = (int8) v;
+				m <<= v2;
+				*dst++ = m >> 8;
+				*dst++ = (byte) m;
+			}
+			// Right Channel
+			v = *(src++);
+			if (v == 0x80) {
+				*dst++ = *src++;
+				*dst++ = *src++;
+			}
+			else
+			{
+				int16 m = (int8) v;
+				m <<= v1;
+				*dst++ = m >> 8;
+				*dst++ = (byte) m;
+			}
+		} while(length--);
+
+		audioPush16(&_iactFrame[0], 4096);
 	}
 
 	void SanCodec::_readAndApplyIACT(const TagPair& iact) {

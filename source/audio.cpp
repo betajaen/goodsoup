@@ -21,7 +21,4 @@
 
 namespace gs
 {
-	void audioPush16(const void* data, uint32 length, uint32 frequency) {
-		/* TODO */
-	}
 }

@@ -26,7 +26,7 @@ namespace gs
 int main(int argc, char** argv)
 {
 	using namespace gs;
-	SDL_Init(SDL_INIT_EVENTS | SDL_INIT_VIDEO | SDL_INIT_TIMER);
+	SDL_Init(SDL_INIT_EVERYTHING); //EVENTS | SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_TIMER);
 	int rc = main(0);
 	checkMem();
 	SDL_Quit();
