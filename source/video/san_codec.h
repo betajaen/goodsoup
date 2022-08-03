@@ -23,11 +23,15 @@
 #include "../disk.h"
 #include "../room.h"	// For RoomPaletteData
 
+#include "iact_timing.h"
+
 #define FOBJ_CODEC2_ENABLED 1
 #define MAX_TEXT_PER_FRAME 16
 
 namespace gs
 {
+
+	class AudioMixer;
 
 	class SanCodec
 	{
@@ -52,7 +56,10 @@ namespace gs
 		uint8 _tempBuffer[GS_BITMAP_SIZE];
 		uint8 _buffer[3][GS_BITMAP_SIZE];
 		uint8 _iactData[65536];
-		uint8 _iactOutput[4096];
+		uint8 _iactOutput[4096+2];
+		IACTTiming _timing;
+		bool _audioMute;
+		AudioMixer* _audioMixer;
 		uint16 _iactPos;
 		uint16 _iactSize;
 		uint8 _params[4];
@@ -71,16 +78,10 @@ namespace gs
 		void _readAndApplyDeltaPalette(const TagPair& xpal);
 		void _readFrameObjectAndApply(const TagPair& fobj);
 		void _readAndApplyText(const TagPair& text);
-		void _readAndApplyIACT(const TagPair& iact);
+		void _readAndApplyIACTTiming(const TagPair& iact);
+		void _readAndApplyIACTAudio(const TagPair& iact);
 		void _applyAudio();
 
-
-#if FOBJ_CODEC2_ENABLED == 1
-		void Codec2_Level0(byte* dst, byte* src, byte* offset1, byte* offset2);
-		void Codec2_Level1(byte* dst, uint32 offset, byte*& src, byte* offset1, byte* offset2);
-		void Codec2_Level2(byte* dst, uint32 offset, byte*& src, byte* offset1, byte* offset2);
-		void Codec2_Level3(byte* dst, uint32 offset, byte*& src, byte* offset1, byte* offset2);
-#endif
 
 	public:
 

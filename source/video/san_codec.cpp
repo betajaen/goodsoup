@@ -60,6 +60,9 @@ namespace gs
 	SanCodec::SanCodec(DiskReader reader)
 		: _diskReader(reader), _frameNum(0)
 	{
+		_audioMixer = createAudioMixer();
+
+
 		TagPair animTag = _diskReader.readSanTagPair();
 
 		debug(GS_THIS, "SAN Codec is %ld", GS_SAN_CODEC47);
@@ -104,6 +107,8 @@ namespace gs
 	}
 
 	SanCodec::~SanCodec() {
+		releaseAudioMixer(_audioMixer);
+		_audioMixer = NULL;
 	}
 
 	void SanCodec::_readAndApplyPalette() {
@@ -236,7 +241,7 @@ namespace gs
 		pushAudioSample(sample);
 	}
 
-	void SanCodec::_readAndApplyIACT(const TagPair& iact) {
+	void SanCodec::_readAndApplyIACTAudio(const TagPair& iact) {
 
 #if defined(GS_CHECKED) && GS_CHECKED == 1
 		if (iact.length> 65535) {
@@ -247,7 +252,7 @@ namespace gs
 #endif
 
 		_iactSize = iact.length;
-		_diskReader.readBytes(&_iactData[0], _iactSize);
+		_diskReader.readBytes(&_iactData[0], _iactSize - 18);
 
 		uint16 code = READ_LE_UINT16(&_iactData[0]); // 2
 		uint16 flags = READ_LE_UINT16(&_iactData[2]); // 4
@@ -283,7 +288,7 @@ namespace gs
 					copyMem(output + _iactPos, src, len);
 
 
-					_applyAudio();
+					// _applyAudio();
 
 
 					dataSize -= len;
@@ -478,16 +483,11 @@ namespace gs
 
 			if (tag.isTag(GS_MAKE_ID('I','A','C','T'))) {
 
-				// Note: There seems to be an exception to tag lengths with IACT. Either the others are
-				// wrong (and not always rounded up to the nearest 2), or this is. But this seems
-				// to fix this.
-				uint32 originalLength = tag.length;
-				_diskReader.skip(-4);
-				tag.length = _diskReader.readUInt32BE();
+				readIACTTiming(_diskReader, tag, _timing);
 
-				_readAndApplyIACT(tag);
+				// _diskReader.seek(tag.dataPos + 18);
+				// _readAndApplyIACTAudio(tag);
 
-				tag.length = originalLength;
 				_diskReader.seekEndOf(tag);
 				continue;
 			}

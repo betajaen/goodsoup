@@ -63,6 +63,8 @@ namespace gs
 
 	void openAudio() {
 
+		return;
+
 		sHeadSample = NULL;
 		sTailSample = NULL;
 
@@ -114,6 +116,9 @@ namespace gs
 	}
 
 	void closeAudio() {
+
+		return;
+
 		SDL_CloseAudioDevice(sAudioDevice);
 		sPool.clear();
 		sHeadSample = NULL;
