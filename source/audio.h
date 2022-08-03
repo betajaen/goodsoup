@@ -30,6 +30,8 @@ namespace gs
 		}
 
 		AudioSample* next;
+		uint32 remaining;
+		uint32 pos;
 		uint8 data[4096];
 	};
 

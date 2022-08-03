@@ -30,43 +30,101 @@ namespace gs
 {
 	SDL_AudioDeviceID sAudioDevice;
 
-	AllocatedPool<AudioSample, uint8> sPool;
-	AudioSample* sHeadSample = NULL;
-	AudioSample* sTailSample = NULL;
-	bool lock = false;
+	struct AudioList {
 
+		AudioList() {
+			head = NULL;
+			tail = NULL;
+		}
+
+		~AudioList() {
+			head = NULL;
+			tail = NULL;
+		}
+
+		AudioSample *head, *tail;
+		AllocatedPool<AudioSample, uint8> pool;
+	};
+
+	AudioList sBuffers[2];
+	AudioList* sWrite, *sRead;
+	byte sBuffer;
+	SDL_atomic_t sBusy;
+
+	void lockBuffers() {
+		while (SDL_AtomicCAS(&sBusy, 0, 1) == 0) {
+			SDL_Delay(10);
+			debug(GS_THIS, "WAIT LOCK");
+		}
+	}
+
+	void unlockBuffers() {
+		while (SDL_AtomicCAS(&sBusy, 1, 0) == 0) {
+			SDL_Delay(10);
+			debug(GS_THIS, "UNLOCK LOCK");
+		}
+	}
+
+	void swapBuffers() {
+		sBuffer = 1 - sBuffer;
+		sWrite = &sBuffers[sBuffer];
+		sRead = &sBuffers[1 - sBuffer];
+	}
 
 	void audioCallback(void* userdata, uint8* stream, int len)
 	{
+		lockBuffers();
+		swapBuffers();
+		unlockBuffers();
+
+		AudioList* buffer = sRead;
+
 		uint32 totalLength = 0;
 		while(totalLength <= len) {
-			lock = true;
-			AudioSample* sample = sHeadSample;
+			AudioSample* sample = buffer->head;
 			if (sample == NULL) {
 				break;
 			}
 
-			sHeadSample = sample->next;
+			uint32 copySize = sample->remaining;
+			debug(GS_THIS, "copySize = %ld for %ld", copySize, len);
+			if (totalLength + copySize >= len) {
+				copySize = (totalLength + copySize) - len;
+				debug(GS_THIS, "new copySize = %ld for %ld", copySize, len);
+			}
 
-			copyMem(stream + totalLength, &sample->data[0], 4096);
-			totalLength += 4096;
+			if (copySize == 0) {
+				break;
+			}
 
-			sample->next = NULL;
-			sPool.release_unchecked(sample);
+			copyMem(stream + totalLength, &sample->data[sample->pos], copySize);
+			totalLength += copySize;
+			sample->remaining -= copySize;
+			sample->pos += copySize;
+
+			if (sample->remaining == 0) {
+				buffer->head = sample->next;
+				sRead->pool.release_unchecked(sample);
+				continue;
+			}
+			else {
+				break;
+			}
 		}
 
-		if (sHeadSample == NULL) {
-			sTailSample = NULL;
+		if (buffer->head == NULL) {
+			buffer->tail = NULL;
 		}
-		lock = false;
+
+		debug(GS_THIS, "End Callback");
+
 	}
 
 	void openAudio() {
 
-		return;
-
-		sHeadSample = NULL;
-		sTailSample = NULL;
+		sBuffer = 0;
+		sWrite = &sBuffers[sBuffer];
+		sRead = &sBuffers[1 - sBuffer];
 
 		SDL_AudioSpec want, have;
 
@@ -113,40 +171,40 @@ namespace gs
 		}
 
 		SDL_PauseAudioDevice(sAudioDevice, 0);
+
+
 	}
 
 	void closeAudio() {
-
-		return;
-
 		SDL_CloseAudioDevice(sAudioDevice);
-		sPool.clear();
-		sHeadSample = NULL;
-		sTailSample = NULL;
+		sRead->pool.clear();
+		sWrite->pool.clear();
 	}
 
 	AudioSample* allocateAudioSample() {
+		lockBuffers();
+		AudioSample* sample = sWrite->pool.acquire(0xAAAAAAA1);
+		unlockBuffers();
 
-		if (lock) {
-			while(true) ;
-		}
+		sample->next = NULL;
+		sample->remaining = 4096;
+		sample->pos = 0;
 
-		return sPool.acquire();
+		return sample;
 	}
 
 	void pushAudioSample(AudioSample* sample) {
 
-		if (lock) {
-			while(true) ;
-		}
-
-		if (sTailSample == NULL) {
-			sHeadSample = sTailSample = sample;
+		lockBuffers();
+		if (sWrite->tail == NULL) {
+			sWrite->head = sWrite->tail = sample;
 		}
 		else {
-			sTailSample->next = sample;
-			sTailSample = sample;
+			sWrite->tail->next = sample;
+			sWrite->tail = sample;
 		}
+
+		unlockBuffers();
 	}
 
 }
