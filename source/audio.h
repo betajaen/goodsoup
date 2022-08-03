@@ -19,6 +19,8 @@
 #define GS_AUDIO_H
 
 #include "types.h"
+#include "pool.h"
+#include "memory.h"
 
 namespace gs
 {
@@ -31,8 +33,32 @@ namespace gs
 		uint8 data[4096];
 	};
 
+	class AudioMixer {
+
+		AllocatedPool<AudioSample, uint8> _samplePool;
+		AudioSample* _head, _tail;
+
+	protected:
+
+		friend AudioMixer* newObject<AudioMixer>();
+		friend void deleteObject_unchecked<AudioMixer>(AudioMixer*);
+
+		AudioMixer();
+		~AudioMixer();
+
+	public:
+
+
+		AudioSample* allocateAudioSample();
+
+
+	};
+
 	void openAudio();
 	void closeAudio();
+
+	AudioMixer* createAudioMixer();
+	void releaseAudioMixer(AudioMixer* mixer);
 
 	AudioSample* allocateAudioSample();
 	void pushAudioSample(AudioSample* sample);

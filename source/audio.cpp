@@ -17,8 +17,50 @@
 
 #define GS_FILE_NAME "audio"
 
+#include "profile.h"
 #include "audio.h"
+#include "debug.h"
+#include "memory.h"
 
 namespace gs
 {
+
+	InlineArray<AudioMixer*, uint8, MAX_AUDIO_MIXERS> sAudioMixers;
+
+	AudioMixer::AudioMixer() {
+
+	}
+
+	AudioMixer::~AudioMixer() {
+
+	}
+
+	AudioMixer* createAudioMixer() {
+
+		if (sAudioMixers.isFull()) {
+
+			error(GS_THIS, "Cannot allocate Audio Mixer! None available.");
+			abort_quit_stop();
+			return NULL;
+		}
+
+
+		AudioMixer* mixer = newObject<AudioMixer>();
+		sAudioMixers.push(mixer);
+	}
+
+	void releaseAudioMixer(AudioMixer* mixer) {
+		CHECK_IF(mixer == NULL, "Tried to release a null AudioMixer");
+		uint8 index;
+
+		if (sAudioMixers.indexOf(mixer, index) == false) {
+			error(GS_THIS, "Tried to release a Audio Mixer twice!");
+			abort_quit_stop();
+			return;
+		}
+
+		sAudioMixers.erase(index);
+		deleteObject_unchecked(mixer);
+	}
+
 }

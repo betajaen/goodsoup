@@ -121,6 +121,11 @@ namespace gs
 	}
 
 	AudioSample* allocateAudioSample() {
+
+		if (lock) {
+			while(true) ;
+		}
+
 		return sPool.acquire();
 	}
 
