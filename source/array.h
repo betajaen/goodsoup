@@ -294,6 +294,36 @@ namespace gs
 		inline bool hasAny() const {
 			return _end != 0;
 		}
+
+		inline bool indexOf(const T& value, Index& out_index) const {
+			for(Index i=0;i < _end;i++) {
+				if (_items[i] == value) {
+					out_index = i;
+					return true;
+				}
+			}
+
+			return false;
+		}
+
+		inline bool contains(const T& value) const {
+			for(Index i=0;i < _end;i++) {
+				if (_items[i] == value)
+					return true;
+			}
+
+			return false;
+		}
+
+		inline Index count(const T& value) const {
+			Index amount = 0;
+			for(Index i=0;i < _end;i++) {
+				if (_items[i] == value) {
+					amount++;
+				}
+			}
+			return amount;
+		}
 		
 		inline T& get_unchecked(Index idx) {
 			return _items[idx];
@@ -329,6 +359,19 @@ namespace gs
 		
 		inline const T& operator[](Index idx) const {
 			return _get(idx);
+		}
+
+		inline void erase(Index index) {
+
+			CHECK_IF(index >= _end, "Out of bounds erasure");
+
+			if (index == _end - 1) {
+				--_end;
+			}
+			else {
+				_items[index] = _items[_end - 1];
+				--_end;
+			}
 		}
 
 		inline bool tryPush(const T& item) {
