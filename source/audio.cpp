@@ -36,17 +36,12 @@ namespace gs
 	}
 
 	AudioMixer* createAudioMixer() {
-
-		if (sAudioMixers.isFull()) {
-
-			error(GS_THIS, "Cannot allocate Audio Mixer! None available.");
-			abort_quit_stop();
-			return NULL;
-		}
-
+		CHECK_IF_RETURN(sAudioMixers.isFull(), NULL, "Cannot allocate Audio Mixer! None available.");
 
 		AudioMixer* mixer = newObject<AudioMixer>();
 		sAudioMixers.push(mixer);
+
+		return mixer;
 	}
 
 	void releaseAudioMixer(AudioMixer* mixer) {
