@@ -128,14 +128,15 @@ namespace gs
 			_free.clear();
 		}
 
-		T* acquire() {
+		T* acquire(uint32 allocationId = 0) {
 			if (_free.getSize()) {
 				T* item = _free.popItem();
 				return item;
 			}
 
-			T* item = newObject<T>();
-			return item;
+
+			void* mem = allocateMemory(1, sizeof(T), MF_Clear | MF_HintObject, allocationId);
+			return new(mem) T();
 		}
 
 		void release(T* item) {
