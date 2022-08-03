@@ -24,6 +24,7 @@
 #include "../room.h"	// For RoomPaletteData
 
 #include "iact_timing.h"
+#include "iact_audio.h"
 
 #define FOBJ_CODEC2_ENABLED 1
 #define MAX_TEXT_PER_FRAME 16
@@ -58,6 +59,7 @@ namespace gs
 		uint8 _iactData[65536];
 		uint8 _iactOutput[4096+2];
 		IACTTiming _timing;
+		IACTAudio _audio;
 		bool _audioMute;
 		AudioMixer* _audioMixer;
 		uint16 _iactPos;

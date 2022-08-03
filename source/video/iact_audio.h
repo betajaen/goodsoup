@@ -15,27 +15,29 @@
  *
  */
 
-#define GS_FILE_NAME "IACT_Timing"
+#ifndef GS_IACT_AUDIO_H
+#define GS_IACT_AUDIO_H
 
-#include "iact_timing.h"
-#include "../disk.h"
+#include "../types.h"
 
 namespace gs
 {
+	class DiskReader;
+	struct TagPair;
+	class AudioMixer;
 
-	bool readIACTTiming(DiskReader& reader, TagPair& tag, IACTTiming& timing) {
-		uint16 code = reader.readUInt16LE();
-		uint16 flags = reader.readUInt16LE();
+	struct IACTAudio
+	{
+		IACTAudio();
+		~IACTAudio();
 
-		if (code != 8 && flags != 46)
-			return false;
+		byte* diskCache;
+		byte* compressedSample;
+		uint32 pos;
+	};
 
-		reader.skip(6);
-
-		timing.currentFrame = reader.readUInt16LE();
-		timing.totalFrames = reader.readUInt16LE();
-
-		return true;
-	}
+	bool readIACTAudio(DiskReader& reader, TagPair& tag, IACTAudio& timing, AudioMixer* audioMixer);
 
 }
+
+#endif

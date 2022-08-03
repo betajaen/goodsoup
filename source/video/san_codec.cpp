@@ -483,10 +483,14 @@ namespace gs
 
 			if (tag.isTag(GS_MAKE_ID('I','A','C','T'))) {
 
-				readIACTTiming(_diskReader, tag, _timing);
+				TagPair iact;
+				iact.dataPos = tag.dataPos;
 
-				// _diskReader.seek(tag.dataPos + 18);
-				// _readAndApplyIACTAudio(tag);
+				_diskReader.skip(-4);
+				iact.length = _diskReader.readUInt32BE();
+
+				readIACTTiming(_diskReader, iact, _timing);
+				readIACTAudio(_diskReader, iact, _audio, _audioMixer);
 
 				_diskReader.seekEndOf(tag);
 				continue;
