@@ -33,7 +33,7 @@ namespace gs
 		MF_HintString = (1UL << 25)
 	};
 
-	void* allocateMemory(uint32 itemCount, uint32 itemSize, int flags);
+	void* allocateMemory(uint32 itemCount, uint32 itemSize, int flags, uint32 allocationId = 0);
 
 	void releaseMemory(void* allocation);
 

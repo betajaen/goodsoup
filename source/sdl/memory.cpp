@@ -89,18 +89,18 @@ namespace gs
 
 		if (footer->_magic != FOOTER_MAGIC)
 		{
-			error(GS_THIS, "(%s, %p) Memory allocation has a corrupted footer!", from, footer);
+			error(GS_THIS, "(%s, %p, %lx) Memory allocation has a corrupted footer!", from, footer, header->_allocationId);
 			return;
 		}
 
 		if (header->_allocationId != footer->_allocationId)
 		{
-			error(GS_THIS, "(%s, %p, %p) Memory allocation has a corrupted header or footer!", from, header, footer);
+			error(GS_THIS, "(%s, %p, %p, %lx) Memory allocation has a corrupted header or footer!", from, header, footer, header->_allocationId);
 			return;
 		}
 	}
 
-	static void* allocateMemoryInternal(uint32 itemCount, uint32 itemSize, int flags) {
+	static void* allocateMemoryInternal(uint32 itemCount, uint32 itemSize, int flags, uint32 user_allocationId) {
 		static uint32 sNextAllocationId = 0xBB2F0507;
 
 		uint32 allocationSize, userSize;
@@ -110,7 +110,12 @@ namespace gs
 		MemFooter* footer;
 		uint32 allocationId;
 
-		allocationId = sNextAllocationId += 1;
+		if (user_allocationId != 0 ) {
+			allocationId = user_allocationId;
+		}
+		else {
+			allocationId = sNextAllocationId += 1;
+		}
 
 		userSize = itemCount * itemSize;
 		allocationSize = sizeof(MemHeader) + sizeof(MemFooter) + userSize;
@@ -146,11 +151,11 @@ namespace gs
 	}
 
 
-	void* allocateMemory(uint32 itemCount, uint32 itemSize, int flags) {
+	void* allocateMemory(uint32 itemCount, uint32 itemSize, int flags, uint32 allocationId) {
 		
 		void* allocatedMem;
 
-		allocatedMem = allocateMemoryInternal(itemCount, itemSize, flags);
+		allocatedMem = allocateMemoryInternal(itemCount, itemSize, flags, allocationId);
 #if GS_TEST==3
 		verbose(GS_THIS, "(%p,%d,%d)", allocatedMem, itemCount, itemSize, flags);
 #endif
@@ -180,7 +185,7 @@ namespace gs
 			return allocation;
 		}
 
-		void* newAllocation = allocateMemoryInternal(itemCount, itemSize, MF_Clear);
+		void* newAllocation = allocateMemoryInternal(itemCount, itemSize, MF_Clear, header->_allocationId);
 
 		if (newUserSize > oldUserSize) {
 			// grow
