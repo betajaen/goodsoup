@@ -27,6 +27,10 @@
 namespace gs
 {
 
+	void applyAudio_Mute(byte* src) {
+
+	}
+
 	void applyAudio_S16MSB(byte* src) {
 		src += 2;
 
@@ -107,17 +111,18 @@ namespace gs
 				len -= pos;
 
 				if (len > dataSize) {
-					//debug(GS_THIS, ">> %ld", dataSize);
 					copyMem(dst + pos, src, dataSize);
 					pos += dataSize;
 					dataSize = 0;
 				}
 				else {
-					//debug(GS_THIS, ">> %ld", len);
 					copyMem(dst + pos, src, len);
 
+#if GS_MUTE_AUDIO
+					applyAudio_Mute(dst);
+#else
 					applyAudio_S16MSB(dst);
-
+#endif
 					dataSize -= len;
 					src += len;
 					pos = 0;
