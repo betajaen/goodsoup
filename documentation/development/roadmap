@@ -35,7 +35,7 @@ For 0.4
 [x] SDL Window
 [-] SDL On screen debugger
 [x] SDL rough calling of runFrame
-[-] SDL accurate timer to call runFrame
+[x] SDL accurate timer to call runFrame
 [x] SDL Click X to quit
 [x] SDL event loop
 [-] SDL key controls
@@ -44,6 +44,29 @@ For 0.4
 [x] Pause/Resume of gameplay
 
 For 0.5
+=======
+
+[x] Demo Mode Makefile option
+[x] SMUSH Video Player
+[x] FOBJ Decoding and Playback
+[x] 1st pass naive FOBJ decoder optimization
+[x] Palette and Delta Palettes
+[x] IACT Audio Decoding
+[ ] Accurate Video Timing (Amiga)
+[ ] Accurate Video Timing (SDL)
+[ ] Accurate Audio Timing (Amiga)
+[ ] Accurate Audio Timing (SDL)
+[ ] Audio Mixer/Playback (SDL)
+[ ] Audio Mixer/Playback (Amiga through AHI)
+[x] Subtitle Decoding
+[x] Subtitle display
+[x] Subtitle center, word-wrapped
+[x] NUT file (Font) decoding 
+[x] More efficent GSF font format
+[x] NUT to GSF convert on load
+[x] GSF cache loader
+
+For 0.6
 =======
 
 ... Objects ...
@@ -55,7 +78,6 @@ For 0.5
 COMI:
 
 [ ] Can choose difficulty selection (either through hotkeys, or hardcoded)
-[ ] Movie plays but with placeholder text
 [ ] Loads Wally/Guybrush/Cannon Room
 [ ] Load Actors
 [ ] Actor related placeholder opcodes implemented
