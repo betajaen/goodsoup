@@ -73,6 +73,8 @@ namespace gs
 
 	void audioCallback(void* userdata, uint8* stream, int len)
 	{
+		SDL_memset(stream, 0, len);
+
 		lockBuffers();
 		swapBuffers();
 		unlockBuffers();
@@ -115,8 +117,6 @@ namespace gs
 		if (buffer->head == NULL) {
 			buffer->tail = NULL;
 		}
-
-		debug(GS_THIS, "End Callback");
 
 	}
 
