@@ -37,11 +37,11 @@ namespace gs
 		byte e2 = e1 / 16;
 		e1 &= 0x0F;
 
-		int16 v1 = e1;
-		int16 v2 = e2;
+		int8 v1 = e1;
+		int8 v2 = e2;
 
-		uint16 length = 1023;
-		do {
+		uint16 length = 1024;
+		while(length--) {
 			// Left Channel
 			v = *src++;
 			if (v == 0x80) {
@@ -51,7 +51,7 @@ namespace gs
 			else
 			{
 				int16 m = (int8) v;
-				m <<= v2;
+				m <<= e2;
 				*dst++ = m >> 8;
 				*dst++ = (byte) m;
 			}
@@ -64,11 +64,11 @@ namespace gs
 			else
 			{
 				int16 m = (int8) v;
-				m <<= v1;
+				m <<= e1;
 				*dst++ = m >> 8;
 				*dst++ = (byte) m;
 			}
-		} while(length--);
+		}
 
 		pushAudioSample(sample);
 	}
