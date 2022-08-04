@@ -51,11 +51,11 @@ Status
 	-----------------+--------------------
 	Actors           | Placeholder code.
 	AGA Support      | After RTG is completed and the game is mostly playable.
-	Audio            | None.
+	Audio            | In progress.
 	Custom Cursors   | Future.
 	Debugging        | Done.
 	File Formats     | Complete.
-	Fonts            | Nearly Done - Read Fonts. Printing in Progress.
+	Fonts            | Mostly Complete.
 	Gameplay         | Little.
 	Input            | In Progress.
 	Inventory        | Placeholder code.
@@ -64,19 +64,23 @@ Status
 	Save Games       | None
 	Scripting        | Nearly Done.
 	Translations     | None.
-	Video            | Nearly Done (No Audio, Subtitles Iffy, Plays too fast).
+	Video (SMUSH)    | Nearly Done. Video 100%, Audio 90%, Subtitles 100%, Timing - TODO
 
 General Notes:
 
-	As of 24-July-2022
+	As of 04-August-2022
 
 	The game is capable of loading the boot script. It then displays the difficulty selection
 	dialogue. The game is hardcoded to select the easy option on a mouse click, for which it
 	then plays the Monkey Screaming CMI screen. It then plays the opening SAN video, which
-	can be skipped by the Escape key. It will then show the chapter one title card, and then
-	fade into the scene where Guybrush and Wally are in the Canon room. Wally, Guybrush, the
-	canon and some objects are not shown on the screen, but Wally is appearing to be talking
-	as the scripts are running in this room.
+	shows Monkey Island, then Guybrush in a dodgem car floating in the water writing his log, 
+	it then shows the Curse of Monkey Island logo, and then a canon battle between LeChuck and 
+	Elaine, with Guybrush who has drifted into the middle stuck in the middle. This can be skipped 
+	via the ESCAPE key.
+
+	It will then show the chapter one title card, and then fade into the scene where Guybrush and 
+	Wally are in the Canon room. Wally, Guybrush, the canon and some objects are not shown on the
+	screen, but Wally is appearing to be talking as the scripts are running in this room.
 
 Installation
 ------------
@@ -140,6 +144,27 @@ Goodsoup is written in strict C++98 and should be compiled with a GCC compiler.
 
 Options:
 
-	make PLATFORM=amiga		To compile for Amiga Platforms using the Bebbo GCC Compiler.
+	make clean			To clean object files and compiled executables.
+	make PLATFORM=amiga	To compile for Amiga Platforms using the Bebbo GCC Compiler.
 	make PLATFORM=sdl		To compile for Linux Platforms using a 32-bit GCC Compiler.
-	make clean				To clean object files and compiled executables.
+
+Various options can be added to the make command when building:
+	DEMO_MODE=0/1		Demonstration Mode:-
+					0 - Play the Game as Normal
+					1 - Play the opening SMUSH Video (OPENING.SAN) and then quit
+	FAST_MODE=0/1		Ignore frame rate timing
+	MUTE_AUDIO=0/1		Process but do not play Audio
+	SAN_CODEC47=0/1/2		SAN (SMUSH) Codec decoder:-
+					0 - None, only show keyframes
+					1 - Stock
+					2 - ULONG optimised
+	VM_DEBUG=0/1		Log excess information about the Virtual Machine to a file in
+					the working directory
+	CHECKED=0/1			Perform extra checking on parameters and external data before
+					using it
+	ONE_FRAME=0/1		Quit after displaying one frame
+	GAME_PATH="COMI:"		Path to where the data files are
+	IGNORE_NO_FEATURE=0/1	Shut up about missing features
+	
+	
+	
