@@ -47,6 +47,20 @@
 #endif
 
 
+#ifndef GS_MUTE_AUDIO
+// GS_MUTE_AUDIO
+// Disable Audio processing and playback
+// Options:
+//	0 - Enable Audio Processing
+//	1 - Disable Audio Processing
+// Option: MUTE_AUDID=0/1
+// Default: 0
+#define GS_MUTE_AUDIO 0
+#endif
+
+
+
+
 
 //  -----------------------------------------------------------------
 //	Private. Please do not touch.
