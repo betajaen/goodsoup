@@ -8,9 +8,9 @@ Architecture: m68k-amigaos >= 3.1
 Distribution: Aminet
 
 This is a game interpreter and player for the Lucasarts game "Curse of Monkey Island" (COMI) 
-for the Commodore Amiga range of computers. This allows you to play the Curse of Monkey Island
-game, natively without emulation on the Commodore Amiga using its software APIs using a 
-copy of the COMI PC data files only.
+for the Commodore Amiga (CBM Amiga) range of computers. This allows you to play the 
+Curse of Monkey Island game, natively without emulation on the Commodore Amiga using its 
+software APIs using a copy of the COMI PC data files only.
 
 In laymans terms; Goodsoup is "COMI.exe" for the Amiga.
 
@@ -144,27 +144,25 @@ Goodsoup is written in strict C++98 and should be compiled with a GCC compiler.
 
 Options:
 
-	make clean			To clean object files and compiled executables.
-	make PLATFORM=amiga	To compile for Amiga Platforms using the Bebbo GCC Compiler.
-	make PLATFORM=sdl		To compile for Linux Platforms using a 32-bit GCC Compiler.
+	make clean              To clean object files and compiled executables.
+	make PLATFORM=amiga     To compile for Amiga Platforms using the Bebbo GCC Compiler.
+	make PLATFORM=sdl       To compile for Linux Platforms using a 32-bit GCC Compiler.
 
 Various options can be added to the make command when building:
-	DEMO_MODE=0/1		Demonstration Mode:-
-					0 - Play the Game as Normal
-					1 - Play the opening SMUSH Video (OPENING.SAN) and then quit
-	FAST_MODE=0/1		Ignore frame rate timing
-	MUTE_AUDIO=0/1		Process but do not play Audio
-	SAN_CODEC47=0/1/2		SAN (SMUSH) Codec decoder:-
-					0 - None, only show keyframes
-					1 - Stock
-					2 - ULONG optimised
-	VM_DEBUG=0/1		Log excess information about the Virtual Machine to a file in
-					the working directory
-	CHECKED=0/1			Perform extra checking on parameters and external data before
-					using it
-	ONE_FRAME=0/1		Quit after displaying one frame
-	GAME_PATH="COMI:"		Path to where the data files are
-	IGNORE_NO_FEATURE=0/1	Shut up about missing features
+	DEMO_MODE=0/1           Demonstration Mode:-
+	                        0 - Play the Game as Normal
+	                        1 - Play the opening SMUSH Video (OPENING.SAN) and then quit
+	FAST_MODE=0/1           Ignore frame rate timing
+	MUTE_AUDIO=0/1          Process but do not play Audio
+	SAN_CODEC47=0/1/2       SAN (SMUSH) Codec decoder:-
+	                        0 - None, only show keyframes
+	                        1 - Stock
+	                        2 - ULONG optimised
+	VM_DEBUG=0/1            Log excess information about the Virtual Machine to a log file.
+	CHECKED=0/1             Perform extra checking on parameters and external data.
+	ONE_FRAME=0/1           Quit after displaying one frame
+	GAME_PATH="COMI:"       Path to where the data files are
+	IGNORE_NO_FEATURE=0/1   Shut up about missing features
 	
 	
 	
