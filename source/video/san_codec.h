@@ -56,14 +56,9 @@ namespace gs
 		int16 _prevSequenceNum;
 		uint8 _tempBuffer[GS_BITMAP_SIZE];
 		uint8 _buffer[3][GS_BITMAP_SIZE];
-		uint8 _iactData[65536];
-		uint8 _iactOutput[4096+2];
 		IACTTiming _timing;
 		IACTAudio _audio;
-		bool _audioMute;
 		AudioMixer* _audioMixer;
-		uint16 _iactPos;
-		uint16 _iactSize;
 		uint8 _params[4];
 		uint8 _offset1, _offset2;
 		TextDrawCall _texts[MAX_TEXT_PER_FRAME];
@@ -80,10 +75,6 @@ namespace gs
 		void _readAndApplyDeltaPalette(const TagPair& xpal);
 		void _readFrameObjectAndApply(const TagPair& fobj);
 		void _readAndApplyText(const TagPair& text);
-		void _readAndApplyIACTTiming(const TagPair& iact);
-		void _readAndApplyIACTAudio(const TagPair& iact);
-		void _applyAudio();
-
 
 	public:
 

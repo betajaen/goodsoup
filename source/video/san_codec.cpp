@@ -119,7 +119,6 @@ namespace gs
 		_numTexts = 0;
 		_textLength = 0;
 		_lastTextHash = 0;
-		_iactPos = 0;
 	}
 
 	SanCodec::~SanCodec() {
@@ -206,128 +205,6 @@ namespace gs
 		_textLength += length;
 
 		_hasText = true;
-	}
-
-	// ABABABABABA
-	// AAAAAABBBBB
-
-
-	void SanCodec::_applyAudio() {
-		byte* src = &_iactOutput[0];
-		src += 2;
-
-		AudioSample* sample = allocateAudioSample();
-		byte* dst = &sample->data[0];
-		byte v;
-		byte e1 = *src++;
-		byte e2 = e1 / 16;
-		e1 &= 0x0F;
-
-		int16 v1 = e1;
-		int16 v2 = e2;
-
-		uint16 length = 1024;
-		do {
-			// Left Channel
-			v = *src++;
-			if (v == 0x80) {
-				*dst++ = *src++;
-				*dst++ = *src++;
-			}
-			else
-			{
-				int16 m = (int8) v;
-				m <<= v2;
-				*dst++ = m >> 8;
-				*dst++ = (byte) m;
-			}
-			// Right Channel
-			v = *(src++);
-			if (v == 0x80) {
-				*dst++ = *src++;
-				*dst++ = *src++;
-			}
-			else
-			{
-				int16 m = (int8) v;
-				m <<= v1;
-				*dst++ = m >> 8;
-				*dst++ = (byte) m;
-			}
-		} while(length--);
-
-		pushAudioSample(sample);
-	}
-
-	void SanCodec::_readAndApplyIACTAudio(const TagPair& iact) {
-
-#if defined(GS_CHECKED) && GS_CHECKED == 1
-		if (iact.length> 65535) {
-			warn(GS_THIS, "IACT size %ld is too large for buffer!", iact.length);
-			_diskReader.seekEndOf(iact);
-			return;
-		}
-#endif
-
-		_iactSize = iact.length;
-		_diskReader.readBytes(&_iactData[0], _iactSize - 18);
-
-		uint16 code = READ_LE_UINT16(&_iactData[0]); // 2
-		uint16 flags = READ_LE_UINT16(&_iactData[2]); // 4
-
-		// unknown 6
-		if (code !=8 && flags == 0x2E) {
-			NO_FEATURE(GS_THIS, "IACT Code=%ld, Flags=%lx", code, flags);
-			_diskReader.seekEndOf(iact);
-			return;
-		}
-
-		int32 dataSize = _iactSize - 18;
-		byte* src = &_iactData[18];
-		byte* output = &_iactOutput[0];
-
-		while(dataSize > 0) {
-
-			//debug(GS_THIS, "dataSize = %ld", dataSize);
-
-			if (_iactPos >= 2) {
-				int32 len = READ_BE_UINT16(output) + 2;
-				//debug(GS_THIS, "len %ld", len);
-				len -= _iactPos;
-
-				if (len > dataSize) {
-					//debug(GS_THIS, ">> %ld", dataSize);
-					copyMem(output + _iactPos, src, dataSize);
-					_iactPos += dataSize;
-					dataSize = 0;
-				}
-				else {
-					//debug(GS_THIS, ">> %ld", len);
-					copyMem(output + _iactPos, src, len);
-
-
-					// _applyAudio();
-
-
-					dataSize -= len;
-					src += len;
-					_iactPos = 0;
-				}
-			}
-			else {
-				if (dataSize > 1 && _iactPos == 0) {
-					output[0] = *src++;
-					_iactPos = 1;
-					dataSize--;
-				}
-				output[_iactPos] = *src++;
-				_iactPos++;
-				dataSize--;
-			}
-		}
-
-		//debug(GS_THIS, "IACT Size = %ld", dataSize);
-
 	}
 
 	void SanCodec::_copyBuffers(uint8 dst, uint8 src) {
