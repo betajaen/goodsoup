@@ -21,6 +21,7 @@
 #include "types.h"
 #include "pool.h"
 #include "memory.h"
+#include "queue.h"
 
 namespace gs
 {
@@ -38,7 +39,7 @@ namespace gs
 	class AudioMixer {
 
 		AllocatedPool<AudioSample, uint8> _samplePool;
-		AudioSample* _head, _tail;
+		Queue<AudioSample> _queue;
 
 	protected:
 
@@ -52,7 +53,7 @@ namespace gs
 
 
 		AudioSample* allocateAudioSample();
-
+		void addToQueue(AudioSample* sample);
 
 	};
 

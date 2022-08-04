@@ -32,7 +32,18 @@ namespace gs
 	}
 
 	AudioMixer::~AudioMixer() {
+		AudioSample* sample = NULL;
+		while((sample = _queue.pull()) != NULL) {
+			_samplePool.release(sample);
+		}
+	}
 
+	AudioSample* AudioMixer::allocateAudioSample() {
+		return _samplePool.acquire();
+	}
+
+	void AudioMixer::addToQueue(AudioSample* sample) {
+		_queue.push(sample);
 	}
 
 	AudioMixer* createAudioMixer() {
