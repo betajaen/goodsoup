@@ -47,7 +47,7 @@ namespace gs
 
 	static const uint8 NO_CONTEXT = 0xFF;
 
-#if defined(GS_DEBUG)
+#if GS_RELEASE == 0
 	#define GS_UNHANDLED_OP\
 		do {\
 			abort_quit_stop();\

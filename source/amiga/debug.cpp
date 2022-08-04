@@ -65,7 +65,7 @@ namespace gs
 	}
 
 	void debug_write(DebugCategory category, const char* module, const char* file, const char* function, uint32 line, const char* message) {
-#if defined(GS_DEBUG)
+#if GS_RELEASE == 0
 		switch (category) {
 			default:
 			case DC_Test: gs_print("T "); break;
@@ -93,7 +93,7 @@ namespace gs
 	}
 
 	void debug_writef(DebugCategory category, const char* module, const char* file, const char* function, uint32 line, const char* format, ...) {
-#if defined(GS_DEBUG)
+#if GS_RELEASE == 0
 		switch (category) {
 			default:
 			case DC_Test: gs_print("T "); break;

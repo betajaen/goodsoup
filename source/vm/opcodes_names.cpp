@@ -24,7 +24,7 @@
 
 namespace gs
 {
-#if defined(GS_DEBUG)
+#if GS_RELEASE == 0
 	static const char* OPCODE_NAME[256] = {
 		"00",
 		"pushWord",

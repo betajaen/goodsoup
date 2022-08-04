@@ -305,7 +305,7 @@ namespace gs {
 		}
 
 		while (CURRENT_CONTEXT == _indexNum) {
-#if GS_DEBUG == 1
+#if GS_RELEASE == 0
 			if (_pc >= _script.getSize()) {
 				error(GS_THIS, "Out of program space!");
 				abort_quit_stop();

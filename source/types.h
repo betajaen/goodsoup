@@ -18,6 +18,8 @@
 #ifndef GS_TYPES_H
 #define GS_TYPES_H
 
+#include "config.h"
+
 #ifdef GS_AMIGA
 #include "amiga/types_amiga.h"
 #else

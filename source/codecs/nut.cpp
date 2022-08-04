@@ -33,7 +33,7 @@ namespace gs
 
 	int print = 0;
 
-#if defined(GS_DEBUG)
+#if GS_RELEASE == 0
 	static void debug_printNutBitmap(byte* bitmap, uint16 width, uint16 height) {
 
 		for(uint16 y=0;y < height;y++) {

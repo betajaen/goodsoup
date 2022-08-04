@@ -494,7 +494,7 @@ namespace gs
 #if defined(GS_IGNORE_NO_FEATURE)
 	#define NO_FEATURE noop
 #else
-#if defined(GS_DEBUG)
+#if GS_RELEASE == 0
 		#define NO_FEATURE warn
 	#else
 		#define NO_FEATURE noop
