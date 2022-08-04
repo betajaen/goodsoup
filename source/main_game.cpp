@@ -73,6 +73,7 @@ namespace gs
 	uint8 KEY_EVENT;
 	bool FAST_MODE = false;
 	bool DEBUG_SHOW_PALETTE = false;
+	uint32 OVERRIDE_FRAME_WAIT_USEC = 0;
 
 	void cleanup() {
 		closeTables();

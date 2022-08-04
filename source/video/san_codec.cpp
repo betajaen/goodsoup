@@ -24,6 +24,7 @@
 #include "../memory.h"
 #include "../endian.h"
 #include "../audio.h"
+#include "../globals.h"
 
 namespace gs
 {
@@ -90,10 +91,25 @@ namespace gs
 		}
 #endif
 
-		_diskReader.skip(2);
+		uint16 version = _diskReader.readUInt16LE();
+
+		if (version != 2) {
+			error(GS_THIS, "Unsupported SMUSH File version %ls expected 2", version);
+			abort_quit_stop();
+			return;
+		}
+
 		_frameCount = _diskReader.readUInt16LE();
 		_diskReader.skip(2);
 		_readAndApplyPalette();
+
+		uint32 frameRate = _diskReader.readUInt32LE();
+		_diskReader.skip(4);
+		uint32 audioRate = _diskReader.readUInt32LE();
+		OVERRIDE_FRAME_WAIT_USEC = 1000000 / frameRate;
+
+		debug(GS_THIS, "Forced Frame Wait to %ld usec", OVERRIDE_FRAME_WAIT_USEC);
+
 		_diskReader.seekEndOf(animHeader);
 
 		_currentBuffer = 2;
@@ -109,6 +125,8 @@ namespace gs
 	SanCodec::~SanCodec() {
 		releaseAudioMixer(_audioMixer);
 		_audioMixer = NULL;
+		OVERRIDE_FRAME_WAIT_USEC = 0;
+		debug(GS_THIS, "Reset Frame Wait to %ld usec", GS_FRAME_DELAY_USEC);
 	}
 
 	void SanCodec::_readAndApplyPalette() {

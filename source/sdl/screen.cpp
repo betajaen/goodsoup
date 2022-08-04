@@ -154,7 +154,14 @@ namespace gs
 		while (SCREEN_EVENT_HANDLER_SHOULD_QUIT == false) {
 
 			if (FAST_MODE == 0) {
-				SDL_Delay(GS_FRAME_DELAY_MSEC);
+
+				if (OVERRIDE_FRAME_WAIT_USEC != 0) {
+					SDL_Delay(OVERRIDE_FRAME_WAIT_USEC / 1000);
+				}
+				else {
+					SDL_Delay(GS_FRAME_DELAY_USEC / 1000);
+				}
+
 			}
 
 			bool step = false;

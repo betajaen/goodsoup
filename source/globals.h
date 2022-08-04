@@ -47,6 +47,7 @@ namespace gs
 	extern int32 MOUSE_RMB_EVENT;
 	extern int32 MOUSE_LMB_STATE;
 	extern int32 MOUSE_RMB_STATE;
+	extern uint32 OVERRIDE_FRAME_WAIT_USEC;
 
 	extern uint8 CURRENT_ACTOR;
 

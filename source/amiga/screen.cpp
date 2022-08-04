@@ -259,7 +259,6 @@ namespace gs
 								step = false;
 							}
 							else if (PAUSED && (msg->Code == 115 || msg->Code == 83)) {
-								debug(GS_THIS, "Frame Step");
 								stepFrame();
 							}
 						}
@@ -312,7 +311,12 @@ namespace gs
 						stepFrame();
 					}
 
-					sSystemTimer.start(GS_FRAME_DELAY_USEC);
+					if (OVERRIDE_FRAME_WAIT_USEC != 0) {
+						sSystemTimer.start(OVERRIDE_FRAME_WAIT_USEC);
+					}
+					else {
+						sSystemTimer.start(GS_FRAME_DELAY_USEC);
+					}
 				}
 			}
 
