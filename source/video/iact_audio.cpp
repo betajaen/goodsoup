@@ -27,9 +27,6 @@
 namespace gs
 {
 
-	void applyAudio_Mute(byte* src) {
-
-	}
 
 	void applyAudio_S16MSB(byte* src) {
 		src += 2;
@@ -118,11 +115,8 @@ namespace gs
 				else {
 					copyMem(dst + pos, src, len);
 
-#if GS_MUTE_AUDIO
-					applyAudio_Mute(dst);
-#else
 					applyAudio_S16MSB(dst);
-#endif
+
 					dataSize -= len;
 					src += len;
 					pos = 0;

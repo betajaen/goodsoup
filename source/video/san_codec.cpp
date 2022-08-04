@@ -61,8 +61,10 @@ namespace gs
 	SanCodec::SanCodec(DiskReader reader)
 		: _diskReader(reader), _frameNum(0)
 	{
-		_audioMixer = createAudioMixer();
 
+#if GS_MUTE_AUDIO == 0
+		_audioMixer = createAudioMixer();
+#endif
 
 		TagPair animTag = _diskReader.readSanTagPair();
 
@@ -122,8 +124,11 @@ namespace gs
 	}
 
 	SanCodec::~SanCodec() {
+
+#if GS_MUTE_AUDIO == 0
 		releaseAudioMixer(_audioMixer);
 		_audioMixer = NULL;
+#endif
 		OVERRIDE_FRAME_WAIT_USEC = 0;
 		debug(GS_THIS, "Reset Frame Wait to %ld usec", GS_FRAME_DELAY_USEC);
 	}
@@ -385,7 +390,10 @@ namespace gs
 				iact.length = _diskReader.readUInt32BE();
 
 				readIACTTiming(_diskReader, iact, _timing);
+
+#if GS_MUTE_AUDIO == 0
 				readIACTAudio(_diskReader, iact, _audio, _audioMixer);
+#endif
 
 				_diskReader.seekEndOf(tag);
 				continue;

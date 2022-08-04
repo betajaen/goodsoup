@@ -57,8 +57,12 @@ namespace gs
 		uint8 _tempBuffer[GS_BITMAP_SIZE];
 		uint8 _buffer[3][GS_BITMAP_SIZE];
 		IACTTiming _timing;
+
+#if GS_MUTE_AUDIO == 0
 		IACTAudio _audio;
 		AudioMixer* _audioMixer;
+#endif
+
 		uint8 _params[4];
 		uint8 _offset1, _offset2;
 		TextDrawCall _texts[MAX_TEXT_PER_FRAME];
