@@ -68,8 +68,6 @@ namespace gs
 
 		TagPair animTag = _diskReader.readSanTagPair();
 
-		debug(GS_THIS, "SAN Codec is %ld", GS_SAN_CODEC47);
-
 #if GS_SAN_CODEC47 >= 1
 		initSan47Tables();
 #else
@@ -108,9 +106,8 @@ namespace gs
 		uint32 frameRate = _diskReader.readUInt32LE();
 		_diskReader.skip(4);
 		uint32 audioRate = _diskReader.readUInt32LE();
-		OVERRIDE_FRAME_WAIT_USEC = 1000000 / frameRate;
-
-		debug(GS_THIS, "Forced Frame Wait to %ld usec", OVERRIDE_FRAME_WAIT_USEC);
+        _waitTimeUSec = 1000000 / frameRate;
+        _timer.initialize(_waitTimeUSec);
 
 		_diskReader.seekEndOf(animHeader);
 
@@ -129,8 +126,6 @@ namespace gs
 		releaseAudioMixer(_audioMixer);
 		_audioMixer = NULL;
 #endif
-		OVERRIDE_FRAME_WAIT_USEC = 0;
-		debug(GS_THIS, "Reset Frame Wait to %ld usec", GS_FRAME_DELAY_USEC);
 	}
 
 	void SanCodec::_readAndApplyPalette() {
@@ -346,6 +341,14 @@ namespace gs
 
 
 	int32 SanCodec::presentFrame() {
+
+        uint32 shouldPresent = _timer.check();
+
+        if (shouldPresent == 0) {
+            return 1;
+        }
+
+        /* TODO: Skipping Frames when shouldPresent is 2 */
 
 		TagPair frme = _diskReader.readSanTagPair();
 

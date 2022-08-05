@@ -22,6 +22,7 @@
 #include "../file.h"
 #include "../disk.h"
 #include "../room.h"	// For RoomPaletteData
+#include "../timer.h"
 
 #include "iact_timing.h"
 #include "iact_audio.h"
@@ -47,6 +48,9 @@ namespace gs
 
 		uint16 _frameCount;
 		uint16 _frameNum;
+        uint32 _waitTimeUSec;
+        uint32 _frameStart;
+        FixedRateTimer _timer;
 
 		RoomPaletteData _palette;
 
