@@ -159,7 +159,7 @@ namespace gs
 					SDL_Delay(OVERRIDE_FRAME_WAIT_USEC / 1000);
 				}
 				else {
-					SDL_Delay(GS_FRAME_DELAY_USEC / 1000);
+					SDL_Delay(10);
 				}
 
 			}

@@ -118,4 +118,9 @@ namespace gs
 		}
 	}
 
+    int32 getUSec() {
+        NO_FEATURE(GS_THIS, "Not implemented getUsec");
+        return 50000;
+    }
+
 }

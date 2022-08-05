@@ -15,26 +15,32 @@
  *
  */
 
-#include <SDL2/SDL.h>
+#ifndef GS_TIMER_H
+#define GS_TIMER_H
+
+#include "types.h"
 
 namespace gs
 {
-	int main(int param);
-	void checkMem();
+    class FixedRateTimer {
+    private:
 
-    int32 getUSec() {
-        return SDL_GetTicks() * 1000;
-    }
+        int32 was;
+        int32 rate;
+        int32 rate2;
+    public:
 
+        int32 diff;
+
+        FixedRateTimer();
+
+        void initialize(int32 rate_usec);
+
+        uint8 check();
+
+    };
 }
 
-int main(int argc, char** argv)
-{
-	using namespace gs;
-	SDL_Init(SDL_INIT_EVERYTHING); //EVENTS | SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_TIMER);
-	int rc = main(0);
-	checkMem();
-	SDL_Quit();
-	return rc;
-}
 
+
+#endif

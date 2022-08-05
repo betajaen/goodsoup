@@ -15,26 +15,44 @@
  *
  */
 
-#include <SDL2/SDL.h>
+#define GS_FILE_NAME "timer"
+
+#include "timer.h"
 
 namespace gs
 {
-	int main(int param);
-	void checkMem();
+    int32 getUSec();
 
-    int32 getUSec() {
-        return SDL_GetTicks() * 1000;
+    FixedRateTimer::FixedRateTimer() {
+        was = 0;
+        rate = 0;
+        rate2 = 0;
     }
 
-}
+    void FixedRateTimer::initialize(int rate_usec) {
+        was = getUSec();
+        rate = rate_usec;
+        rate2 = rate+rate;
+    }
 
-int main(int argc, char** argv)
-{
-	using namespace gs;
-	SDL_Init(SDL_INIT_EVERYTHING); //EVENTS | SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_TIMER);
-	int rc = main(0);
-	checkMem();
-	SDL_Quit();
-	return rc;
-}
+    uint8 FixedRateTimer::check() {
+        int32 now = getUSec();
+        int32 delta = now - was;
 
+        this->was += -delta;
+        this->diff = delta;
+
+        if (delta >= rate) {
+            was = now;
+
+            if (delta >= rate2)
+                return 2;
+
+            return 1;
+        }
+        else {
+            return 0;
+        }
+
+    }
+}
