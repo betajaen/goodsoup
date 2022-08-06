@@ -27,7 +27,7 @@ namespace gs
 	byte* TABLE_DARKEN_PALETTE = NULL;
 
 	bool readTable(const char* path, uint32 size, byte*& table) {
-		table = (byte*) allocateMemory(1, size, 0);
+		table = (byte*) allocateMemory(1, size, 0, GS_COMMENT_FILE_LINE);
 
 		ReadFile file;
 		file.open(path);

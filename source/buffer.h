@@ -101,7 +101,7 @@ namespace gs
 			if (_size && _data) {
 				releaseMemory(_data);;
 			}
-			_data = (T*)allocateMemory(size, sizeof(T), flags);
+			_data = (T*)allocateMemory(size, sizeof(T), flags, GS_COMMENT_FILE_LINE);
 			_size = size;
 		}
 

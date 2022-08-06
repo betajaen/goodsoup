@@ -53,7 +53,7 @@ namespace gs
             sample = _queue.pullBack();
         }
         else {
-            sample = _samplePool.acquire();
+            sample = _samplePool.acquire(GS_COMMENT_FILE_LINE);
         }
 		_sampleLock.unlock();
 
@@ -120,7 +120,7 @@ namespace gs
     AudioStream_S16MSB* createAudioStream() {
 		CHECK_IF_RETURN(sAudioStreams.isFull(), NULL, "Cannot allocate Audio Mixer! None available.");
 
-        AudioStream_S16MSB* audioStream = newObject<AudioStream_S16MSB>();
+        AudioStream_S16MSB* audioStream = newObject<AudioStream_S16MSB>(GS_COMMENT_FILE_LINE);
 		sAudioStreams.push(audioStream);
 
 		return audioStream;

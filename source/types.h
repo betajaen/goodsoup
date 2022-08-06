@@ -133,4 +133,7 @@
 #endif
 
 
+#define _GS_STR_IMPL(X) #X
+#define GS_STR(X) _GS_STR_IMPL(X)
+
 #endif

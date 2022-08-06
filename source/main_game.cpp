@@ -124,18 +124,18 @@ namespace gs
 			return 1;
 		}
 
-		ARRAYS = newObject<VmArrayAllocator>();
-		INDEX = newObject<Index>();
+		ARRAYS = newObject<VmArrayAllocator>(GS_COMMENT_FILE_LINE);
+		INDEX = newObject<Index>(GS_COMMENT_FILE_LINE);
 		
-		INTS = newObject<VmIntVars>();
-		BOOLS = newObject<VmBoolVars>();
-		OBJECTS = newObject<ObjectState>();
-		SCRIPTS = newObject<ScriptState>();
-		VERBS = newObject<VerbState>();
-		ACTORS = newObject<ActorState>();
-		IMAGES = newObject<ImageState>();
-		COSTUMES = newObject<CostumeState>();
-		VIDEO = newObject<VideoContext>();
+		INTS = newObject<VmIntVars>(GS_COMMENT_FILE_LINE);
+		BOOLS = newObject<VmBoolVars>(GS_COMMENT_FILE_LINE);
+		OBJECTS = newObject<ObjectState>(GS_COMMENT_FILE_LINE);
+		SCRIPTS = newObject<ScriptState>(GS_COMMENT_FILE_LINE);
+		VERBS = newObject<VerbState>(GS_COMMENT_FILE_LINE);
+		ACTORS = newObject<ActorState>(GS_COMMENT_FILE_LINE);
+		IMAGES = newObject<ImageState>(GS_COMMENT_FILE_LINE);
+		COSTUMES = newObject<CostumeState>(GS_COMMENT_FILE_LINE);
+		VIDEO = newObject<VideoContext>(GS_COMMENT_FILE_LINE);
 
 #if defined(GS_DEMO_MODE) && GS_DEMO_MODE != 0
 #else
@@ -150,18 +150,18 @@ namespace gs
 			return 1;
 		}
 
-		FONT[0] = newObject<Font>(0);
-		FONT[1] = newObject<Font>(1);
-		FONT[2] = newObject<Font>(2);
-		FONT[3] = newObject<Font>(3);
-		FONT[4] = newObject<Font>(4);
+		FONT[0] = newObject<Font>(0, GS_COMMENT_FILE_LINE);
+		FONT[1] = newObject<Font>(1, GS_COMMENT_FILE_LINE);
+		FONT[2] = newObject<Font>(2, GS_COMMENT_FILE_LINE);
+		FONT[3] = newObject<Font>(3, GS_COMMENT_FILE_LINE);
+		FONT[4] = newObject<Font>(4, GS_COMMENT_FILE_LINE);
 
 		if (NEXT_GAME_STATE == GSK_Quit) {
 			cleanup();
 			return 1;
 		}
 
-		RESOURCES = newObject<Resources>();
+		RESOURCES = newObject<Resources>(GS_COMMENT_FILE_LINE);
 		RESOURCES->open();
 
 		if (NEXT_GAME_STATE == GSK_Quit) {
@@ -169,7 +169,7 @@ namespace gs
 			return 1;
 		}
 
-		VM = newObject<VirtualMachine>();
+		VM = newObject<VirtualMachine>(GS_COMMENT_FILE_LINE);
 		VM->reset();
 
 		if (NEXT_GAME_STATE == GSK_Quit) {

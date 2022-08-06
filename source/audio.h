@@ -58,7 +58,7 @@ namespace gs
 
 	protected:
 
-		friend AudioStream_S16MSB* newObject<AudioStream_S16MSB>();
+		friend AudioStream_S16MSB* newObject<AudioStream_S16MSB>(uint32);
 		friend void deleteObject_unchecked<AudioStream_S16MSB>(AudioStream_S16MSB*);
 
         AudioStream_S16MSB();

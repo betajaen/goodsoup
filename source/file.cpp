@@ -490,7 +490,7 @@ namespace gs
 		Seek(file, 0, OFFSET_END);
 		length = Seek(file, 0, OFFSET_BEGINNING);
 
-		data = (byte*) allocateMemory(1, length, 0);
+		data = (byte*) allocateMemory(1, length, 0, GS_COMMENT_FILE_LINE);
 		Read(file, data, length);
 
 		Close(file);
@@ -506,7 +506,7 @@ namespace gs
 		byte* data = NULL;
 		length = SDL_RWsize(file);
 
-		data = (byte*) allocateMemory(1, length, 0);
+		data = (byte*) allocateMemory(1, length, 0, GS_COMMENT_FILE_LINE);
 		SDL_RWread(file, data, length, 1);
 
 		SDL_RWclose(file);

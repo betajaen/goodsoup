@@ -51,14 +51,14 @@ namespace gs
 			_pool.release();
 		}
 
-		T* acquire() {
+		T* acquire(uint32 comment = 0) {
 			if (_pool.getSize()) {
 				T* item = _pool.popItem();
 				_items.push(item);
 				return item;
 			}
 
-			T* item = newObject<T>();
+			T* item = newObject<T>(comment);
 			_items.push(item);
 			return item;
 		}
@@ -128,14 +128,14 @@ namespace gs
 			_free.clear();
 		}
 
-		T* acquire(uint32 allocationId = 0) {
+		T* acquire(uint32 comment = 0) {
 			if (_free.getSize()) {
 				T* item = _free.popItem();
 				return item;
 			}
 
 
-			void* mem = allocateMemory(1, sizeof(T), MF_Clear | MF_HintObject, allocationId);
+			void* mem = allocateMemory(1, sizeof(T), MF_Clear, comment);
 			return new(mem) T();
 		}
 

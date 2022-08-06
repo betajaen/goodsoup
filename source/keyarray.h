@@ -48,7 +48,7 @@ namespace gs
 			verbose(GS_THIS, "/1(%p,%d,%d)", _begin, _size, _capacity);
 			if (_capacity == 0) {
 				_capacity = 8;
-				_begin = (Node*) allocateMemory(_capacity, sizeof(Node), MF_Clear);
+				_begin = (Node*) allocateMemory(_capacity, sizeof(Node), MF_Clear, GS_COMMENT_FILE_LINE);
 			}
 			else {
 				_capacity *= 2;

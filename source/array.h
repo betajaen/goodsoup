@@ -98,7 +98,7 @@ namespace gs
 		void grow() {
 			if (_capacity == 0) {
 				_capacity = 8;
-				_begin = (T*) allocateMemory(_capacity, sizeof(T), MF_Clear);
+				_begin = (T*) allocateMemory(_capacity, sizeof(T), MF_Clear, GS_COMMENT_FILE_LINE);
 			}
 			else {
 				_capacity *= 2;
@@ -118,7 +118,7 @@ namespace gs
 
 		void reserve(Index capacity) {
 			release();
-			_begin = (T*) allocateMemory(capacity, sizeof(T), MF_Clear);
+			_begin = (T*) allocateMemory(capacity, sizeof(T), MF_Clear, GS_COMMENT_FILE_LINE);
 			_capacity = capacity;
 			_end = 0;
 		}

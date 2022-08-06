@@ -91,7 +91,7 @@ namespace gs
 		}
 
 		_size = _width * _height;
-		_bitmap = (byte*) allocateMemory(1, _size, 0);
+		_bitmap = (byte*) allocateMemory(1, _size, 0, GS_COMMENT_FILE_LINE);
 	}
 
 	void ImageData::releaseBitmap() {

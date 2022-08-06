@@ -106,7 +106,7 @@ namespace gs
 		
 		if (readScripts) {
 			if (scriptData == NULL) {
-				scriptData = newObject<RoomScriptData>();
+				scriptData = newObject<RoomScriptData>(GS_COMMENT_FILE_LINE);
 			}
 			else {
 				scriptData->close();
@@ -118,7 +118,7 @@ namespace gs
 
 		if (readGraphics) {
 			if (graphicsData == NULL) {
-				graphicsData = newObject<RoomGraphicsData>();
+				graphicsData = newObject<RoomGraphicsData>(GS_COMMENT_FILE_LINE);
 			}
 			else {
 				graphicsData->close();

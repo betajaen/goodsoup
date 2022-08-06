@@ -19,7 +19,6 @@ ifeq ($(PLATFORM), amiga)
 	OBJ		=	source/amiga/entry.o \
 				source/amiga/start.o \
 				source/amiga/debug.o \
-				source/amiga/memory.o\
 				source/amiga/string_format.o\
 				source/amiga/screen.o\
 				source/amiga/timer.o\
@@ -38,7 +37,6 @@ endif
 
 ifeq ($(PLATFORM), sdl)
 	OBJ		=	source/sdl/main.o\
-				source/sdl/memory.o\
 				source/sdl/debug.o\
 				source/sdl/string_format.o\
 				source/sdl/screen.o\
@@ -73,7 +71,8 @@ OBJ +=	source/hash.o\
 		source/array.o\
 		source/keyarray.o\
 		source/string.o\
-		source/file.o
+		source/file.o\
+		source/memory.o
 
 # Game Sources
 OBJ +=	source/main_game.o\

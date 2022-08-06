@@ -33,7 +33,7 @@ namespace gs
 		MF_HintString = (1UL << 25)
 	};
 
-	void* allocateMemory(uint32 itemCount, uint32 itemSize, int flags, uint32 allocationId = 0);
+	void* allocateMemory(uint32 itemCount, uint32 itemSize, int flags, uint32 comment);
 
 	void releaseMemory(void* allocation);
 
@@ -55,32 +55,32 @@ namespace gs
 	void copyMem(void* dst, void* src, uint32 size);
 
 	template<typename T>
-	T* newObject() {
-		void* mem = allocateMemory(1, sizeof(T), MF_Clear | MF_HintObject);
+	T* newObject(uint32 comment) {
+		void* mem = allocateMemory(1, sizeof(T), MF_Clear, comment);
 		return new(mem) T();
 	}
 
 	template<typename T, typename T0>
-	T* newObject(const T0& a0) {
-		void* mem = allocateMemory(1, sizeof(T), MF_Clear | MF_HintObject);
+	T* newObject(const T0& a0, uint32 comment) {
+		void* mem = allocateMemory(1, sizeof(T), MF_Clear, comment);
 		return new(mem) T(a0);
 	}
 
 	template<typename T, typename T0, typename T1>
-	T* newObject(const T0& a0, const T1& a1) {
-		void* mem = allocateMemory(1, sizeof(T), MF_Clear | MF_HintObject);
+	T* newObject(const T0& a0, const T1& a1, uint32 comment) {
+		void* mem = allocateMemory(1, sizeof(T), MF_Clear, comment);
 		return new(mem) T(a0, a1);
 	}
 
 	template<typename T, typename T0, typename T1, typename T2>
-	T* newObject(const T0& a0, const T1& a1, const T2& a2) {
-		void* mem = allocateMemory(1, sizeof(T), MF_Clear | MF_HintObject);
+	T* newObject(const T0& a0, const T1& a1, const T2& a2, uint32 comment) {
+		void* mem = allocateMemory(1, sizeof(T), MF_Clear, comment);
 		return new(mem) T(a0, a1, a2);
 	}
 
 	template<typename T, typename T0, typename T1, typename T2, typename T3>
-	T* newObject(const T0& a0, const T1& a1, const T2& a2, const T3& a3) {
-		void* mem = allocateMemory(1, sizeof(T), MF_Clear | MF_HintObject);
+	T* newObject(const T0& a0, const T1& a1, const T2& a2, const T3& a3, uint32 comment) {
+		void* mem = allocateMemory(1, sizeof(T), MF_Clear, comment);
 		return new(mem) T(a0, a1, a2, a3);
 	}
 
@@ -104,5 +104,14 @@ namespace gs
 }
 
 #define GS_ArraySize(array)    (sizeof(x)/sizeof(x[0]))
+#define GS_COMMENT_FILE_LINE	(uint32) (__FILE__ ":" GS_STR(__LINE__))
+
+#if defined(GS_BIG)
+#define GS_COMMENT_ID(a,b,c,d)	\
+	((uint32) (a)<<24 | (uint32) (b)<<16 | (uint32) (c)<<8 | (uint32) (d))
+#else
+#define GS_COMMENT_ID(a,b,c,d)	\
+	((uint32) (d)<<24 | (uint32) (c)<<16 | (uint32) (b)<<8 | (uint32) (a))
+#endif
 
 #endif

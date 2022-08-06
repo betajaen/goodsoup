@@ -78,8 +78,8 @@ namespace gs
 
 
 	IACTAudio::IACTAudio() {
-		diskCache = (byte*) allocateMemory(1, DISK_CACHE_SIZE_BYTES, MF_Clear);
-		compressedSample = (byte*) allocateMemory(1, COMPRESSED_SAMPLE_SIZE_BYTES, MF_Clear);
+		diskCache = (byte*) allocateMemory(1, DISK_CACHE_SIZE_BYTES, MF_Clear, GS_COMMENT_FILE_LINE);
+		compressedSample = (byte*) allocateMemory(1, COMPRESSED_SAMPLE_SIZE_BYTES, MF_Clear, GS_COMMENT_FILE_LINE);
 		pos = 0;
 	}
 

@@ -111,7 +111,8 @@ namespace gs
 					sizeof(uint16) +
 					sizeof(uint16) +
 					length + 1,
-					MF_Any
+					MF_Any,
+					GS_COMMENT_FILE_LINE
 				);
 
 			longData->_length = length;
@@ -207,7 +208,8 @@ namespace gs
 					sizeof(uint16) +
 					sizeof(uint16) +
 					length + 1,
-					MF_Any
+					MF_Any,
+					GS_COMMENT_FILE_LINE
 			);
 
 			longData->_length = length;

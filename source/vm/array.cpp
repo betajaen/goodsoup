@@ -94,7 +94,7 @@ namespace gs
 		// sizeof ArrayHeader
 		allocSize += sizeof(VmArray);
 
-		array = (VmArray*) allocateMemory(1, allocSize, MF_Clear);
+		array = (VmArray*) allocateMemory(1, allocSize, MF_Clear, GS_COMMENT_FILE_LINE);
 		array->_kind = kind;
 		array->_xSize = xSize;
 		array->_ySize = ySize;

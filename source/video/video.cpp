@@ -69,7 +69,7 @@ namespace gs
 			return;
 		}
 
-		_codec = newObject<SanCodec>(DiskReader(_file));
+		_codec = newObject<SanCodec>(DiskReader(_file), GS_COMMENT_FILE_LINE);
 	}
 
 	void VideoContext::unloadVideo() {

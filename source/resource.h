@@ -70,7 +70,7 @@ namespace gs
 		}
 
 		T* create(uint16 num, uint8 disk) {
-			T* resource = newObject<T>(num, disk, Kind);
+			T* resource = newObject<T>(num, disk, Kind, GS_COMMENT_FILE_LINE);
 			_items.push(resource);
 			return resource;
 		}
