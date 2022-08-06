@@ -21,6 +21,7 @@
 #include "audio.h"
 #include "debug.h"
 #include "memory.h"
+#include "globals.h"
 
 #define gs_min(X,Y) ((X) < (Y) ? (X) : (Y))
 
@@ -147,6 +148,11 @@ namespace gs
     }
 
     void audioCallback_S16MSB(int16* samples, uint32 sampleLength) {
+
+		if (PAUSED) {
+			return;
+		}
+
         AudioStream_S16MSB* stream = sAudioStack.peekFront();
 
         if (stream) {

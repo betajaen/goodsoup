@@ -58,4 +58,7 @@ namespace gs
 
 	void audioPush16(const void* data, uint32 length) {
 	}
+
+	void pauseAudio(uint8 isPaused) {
+	}
 }

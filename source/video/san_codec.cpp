@@ -357,7 +357,7 @@ namespace gs
         /* TODO: Skipping Frames when shouldPresent is 2 */
 #else
 		/* TODO: This is a dumb way. Used with testing the new audio stream system */
-		if (_audioStream->getQueueSize() > 4) {
+		if (_audioStream->getQueueSize() >= 4) {
 			return 1;
 		}
 

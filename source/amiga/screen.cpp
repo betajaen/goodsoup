@@ -63,6 +63,7 @@ namespace gs
 
 	void openAudio();
 	void closeAudio();
+	void pauseAudio(uint8 isPaused);
 
 	struct Screen* sScreen;
 	struct Window* sWindow;
@@ -366,10 +367,12 @@ namespace gs
 	void screenDrawBox(uint8 colour, uint16 x, uint16 y, uint16 w, uint16 h) {
 		FillPixelArray(&sRastPort, x, y, w, h, colour);
 	}
-	
+
 	void togglePause() {
 		
 		PAUSED = !PAUSED;
+
+		pauseAudio(PAUSED);
 
 		if (PAUSED == true) {
 			SetMenuStrip (sWindow, &MENU_Game);

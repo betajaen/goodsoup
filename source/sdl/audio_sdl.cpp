@@ -28,6 +28,7 @@
 
 namespace gs
 {
+
     void audioCallback_S16MSB(int16* samples, uint32 sampleLength);
 
     SDL_AudioDeviceID sAudioDevice;
@@ -49,7 +50,7 @@ namespace gs
 		want.freq = GS_AUDIO_FREQUENCY_HZ;
 		want.format = AUDIO_S16MSB;
 		want.channels = 2;
-		want.samples = 4096;
+		want.samples = 2048;
 		want.callback =  &audioCallback;
 
 		int count = SDL_GetNumAudioDevices(0);
@@ -92,6 +93,10 @@ namespace gs
 
 	void closeAudio() {
 		SDL_CloseAudioDevice(sAudioDevice);
+	}
+
+	void pauseAudio(uint8 isPaused) {
+		SDL_PauseAudioDevice(sAudioDevice, isPaused);
 	}
 
 }
