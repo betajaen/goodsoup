@@ -22,9 +22,10 @@ namespace gs
 	int main(int param);
 	void checkMem();
 
-    int32 getUSec() {
-        return SDL_GetTicks() * 1000;
+    int32 getMSec() {
+        return SDL_GetTicks();
     }
+
 
 }
 

@@ -21,7 +21,7 @@
 
 namespace gs
 {
-    int32 getUSec();
+    int32 getMSec();
 
     FixedRateTimer::FixedRateTimer() {
         was = 0;
@@ -29,14 +29,14 @@ namespace gs
         rate2 = 0;
     }
 
-    void FixedRateTimer::initialize(int rate_usec) {
-        was = getUSec();
-        rate = rate_usec;
+    void FixedRateTimer::initialize(int rate_msec) {
+        was = getMSec();
+        rate = rate_msec;
         rate2 = rate+rate;
     }
 
     uint8 FixedRateTimer::check() {
-        int32 now = getUSec();
+        int32 now = getMSec();
         int32 delta = now - was;
 
         this->was += -delta;

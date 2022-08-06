@@ -34,7 +34,7 @@ namespace gs
 
         FixedRateTimer();
 
-        void initialize(int32 rate_usec);
+        void initialize(int32 rate_msec);
 
         uint8 check();
 
