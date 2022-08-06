@@ -64,7 +64,7 @@ namespace gs
 
 #if GS_MUTE_AUDIO == 0
 		_audioStream = createAudioStream();
-		_audioStream->_rateFactor = 10;
+		_audioStream->_timePerSample_msec = (22050 / 1024) * 1000;
         pushAudioStream(_audioStream);
 #endif
 
@@ -108,7 +108,8 @@ namespace gs
 		uint32 frameRate = _diskReader.readUInt32LE();
 		_diskReader.skip(4);
 		uint32 audioRate = _diskReader.readUInt32LE();
-        _waitTimeUSec = 1000000 / frameRate;
+        _waitTimeUSec = 1000 / frameRate;
+		debug(GS_THIS, "Wait time usec = %ld", _waitTimeUSec);
         _timer.initialize(_waitTimeUSec);
 
 		_diskReader.seekEndOf(animHeader);
@@ -356,15 +357,24 @@ namespace gs
 
         /* TODO: Skipping Frames when shouldPresent is 2 */
 #else
-		/* TODO: This is a dumb way. Used with testing the new audio stream system */
-		if (_audioStream->getQueueSize() >= 4) {
+
+		// Too many samples to play, pause video to catch up?
+		if (_audioStream->getQueueSize() >= 16) {
 			return 1;
 		}
 
+		if (_frameNum > 0) {
+
+			uint32 shouldPresent = _timer.check(_audioStream->_time_msec);
+
+			if (shouldPresent == 0) {
+				return 1;
+			}
+
+			/* TODO: Skipping Frames when shouldPresent is 2 */
+		}
+
 #endif
-
-        debug(GS_THIS, "New Video Frame");
-
 
 		TagPair frme = _diskReader.readSanTagPair();
 

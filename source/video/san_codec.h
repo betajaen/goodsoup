@@ -50,8 +50,7 @@ namespace gs
 		uint16 _frameNum;
         uint32 _waitTimeUSec;
         uint32 _frameStart;
-        FixedRateTimer _timer;
-
+        FixedRateTimer2 _timer;
 		RoomPaletteData _palette;
 
 		int16 _deltaPalette[768];

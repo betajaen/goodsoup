@@ -70,37 +70,38 @@ namespace gs
         _sampleLock.lock();
         _queueSize++;
 		_queue.pushBack(sample);
-        debug(GS_THIS, "Queue Size is greater %ld", _queueSize);
+        //debug(GS_THIS, "Queue Size is greater %ld", _queueSize);
 		_sampleLock.unlock();
 	}
 
     void AudioStream_S16MSB::audioCallback_S16MSB(int16* samples, uint32 sampleLength) {
 
-        debug(GS_THIS, "Samples Begin %ld", sampleLength);
+        //debug(GS_THIS, "Samples Begin %ld", sampleLength);
 
         _sampleLock.lock();
 
         uint32 pos = 0;
         uint32 remaining = sampleLength;
 
+		_time_msec = _nextTime_msec;
+
         while(pos < sampleLength && _queue.hasAny()) {
             AudioSample_S16MSB* sample = _queue.peekFront();
 
-            debug(GS_THIS, "Pos %ld, Remaining %ld", pos, remaining);
+            // debug(GS_THIS, "Pos %ld, Remaining %ld", pos, remaining);
 
             uint32 amountCopied = sample->copyInto(samples + pos, remaining);
             pos += amountCopied;
             remaining -= amountCopied;
 
-            debug(GS_THIS, "Copied %ld", amountCopied);
+            //debug(GS_THIS, "Copied %ld", amountCopied);
 
             if (sample->isEmpty()) {
-				_mostRecentFrame = sample->frame;
-				_mostRecentTime += _rateFactor; /* TODO: Account for partial samples */
+				_nextTime_msec += _timePerSample_msec; /* TODO: Account for partial samples */
                 _queue.pullFront();
                 _samplePool.release_unchecked(sample);
                 _queueSize--;
-                debug(GS_THIS, "Queue Size is lesser %ld", _queueSize);
+                //debug(GS_THIS, "Queue Size is lesser %ld", _queueSize);
             }
 
         }

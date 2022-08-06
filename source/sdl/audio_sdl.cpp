@@ -38,7 +38,7 @@ namespace gs
 		SDL_memset(stream, 0, len);
 
         uint32 sampleLength = ((uint32) len) / sizeof(int16);
-		debug(GS_THIS, "Callback %ld, Sample Length %ld", len, sampleLength);
+
         audioCallback_S16MSB((int16*) stream, sampleLength);
 	}
 

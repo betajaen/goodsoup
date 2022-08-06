@@ -66,9 +66,9 @@ namespace gs
 
 	public:
         AudioStream_S16MSB* next;
-		uint32 _mostRecentTime;
-		uint16 _mostRecentFrame;
-		uint32 _rateFactor;
+		uint32 _time_msec;
+		uint32 _nextTime_msec;
+		uint32 _timePerSample_msec;
 
 		AudioSample_S16MSB* allocateSample();
 		void pushSample(AudioSample_S16MSB* sample);

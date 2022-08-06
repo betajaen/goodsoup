@@ -39,6 +39,25 @@ namespace gs
         uint8 check();
 
     };
+
+	class FixedRateTimer2 {
+	private:
+
+		int32 was;
+		int32 rate;
+		int32 rate2;
+	public:
+
+		int32 diff;
+
+		FixedRateTimer2();
+
+		void initialize(int32 rate_msec);
+
+		uint8 check(uint32 now);
+
+	};
+
 }
 
 
