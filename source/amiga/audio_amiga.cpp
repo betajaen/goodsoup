@@ -27,6 +27,7 @@
 
 namespace gs
 {
+    void audioCallback_S16MSB(int16* samples, uint32 sampleLength);
 
 	struct MsgPort* sAHIPort = NULL;
 	struct AHIRequest *sAHIRequest = NULL;

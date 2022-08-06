@@ -22,51 +22,136 @@
 #include "debug.h"
 #include "memory.h"
 
+#define gs_min(X,Y) ((X) < (Y) ? (X) : (Y))
+
 namespace gs
 {
 
-	InlineArray<AudioMixer*, uint8, MAX_AUDIO_MIXERS> sAudioMixers;
+	InlineArray<AudioStream_S16MSB*, uint8, MAX_AUDIO_MIXERS> sAudioStreams;
+    Queue<AudioStream_S16MSB> sAudioStack;
+    bool locked = false;
 
-	AudioMixer::AudioMixer() {
-
+    AudioStream_S16MSB::AudioStream_S16MSB() {
+        next = NULL;
 	}
 
-	AudioMixer::~AudioMixer() {
-		AudioSample* sample = NULL;
-		while((sample = _queue.pull()) != NULL) {
+    AudioStream_S16MSB::~AudioStream_S16MSB() {
+		AudioSample_S16MSB* sample = NULL;
+		while((sample = _queue.pullFront()) != NULL) {
 			_samplePool.release(sample);
 		}
 	}
 
-	AudioSample* AudioMixer::allocateAudioSample() {
-		return _samplePool.acquire();
+	AudioSample_S16MSB* AudioStream_S16MSB::allocateSample() {
+
+        AudioSample_S16MSB* sample;
+
+		_sampleLock.lock();
+        if (_queueSize > 128) {
+            warn(GS_THIS, "Large AudioSample Queue!");
+            sample = _queue.pullBack();
+        }
+        else {
+            sample = _samplePool.acquire();
+        }
+		_sampleLock.unlock();
+
+        sample->remaining = 2048;
+        sample->pos = 0;
+		sample->time = 0;
+		sample->frame = 0;
+        sample->next = NULL;
+
+        return sample;
 	}
 
-	void AudioMixer::addToQueue(AudioSample* sample) {
-		_queue.push(sample);
+	void AudioStream_S16MSB::pushSample(AudioSample_S16MSB *sample) {
+        _sampleLock.lock();
+        _queueSize++;
+		_queue.pushBack(sample);
+        debug(GS_THIS, "Queue Size is greater %ld", _queueSize);
+		_sampleLock.unlock();
 	}
 
-	AudioMixer* createAudioMixer() {
-		CHECK_IF_RETURN(sAudioMixers.isFull(), NULL, "Cannot allocate Audio Mixer! None available.");
+    void AudioStream_S16MSB::audioCallback_S16MSB(int16* samples, uint32 sampleLength) {
 
-		AudioMixer* mixer = newObject<AudioMixer>();
-		sAudioMixers.push(mixer);
+        debug(GS_THIS, "Samples Begin %ld", sampleLength);
 
-		return mixer;
+        _sampleLock.lock();
+
+        uint32 pos = 0;
+        uint32 remaining = sampleLength;
+
+        while(pos < sampleLength && _queue.hasAny()) {
+            AudioSample_S16MSB* sample = _queue.peekFront();
+
+            debug(GS_THIS, "Pos %ld, Remaining %ld", pos, remaining);
+
+            uint32 amountCopied = sample->copyInto(samples + pos, remaining);
+            pos += amountCopied;
+            remaining -= amountCopied;
+
+            debug(GS_THIS, "Copied %ld", amountCopied);
+
+            if (sample->isEmpty()) {
+				_mostRecentFrame = sample->frame;
+				_mostRecentTime += _rateFactor; /* TODO: Account for partial samples */
+                _queue.pullFront();
+                _samplePool.release_unchecked(sample);
+                _queueSize--;
+                debug(GS_THIS, "Queue Size is lesser %ld", _queueSize);
+            }
+
+        }
+
+        _sampleLock.unlock();
+    }
+
+    uint32 AudioSample_S16MSB::copyInto(int16* buffer, uint32 length) {
+        uint32 toCopy = gs_min(length, remaining);
+        copyMem(buffer, &data[pos], remaining * sizeof(int16));
+        pos += toCopy;
+        remaining -= toCopy;
+        return toCopy;
+    }
+
+    AudioStream_S16MSB* createAudioStream() {
+		CHECK_IF_RETURN(sAudioStreams.isFull(), NULL, "Cannot allocate Audio Mixer! None available.");
+
+        AudioStream_S16MSB* audioStream = newObject<AudioStream_S16MSB>();
+		sAudioStreams.push(audioStream);
+
+		return audioStream;
 	}
 
-	void releaseAudioMixer(AudioMixer* mixer) {
-		CHECK_IF(mixer == NULL, "Tried to release a null AudioMixer");
+	void releaseAudioStream(AudioStream_S16MSB* audioStream) {
+		CHECK_IF(audioStream == NULL, "Tried to release a null AudioStream");
 		uint8 index;
 
-		if (sAudioMixers.indexOf(mixer, index) == false) {
+		if (sAudioStreams.indexOf(audioStream, index) == false) {
 			error(GS_THIS, "Tried to release a Audio Mixer twice!");
 			abort_quit_stop();
 			return;
 		}
 
-		sAudioMixers.erase(index);
-		deleteObject_unchecked(mixer);
+		sAudioStreams.erase(index);
+		deleteObject_unchecked(audioStream);
 	}
+
+    void pushAudioStream(AudioStream_S16MSB* audioStream) {
+        sAudioStack.pushFront(audioStream);
+    }
+
+    AudioStream_S16MSB* popAudioStream() {
+        return sAudioStack.pullFront();
+    }
+
+    void audioCallback_S16MSB(int16* samples, uint32 sampleLength) {
+        AudioStream_S16MSB* stream = sAudioStack.peekFront();
+
+        if (stream) {
+            stream->audioCallback_S16MSB(samples, sampleLength);
+        }
+    }
 
 }

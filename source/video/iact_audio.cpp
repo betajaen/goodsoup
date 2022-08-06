@@ -28,11 +28,14 @@ namespace gs
 {
 
 
-	void applyAudio_S16MSB(byte* src) {
-		src += 2;
+	void applyAudio_S16MSB(byte* src, AudioSample_S16MSB* sample) {
 
-		AudioSample* sample = allocateAudioSample();
-		byte* dst = &sample->data[0];
+        sample->pos = 0;
+        sample->remaining = 2048;
+
+        src += 2;
+
+        byte* dst = (byte*) &sample->data[0];
 		byte v;
 		byte e1 = *src++;
 		byte e2 = e1 / 16;
@@ -71,7 +74,6 @@ namespace gs
 			}
 		}
 
-		pushAudioSample(sample);
 	}
 
 
@@ -86,7 +88,7 @@ namespace gs
 		releaseMemoryChecked(diskCache);
 	}
 
-	bool readIACTAudio(DiskReader& reader, TagPair& tag, IACTAudio& audio, AudioMixer* audioMixer) {
+	bool readIACTAudio(DiskReader& reader, TagPair& tag, IACTAudio& audio, AudioStream_S16MSB* audioStream, uint16 frameNum) {
 		uint32 dataSize = tag.length - 18;
 
 		if (dataSize > DISK_CACHE_SIZE_BYTES) {
@@ -115,7 +117,13 @@ namespace gs
 				else {
 					copyMem(dst + pos, src, len);
 
-					applyAudio_S16MSB(dst);
+					AudioSample_S16MSB* sample = audioStream->allocateSample();
+
+					if (sample != NULL) {
+						sample->frame = frameNum;
+						applyAudio_S16MSB(dst, sample);
+						audioStream->pushSample(sample);
+					}
 
 					dataSize -= len;
 					src += len;

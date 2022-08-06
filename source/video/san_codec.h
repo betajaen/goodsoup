@@ -33,7 +33,7 @@
 namespace gs
 {
 
-	class AudioMixer;
+	class AudioStream_S16MSB;
 
 	class SanCodec
 	{
@@ -64,7 +64,7 @@ namespace gs
 
 #if GS_MUTE_AUDIO == 0
 		IACTAudio _audio;
-		AudioMixer* _audioMixer;
+        AudioStream_S16MSB* _audioStream;
 #endif
 
 		uint8 _params[4];

@@ -63,7 +63,9 @@ namespace gs
 	{
 
 #if GS_MUTE_AUDIO == 0
-		_audioMixer = createAudioMixer();
+		_audioStream = createAudioStream();
+		_audioStream->_rateFactor = 10;
+        pushAudioStream(_audioStream);
 #endif
 
 		TagPair animTag = _diskReader.readSanTagPair();
@@ -123,8 +125,10 @@ namespace gs
 	SanCodec::~SanCodec() {
 
 #if GS_MUTE_AUDIO == 0
-		releaseAudioMixer(_audioMixer);
-		_audioMixer = NULL;
+        AudioStream_S16MSB* oldMixer = popAudioStream();
+        CHECK_IF(oldMixer != _audioStream, "Additional AudioStream was pushed during video playback!");
+		releaseAudioStream(_audioStream);
+		_audioStream = NULL;
 #endif
 	}
 
@@ -342,6 +346,8 @@ namespace gs
 
 	int32 SanCodec::presentFrame() {
 
+#if GS_MUTE_AUDIO == 1
+
         uint32 shouldPresent = _timer.check();
 
         if (shouldPresent == 0) {
@@ -349,6 +355,16 @@ namespace gs
         }
 
         /* TODO: Skipping Frames when shouldPresent is 2 */
+#else
+		/* TODO: This is a dumb way. Used with testing the new audio stream system */
+		if (_audioStream->getQueueSize() > 4) {
+			return 1;
+		}
+
+#endif
+
+        debug(GS_THIS, "New Video Frame");
+
 
 		TagPair frme = _diskReader.readSanTagPair();
 
@@ -395,7 +411,7 @@ namespace gs
 				readIACTTiming(_diskReader, iact, _timing);
 
 #if GS_MUTE_AUDIO == 0
-				readIACTAudio(_diskReader, iact, _audio, _audioMixer);
+				readIACTAudio(_diskReader, iact, _audio, _audioStream, _timing.currentFrame);
 #endif
 
 				_diskReader.seekEndOf(tag);

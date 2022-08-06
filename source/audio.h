@@ -22,50 +22,72 @@
 #include "pool.h"
 #include "memory.h"
 #include "queue.h"
+#include "mutex.h"
 
 namespace gs
 {
-	struct AudioSample {
-		AudioSample() {
+	struct AudioSample_S16MSB {
+        AudioSample_S16MSB() {
 			next = NULL;
+            remaining = 0;
+            pos = 0;
+			time = 0;
+			frame = 0;
 		}
 
-		AudioSample* next;
-		uint32 remaining;
-		uint32 pos;
-		uint8 data[4096];
+        uint32 copyInto(int16* buffer, uint32 length);
+
+        bool isEmpty() {
+            return remaining == 0;
+        }
+
+        AudioSample_S16MSB* next;
+		uint16 remaining;
+		uint16 pos;
+		uint16 frame;
+		uint32 time;
+		int16  data[2048];
 	};
 
-	class AudioMixer {
+	class AudioStream_S16MSB {
 
-		AllocatedPool<AudioSample, uint8> _samplePool;
-		Queue<AudioSample> _queue;
+		AllocatedPool<AudioSample_S16MSB, uint8> _samplePool;
+		Queue<AudioSample_S16MSB> _queue;
+        uint16 _queueSize;
+		Mutex _sampleLock;
 
 	protected:
 
-		friend AudioMixer* newObject<AudioMixer>();
-		friend void deleteObject_unchecked<AudioMixer>(AudioMixer*);
+		friend AudioStream_S16MSB* newObject<AudioStream_S16MSB>();
+		friend void deleteObject_unchecked<AudioStream_S16MSB>(AudioStream_S16MSB*);
 
-		AudioMixer();
-		~AudioMixer();
+        AudioStream_S16MSB();
+		~AudioStream_S16MSB();
 
 	public:
+        AudioStream_S16MSB* next;
+		uint32 _mostRecentTime;
+		uint16 _mostRecentFrame;
+		uint32 _rateFactor;
 
+		AudioSample_S16MSB* allocateSample();
+		void pushSample(AudioSample_S16MSB* sample);
+        void audioCallback_S16MSB(int16* samples, uint32 sampleLength);
 
-		AudioSample* allocateAudioSample();
-		void addToQueue(AudioSample* sample);
+		uint16 getQueueSize() const {
+			return _queueSize;
+		}
 
-	};
+    };
 
 	void openAudio();
 	void closeAudio();
 
-	AudioMixer* createAudioMixer();
-	void releaseAudioMixer(AudioMixer* mixer);
+    AudioStream_S16MSB* createAudioStream();
+	void releaseAudioStream(AudioStream_S16MSB* audioStream);
 
-	AudioSample* allocateAudioSample();
-	void pushAudioSample(AudioSample* sample);
-
+    void pushAudioStream(AudioStream_S16MSB* audioStream);
+    AudioStream_S16MSB* popAudioStream();
 
 }
 

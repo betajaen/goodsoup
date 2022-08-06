@@ -24,7 +24,7 @@ namespace gs
 {
 	class DiskReader;
 	struct TagPair;
-	class AudioMixer;
+	class AudioStream_S16MSB;
 
 	struct IACTAudio
 	{
@@ -36,7 +36,7 @@ namespace gs
 		uint32 pos;
 	};
 
-	bool readIACTAudio(DiskReader& reader, TagPair& tag, IACTAudio& timing, AudioMixer* audioMixer);
+	bool readIACTAudio(DiskReader& reader, TagPair& tag, IACTAudio& timing, AudioStream_S16MSB* audioStream, uint16 frameNum);
 
 }
 
