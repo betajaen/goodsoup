@@ -53,11 +53,11 @@ namespace gs
 			return head != NULL;
 		}
 
-		T* peek() {
+		T* peekFront() {
 			return head;
 		}
 
-		T* pull() {
+		T* pullFront() {
 			T* h = head;
 
 			if (h != NULL) {
@@ -73,7 +73,27 @@ namespace gs
 			return h;
 		}
 
-		void push(T* newTail) {
+        T* pullBack() {
+            T* t = tail;
+
+            if (t != NULL) {
+                T* n = head;
+                while(n != NULL) {
+
+                    if (n->next == t) {
+                        tail = n;
+                        tail->next = NULL;
+                        break;
+                    }
+
+                    n = n->next;
+                }
+            }
+
+            return t;
+        }
+
+		void pushBack(T* newTail) {
 			if (tail == NULL) {
 				head = tail = newTail;
 			}
@@ -82,6 +102,16 @@ namespace gs
 				tail = newTail;
 			}
 		}
+
+        void pushFront(T* newHead) {
+            if (head == NULL) {
+                head = tail = newHead;
+            }
+            else {
+                newHead->next = head;
+                head = newHead;
+            }
+        }
 
 	};
 
