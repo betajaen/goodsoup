@@ -50,7 +50,6 @@ namespace gs
 		uint16 _frameNum;
         uint32 _waitTimeUSec;
         uint32 _frameStart;
-        FixedRateTimer2 _timer;
 		RoomPaletteData _palette;
 
 		int16 _deltaPalette[768];
@@ -64,6 +63,9 @@ namespace gs
 #if GS_MUTE_AUDIO == 0
 		IACTAudio _audio;
         AudioStream_S16MSB* _audioStream;
+		ExternalFixedRateTimer _timer;
+#else
+		FixedRateTimer _timer;
 #endif
 
 		uint8 _params[4];

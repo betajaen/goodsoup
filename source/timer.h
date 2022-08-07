@@ -40,7 +40,7 @@ namespace gs
 
     };
 
-	class FixedRateTimer2 {
+	class ExternalFixedRateTimer {
 	private:
 
 		int32 was;
@@ -50,7 +50,7 @@ namespace gs
 
 		int32 diff;
 
-		FixedRateTimer2();
+		ExternalFixedRateTimer();
 
 		void initialize(int32 rate_msec);
 

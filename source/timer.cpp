@@ -58,19 +58,19 @@ namespace gs
 
 
 
-	FixedRateTimer2::FixedRateTimer2() {
+	ExternalFixedRateTimer::ExternalFixedRateTimer() {
 		was = 0;
 		rate = 0;
 		rate2 = 0;
 	}
 
-	void FixedRateTimer2::initialize(int rate_msec) {
+	void ExternalFixedRateTimer::initialize(int rate_msec) {
 		was = 0;
 		rate = rate_msec;
 		rate2 = rate+rate;
 	}
 
-	uint8 FixedRateTimer2::check(uint32 now) {
+	uint8 ExternalFixedRateTimer::check(uint32 now) {
 		int32 delta = now - was;
 
 		this->was += -delta;
