@@ -115,6 +115,99 @@ namespace gs
 
 	};
 
+	template<typename T>
+	class List {
+
+		T* head, *tail;
+
+	public:
+
+		List() {
+			head = NULL;
+			tail = NULL;
+		}
+
+		T* peekFront() {
+			return head;
+		}
+
+		T* pullFront() {
+			T* h = head;
+
+			if (h != NULL) {
+				head = h->next;
+				h->next = NULL;
+
+				if (head == NULL) {
+					tail = NULL;
+				}
+				else {
+					head->prev = NULL;
+				}
+			}
+
+			return h;
+		}
+
+		T* peekBack() {
+			return tail;
+		}
+
+		T* pullBack() {
+			T* t = tail;
+
+			if (t != NULL) {
+				tail = t->prev;
+
+				if (tail != NULL) {
+					tail->next = NULL;
+				}
+			}
+
+			return t;
+		}
+
+
+		void pushFront(T* newHead) {
+			if (head == NULL) {
+				head = tail = newHead;
+			}
+			else {
+				head->prev = newHead;
+				newHead->next = head;
+				head = newHead;
+			}
+		}
+
+		void pushBack(T* newTail) {
+			if (tail == NULL) {
+				head = tail = newTail;
+			}
+			else {
+				newTail->prev = tail;
+				tail->next = newTail;
+				tail = newTail;
+			}
+		}
+
+		void pull(T* item) {
+
+			if (item == head) {
+				pullFront();
+			}
+			else if (item == tail) {
+				pullBack();
+			}
+			else {
+				T* before = item->prev;
+				T* after = item->next;
+				before->next = after;
+				after->prev = before;
+			}
+		}
+
+	};
+
 }
 
 
