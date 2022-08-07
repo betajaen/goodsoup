@@ -23,14 +23,21 @@
 
 #include <exec/types.h>
 #include <exec/ports.h>
-#include <devices/timer.h>
+
+#include <proto/timer.h>
+#include <inline/timer.h>
+
+struct Device* TimerBase;
+
 #include <clib/exec_protos.h>
 #include <clib/alib_protos.h>
 
-struct Library* TimerBase = NULL;
-
 namespace gs
 {
+
+	SystemTimer SYSTEM_TIMER;
+	struct timeval _time0;
+
 	SystemTimer::SystemTimer() :
 		_msgPort(NULL), _req(NULL) {
 	}
@@ -67,10 +74,11 @@ namespace gs
 			return false;
 		}
 
-		TimerBase = (struct Library*) _req->tr_node.io_Device;
+		TimerBase = (struct Device*) _req->tr_node.io_Device;
+
+		GetSysTime(&_time0);
 
 		return true;
-
 	}
 
 	void SystemTimer::close() {
@@ -93,7 +101,6 @@ namespace gs
 	}
 
 	uint32 SystemTimer::start(uint32 microSeconds) {
-
 		_req->tr_time.tv_secs = 0;
 		_req->tr_time.tv_micro = microSeconds;
 		_req->tr_node.io_Command = TR_ADDREQUEST;
@@ -118,9 +125,23 @@ namespace gs
 		}
 	}
 
+
     int32 getMSec() {
-        NO_FEATURE(GS_THIS, "Not implemented getUsec");
-        return 50000;
+
+		struct timeval time1;
+		GetSysTime(&time1);
+		SubTime(&time1, &_time0);
+
+		uint32 msec = 0;
+
+		if (time1.tv_sec > 0) {
+			msec = time1.tv_sec * 1000;
+		}
+
+		msec += time1.tv_micro / 1000;
+
+		return msec;
+
     }
 
 }
