@@ -28,9 +28,14 @@
 #include <SDL2/SDL.h>
 #endif
 
+#include "list.h"
+
 namespace gs
 {
     struct CheckedMemoryHeader;
+
+	List<CheckedMemoryHeader> sCheckedAllocations;
+	uint32 sMemoryAllocated = 0;
 
 	struct TrackedMemoryHeader
 	{
@@ -129,6 +134,31 @@ namespace gs
 	}
 
 	void _writeCheckedAllocation(CheckedMemoryHeader* header) {
+#if 1
+		CheckedMemoryFooter* footer = (CheckedMemoryFooter*) ((byte*)header + header->allocationSize - sizeof(CheckedMemoryFooter));
+
+		debug_write_int(header->allocationSize);
+		debug_write_char('b');
+		debug_write_char(' ');
+		debug_write_char('@');
+        debug_write_hex((uint32) header);
+		debug_write_char('/');
+		debug_write_hex((uint32) (header+1));
+		debug_write_char(' ');
+
+		if ((header->_guard_begin ^ header->allocationSize) != (uint32) header) {
+			debug_write_str(" CORRUPTION");
+		}
+
+		if (header->_guard_begin != footer->_guard_end) {
+			debug_write_str(" OVERWRITE!");
+		}
+
+		debug_write_char(' ');
+		_writeComment(header->comment);
+
+		debug_write_char('\n');
+#else
         debug_write_str("- Address: ");
         debug_write_hex((uint32) header);
         debug_write_str("\n- Size: ");
@@ -149,6 +179,7 @@ namespace gs
         debug_write_str("\n- Memory Overwrite: ");
         debug_write_bool(header->_guard_begin != footer->_guard_end);
         debug_write_str("\n");
+#endif
 	}
 
 	static bool _confirmCheckedMemoryHeader(CheckedMemoryHeader* header) {
@@ -209,6 +240,10 @@ namespace gs
 		footer = (CheckedMemoryFooter*) (allocatedMemory + sizeof(CheckedMemoryHeader) + userSize);
 		footer->_guard_end = header->_guard_begin;
 
+		sCheckedAllocations.pushBack(header);
+
+		sMemoryAllocated += allocationSize;
+
 		return (void*)(header + 1);
 	}
 
@@ -223,7 +258,16 @@ namespace gs
 
 #if defined(GS_SDL)
 		allocatedMemory = (byte*) SDL_malloc(allocationSize);
+
+
+		if (flags & MF_Clear)
+		{
+			SDL_memset(allocatedMemory, 0, allocationSize);
+		}
+		
 #endif
+
+		sMemoryAllocated += allocationSize;
 
 		header = (TrackedMemoryHeader*) allocatedMemory;
 		header->allocationSize = allocationSize;
@@ -236,6 +280,9 @@ namespace gs
 
 		if (_confirmCheckedMemoryHeader(header)) {
 
+			sCheckedAllocations.pull(header);
+
+			sMemoryAllocated -= header->allocationSize;
 #if defined(GS_AMIGA)
 			FreeMem(header, header->allocationSize);
 #endif
@@ -250,6 +297,8 @@ namespace gs
 
 	static void _releaseMemory_unchecked(void* allocation) {
 		TrackedMemoryHeader* header = _getTrackedMemoryHeader(allocation);
+
+		sMemoryAllocated -= header->allocationSize;
 
 #if defined(GS_AMIGA)
 		FreeMem(header, header->allocationSize);
@@ -309,6 +358,8 @@ namespace gs
 		allocatedMemory = (byte*) SDL_malloc(newAllocationSize);
 #endif
 
+		sMemoryAllocated += newAllocationSize;
+
 		newHeader = (CheckedMemoryHeader*)  allocatedMemory;
 		newHeader->allocationSize = newAllocationSize;
 		newHeader->comment = oldHeader->comment;
@@ -319,6 +370,9 @@ namespace gs
 
 		_reallocateMemory_impl( (void*) (newHeader + 1),  allocation, newUserSize, oldHeader->allocationSize - sizeof(CheckedMemoryHeader) - sizeof(CheckedMemoryFooter) );
 
+		sCheckedAllocations.pull(oldHeader);
+
+		sMemoryAllocated -= oldHeader->allocationSize;
 #if defined(GS_AMIGA)
 		FreeMem(oldHeader, oldHeader->allocationSize);
 #endif
@@ -326,6 +380,8 @@ namespace gs
 #if defined(GS_SDL)
 		SDL_free(oldHeader);
 #endif
+
+		sCheckedAllocations.pushBack(newHeader);
 
 		return ((void*) (newHeader + 1));
 	}
@@ -349,11 +405,14 @@ namespace gs
 		allocatedMemory = (byte*) SDL_malloc(newAllocationSize);
 #endif
 
+		sMemoryAllocated += newAllocationSize;
+
 		newHeader = (TrackedMemoryHeader*)  allocatedMemory;
 		newHeader->allocationSize = newAllocationSize;
 
 		_reallocateMemory_impl( (void*) (newHeader + 1),  allocation, newUserSize, oldHeader->allocationSize - sizeof(TrackedMemoryHeader) );
 
+		sMemoryAllocated -= oldHeader->allocationSize;
 #if defined(GS_AMIGA)
 		FreeMem(oldHeader, oldHeader->allocationSize);
 #endif
@@ -437,7 +496,7 @@ namespace gs
 
 #else
 		TrackedMemoryHeader* header = _getTrackedMemoryHeader(mem);
-		return header->allocatedSize - sizeof(TrackedMemoryHeader);
+		return header->allocationSize - sizeof(TrackedMemoryHeader);
 #endif
 	}
 
@@ -502,6 +561,19 @@ namespace gs
 	}
 
 	void checkMem() {
+
+		debug_write_str("Allocated Memory: ");
+		debug_write_int(sMemoryAllocated);
+		debug_write_str("\n");
+
+#if GS_CHECKED == 1
+		CheckedMemoryHeader* allocation = sCheckedAllocations.peekFront();
+
+		while(allocation != NULL) {
+			_writeCheckedAllocation(allocation);
+			allocation = allocation->next;
+		}
+#endif
 
 	}
 
