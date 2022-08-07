@@ -70,8 +70,8 @@ namespace gs
 			isTablesLoaded = true;
 
 			uint32 size;
-			SAN_TABLE_BIG = readFileIntoMemory(GS_GAME_PATH "SAN47B.GST", size);
-			SAN_TABLE_SMALL = readFileIntoMemory(GS_GAME_PATH "SAN47S.GST", size);
+			SAN_TABLE_BIG = readFileIntoMemory(GS_GAME_PATH "SAN47B.GST", size, GS_COMMENT_FILE_LINE);
+			SAN_TABLE_SMALL = readFileIntoMemory(GS_GAME_PATH "SAN47S.GST", size, GS_COMMENT_FILE_LINE);
 		}
 	}
 

@@ -131,6 +131,7 @@ namespace gs
 		releaseAudioStream(_audioStream);
 		_audioStream = NULL;
 #endif
+		releaseSan47Tables();
 	}
 
 	void SanCodec::_readAndApplyPalette() {
