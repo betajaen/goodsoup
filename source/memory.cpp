@@ -264,7 +264,7 @@ namespace gs
 		{
 			SDL_memset(allocatedMemory, 0, allocationSize);
 		}
-		
+
 #endif
 
 		sMemoryAllocated += allocationSize;
@@ -315,7 +315,7 @@ namespace gs
 		if (dstSize > srcSize) {
 			// grow
 #if defined(GS_AMIGA)
-			CopyMem(src, dst, srcSize);
+			CopyMem((APTR) src, dst, srcSize);
 #endif
 
 #if defined(GS_SDL)
@@ -349,14 +349,17 @@ namespace gs
 		uint32 newUserSize = itemCount * itemSize;
 		uint32 newAllocationSize = sizeof(CheckedMemoryHeader) + sizeof(CheckedMemoryFooter) + newUserSize;
 
-
 #if defined(GS_AMIGA)
-		allocatedMemory = (byte*) AllocMem(newAllocationSize, 0);
+		allocatedMemory = (byte*) AllocMem(newAllocationSize, MEMF_CLEAR);
 #endif
 
 #if defined(GS_SDL)
 		allocatedMemory = (byte*) SDL_malloc(newAllocationSize);
+
+		SDL_memset(allocatedMemory, 0, newAllocationSize);
 #endif
+
+		/* TODO: Only clear on grow, and only clear non-written parts */
 
 		sMemoryAllocated += newAllocationSize;
 
@@ -369,6 +372,10 @@ namespace gs
 		newFooter->_guard_end = newHeader->_guard_begin;
 
 		_reallocateMemory_impl( (void*) (newHeader + 1),  allocation, newUserSize, oldHeader->allocationSize - sizeof(CheckedMemoryHeader) - sizeof(CheckedMemoryFooter) );
+
+		if (_confirmCheckedMemoryHeader(newHeader) == false) {
+			return NULL;
+		}
 
 		sCheckedAllocations.pull(oldHeader);
 
@@ -398,12 +405,15 @@ namespace gs
 
 
 #if defined(GS_AMIGA)
-		allocatedMemory = (byte*) AllocMem(newAllocationSize, 0);
+		allocatedMemory = (byte*) AllocMem(newAllocationSize, MEMF_CLEAR);
 #endif
 
 #if defined(GS_SDL)
 		allocatedMemory = (byte*) SDL_malloc(newAllocationSize);
+		SDL_memset(allocatedMemory, 0, newAllocationSize);
 #endif
+
+		/* TODO: Only clear on grow, and only clear non-written parts */
 
 		sMemoryAllocated += newAllocationSize;
 
