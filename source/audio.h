@@ -21,7 +21,7 @@
 #include "types.h"
 #include "pool.h"
 #include "memory.h"
-#include "queue.h"
+#include "list.h"
 #include "mutex.h"
 
 namespace gs
