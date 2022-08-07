@@ -325,7 +325,7 @@ namespace gs
 		else {
 			// shrink
 #if defined(GS_AMIGA)
-			CopyMem(src, dst, dstSize);
+			CopyMem((APTR) src, dst, dstSize);
 #endif
 
 #if defined(GS_SDL)
