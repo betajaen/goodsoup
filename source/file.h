@@ -126,7 +126,7 @@ namespace gs
 
 	bool fileExists(const char* path);
 
-	byte* readFileIntoMemory(const char* path, uint32& length);
+	byte* readFileIntoMemory(const char* path, uint32& length, uint32 comment);
 
 	bool writeFileFromMemory(const char* path, uint32 length, const void* data);
 

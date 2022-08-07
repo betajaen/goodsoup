@@ -478,7 +478,7 @@ namespace gs
 #endif
 	}
 
-	byte* readFileIntoMemory(const char* path, uint32& length) {
+	byte* readFileIntoMemory(const char* path, uint32& length, uint32 comment) {
 #if defined(GS_AMIGA)
 		BPTR file = Open(path, MODE_OLDFILE);
 		if (file == NULL)
@@ -506,7 +506,7 @@ namespace gs
 		byte* data = NULL;
 		length = SDL_RWsize(file);
 
-		data = (byte*) allocateMemory(1, length, 0, GS_COMMENT_FILE_LINE);
+		data = (byte*) allocateMemory(1, length, 0, comment);
 		SDL_RWread(file, data, length, 1);
 
 		SDL_RWclose(file);
