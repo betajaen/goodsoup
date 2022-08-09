@@ -96,6 +96,8 @@ namespace gs
 		void writeInt32LE(int32 value);
 		void writeInt32BE(int32 value);
 
+		void writeTag(const char* tagName);
+
 	protected:
 		GS_FILE_HANDLE	_file;
 	};

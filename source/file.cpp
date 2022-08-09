@@ -388,6 +388,11 @@ namespace gs
 #endif
 	}
 
+
+	void WriteFile::writeTag(const char* tagName) {
+		writeBytes(tagName, 4);
+	}
+
 #if !defined(GS_AMIGA)
 
 	StringAppendFile::StringAppendFile()
