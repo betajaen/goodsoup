@@ -27,6 +27,7 @@ namespace gs
 {
 
 	class AudioStream_S16MSB;
+	class WriteFile;
 
 	struct SubtitleFrame {
 		SubtitleFrame *next;
@@ -53,6 +54,21 @@ namespace gs
 		uint8 _palette[256 * 3];
 	};
 
+
+	struct VideoFrameTiming {
+		uint16 num;
+		uint16 length_msec;
+	};
+
+	enum VideoFrameFeature {
+		VFF_None = 0,
+		VFF_Timing = 1,
+		VFF_Audio = 2,
+		VFF_Subtitles = 4,
+		VFF_Image = 8,
+		VFF_Palette = 16
+	};
+
 	class VideoFrame {
 
 	public:
@@ -71,8 +87,10 @@ namespace gs
 
 		void addToQueue();
 
-		uint16 _frameNum;
-		uint32 _frameLength;
+		void apply(AudioStream_S16MSB* audioStream);
+		void save(WriteFile& file);
+
+		VideoFrameTiming _timing;
 		Queue<AudioSampleFrame_S16MSB> _audio;
 		Queue<SubtitleFrame> _subtitles;
 		ImageFrame* _image;

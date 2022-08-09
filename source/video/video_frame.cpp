@@ -19,6 +19,7 @@
 
 #include "video_frame.h"
 #include "../memory.h"
+#include "../file.h"
 
 namespace gs
 {
@@ -51,8 +52,8 @@ namespace gs
 	}
 
 	void VideoFrame::recycle() {
-		_frameNum = 0;
-		_frameLength = 0;
+		_timing.num = 0;
+		_timing.length_msec = 0;
 
 		while(true) {
 			AudioSampleFrame_S16MSB* audio = _audio.pullFront();
@@ -111,5 +112,94 @@ namespace gs
 
 		return _palette;
 	}
+
+
+	void VideoFrame::apply(AudioStream_S16MSB* audioStream) {
+
+	}
+
+	void VideoFrame::save(WriteFile& file) {
+		uint32 len = 0;
+
+		len += 2 + 2;	// timing.num, timing.length_msec;
+
+		uint16 flags = VFF_Timing;
+		uint16 numAudio = 0;
+		uint16 numSubtitles = 0;
+
+		if (_image != NULL) {
+			len += GS_BITMAP_SIZE;
+			flags |= VFF_Image;
+		}
+
+		if (_palette != NULL) {
+			len += 3 * 256;
+			flags |= VFF_Palette;
+		}
+
+		AudioSampleFrame_S16MSB* audioSample = _audio.peekFront();
+		if (audioSample != NULL) {
+			flags |= VFF_Audio;
+			while (audioSample != NULL) {
+				len += sizeof(AudioSampleFrame_S16MSB);
+				audioSample = audioSample->next;
+				numAudio++;
+			}
+		}
+
+		SubtitleFrame* subtitle = _subtitles.peekFront();
+		if (subtitle != NULL) {
+			flags |= VFF_Subtitles;
+			while (subtitle != NULL) {
+				len += sizeof(SubtitleFrame);
+				subtitle = subtitle->next;
+				numSubtitles++;
+			}
+		}
+
+
+		// FOURCC header and length
+		file.writeTag("VFRM");
+		file.writeUInt32BE(len);
+
+		// VFRM Header
+		file.writeUInt16BE(flags);
+		file.writeUInt16BE(numAudio);
+		file.writeUInt16BE(numSubtitles);
+
+		// Timing
+		file.writeUInt16BE(_timing.num);
+		file.writeUInt16BE(_timing.length_msec);
+
+		// Audio
+		audioSample = _audio.peekFront();
+		if (audioSample != NULL) {
+			while (audioSample != NULL) {
+				file.writeBytes(audioSample->data, sizeof(2048 * sizeof(int16)));
+				audioSample = audioSample->next;
+			}
+		}
+
+		// Subtitles
+		subtitle = _subtitles.peekFront();
+		if (subtitle != NULL) {
+			while (subtitle != NULL) {
+				file.writeBytes(subtitle, sizeof(SubtitleFrame));
+				subtitle = subtitle->next;
+			}
+		}
+
+		// Image
+		if (_image != NULL) {
+			file.writeBytes(&_image->_video[0], GS_BITMAP_SIZE);
+		}
+
+		// Palette
+		if (_palette != NULL) {
+			file.writeBytes(&_palette->_palette, 256 * 3);
+		}
+
+	}
+
 
 }
