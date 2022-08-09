@@ -18,7 +18,7 @@
 #define GS_FILE_NAME "video"
 
 #include "video.h"
-#include "san_codec.h"
+#include "san/codec.h"
 #include "../screen.h"
 #include "../room.h"  // For RoomPaletteData
 #include "../disk.h"

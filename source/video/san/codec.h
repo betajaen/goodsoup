@@ -18,11 +18,11 @@
 #ifndef GS_CODEC_H
 #define GS_CODEC_H
 
-#include "../types.h"
-#include "../file.h"
-#include "../disk.h"
-#include "../room.h"	// For RoomPaletteData
-#include "../timer.h"
+#include "../../types.h"
+#include "../../file.h"
+#include "../../disk.h"
+#include "../../room.h"	// For RoomPaletteData
+#include "../../timer.h"
 
 #include "iact_timing.h"
 #include "iact_audio.h"

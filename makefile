@@ -104,17 +104,17 @@ OBJ +=	source/main_game.o\
 		source/costume.o\
 		source/video/video.o\
 		source/video/video_frame.o\
-		source/video/san_codec.o\
-		source/video/iact_timing.o\
-		source/video/iact_audio.o\
+		source/video/san/codec.o\
+		source/video/san/iact_timing.o\
+		source/video/san/iact_audio.o\
+		source/video/san/tables.o\
+		source/video/san/fobj_47.o\
+		source/video/san/fobj_47_ulong.o\
 		source/draw.o\
 		source/codecs/bomp.o\
 		source/codecs/nut.o\
 		source/codecs/rle.o\
 		source/font.o\
-		source/codecs/san_codec47_basic.o\
-		source/codecs/san_codec47_opt.o\
-		source/video/san_tables.o\
 		source/audio.o\
 		source/timer.o\
 		source/mutex.o

@@ -17,14 +17,14 @@
 
 #define GS_FILE_NAME "codec"
 
-#include "san_codec.h"
-#include "../screen.h"
-#include "../codecs/bomp.h"
-#include "../font.h"
-#include "../memory.h"
-#include "../endian.h"
-#include "../audio.h"
-#include "../globals.h"
+#include "codec.h"
+#include "../../screen.h"
+#include "../../codecs/bomp.h"
+#include "../../font.h"
+#include "../../memory.h"
+#include "../../endian.h"
+#include "../../audio.h"
+#include "../../globals.h"
 
 namespace gs
 {
