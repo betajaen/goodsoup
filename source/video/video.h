@@ -25,7 +25,7 @@
 namespace gs
 {
 
-	class SanCodec;
+	class VideoFrame;
 
 	enum VideoStateKind {
 		VSK_NotLoaded = 0,
