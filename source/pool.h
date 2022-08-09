@@ -156,6 +156,53 @@ namespace gs
 
 	};
 
+	template<typename T>
+	class LinkedListPool {
+		T *head;
+	public:
+
+		LinkedListPool() {
+			head = NULL;
+		}
+
+		~LinkedListPool() {
+			clear();
+		}
+
+		void clear() {
+
+			while(head != NULL) {
+				T* nextHead = head->next;
+				deleteObject_unchecked(head);
+				head = nextHead;
+			}
+		}
+
+		T* acquire(uint32 comment = 0) {
+			if (head) {
+				T* item = head;
+				head = item->next;
+				return item;
+			}
+
+			void* mem = allocateMemory(1, sizeof(T), MF_Clear, comment);
+			return new(mem) T();
+		}
+
+		void release(T* item) {
+			if (item != NULL) {
+				item->next = head;
+				head = item;
+			}
+		}
+
+		void release_unchecked(T* item) {
+			item->next = head;
+			head = item;
+		}
+
+	};
+
 }
 
 #endif
