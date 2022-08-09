@@ -15,51 +15,20 @@
  *
  */
 
-#ifndef GS_VIDEO_H
-#define GS_VIDEO_H
-
-#include "../types.h"
-#include "../file.h"
-#include "video_api.h"
+#ifndef GS_VIDEO_API_H
+#define GS_VIDEO_API_H
 
 namespace gs
 {
 
-	class SanCodec;
+	class DiskReader;
 
-	enum VideoStateKind {
-		VSK_NotLoaded = 0,
-		VSK_Loaded = 1,
-		VSK_Playing = 2,
-		VSK_Stopped = 3
+	struct VideoApi {
+		void(*initialize)(DiskReader reader);
+		void(*teardown)();
+		int(*processFrame)();
 	};
 
-	class VideoContext {
-
-		uint8 _videoStateKind;
-		uint32 _videoFrameCounter;
-		int32 _waitFrames;
-
-		ReadFile _file;
-		VideoApi _api;
-
-	public:
-
-		VideoContext();
-		~VideoContext();
-
-		void loadVideo(uint8 id);
-		void unloadVideo();
-		void playVideoFrame();
-
-		inline uint8 getVideoStateKind() const {
-			return _videoStateKind;
-		}
-
-	};
-
-
-	extern VideoContext* VIDEO;
 
 }
 

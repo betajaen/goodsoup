@@ -18,17 +18,19 @@
 #define GS_FILE_NAME "codec"
 
 #include "codec.h"
-#include "../../screen.h"
-#include "../../codecs/bomp.h"
-#include "../../font.h"
-#include "../../memory.h"
-#include "../../endian.h"
-#include "../../audio.h"
-#include "../../globals.h"
+#include "screen.h"
+#include "codecs/bomp.h"
+#include "font.h"
+#include "memory.h"
+#include "endian.h"
+#include "audio.h"
+#include "globals.h"
+#include "../video_api.h"
 
 namespace gs
 {
 
+	static SanCodec* SAN = NULL;
 
 #if GS_SAN_CODEC47 >= 1
 	extern int16 SAN47_MOTION_VECTORS[256];
@@ -57,6 +59,26 @@ namespace gs
 	uint16 _textLength = 0;
 
 #define SWAP_BUFFER(A, B) do { uint8 t = A; A = B; B = t; } while(0)
+
+	static void initialize(DiskReader reader) {
+		CHECK_IF(SAN != NULL, "SAN Codec is not null.");
+
+		SAN = newObject<SanCodec>(reader, GS_COMMENT_FILE_LINE);
+	}
+
+	static void teardown() {
+		deleteObject(SAN);
+	}
+
+	static int processFrame() {
+		return SAN->presentFrame();
+	}
+
+	void getSANApi(VideoApi* api) {
+		api->initialize = &initialize;
+		api->teardown = &teardown;
+		api->processFrame = &processFrame;
+	}
 
 	SanCodec::SanCodec(DiskReader reader)
 		: _diskReader(reader), _frameNum(0)
@@ -488,6 +510,7 @@ namespace gs
 			return 1;
 		}
 	}
+
 
 
 }

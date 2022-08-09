@@ -25,38 +25,26 @@
 
 namespace gs
 {
+
 	VideoContext* VIDEO = NULL;
 
-	void tempAnimation(uint32 frame) {
+	void getSANApi(VideoApi* api);
 
-		int y = frame;
-		y %= GS_SCREEN_HEIGHT;
-		screenDrawBox(0, 0, y, GS_SCREEN_WIDTH, 1);
-		y++;
-		y %= GS_SCREEN_HEIGHT;
-		screenDrawBox(frame, 0, y, GS_SCREEN_WIDTH, 8);
-
-	}
-
-	VideoContext::VideoContext()
-		: _codec(NULL) {
+	VideoContext::VideoContext() {
+		_api.initialize = NULL;
+		_api.teardown = NULL;
+		_api.processFrame = NULL;
 	}
 
 	VideoContext::~VideoContext() {
 
-		if (_codec != NULL) {
-			deleteObject(_codec);
-			_file.close();
+		if (_api.teardown != NULL) {
+			_api.teardown();
 		}
+		_file.close();
 	}
 
 	void VideoContext::loadVideo(uint8 id) {
-
-		if (_codec) {
-			deleteObject(_codec);
-			_file.close();
-		}
-
 		/* Temporary Code to imitate Video Playing */
 		_videoStateKind = VSK_Loaded;
 
@@ -69,7 +57,10 @@ namespace gs
 			return;
 		}
 
-		_codec = newObject<SanCodec>(DiskReader(_file), GS_COMMENT_FILE_LINE);
+		// Temp. Figure out codec from extension name and call the appropriate API.
+		getSANApi(&_api);
+
+		_api.initialize(DiskReader(_file));
 	}
 
 	void VideoContext::unloadVideo() {
@@ -80,17 +71,22 @@ namespace gs
 
 	void VideoContext::playVideoFrame() {
 
+		int32 frames = -1;
+
 		/* Temporary Code to imitate Video Playing */
 
 		if (_videoStateKind == VSK_Loaded) {
 			_videoStateKind = VSK_Playing;
 			_videoFrameCounter = 0;
 
-			int32 frames = _codec->presentFrame();
+			CHECK_IF(_api.processFrame == NULL, "Initialize API function is NULL");
+
+			frames = _api.processFrame();
 
 			if (frames < 0) {
 				_videoStateKind = VSK_Stopped;
-				deleteObject(_codec);
+				CHECK_IF(_api.teardown != NULL, "ProcessFrame API function is NULL");
+				_api.processFrame();
 				_file.close();
 			}
 			else {
@@ -106,10 +102,14 @@ namespace gs
 			_waitFrames--;
 
 			if (_waitFrames <= 0) {
-				int32 frames = _codec->presentFrame();
+
+				CHECK_IF(_api.processFrame == NULL, "ProcessFrame API function is NULL");
+				frames = _api.processFrame();
+
 				if (frames < 0) {
 					_videoStateKind = VSK_Stopped;
-					deleteObject(_codec);
+					CHECK_IF(_api.teardown != NULL, "Teardown API function is NULL");
+					_api.teardown();
 					_file.close();
 				}
 				else {
