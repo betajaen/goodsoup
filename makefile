@@ -68,8 +68,6 @@ endif
 CFLAGS += -DGS_DEMO_MODE=$(DEMO_MODE)
 
 OBJ +=	source/hash.o\
-		source/array.o\
-		source/keyarray.o\
 		source/string.o\
 		source/file.o\
 		source/memory.o

@@ -19,9 +19,8 @@
 #define GS_OBJECT_H
 
 #include "types.h"
-#include "pool.h"
+#include "containers.h"
 #include "resource_data.h"
-#include "span.h"
 #include "disk.h"
 #include "profile.h"
 #include "debug.h"

@@ -18,8 +18,8 @@
 #ifndef GS_IMAGE_H
 #define GS_IMAGE_H
 
-#include "types.h"
-#include "pool.h"
+#include "forward.h"
+#include "containers.h"
 #include "disk.h"
 
 namespace gs

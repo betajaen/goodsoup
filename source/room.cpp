@@ -19,6 +19,7 @@
 
 #include "room.h"
 #include "resource.h"
+#include "containers.h"
 
 #include "vm/vm.h"
 #include "debug.h"

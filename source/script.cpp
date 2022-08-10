@@ -19,6 +19,7 @@
 
 #include "script.h"
 #include "resource.h"
+#include "containers.h"
 
 #include "index.h"
 #include "disk.h"

@@ -18,8 +18,8 @@
 #ifndef GS_INDEX_H
 #define GS_INDEX_H
 
-#include "types.h"
-#include "buffer.h"
+#include "forward.h"
+#include "containers.h"
 #include "file.h"
 
 #include "resource.h"

@@ -25,8 +25,7 @@
 #include "../disk.h"
 
 #include "rle.h"
-#include "buffer.h"
-#include "array.h"
+#include "containers.h"
 
 namespace gs
 {

@@ -18,8 +18,8 @@
 #ifndef GS_DISK_H
 #define GS_DISK_H
 
-#include "types.h"
-#include "buffer.h"
+#include "forward.h"
+#include "containers.h"
 #include "string.h"
 #include "file.h"
 #include "endian.h"

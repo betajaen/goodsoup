@@ -18,9 +18,8 @@
 #define GS_FILE_NAME "audio"
 
 #include "../types.h"
-#include "../buffer.h"
+#include "../containers.h"
 #include "../profile.h"
-#include "../pool.h"
 #include "../audio.h"
 #include <SDL2/SDL.h>
 

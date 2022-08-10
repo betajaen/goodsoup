@@ -18,10 +18,8 @@
 #ifndef GS_SCRIPT_H
 #define GS_SCRIPT_H
 
-#include "types.h"
-#include "buffer.h"
-#include "pool.h"
-
+#include "forward.h"
+#include "containers.h"
 
 namespace gs
 {

@@ -18,10 +18,9 @@
 #ifndef GS_AUDIO_H
 #define GS_AUDIO_H
 
-#include "types.h"
-#include "pool.h"
+#include "forward.h"
+#include "containers.h"
 #include "memory.h"
-#include "list.h"
 #include "mutex.h"
 
 namespace gs

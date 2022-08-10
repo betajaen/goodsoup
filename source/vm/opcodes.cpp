@@ -19,9 +19,8 @@
 
 #include "opcodes.h"
 #include "vm.h"
-#include "array.h"
+#include "containers.h"
 #include "vars.h"
-#include "array.h"
 #include "debugger.h"
 #include "stack.h"
 

@@ -18,8 +18,8 @@
 #ifndef GS_FONT_H
 #define GS_FONT_H
 
-#include "types.h"
-#include "buffer.h"
+#include "forward.h"
+#include "containers.h"
 #include "disk.h"
 #include "codecs/rle.h"
 

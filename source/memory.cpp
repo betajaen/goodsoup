@@ -28,7 +28,7 @@
 #include <SDL2/SDL.h>
 #endif
 
-#include "list.h"
+#include "containers.h"
 
 namespace gs
 {

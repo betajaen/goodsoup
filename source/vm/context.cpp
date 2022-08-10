@@ -24,7 +24,7 @@
 #include "vars.h"
 #include "debugger.h"
 
-#include "../array.h"
+#include "../containers.h"
 #include "../endian.h"
 #include "../globals.h"
 #include "../room.h"

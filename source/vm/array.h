@@ -19,8 +19,7 @@
 #define GS_VM_ARRAY_H
 
 #include "../types.h"
-#include "../array.h"
-#include "../buffer.h"
+#include "../containers.h"
 #include "../endian.h"
 #include "../profile.h"
 #include "../debug.h"

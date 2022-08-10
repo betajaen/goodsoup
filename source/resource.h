@@ -19,11 +19,10 @@
 #define GS_RESOURCE_H
 
 #include "types.h"
-#include "buffer.h"
 #include "string.h"
 #include "memory.h"
 #include "file.h"
-#include "array.h"
+#include "containers.h"
 
 #include "disk.h"
 #include "profile.h"

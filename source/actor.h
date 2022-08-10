@@ -21,7 +21,7 @@
 #include "types.h"
 #include "memory.h"
 #include "profile.h"
-#include "array.h"
+#include "containers.h"
 #include "debug.h"
 
 namespace gs

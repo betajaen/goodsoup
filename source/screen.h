@@ -18,8 +18,7 @@
 #ifndef GS_SCREEN_H
 #define GS_SCREEN_H
 
-#include "types.h"
-#include "buffer.h"
+#include "forward.h"
 
 namespace gs
 {

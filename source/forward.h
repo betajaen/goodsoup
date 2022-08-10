@@ -26,16 +26,52 @@ namespace gs {
 	class WriteFile;
 	class DiskReader;
 
+
+	struct String;
+
 	template<typename T, typename Index = uint16>
 	struct Buffer;
 
+	template<typename T, uint32 N, typename Index = uint16>
+	class FixedArray;
+
 	template<typename T, typename Index = uint16>
+	class Array;
+
+	template<typename T, typename Index, Index Capacity>
+	class InlineArray;
+
+	template<typename T, typename Index, Index PO2_Capacity>
+	struct RingArray;
+
+	template<typename T>
+	struct RingLog;
+
+	template<typename T, typename Index, Index Capacity>
+	class Stack;
+
+	template<typename T>
+	class Queue;
+
+	template<typename T>
+	class List;
+
+	template<typename T, typename Index = uint16>
+	struct ArrayPool;
+
+	template<typename T, typename Index = uint16>
+	class AllocatedPool;
+
+	template<typename T>
+	class LinkedListPool;
+
+	template<typename T, typename Index>
 	struct ReadSpan;
 
-	template<typename T, typename Index = uint16>
+	template<typename T, typename Index>
 	struct SequentialReadSpanReader;
 
-	template<typename T, typename Index = uint16>
+	template<typename T, typename Index>
 	struct ReadWriteSpan;
 
 }

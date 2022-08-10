@@ -18,11 +18,8 @@
 #ifndef GS_ROOM_H
 #define GS_ROOM_H
 
-#include "types.h"
-#include "array.h"
-#include "buffer.h"
+#include "forward.h"
 #include "resource_data.h"
-#include "span.h"
 #include "disk.h"
 #include "profile.h"
 #include "debug.h"

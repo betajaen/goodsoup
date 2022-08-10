@@ -19,9 +19,8 @@
 #define GS_VIDEO_FRAME_HH
 
 #include "../types.h"
-#include "../list.h"
 #include "../profile.h"
-#include "../pool.h"
+#include "../containers.h"
 
 namespace gs
 {

@@ -19,8 +19,7 @@
 #define GS_VM_H
 
 #include "../types.h"
-#include "../buffer.h"
-#include "../array.h"
+#include "../containers.h"
 #include "../profile.h"
 #include "../script.h"
 #include "stack.h"
