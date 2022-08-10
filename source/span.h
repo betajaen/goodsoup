@@ -18,14 +18,14 @@
 #ifndef GS_SPAN_H
 #define GS_SPAN_H
 
-#include "types.h"
+#include "forward.h"
 #include "debug.h"
 #include "endian.h"
 
 namespace gs
 {
 	
-	template<typename T, typename Index = uint16>
+	template<typename T, typename Index>
 	struct ReadSpan {
 	private:
 		const T* _data;
@@ -85,7 +85,7 @@ namespace gs
 
 	};
 
-	template<typename T, typename Index = uint16>
+	template<typename T, typename Index>
 	struct SequentialReadSpanReader {
 		private:
 			ReadSpan<T, Index> _span;
@@ -173,7 +173,7 @@ namespace gs
 			}
 	};
 
-	template<typename T, typename Index = uint16>
+	template<typename T, typename Index>
 	struct ReadWriteSpan {
 	private:
 		T* _data;
