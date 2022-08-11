@@ -41,6 +41,22 @@ namespace gs
 		sFile->readBytes(sPalette, 3 * 256);
 	}
 
+	static bool readDeltaPalette() {
+		/* TODO */
+		return false; // Palette should not be applied.
+	}
+
+	static inline void readTiming() {
+		sFile->skip(10);
+		sFrameNum = sFile->readUInt16LE();
+	}
+
+	static void readAudio(TagPair iact, VideoFrame* frame);
+
+	static void readVideo(TagPair fobj, VideoFrame* frame);
+
+	static void readSubtitles(TagPair text, VideoFrame* frame);
+
 	static bool readSmushFileHeader() {
 		uint16 version;
 		TagPair tag;
@@ -127,6 +143,7 @@ namespace gs
 
 		TagPair frme, tag;
 		frme = sFile->readSanTagPair(true);
+		bool increaseFrameNum = true;
 
 		CHECK_IF_RETURN_2(frme.isTag(GS_MAKE_ID('F','R','M','E')) == false, 2, "Unexpected tag \"%s\" when trying to read a FRME at pos %ld", frme.tagStr(), (sFile->pos() - 8));
 
@@ -142,14 +159,90 @@ namespace gs
 				}
 				continue;
 
+				case GS_MAKE_ID('X','P','A','L'): {
+					if (readDeltaPalette()) {
+						PaletteFrame* pal = frame->addPalette();
+						copyMemQuick((uint32*) &pal->_palette[0], (uint32*) sPalette, 3 * 256);
+					}
+					sFile->seekEndOf(tag);
+				}
+				continue;
+
+				case GS_MAKE_ID('I','A','C','T'): {
+					// IACT Tag is different to other SAN tags.
+					TagPair iact;
+					iact.dataPos = tag.dataPos;
+					sFile->skip(-4);
+					iact.length = sFile->readUInt32BE();
+
+					readTiming();
+					increaseFrameNum = false;
+					frame->_timing.num = sFrameNum;
+					frame->_timing.length_msec = 83; // Default
+
+					debug(GS_THIS, "Frame %ld of %ld", sFrameNum, sFrameCount);
+
+#if GS_MUTE_AUDIO == 0
+					readAudio(iact, frame);
+#endif
+
+					sFile->seekEndOf(tag);
+				}
+				continue;
+
+				case GS_MAKE_ID('F','O','B','J'): {
+					readVideo(tag, frame);
+					sFile->seekEndOf(tag);
+				}
+				continue;
+
+				case GS_MAKE_ID('T','E','X','T'): {
+					readSubtitles(tag, frame);
+					sFile->seekEndOf(tag);
+				}
+				continue;
+
 			}
 
 			warn(GS_THIS, "Unsupported SMUSH FRME tag %s", tag.tagStr());
 			sFile->seekEndOf(tag);
 		}
 
-		return 2;
+		if (increaseFrameNum) {
+			sFrameNum++;
+		}
+
+		return 1;
 	}
+
+
+	//
+	// Audio
+	//
+
+	static void readAudio(TagPair iact, VideoFrame* frame) {
+
+		/* TODO */
+	}
+
+	//
+	// Video
+	//
+
+	static void readVideo(TagPair fobj, VideoFrame* frame) {
+
+		/* TODO */
+	}
+
+	//
+	// Subtitles
+	//
+
+	static void readSubtitles(TagPair text, VideoFrame* frame) {
+
+		/* TODO */
+	}
+
 
 }
 
