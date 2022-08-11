@@ -127,6 +127,7 @@ clean .IGNORE:
 	$(DELETE) source/*.o
 	$(DELETE) source/vm/*.o
 	$(DELETE) source/video/*.o
+	$(DELETE) source/video/san/*.o
 	$(DELETE) source/codecs/*.o
 	$(DELETE) source/sdl/*.o
 	$(DELETE) source/amiga/*.o
