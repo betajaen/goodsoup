@@ -15,54 +15,31 @@
  *
  */
 
-#ifndef GS_VIDEO_H
-#define GS_VIDEO_H
+#define GS_FILE_NAME "smush"
 
 #include "forward.h"
-#include "file.h"
+#include "containers.h"
+#include "video/video_frame.h"
 #include "video/video_api.h"
 
 namespace gs
 {
+	static bool smush_initialize(TagReadFile* file) {
+		return true;
+	}
 
-	class VideoFrame;
+	static void smush_teardown() {
 
-	enum VideoStateKind {
-		VSK_NotLoaded = 0,
-		VSK_Loaded = 1,
-		VSK_Playing = 2,
-		VSK_Stopped = 3
-	};
+	}
 
-	class VideoContext {
-
-		uint8 _videoStateKind;
-		uint32 _videoFrameCounter;
-		int32 _waitFrames;
-
-		ReadFile _file;
-		VideoApi _api;
-		VideoCodec* _videoCodec;
-		TagReadFile* _videoFile;
-
-	public:
-
-		VideoContext();
-		~VideoContext();
-
-		void loadVideo(uint8 id);
-		void unloadVideo();
-		void playVideoFrame();
-
-		inline uint8 getVideoStateKind() const {
-			return _videoStateKind;
-		}
-
-	};
-
-
-	extern VideoContext* VIDEO;
+	static bool smush_processFrame(VideoFrame* frame) {
+		return true;
+	}
 
 }
 
-#endif
+gs::VideoCodec SMUSH_VIDEO_CODEC = {
+		&gs::smush_initialize,
+		&gs::smush_teardown,
+		&gs::smush_processFrame
+};

@@ -16,12 +16,15 @@
  */
 
 #define GS_FILE_NAME "video"
-
+#define TEMP_USE_VIDEO_CODEC 0
 #include "video.h"
+#include "video/video_api.h"
 #include "san/codec.h"
-#include "../screen.h"
-#include "../room.h"  // For RoomPaletteData
-#include "../disk.h"
+#include "screen.h"
+#include "room.h"  // For RoomPaletteData
+#include "disk.h"
+
+extern gs::VideoCodec SMUSH_VIDEO_CODEC;
 
 namespace gs
 {
@@ -31,20 +34,57 @@ namespace gs
 	void getSANApi(VideoApi* api);
 
 	VideoContext::VideoContext() {
+
+		_videoCodec = NULL;
+
 		_api.initialize = NULL;
 		_api.teardown = NULL;
 		_api.processFrame = NULL;
 	}
 
 	VideoContext::~VideoContext() {
+#if TEMP_USE_VIDEO_CODEC
+		if (_videoCodec != NULL) {
+			_videoCodec->teardown();
+			return;
+		}
 
+		deleteObject(_videoFile);
+
+#else
 		if (_api.teardown != NULL) {
 			_api.teardown();
 		}
 		_file.close();
+#endif
 	}
 
 	void VideoContext::loadVideo(uint8 id) {
+#if TEMP_USE_VIDEO_CODEC
+		_videoStateKind = VSK_Loaded;
+		_videoFile = newObject<TagReadFile>(GS_COMMENT_FILE_LINE);
+		CHECK_IF(_videoFile == NULL, "Could not allocate Video File!");
+
+		_videoFile->open(GS_GAME_PATH "RESOURCE/OPENING.SAN");
+
+		if (_videoFile->isOpen() == false) {
+			error(GS_THIS, "Could not open Video File!");
+			abort_quit_stop();
+			deleteObject(_videoFile);
+			return;
+		}
+
+		_videoCodec = &SMUSH_VIDEO_CODEC;
+
+		if (_videoCodec->initialize(_videoFile) == false) {
+			error(GS_THIS, "Could not read Video File!");
+			abort_quit_stop();
+			deleteObject(_videoFile);
+			_videoCodec = NULL;
+			return;
+		}
+
+#else
 		/* Temporary Code to imitate Video Playing */
 		_videoStateKind = VSK_Loaded;
 
@@ -61,6 +101,7 @@ namespace gs
 		getSANApi(&_api);
 
 		_api.initialize(DiskReader(_file));
+#endif
 	}
 
 	void VideoContext::unloadVideo() {
@@ -70,7 +111,9 @@ namespace gs
 	}
 
 	void VideoContext::playVideoFrame() {
+#if TEMP_USE_VIDEO_CODEC
 
+#else
 		int32 frames = -1;
 
 		/* Temporary Code to imitate Video Playing */
@@ -119,6 +162,7 @@ namespace gs
 
 			return;
 		}
+#endif
 
 	}
 

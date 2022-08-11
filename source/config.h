@@ -59,7 +59,13 @@
 #endif
 
 
-
+// GS_GAME_PATH
+// File path to the game files
+// Option: GAME_PATH="COMI:"
+// Default: "COMI:"
+#ifndef GS_GAME_PATH
+#define GS_GAME_PATH "COMI:"
+#endif
 
 
 //  -----------------------------------------------------------------
@@ -84,6 +90,7 @@
 #define GS_SDL
 #endif
 #endif
+
 
 
 #endif

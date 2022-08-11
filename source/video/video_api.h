@@ -22,11 +22,19 @@ namespace gs
 {
 
 	class DiskReader;
+	class TagReadFile;
+	class VideoFrame;
 
 	struct VideoApi {
 		void(*initialize)(DiskReader reader);
 		void(*teardown)();
 		int(*processFrame)();
+	};
+
+	struct VideoCodec {
+		bool(*initialize)(TagReadFile* file);
+		void(*teardown)();
+		bool(*processFrame)(VideoFrame* frame);
 	};
 
 

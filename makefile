@@ -108,6 +108,7 @@ OBJ +=	source/main_game.o\
 		source/video/san/tables.o\
 		source/video/san/fobj_47.o\
 		source/video/san/fobj_47_ulong.o\
+		source/video/smush/smush.o\
 		source/draw.o\
 		source/codecs/bomp.o\
 		source/codecs/nut.o\
