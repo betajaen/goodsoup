@@ -252,11 +252,21 @@ namespace gs
 			_file.skip(offset);
 		}
 
-		inline TagPair readTagPair(bool roundUp = false) {
+		inline TagPair readTagPair() {
 			TagPair pair;
 			byte* tag = (byte*) &pair.tag;
 			_file.readBytes(tag, 4);
 			pair.length = _file.readUInt32BE() - 8;
+			pair.dataPos = _file.pos();
+
+			return pair;
+		}
+
+		inline TagPair readSanTagPair(bool roundUp) {
+			TagPair pair;
+			byte* tag = (byte*) &pair.tag;
+			_file.readBytes(tag, 4);
+			pair.length = _file.readUInt32BE();
 			pair.dataPos = _file.pos();
 
 			if (roundUp) {
