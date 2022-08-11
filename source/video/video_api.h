@@ -34,7 +34,7 @@ namespace gs
 	struct VideoCodec {
 		bool(*initialize)(TagReadFile* file);
 		void(*teardown)();
-		bool(*processFrame)(VideoFrame* frame);
+		uint8(*processFrame)(VideoFrame* frame);
 	};
 
 

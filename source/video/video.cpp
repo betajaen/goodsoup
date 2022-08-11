@@ -113,6 +113,27 @@ namespace gs
 	void VideoContext::playVideoFrame() {
 #if TEMP_USE_VIDEO_CODEC
 
+		VideoFrame* frame = NULL;
+
+		uint8 response = _videoCodec->processFrame(frame);
+
+		if (response == 0) {
+			// TODO: Push VideoFrame back into pool.
+		}
+
+		if (response == 1) {
+			// TODO: Push VideoFrame into queue.
+		}
+
+		if (response == 2) {
+			// TODO: Push VideoFrame back into pool.
+			_videoStateKind = VSK_Stopped;
+			deleteObject(_videoFile);
+			_videoCodec->teardown();
+			_videoCodec = NULL;
+			return;
+		}
+
 #else
 		int32 frames = -1;
 

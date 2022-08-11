@@ -24,16 +24,42 @@
 
 namespace gs
 {
+	TagReadFile* sFile;
+	byte* sPalette;
+	byte* sFrames[3];
+	byte  sCurrentFrameBuffer;
+	byte  sDeltaFrameBuffers[2];
+	char* sSubtitleText;
+	byte* sCompressedAudioSample;
+
 	static bool smush_initialize(TagReadFile* file) {
+		sFile = file;
+		sPalette = (byte*) allocateMemory(256, 3 * sizeof(byte), MF_Clear, GS_COMMENT_FILE_LINE);
+		byte* videoFrames = (byte*) allocateMemory(3, GS_BITMAP_SIZE, MF_Clear, GS_COMMENT_FILE_LINE);
+		sFrames[0] = videoFrames;
+		sFrames[1] = videoFrames + GS_BITMAP_SIZE;
+		sFrames[2] = videoFrames + GS_BITMAP_SIZE + GS_BITMAP_SIZE;
+		sSubtitleText = (char*) allocateMemory(256, sizeof(char), MF_Clear, GS_COMMENT_FILE_LINE);
+		sCompressedAudioSample = (byte*) allocateMemory(4096 + 2, sizeof(byte), MF_Clear, GS_COMMENT_FILE_LINE);
+
+		sCurrentFrameBuffer = 3;
+		sDeltaFrameBuffers[0] = 0;
+		sDeltaFrameBuffers[1] = 1;
+
 		return true;
 	}
 
 	static void smush_teardown() {
-
+		releaseMemoryChecked(sCompressedAudioSample);
+		releaseMemoryChecked(sSubtitleText);
+		releaseMemoryChecked(sFrames[0]);
+		sFrames[1] = NULL;
+		sFrames[2] = NULL;
+		releaseMemoryChecked(sPalette);
 	}
 
-	static bool smush_processFrame(VideoFrame* frame) {
-		return true;
+	static uint8 smush_processFrame(VideoFrame* frame) {
+		return 2;
 	}
 
 }
