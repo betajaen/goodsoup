@@ -19,6 +19,7 @@
 #define GS_VIDEO_H
 
 #include "forward.h"
+#include "containers.h"
 #include "file.h"
 #include "video/video_api.h"
 
@@ -44,6 +45,8 @@ namespace gs
 		VideoApi _api;
 		VideoCodec* _videoCodec;
 		TagReadFile* _videoFile;
+
+		Queue<VideoFrame> _frames;
 
 	public:
 

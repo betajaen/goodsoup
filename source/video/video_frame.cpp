@@ -29,10 +29,16 @@ namespace gs
 	LinkedListPool<PaletteFrame> sPalettes;
 	LinkedListPool<ImageFrame> sImages;
 
-	Queue<VideoFrame> sQueue;
+	void disposeVideoFrameData() {
+		sVideoFrames.clear();
+		sSubtitles.clear();
+		sAudioSamples.clear();
+		sPalettes.clear();
+		sImages.clear();
+	}
 
 	VideoFrame* acquireVideoFrame() {
-		return sVideoFrames.acquire();
+		return sVideoFrames.acquire(GS_COMMENT_FILE_LINE);
 	}
 
 	void disposeVideoFrame(VideoFrame* frame) {
@@ -79,10 +85,6 @@ namespace gs
 			_palette = NULL;
 		}
 
-	}
-
-	void VideoFrame::addToQueue() {
-		sQueue.pushFront(this);
 	}
 
 	SubtitleFrame* VideoFrame::addSubtitle() {

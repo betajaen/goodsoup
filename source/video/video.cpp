@@ -19,6 +19,7 @@
 #define TEMP_USE_VIDEO_CODEC 0
 #include "video.h"
 #include "video/video_api.h"
+#include "video/video_frame.h"
 #include "san/codec.h"
 #include "screen.h"
 #include "room.h"  // For RoomPaletteData
@@ -44,6 +45,16 @@ namespace gs
 
 	VideoContext::~VideoContext() {
 #if TEMP_USE_VIDEO_CODEC
+
+		VideoFrame* frame = _frames.pullFront();
+		while(frame != NULL) {
+			VideoFrame* nextFrame = frame->next;
+			disposeVideoFrame(frame);
+			frame = nextFrame;
+		}
+		_frames.clear();
+		disposeVideoFrameData();
+
 		if (_videoCodec != NULL) {
 			_videoCodec->teardown();
 			return;
@@ -113,20 +124,24 @@ namespace gs
 	void VideoContext::playVideoFrame() {
 #if TEMP_USE_VIDEO_CODEC
 
-		VideoFrame* frame = NULL;
+		VideoFrame* frame = acquireVideoFrame();
 
 		uint8 response = _videoCodec->processFrame(frame);
 
 		if (response == 0) {
-			// TODO: Push VideoFrame back into pool.
+			// Not yet.
+			disposeVideoFrame(frame);
+			return;
 		}
 
+
 		if (response == 1) {
-			// TODO: Push VideoFrame into queue.
+			_frames.pushBack(frame);
+			return;
 		}
 
 		if (response == 2) {
-			// TODO: Push VideoFrame back into pool.
+			disposeVideoFrame(frame);
 			_videoStateKind = VSK_Stopped;
 			deleteObject(_videoFile);
 			_videoCodec->teardown();

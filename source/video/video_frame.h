@@ -84,8 +84,6 @@ namespace gs
 		ImageFrame* addImage();
 		PaletteFrame* addPalette();
 
-		void addToQueue();
-
 		void apply(AudioStream_S16MSB* audioStream);
 		void save(WriteFile& file);
 
@@ -98,6 +96,7 @@ namespace gs
 
 	VideoFrame* acquireVideoFrame();
 	void disposeVideoFrame(VideoFrame* frame);
+	void disposeVideoFrameData();
 
 }
 
