@@ -18,6 +18,7 @@
 #define GS_FILE_NAME "smush"
 
 #include "forward.h"
+#include "file.h"
 #include "containers.h"
 #include "video/video_frame.h"
 #include "video/video_api.h"
@@ -31,10 +32,71 @@ namespace gs
 	byte  sDeltaFrameBuffers[2];
 	char* sSubtitleText;
 	byte* sCompressedAudioSample;
+	uint16 sFrameCount;
+	uint16 sFrameNum;
+	uint32 sFrameRate;
+	uint32 sAudioRate;
+
+	static inline void readPalette() {
+		sFile->readBytes(sPalette, 3 * 256);
+	}
+
+	static bool readSmushFileHeader() {
+		uint16 version;
+		TagPair tag;
+
+
+		sFile->seek(0);
+
+		tag = sFile->readSanTagPair(true);
+
+		if (tag.isTag(GS_MAKE_ID('A','N','I','M')) == false) {
+			error(GS_THIS, "This is not an ANIM SAN file! Missing ANIM tag got %s", tag.tagStr());
+			abort_quit_stop();
+			return false;
+		}
+
+		tag = sFile->readSanTagPair(true);
+
+		if (tag.isTag(GS_MAKE_ID('A','H','D','R')) == false) {
+			error(GS_THIS, "This is not an ANIM SAN file! Missing ANHD tag got %s!", tag.tagStr());
+			abort_quit_stop();
+			return false;
+		}
+
+		// Check version
+		version = sFile->readUInt16LE();
+		if (version != 2) {
+			error(GS_THIS, "This SMUSH version %ld is not supported!", (uint32) version);
+			abort_quit_stop();
+			return false;
+		}
+
+		// Read AHDR
+
+		sFrameNum = 0;
+		sFrameCount = sFile->readUInt16LE();
+		sFile->skip(sizeof(uint16));
+
+		sPalette = (byte*) allocateMemory(256, 3 * sizeof(byte), MF_Clear, GS_COMMENT_FILE_LINE);
+		readPalette();
+		sFrameRate = sFile->readUInt32LE();
+		sFile->skip(sizeof(uint32));
+		sAudioRate = sFile->readUInt32LE();
+
+		sFile->seekEndOf(tag);
+
+		return true;
+	}
 
 	static bool smush_initialize(TagReadFile* file) {
 		sFile = file;
-		sPalette = (byte*) allocateMemory(256, 3 * sizeof(byte), MF_Clear, GS_COMMENT_FILE_LINE);
+
+		if (readSmushFileHeader() == false) {
+			return false;
+		}
+
+		// Setup memory (palette is created in isSmush)
 		byte* videoFrames = (byte*) allocateMemory(3, GS_BITMAP_SIZE, MF_Clear, GS_COMMENT_FILE_LINE);
 		sFrames[0] = videoFrames;
 		sFrames[1] = videoFrames + GS_BITMAP_SIZE;
@@ -56,9 +118,36 @@ namespace gs
 		sFrames[1] = NULL;
 		sFrames[2] = NULL;
 		releaseMemoryChecked(sPalette);
+		sFile = NULL;
 	}
 
 	static uint8 smush_processFrame(VideoFrame* frame) {
+
+		CHECK_IF_RETURN(frame == NULL, 2, "NULL VideoFrame given!");
+
+		TagPair frme, tag;
+		frme = sFile->readSanTagPair(true);
+
+		CHECK_IF_RETURN_2(frme.isTag(GS_MAKE_ID('F','R','M','E')) == false, 2, "Unexpected tag \"%s\" when trying to read a FRME at pos %ld", frme.tagStr(), (sFile->pos() - 8));
+
+		while(sFile->pos() < frme.end()) {
+			tag = sFile->readSanTagPair(true);
+
+			switch(tag.tag) {
+
+				case GS_MAKE_ID('N','P','A','L'): {
+					readPalette();
+					PaletteFrame* pal = frame->addPalette();
+					copyMemQuick((uint32*) &pal->_palette[0], (uint32*) sPalette, 3 * 256);
+				}
+				continue;
+
+			}
+
+			warn(GS_THIS, "Unsupported SMUSH FRME tag %s", tag.tagStr());
+			sFile->seekEndOf(tag);
+		}
+
 		return 2;
 	}
 
