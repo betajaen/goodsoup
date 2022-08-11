@@ -370,17 +370,8 @@ namespace gs
 
 	int32 SanCodec::presentFrame() {
 
-#if GS_MUTE_AUDIO == 1
-
-        uint32 shouldPresent = _timer.check();
-
-        if (shouldPresent == 0) {
-            return 1;
-        }
-
-        /* TODO: Skipping Frames when shouldPresent is 2 */
-#else
-
+#if GS_MUTE_AUDIO == 0
+		
 		// Too many samples to play, pause video to catch up?
 		if (_audioStream->getQueueSize() >= 16) {
 			return 1;
