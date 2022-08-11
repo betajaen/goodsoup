@@ -25,7 +25,7 @@ namespace gs {
 	class ReadFile;
 	class WriteFile;
 	class DiskReader;
-
+	class TagPair;
 
 	struct String;
 

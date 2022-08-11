@@ -132,6 +132,39 @@ namespace gs
 
 	bool writeFileFromMemory(const char* path, uint32 length, const void* data);
 
+	struct TagPair {
+		uint32 tag;
+		uint32 length;
+		uint32 dataPos;
+
+		const char* tagStr() const {
+			static char str[5] = {0};
+			*((uint32*) &str[0]) = tag;
+			return &str[0];
+		}
+
+		bool isTag(uint32 name) const {
+			return tag == name;
+		}
+
+		bool isTag(uint32 name1, uint32 name2) const {
+			return tag == name1 || tag == name2;
+		}
+
+		bool isTag(uint32 name1, uint32 name2, uint32 name3) const {
+			return tag == name1 || tag == name2 || tag == name3;
+		}
+
+		bool isTag(uint32 name1, uint32 name2, uint32 name3, uint32 name4) const {
+			return tag == name1 || tag == name2 || tag == name3 || tag == name4;
+		}
+
+		uint32 end() const {
+			return dataPos + length;
+		}
+
+	};
+
 }
 
 
