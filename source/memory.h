@@ -52,7 +52,9 @@ namespace gs
 
 	void clearMemoryNonAllocated(void* allocation, uint32 size);
 
-	void copyMem(void* dst, void* src, uint32 size);
+	void copyMem(void* dst, void* src, uint32 size_bytes);
+
+	void copyMemQuick(uint32* dst, uint32* src, uint32 size_bytes);
 
 	template<typename T>
 	T* newObject(uint32 comment) {

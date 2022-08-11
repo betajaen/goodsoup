@@ -510,15 +510,28 @@ namespace gs
 #endif
 	}
 
-	void copyMem(void* dst, void* src, uint32 size) {
+	void copyMem(void* dst, void* src, uint32 size_bytes) {
 #if defined(GS_AMIGA)
-		CopyMem(src, dst, size);
+		CopyMem(src, dst, size_bytes);
 #endif
 
 #if defined(GS_SDL)
-		SDL_memcpy(dst, src, size);
+		SDL_memcpy(dst, src, size_bytes);
 #endif
 
+	}
+
+	void copyMemQuick(uint32* dst, uint32* src, uint32 size_bytes) {
+#if defined(GS_AMIGA)
+		CopyMemQuick(dst, src, size_bytes);
+#endif
+
+#if defined(GS_SDL)
+		size_bytes /= sizeof(uint32);
+		while(size_bytes--) {
+			*dst++ = *src++;
+		}
+#endif
 	}
 
 	static void _clearMemory(void* mem, uint32 size) {
