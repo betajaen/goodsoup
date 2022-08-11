@@ -18,7 +18,7 @@
 #ifndef GS_FILE_H
 #define GS_FILE_H
 
-#include "types.h"
+#include "forward.h"
 
 #if defined(GS_AMIGA)
 #define GS_FILE_HANDLE gs::int32
@@ -161,6 +161,124 @@ namespace gs
 
 		uint32 end() const {
 			return dataPos + length;
+		}
+
+	};
+
+	class TagReadFile {
+
+		ReadFile _file;
+
+	public:
+
+		inline TagReadFile()
+			: _file() {
+		}
+
+		inline ~TagReadFile() {
+			close();
+		}
+
+		inline void open(const char* path) {
+			_file.open(path);
+		}
+
+		inline void close() {
+			_file.close();
+		}
+
+		inline bool isOpen() const {
+			return _file.isOpen();
+		}
+
+		template<typename Index>
+		inline void readBytes(ReadWriteSpan<byte, Index>& span) {
+			_file.readBytes(span.ptr(0), span.getSize());
+		}
+
+		void readBytes(Buffer<byte>& buffer, uint16 length);
+
+		inline void readBytes(void* data, uint32 length) {
+			_file.readBytes(data, length);
+		}
+
+		inline byte readByte() {
+			return _file.readByte();
+		}
+
+		inline int16 readInt16BE() {
+			return _file.readInt16BE();
+		}
+
+		inline int32 readInt32BE() {
+			return _file.readInt32BE();
+		}
+
+		inline int16 readInt16LE() {
+			return _file.readInt16LE();
+		}
+
+		inline int32 readInt32LE() {
+			return _file.readInt32LE();
+		}
+
+		inline uint16 readUInt16BE() {
+			return _file.readUInt16BE();
+		}
+
+		inline uint32 readUInt32BE() {
+			return _file.readUInt32BE();
+		}
+
+		inline uint16 readUInt16LE() {
+			return _file.readUInt16LE();
+		}
+
+		inline uint32 readUInt32LE() {
+			return _file.readUInt32LE();
+		}
+
+		inline void seek(uint32 pos) {
+			_file.seek(pos);
+		}
+
+		uint32 readFixedStringAsHash(uint8 fixedLength);
+
+		inline uint32 pos() const {
+			return _file.pos();
+		}
+
+		inline void skip(int32 offset) {
+			_file.skip(offset);
+		}
+
+		inline TagPair readTagPair(bool roundUp = false) {
+			TagPair pair;
+			byte* tag = (byte*) &pair.tag;
+			_file.readBytes(tag, 4);
+			pair.length = _file.readUInt32BE() - 8;
+			pair.dataPos = _file.pos();
+
+			if (roundUp) {
+				// Round up to nearest even number.
+				if (pair.length & 1) {
+					pair.length++;
+				}
+			}
+
+			return pair;
+		}
+
+		inline void seek(const TagPair& tagPair) {
+			_file.seek(tagPair.dataPos);
+		}
+
+		inline void skip(const TagPair& tagPair) {
+			_file.skip(tagPair.length);
+		}
+
+		inline void seekEndOf(const TagPair& tagPair) {
+			_file.seek(tagPair.dataPos + tagPair.length);
 		}
 
 	};

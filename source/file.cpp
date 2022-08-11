@@ -22,6 +22,7 @@
 #include "debug.h"
 #include "hash.h"
 #include "endian.h"
+#include "containers.h"
 
 #if defined(GS_AMIGA)
 #include <proto/dos.h>
@@ -542,6 +543,29 @@ namespace gs
 		SDL_RWclose(file);
 		return true;
 #endif
+	}
+
+	uint32 TagReadFile::readFixedStringAsHash(uint8 fixedLength) {
+		HashBuilder hash;
+		uint32 end = _file.pos() + fixedLength;
+
+		for(uint8 i=0;i < fixedLength;i++) {
+			char ch = _file.readByte();
+
+			if (ch == 0)
+				break;
+
+			hash.feed(ch);
+		}
+
+		_file.seek(end);
+
+		return hash.hash;
+	}
+
+	void TagReadFile::readBytes(Buffer<byte>& buffer, uint16 length) {
+		buffer.setSize(length, 0);
+		_file.readBytes(buffer.ptr(0), length);
 	}
 
 }
