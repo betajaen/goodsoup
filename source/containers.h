@@ -824,6 +824,23 @@ namespace gs {
 			}
 		}
 
+		void pull(T* item) {
+
+			if (item == head) {
+				pullFront();
+			}
+			else {
+				T* n = head;
+				while(n != NULL) {
+					if (n->next == item) {
+						n->next = item->next;
+						break;
+					}
+					n = n->next;
+				}
+			}
+		}
+
 	};
 
 	template<typename T>
