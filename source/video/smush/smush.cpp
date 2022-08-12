@@ -38,6 +38,11 @@ namespace gs
 	uint32 sFrameRate;
 	uint32 sAudioRate;
 
+	static byte* getFrameBuffer(uint8 buffer) {
+		CHECK_IF_RETURN(buffer > 2, sFrames[0], "Out of bounds for FrameBuffer.");
+		return sFrames[buffer];
+	}
+
 	static void readPalette();
 
 	static bool readDeltaPalette(bool isApply);
@@ -194,6 +199,19 @@ namespace gs
 
 				case GS_MAKE_ID('T','E','X','T'): {
 					readSubtitles(tag, frame);
+					sFile->seekEndOf(tag);
+				}
+				continue;
+
+				case GS_MAKE_ID('S','T','O','R'): {
+					// N/A - I think
+					sFile->seekEndOf(tag);
+				}
+				continue;
+
+				case GS_MAKE_ID('F','T','C','H'): {
+					ImageFrame* imageFrame = frame->addImage();
+					copyMemQuick( (uint32*) imageFrame->_video, (uint32*)  getFrameBuffer(sCurrentFrameBuffer), GS_BITMAP_SIZE);
 					sFile->seekEndOf(tag);
 				}
 				continue;
