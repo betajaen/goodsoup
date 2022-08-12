@@ -27,6 +27,7 @@ namespace gs
 {
 	TagReadFile* sFile;
 	byte* sPalette;
+	int16* sDeltaPalette;
 	byte* sFrames[3];
 	byte  sCurrentFrameBuffer;
 	byte  sDeltaFrameBuffers[2];
@@ -37,14 +38,9 @@ namespace gs
 	uint32 sFrameRate;
 	uint32 sAudioRate;
 
-	static inline void readPalette() {
-		sFile->readBytes(sPalette, 3 * 256);
-	}
+	static void readPalette();
 
-	static bool readDeltaPalette() {
-		/* TODO */
-		return false; // Palette should not be applied.
-	}
+	static bool readDeltaPalette(bool isApply);
 
 	static inline void readTiming() {
 		sFile->skip(10);
@@ -119,7 +115,7 @@ namespace gs
 		sFrames[2] = videoFrames + GS_BITMAP_SIZE + GS_BITMAP_SIZE;
 		sSubtitleText = (char*) allocateMemory(256, sizeof(char), MF_Clear, GS_COMMENT_FILE_LINE);
 		sCompressedAudioSample = (byte*) allocateMemory(4096 + 2, sizeof(byte), MF_Clear, GS_COMMENT_FILE_LINE);
-
+		sDeltaPalette = (int16*) allocateMemory(256, 3 * sizeof(int16), MF_Clear, GS_COMMENT_FILE_LINE);
 		sCurrentFrameBuffer = 3;
 		sDeltaFrameBuffers[0] = 0;
 		sDeltaFrameBuffers[1] = 1;
@@ -128,6 +124,7 @@ namespace gs
 	}
 
 	static void smush_teardown() {
+		releaseMemoryChecked(sDeltaPalette);
 		releaseMemoryChecked(sCompressedAudioSample);
 		releaseMemoryChecked(sSubtitleText);
 		releaseMemoryChecked(sFrames[0]);
@@ -160,11 +157,10 @@ namespace gs
 				continue;
 
 				case GS_MAKE_ID('X','P','A','L'): {
-					if (readDeltaPalette()) {
+					if (readDeltaPalette(tag.length == 6)) {
 						PaletteFrame* pal = frame->addPalette();
 						copyMemQuick((uint32*) &pal->_palette[0], (uint32*) sPalette, 3 * 256);
 					}
-					sFile->seekEndOf(tag);
 				}
 				continue;
 
@@ -215,7 +211,51 @@ namespace gs
 		return 1;
 	}
 
+	//
+	// Palette
+	//
+	//
 
+	static void readPalette() {
+		sFile->readBytes(sPalette, 768);
+	}
+
+	static bool readDeltaPalette(bool isApply) {
+
+		if (isApply) {
+			sFile->skip(6);
+
+			for(uint16 i=0;i < 768;i++) {
+				uint16 s = (uint16) sPalette[i];
+				int16 d = sDeltaPalette[i];
+
+				int16 c = ((s * 129 + d) / 128);
+				if (c > 255)
+					c = 255;
+				else if (c < 0)
+					c = 0;
+
+				sPalette[i] = (uint8) c;
+			}
+
+			return true;
+		}
+		else {
+
+			sFile->skip(4);
+			sFile->readBytes((void*) sDeltaPalette, 768 * sizeof(int16));
+			sFile->readBytes((void*) sPalette, 768 * sizeof(byte));
+
+			// Swap LE to System Endian on sDeltaPalette
+#if GS_BIG
+			for(uint16 i=0;i < 768;i++) {
+				sDeltaPalette[i] = FROM_LE_16(sDeltaPalette[i]);
+			}
+#endif
+
+			return false;
+		}
+	}
 	//
 	// Audio
 	//
