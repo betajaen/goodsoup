@@ -93,6 +93,11 @@ namespace gs
 		return subtitle;
 	}
 
+	void VideoFrame::removeSubtitle(SubtitleFrame* frame) {
+		_subtitles.pull(frame);
+		sSubtitles.release_unchecked(frame);
+	}
+
 	AudioSampleFrame_S16MSB* VideoFrame::addAudio() {
 		AudioSampleFrame_S16MSB* audioSample = sAudioSamples.acquire(GS_COMMENT_FILE_LINE);
 		_audio.pushBack(audioSample);

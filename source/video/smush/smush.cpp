@@ -38,6 +38,9 @@ namespace gs
 	uint32 sFrameRate;
 	uint32 sAudioRate;
 
+	// Declared in Font.h
+	bool parseFormattedDialogue2(char* text, char *&out_textBegin, char *&out_textEnd, uint32 &out_translationHash, uint8 &out_fontNum, uint8 &out_Colour);
+
 	static byte* getFrameBuffer(uint8 buffer) {
 		CHECK_IF_RETURN(buffer > 2, sFrames[0], "Out of bounds for FrameBuffer.");
 		return sFrames[buffer];
@@ -118,7 +121,7 @@ namespace gs
 		sFrames[0] = videoFrames;
 		sFrames[1] = videoFrames + GS_BITMAP_SIZE;
 		sFrames[2] = videoFrames + GS_BITMAP_SIZE + GS_BITMAP_SIZE;
-		sSubtitleText = (char*) allocateMemory(256, sizeof(char), MF_Clear, GS_COMMENT_FILE_LINE);
+		sSubtitleText = (char*) allocateMemory(480, sizeof(char), MF_Clear, GS_COMMENT_FILE_LINE);
 		sCompressedAudioSample = (byte*) allocateMemory(4096 + 2, sizeof(byte), MF_Clear, GS_COMMENT_FILE_LINE);
 		sDeltaPalette = (int16*) allocateMemory(256, 3 * sizeof(int16), MF_Clear, GS_COMMENT_FILE_LINE);
 		sCurrentFrameBuffer = 3;
@@ -297,8 +300,43 @@ namespace gs
 	//
 
 	static void readSubtitles(TagPair text, VideoFrame* frame) {
+		uint16 subtitleLength = text.length - 16;
 
-		/* TODO */
+		CHECK_IF_1(subtitleLength > 479, "Subtitle has too many %ld characters to draw.", subtitleLength);
+
+		SubtitleFrame* subtitleFrame = frame->addSubtitle();
+
+		subtitleFrame->x = sFile->readInt16LE();
+		subtitleFrame->y = sFile->readInt16LE();
+		uint32 flags = sFile->readInt16LE();
+		uint8 sfFlags = 0;
+
+		if (flags == 13 || flags == 9 || flags == 1)
+			sfFlags |= SF_Center;
+		if (flags == 13)
+			sfFlags |= SF_Wrap;
+
+		subtitleFrame->flags = sfFlags;
+
+		sFile->skip((sizeof(uint16) * 3) + 4);
+		sFile->readBytes(sSubtitleText, subtitleLength);
+
+		char* dialogueBegin, *dialogueEnd;
+		bool wasParsed = parseFormattedDialogue2(sSubtitleText, dialogueBegin, dialogueEnd, subtitleFrame->id, subtitleFrame->font, subtitleFrame->colour);
+
+		if (wasParsed == false)  {
+			frame->removeSubtitle(subtitleFrame);
+			return;
+		}
+
+		char* dialogueDst = &subtitleFrame->text[0];
+		while(dialogueBegin < dialogueEnd) {
+		 	*dialogueDst++ = *dialogueBegin++;
+		}
+
+		*dialogueDst++ = '\0';
+
+		debug(GS_THIS, "Dialogue is = \"%s\"", &subtitleFrame->text[0]);
 	}
 
 

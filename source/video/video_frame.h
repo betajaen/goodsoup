@@ -28,14 +28,20 @@ namespace gs
 	class AudioStream_S16MSB;
 	class WriteFile;
 
+	enum SubtitleFlags {
+		SF_Center = 1,
+		SF_Wrap = 2
+	};
+
 	struct SubtitleFrame {
 		SubtitleFrame *next;
+		uint32 id;
 		uint8 length;
 		uint8 flags;
 		uint8 font;
 		uint8 colour;
 		int16 x, y;
-		char text[256];
+		char text[480];
 	};
 
 	struct AudioSampleFrame_S16MSB {
@@ -83,6 +89,7 @@ namespace gs
 		AudioSampleFrame_S16MSB* addAudio();
 		ImageFrame* addImage();
 		PaletteFrame* addPalette();
+		void removeSubtitle(SubtitleFrame* frame);
 
 		void apply(AudioStream_S16MSB* audioStream);
 		void save(WriteFile& file);
