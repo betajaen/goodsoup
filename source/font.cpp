@@ -245,6 +245,102 @@ namespace gs
 		return text;
 	}
 
+	inline bool isSpace(char ch) {
+		return ch > 0 && ch <= 32;
+	}
+
+	inline uint8 readNum(char *&text) {
+		uint8 num = 0;
+		uint8 count = 3;
+		while (count--) {
+			char ch = *text;
+			if (ch < '0' || ch > '9')
+				return num;
+			num *= 10;
+			num += ch - '0';
+			text++;
+		}
+		return num;
+	}
+
+	bool parseFormattedDialogue2(char* text, char *&out_textBegin, char *&out_textEnd, uint32 &out_translationHash, uint8 &out_fontNum, uint8 &out_Colour) {
+		CHECK_IF_RETURN(text == NULL, false, "Text is NULL");
+
+		char* originalText = text;
+
+		if (*text == '\0') {
+			return false;
+		}
+
+		if (*text == '/') {
+			HashBuilder hb;
+			text++;
+
+			while(*text != '\0' && *text != '/') {
+				hb.feed(*text);
+				text++;
+			}
+
+			out_translationHash = hb.hash;
+
+			if (*text == '\0')
+				return text;
+
+			text++;
+		}
+
+		out_textBegin = text;
+
+		for(uint8 i=0;i < 2;i++) {
+
+			if (*text == '^') {
+				text++;
+#if defined(GS_CHECKED) && GS_CHECKED == 1
+				if (*text == '\0')
+					return text;
+#endif
+				if (*text == 'f') {
+					text++;
+					out_fontNum = readNum(text);
+#if defined(GS_CHECKED) && GS_CHECKED == 1
+					if (*text == '\0')
+						return false;
+#endif
+				}
+
+				else if (*text == 'c') {
+					text++;
+					out_Colour = readNum(text);
+#if defined(GS_CHECKED) && GS_CHECKED == 1
+					if (*text == '\0')
+						return false;
+#endif
+				}
+			}
+		}
+
+		out_textBegin = text;
+
+		if (*text == 0) {
+			return false;
+		}
+
+		while(*text != 0) {
+			text++;
+		}
+
+		if (*text == 0)
+			text--;
+
+		// Trim
+		while(isSpace(*text)) {
+			text--;
+		}
+		out_textEnd = text;
+
+		return out_textEnd > out_textBegin;
+	}
+
 	void drawSubtitles(uint32 x, uint32 y, const char* text, bool center) {
 		/* REMOVED */
 	}
