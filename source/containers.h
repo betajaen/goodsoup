@@ -1096,6 +1096,7 @@ namespace gs {
 			if (head) {
 				T* item = head;
 				head = item->next;
+				item->next = NULL;
 				return item;
 			}
 
