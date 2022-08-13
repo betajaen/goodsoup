@@ -18,9 +18,9 @@
 #ifndef GS_VIDEO_FRAME_HH
 #define GS_VIDEO_FRAME_HH
 
-#include "../types.h"
-#include "../profile.h"
+#include "../forward.h"
 #include "../containers.h"
+#include "../profile.h"
 
 namespace gs
 {
@@ -61,18 +61,23 @@ namespace gs
 
 	struct ImageFrame {
 		ImageFrame* next;
-		uint8 _video[GS_BITMAP_SIZE];
+		uint8 frame[GS_BITMAP_SIZE];
 	};
 
 	struct PaletteFrame {
 		PaletteFrame* next;
-		uint8 _palette[256 * 3];
+		uint8 palette[256 * 3];
 	};
 
+	enum VideoFrameNextAction {
+		VFNA_Next = 0,
+		VFNA_Stop = 1
+	};
 
 	struct VideoFrameTiming {
 		uint16 num;
 		uint16 length_msec;
+		uint16 action;
 	};
 
 	enum VideoFrameFeature {
@@ -101,7 +106,8 @@ namespace gs
 		PaletteFrame* addPalette();
 		void removeSubtitle(SubtitleFrame* frame);
 
-		void apply(AudioStream_S16MSB* audioStream);
+		void applySubtitles(byte* dstFrameBuffer);
+		void apply(byte* dstFrameBuffer, AudioStream_S16MSB* audioStream);
 		void save(WriteFile& file);
 
 		VideoFrameTiming _timing;

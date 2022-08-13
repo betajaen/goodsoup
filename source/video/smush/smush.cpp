@@ -161,14 +161,14 @@ namespace gs
 				case GS_MAKE_ID('N','P','A','L'): {
 					readPalette();
 					PaletteFrame* pal = frame->addPalette();
-					copyMemQuick((uint32*) &pal->_palette[0], (uint32*) sPalette, 3 * 256);
+					copyMemQuick((uint32*) &pal->palette[0], (uint32*) sPalette, 3 * 256);
 				}
 				continue;
 
 				case GS_MAKE_ID('X','P','A','L'): {
 					if (readDeltaPalette(tag.length == 6)) {
 						PaletteFrame* pal = frame->addPalette();
-						copyMemQuick((uint32*) &pal->_palette[0], (uint32*) sPalette, 3 * 256);
+						copyMemQuick((uint32*) &pal->palette[0], (uint32*) sPalette, 3 * 256);
 					}
 				}
 				continue;
@@ -184,6 +184,7 @@ namespace gs
 					increaseFrameNum = false;
 					frame->_timing.num = sFrameNum;
 					frame->_timing.length_msec = 83; // Default
+					frame->_timing.action = VFNA_Next;
 
 					// debug(GS_THIS, "Frame %ld of %ld", sFrameNum, sFrameCount);
 
@@ -218,7 +219,7 @@ namespace gs
 
 				case GS_MAKE_ID('F','T','C','H'): {
 					ImageFrame* imageFrame = frame->addImage();
-					copyMemQuick( (uint32*) imageFrame->_video, (uint32*)  getFrameBuffer(sCurrentFrameBuffer), GS_BITMAP_SIZE);
+					copyMemQuick( (uint32*) &imageFrame->frame[0], (uint32*)  getFrameBuffer(sCurrentFrameBuffer), GS_BITMAP_SIZE);
 					sFile->seekEndOf(tag);
 				}
 				continue;
@@ -238,6 +239,7 @@ namespace gs
 		}
 
 		if (sFrameNum >= sFrameCount) {
+			frame->_timing.action = VFNA_Stop;
 			return 2;
 		}
 

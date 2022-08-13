@@ -18,8 +18,10 @@
 #define GS_FILE_NAME "video_frame"
 
 #include "video_frame.h"
-#include "../memory.h"
-#include "../file.h"
+#include "memory.h"
+#include "file.h"
+#include "font.h"
+#include "screen.h"
 
 namespace gs
 {
@@ -121,14 +123,63 @@ namespace gs
 	}
 
 
-	void VideoFrame::apply(AudioStream_S16MSB* audioStream) {
+	void VideoFrame::applySubtitles(byte* dstFrameBuffer) {
+
+		static uint32 lastHash = 0;
+
+		SubtitleFrame* subtitle = _subtitles.peekFront();
+
+		if (_subtitles.hasOne()) {
+			if (lastHash == subtitle->hash) {
+				drawSubtitlesToAgain(dstFrameBuffer);
+			}
+			else {
+				drawSubtitlesTo(dstFrameBuffer,
+								  subtitle->x,
+								  subtitle->y,
+								  subtitle->string(),
+								  subtitle->flags & SF_Center,
+								  subtitle->flags & SF_Wrap,
+								  subtitle->font,
+								  subtitle->colour);
+			}
+
+			lastHash = subtitle->hash;
+			return;
+		}
+
+		while(subtitle != NULL) {
+			printDialogue(subtitle->string(), subtitle->hash, subtitle->kind);
+
+			drawSubtitlesTo(dstFrameBuffer,
+							  subtitle->x,
+							  subtitle->y,
+							  subtitle->string(),
+							  subtitle->flags & SF_Center,
+							  subtitle->flags & SF_Wrap,
+							  subtitle->font,
+							  subtitle->colour);
+
+			subtitle = subtitle->next;
+		}
+	}
+
+	void VideoFrame::apply(byte* dstFrameBuffer, AudioStream_S16MSB* audioStream) {
+
+		if (_palette != NULL) {
+			screenSetPaletteFromArray(&_palette->palette[0]);
+		}
+
+		if (_subtitles.hasAny()) {
+			applySubtitles(dstFrameBuffer);
+		}
 
 	}
 
 	void VideoFrame::save(WriteFile& file) {
 		uint32 len = 0;
 
-		len += 2 + 2;	// timing.num, timing.length_msec;
+		len += 2 + 2 + 2;	// timing.num, timing.length_msec, timing.action;
 
 		uint16 flags = VFF_Timing;
 		uint16 numAudio = 0;
@@ -177,6 +228,7 @@ namespace gs
 		// Timing
 		file.writeUInt16BE(_timing.num);
 		file.writeUInt16BE(_timing.length_msec);
+		file.writeUInt16BE(_timing.action);
 
 		// Audio
 		audioSample = _audio.peekFront();
@@ -198,12 +250,12 @@ namespace gs
 
 		// Image
 		if (_image != NULL) {
-			file.writeBytes(&_image->_video[0], GS_BITMAP_SIZE);
+			file.writeBytes(&_image->frame[0], GS_BITMAP_SIZE);
 		}
 
 		// Palette
 		if (_palette != NULL) {
-			file.writeBytes(&_palette->_palette, 256 * 3);
+			file.writeBytes(&_palette->palette, 256 * 3);
 		}
 
 	}

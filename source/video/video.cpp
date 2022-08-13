@@ -24,6 +24,7 @@
 #include "screen.h"
 #include "room.h"  // For RoomPaletteData
 #include "disk.h"
+#include "audio.h"
 
 extern gs::VideoCodec SMUSH_VIDEO_CODEC;
 
@@ -41,10 +42,24 @@ namespace gs
 		_api.initialize = NULL;
 		_api.teardown = NULL;
 		_api.processFrame = NULL;
+
+#if TEMP_USE_VIDEO_CODEC
+		_audioStream = createAudioStream();
+		pushAudioStream(_audioStream);
+		_frameBuffer = (byte*) allocateMemory(1, GS_BITMAP_SIZE, MF_Clear, GS_COMMENT_FILE_LINE_NOTE("FrameBuffer"));
+
+		for(uint32 i=0;i <GS_BITMAP_SIZE;i++) {
+			_frameBuffer[i] = 0xAA;
+		}
+
+#endif
+
 	}
 
 	VideoContext::~VideoContext() {
 #if TEMP_USE_VIDEO_CODEC
+
+		releaseMemoryChecked(_frameBuffer);
 
 		VideoFrame* frame = _frames.pullFront();
 		while(frame != NULL) {
@@ -61,6 +76,11 @@ namespace gs
 		}
 
 		deleteObject(_videoFile);
+
+
+		popAudioStream();
+		releaseAudioStream(_audioStream);
+		_audioStream = NULL;
 
 #else
 		if (_api.teardown != NULL) {
@@ -121,32 +141,63 @@ namespace gs
 		_videoStateKind = VSK_NotLoaded;
 	}
 
+	bool VideoContext::_acquireNextFrame() {
+
+#if TEMP_USE_VIDEO_CODEC
+		VideoFrame* frame = acquireVideoFrame();
+		_nextFrameAction = _videoCodec->processFrame(frame);
+
+		if (_nextFrameAction == 0) {
+			// An Error has happened
+			disposeVideoFrame(frame);
+			return false;
+		}
+		else if (_nextFrameAction == 1) {
+			// Received a frame
+			_frames.pushBack(frame);
+			_framesInQueue++;
+			return true;
+		}
+		else if (_nextFrameAction == 2) {
+			// Received last frame
+			_frames.pushBack(frame);
+			_framesInQueue++;
+			return false;
+		}
+
+		// Fallback
+		return false;
+
+#endif
+
+	}
+
 	void VideoContext::playVideoFrame() {
 #if TEMP_USE_VIDEO_CODEC
 
-		VideoFrame* frame = acquireVideoFrame();
-
-		uint8 response = _videoCodec->processFrame(frame);
-
-		if (response == 0) {
-			// Not yet.
-			disposeVideoFrame(frame);
-			return;
+		while(_framesInQueue < 4) {
+			if (_acquireNextFrame() == false)
+				break;
 		}
 
 
-		if (response == 1) {
-			_frames.pushBack(frame);
-			return;
-		}
+		// TODO: Timing
 
-		if (response == 2) {
-			disposeVideoFrame(frame);
+		VideoFrame* oldest = _frames.pullFront();
+
+		if (oldest) {
+			_framesInQueue--;
+			debug(GS_THIS, "FrameNum=%ld, Queue = %ld", oldest->_timing.num, _framesInQueue);
+			oldest->apply(_frameBuffer, _audioStream);
+			screenBlitCopy(_frameBuffer);
+			if (oldest->_timing.action == VFNA_Stop) {
+				debug(GS_THIS, "Video Stop Frame %ld", oldest->_timing.num);
+				_videoStateKind = VSK_Stopped;
+			}
+			disposeVideoFrame(oldest);
+		}
+		else {
 			_videoStateKind = VSK_Stopped;
-			deleteObject(_videoFile);
-			_videoCodec->teardown();
-			_videoCodec = NULL;
-			return;
 		}
 
 #else
@@ -162,7 +213,7 @@ namespace gs
 
 			frames = _api.processFrame();
 
-			if (frames < 0) {
+			if (frames <0) {
 				_videoStateKind = VSK_Stopped;
 				CHECK_IF(_api.teardown != NULL, "ProcessFrame API function is NULL");
 				_api.processFrame();
