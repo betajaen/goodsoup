@@ -107,6 +107,7 @@ namespace gs
 
 #define GS_ArraySize(array)    (sizeof(x)/sizeof(x[0]))
 #define GS_COMMENT_FILE_LINE	(uint32) (__FILE__ ":" GS_STR(__LINE__))
+#define GS_COMMENT_FILE_LINE_NOTE(NOTE)	(uint32) (__FILE__ ":" GS_STR(__LINE__) " " NOTE)
 
 #if defined(GS_BIG)
 #define GS_COMMENT_ID(a,b,c,d)	\
