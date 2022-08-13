@@ -333,7 +333,19 @@ namespace gs
 
 		PAUSED = !PAUSED;
 	}
-	
+
+	void screenSetPaletteFromArray(byte* palette) {
+
+		for (uint16 i = 0; i < 256; i++) {
+			SDL_Color& dst = sOriginalPalette[i];
+			dst.r = *palette++;
+			dst.g = *palette++;
+			dst.b = *palette++;
+		}
+
+		SDL_SetPaletteColors(sSurfacePalette, &sOriginalPalette[0], 0, 256);
+	}
+
 	void screenSetPalette(RoomPaletteData* palette) {
 		uint8* rgb = &palette->palette[0];
 

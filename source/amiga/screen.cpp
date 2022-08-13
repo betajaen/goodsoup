@@ -394,7 +394,26 @@ namespace gs
 	void setCursor(CursorKind type) {
 
 	}
-	
+
+	void screenSetPaletteFromArray(byte* palette) {
+
+		ULONG* dst = &sPalette[0];
+
+		*dst = 256L << 16 | 0;
+		dst++;
+
+		for (uint16 i = 0; i < 256 * 3; i++) {
+			*dst = (*palette << 24) | 0xFFFFFF;
+			dst++;
+			palette++;
+		}
+
+		*dst = 0;
+
+		CopyMem(&sPalette[0], &sOriginalPalette[0], sizeof(sPalette));
+		sPaletteDirty = true;
+	}
+
 	void screenSetPalette(RoomPaletteData* palette) {
 		
 		ULONG* dst = &sPalette[0];

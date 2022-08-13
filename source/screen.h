@@ -32,6 +32,7 @@ namespace gs
 
 	void screenClear(uint8 colour);
 
+	void screenSetPaletteFromArray(byte* palette);
 	void screenSetPalette(RoomPaletteData* palette);
 	void screenScalePalette(uint8 from, uint8 to, uint8 redScale, uint8 greenScale, uint8 blueScale);
 	void screenResetPalette();
