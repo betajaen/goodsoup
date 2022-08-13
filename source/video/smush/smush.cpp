@@ -153,7 +153,7 @@ namespace gs
 
 		CHECK_IF_RETURN_2(frme.isTag(GS_MAKE_ID('F','R','M','E')) == false, 2, "Unexpected tag \"%s\" when trying to read a FRME at pos %ld", frme.tagStr(), (sFile->pos() - 8));
 
-		while(sFile->pos() < frme.end()) {
+		while(sFile->pos() < frme.end() && sFile->pos() < sFile->length()) {
 			tag = sFile->readSanTagPair(true);
 
 			switch(tag.tag) {
@@ -229,8 +229,16 @@ namespace gs
 			sFile->seekEndOf(tag);
 		}
 
+		if (sFile->pos() >= sFile->length()) {
+			return 2;
+		}
+
 		if (increaseFrameNum) {
 			sFrameNum++;
+		}
+
+		if (sFrameNum >= sFrameCount) {
+			return 2;
 		}
 
 		return 1;

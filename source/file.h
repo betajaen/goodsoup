@@ -248,6 +248,10 @@ namespace gs
 			return _file.pos();
 		}
 
+		inline uint32 length() const {
+			return _file.length();
+		}
+
 		inline void skip(int32 offset) {
 			_file.skip(offset);
 		}
