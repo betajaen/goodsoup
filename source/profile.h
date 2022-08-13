@@ -64,7 +64,8 @@ namespace gs
 		NUM_ACTORS = 80,
 		OBJECT_MIN = 100,
 		MAX_FONTS = 5,
-		MAX_AUDIO_MIXERS = 4
+		MAX_AUDIO_MIXERS = 4,
+		MAX_DIALOGUE_LENGTH = 384
 	};
 
 }
