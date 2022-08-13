@@ -65,6 +65,9 @@ namespace gs
 	void drawSubtitlesFrom(byte* background, int16 x, int16 y, const char* text, bool center, bool wrap, uint8 fontNum, uint8 colourNum);
 	void drawSubtitlesFromAgain(byte* background);
 
+	void drawSubtitlesTo(byte* dstFrameBuffer, int16 x, int16 y, const char* text, bool center, bool wrap, uint8 fontNum, uint8 colourNum);
+	void drawSubtitlesToAgain(byte* dstFrameBuffer);
+
 	void printDialogue(const char* text, uint32 id, uint8 kind);
 }
 

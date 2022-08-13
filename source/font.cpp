@@ -627,6 +627,58 @@ namespace gs
 		_drawSubtitlesImpl(background);
 	}
 
+
+	static void _drawSubtitlesImplTo(byte* dstFrameBuffer) {
+
+		for(uint8 i=0;i < numLines;i++) {
+			uint16 x = linesX[i];
+			uint16 y = linesY[i];
+			uint8 length = linesLengths[i];
+			const char* str = linesText[i];
+
+			/* TODO: Grab background for entire line */
+
+			for(uint8 j=0;j < length;j++) {
+				char ch = str[j];
+				if (ch == 0)
+					break;
+
+				if (ch < 32)
+					continue;
+
+				RLEImage64& fontImg = lineFont->_chars[ch];
+				int16 r = x + fontImg._width;
+				int16 b = y + fontImg._height;
+
+				bool inBounds = (x >=0 && r < GS_BITMAP_PITCH && y >= 0 && b < GS_BITMAP_ROWS);
+
+				if (inBounds == false) {
+					break;
+				}
+
+				drawRLEImage64(x, y, fontImg, lineFont->_data.ptr(0), dstFrameBuffer, GS_BITMAP_PITCH, lineColour);
+
+				x += fontImg._width;
+			}
+
+			/* TODO: Copy entire text onto image as is */
+
+		}	}
+
+	void drawSubtitlesToAgain(byte* dstFrameBuffer) {
+		_drawSubtitlesImplTo(dstFrameBuffer);
+	}
+
+	void drawSubtitlesTo(byte* dstFrameBuffer, int16 x, int16 y, const char* text, bool center, bool wrap, uint8 fontNum, uint8 colourNum) {
+
+		prepareLines(fontNum, x, y, text, wrap, center);
+
+		lineColour[0] = 0xFF;
+		lineColour[1] = 0x00;
+
+		_drawSubtitlesImplTo(dstFrameBuffer);
+	}
+
 	static uint32 lastPrintedId = 0;
 
 	void printDialogue(const char* text, uint32 id, uint8 kind) {
