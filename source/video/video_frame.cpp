@@ -170,6 +170,10 @@ namespace gs
 			screenSetPaletteFromArray(&_palette->palette[0]);
 		}
 
+		if (_image != NULL) {
+			copyMemQuick((uint32*) dstFrameBuffer, (uint32*) &_image->frame[0], GS_BITMAP_SIZE);
+		}
+
 		if (_subtitles.hasAny()) {
 			applySubtitles(dstFrameBuffer);
 		}
