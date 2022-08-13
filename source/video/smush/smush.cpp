@@ -20,6 +20,7 @@
 #include "forward.h"
 #include "file.h"
 #include "containers.h"
+#include "endian.h"
 #include "video/video_frame.h"
 #include "video/video_api.h"
 
@@ -29,6 +30,7 @@ namespace gs
 	byte* sPalette;
 	int16* sDeltaPalette;
 	byte* sFrames[3];
+	byte* sTempBuffer;
 	byte  sCurrentFrameBuffer;
 	byte  sDeltaFrameBuffers[2];
 	char* sSubtitleText;
@@ -37,14 +39,33 @@ namespace gs
 	uint16 sFrameNum;
 	uint32 sFrameRate;
 	uint32 sAudioRate;
+	static int16 sPreviousSequenceNum;
 
 	// Declared in Font.h
 	bool parseFormattedDialogue2(const char* text, char* out_text, uint32 &out_translationHash, uint8 &out_fontNum, uint8 &out_Colour, uint8& out_Kind);
 	void printDialogue(const char* text, uint32 id, uint8 kind);
 
-	static byte* getFrameBuffer(uint8 buffer) {
+	// Declared in codecs/bomp.h
+	void decodeBomp(byte* dst, byte* src, uint32 length);
+
+	static inline byte* getFrameBuffer(uint8 buffer) {
 		CHECK_IF_RETURN(buffer > 2, sFrames[0], "Out of bounds for FrameBuffer.");
 		return sFrames[buffer];
+	}
+
+	static void clearFrameBuffer(uint8 buffer, uint8 colour) {
+		uint32 col = col << 24 | col << 16 | col << 8 | col;
+		uint32* dst = (uint32*) getFrameBuffer(buffer);
+		uint32 length = GS_BITMAP_SIZE / 4;
+		while(length--) {
+			*dst++ = col;
+		}
+	}
+
+	static void copyFrameBuffer(uint8 dst, uint8 src) {
+		uint32* dstBuffer = (uint32*) getFrameBuffer(dst);
+		uint32* srcBuffer = (uint32*) getFrameBuffer(src);
+		copyMemQuick(dstBuffer, srcBuffer, GS_BITMAP_SIZE);
 	}
 
 	static void readPalette();
@@ -107,6 +128,8 @@ namespace gs
 
 		sFile->seekEndOf(tag);
 
+		sPreviousSequenceNum = -1;
+
 		return true;
 	}
 
@@ -125,6 +148,7 @@ namespace gs
 		sSubtitleText = (char*) allocateMemory(480, sizeof(char), MF_Clear, GS_COMMENT_FILE_LINE);
 		sCompressedAudioSample = (byte*) allocateMemory(4096 + 2, sizeof(byte), MF_Clear, GS_COMMENT_FILE_LINE);
 		sDeltaPalette = (int16*) allocateMemory(256, 3 * sizeof(int16), MF_Clear, GS_COMMENT_FILE_LINE);
+		sTempBuffer = (byte*) allocateMemory(1, GS_BITMAP_SIZE, MF_Clear, GS_COMMENT_FILE_LINE);
 		sCurrentFrameBuffer = 2;
 		sDeltaFrameBuffers[0] = 0;
 		sDeltaFrameBuffers[1] = 1;
@@ -133,6 +157,7 @@ namespace gs
 	}
 
 	static void smush_teardown() {
+		releaseMemoryChecked(sTempBuffer);
 		releaseMemoryChecked(sDeltaPalette);
 		releaseMemoryChecked(sCompressedAudioSample);
 		releaseMemoryChecked(sSubtitleText);
@@ -304,9 +329,68 @@ namespace gs
 	// Video
 	//
 
-	static void readVideo(TagPair fobj, VideoFrame* frame) {
 
-		/* TODO */
+	static void readVideo(TagPair fobj, VideoFrame* frame) {
+		bool hasFrame = false;
+		byte header[40];
+		sFile->readBytes(&header[0], sizeof(header));
+
+		int16 sequenceNum = READ_LE_INT16(&header[14]);
+		byte op = header[16];
+		byte flags = header[18];
+
+		if (flags & 1) {
+			debug(GS_THIS, "SKIP");
+			sFile->skip(0x8080);
+		}
+
+		uint8 offset1 = sDeltaFrameBuffers[1];
+		uint8 offset2 = sDeltaFrameBuffers[0];
+
+		if (sequenceNum == 0) {
+			sPreviousSequenceNum = -1;
+
+			clearFrameBuffer(sDeltaFrameBuffers[1], header[24]);
+			clearFrameBuffer(sDeltaFrameBuffers[0], header[25]);
+		}
+
+		switch(op) {
+
+			case 0: {
+				byte* buffer = getFrameBuffer(sCurrentFrameBuffer);
+				sFile->readBytes(buffer, GS_BITMAP_SIZE);
+				hasFrame = true;
+			}
+			break;
+
+			case 3:
+				copyFrameBuffer(sCurrentFrameBuffer, sDeltaFrameBuffers[1]);
+			break;
+
+			case 4:
+				copyFrameBuffer(sCurrentFrameBuffer, sDeltaFrameBuffers[0]);
+			break;
+
+			case 5: {
+				uint32 length = READ_LE_UINT32(&header[28]);
+				debug(GS_THIS, "BOMP LENGTH = %ld", length);
+				CHECK_IF(length > GS_BITMAP_SIZE, "BOMP Frame Length is incorrect.");
+
+				byte* buffer = getFrameBuffer(sCurrentFrameBuffer);
+				sFile->readBytes(sTempBuffer, length);
+				decodeBomp(buffer, sTempBuffer, length);
+				hasFrame = true;
+			}
+			break;
+
+		}
+
+
+		if (hasFrame) {
+			ImageFrame* image = frame->addImage();
+			copyMemQuick((uint32*) &image->frame[0], (uint32*) getFrameBuffer(sCurrentFrameBuffer), GS_BITMAP_SIZE);
+		}
+
 	}
 
 
