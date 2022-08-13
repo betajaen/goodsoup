@@ -39,7 +39,8 @@ namespace gs
 	uint32 sAudioRate;
 
 	// Declared in Font.h
-	bool parseFormattedDialogue2(char* text, char *&out_textBegin, char *&out_textEnd, uint32 &out_translationHash, uint8 &out_fontNum, uint8 &out_Colour);
+	bool parseFormattedDialogue2(const char* text, char* out_text, uint32 &out_translationHash, uint8 &out_fontNum, uint8 &out_Colour, uint8& out_Kind);
+	void printDialogue(const char* text, uint32 id, uint8 kind);
 
 	static byte* getFrameBuffer(uint8 buffer) {
 		CHECK_IF_RETURN(buffer > 2, sFrames[0], "Out of bounds for FrameBuffer.");
@@ -59,7 +60,7 @@ namespace gs
 
 	static void readVideo(TagPair fobj, VideoFrame* frame);
 
-	static void readSubtitles(TagPair text, VideoFrame* frame);
+	static bool readSubtitles(TagPair text, SubtitleFrame* subtitleFrame);
 
 	static bool readSmushFileHeader() {
 		uint16 version;
@@ -124,7 +125,7 @@ namespace gs
 		sSubtitleText = (char*) allocateMemory(480, sizeof(char), MF_Clear, GS_COMMENT_FILE_LINE);
 		sCompressedAudioSample = (byte*) allocateMemory(4096 + 2, sizeof(byte), MF_Clear, GS_COMMENT_FILE_LINE);
 		sDeltaPalette = (int16*) allocateMemory(256, 3 * sizeof(int16), MF_Clear, GS_COMMENT_FILE_LINE);
-		sCurrentFrameBuffer = 3;
+		sCurrentFrameBuffer = 2;
 		sDeltaFrameBuffers[0] = 0;
 		sDeltaFrameBuffers[1] = 1;
 
@@ -184,7 +185,7 @@ namespace gs
 					frame->_timing.num = sFrameNum;
 					frame->_timing.length_msec = 83; // Default
 
-					debug(GS_THIS, "Frame %ld of %ld", sFrameNum, sFrameCount);
+					// debug(GS_THIS, "Frame %ld of %ld", sFrameNum, sFrameCount);
 
 #if GS_MUTE_AUDIO == 0
 					readAudio(iact, frame);
@@ -201,8 +202,11 @@ namespace gs
 				continue;
 
 				case GS_MAKE_ID('T','E','X','T'): {
-					readSubtitles(tag, frame);
-					sFile->seekEndOf(tag);
+					SubtitleFrame* subtitleFrame = frame->addSubtitle();
+					if (readSubtitles(tag, subtitleFrame) == false) {
+						frame->removeSubtitle(subtitleFrame);
+					}
+					printDialogue(subtitleFrame->string(), subtitleFrame->hash, subtitleFrame->kind);
 				}
 				continue;
 
@@ -295,16 +299,15 @@ namespace gs
 		/* TODO */
 	}
 
+
 	//
 	// Subtitles
 	//
 
-	static void readSubtitles(TagPair text, VideoFrame* frame) {
+	static bool readSubtitles(TagPair text, SubtitleFrame* subtitleFrame) {
 		uint16 subtitleLength = text.length - 16;
 
-		CHECK_IF_1(subtitleLength > 479, "Subtitle has too many %ld characters to draw.", subtitleLength);
-
-		SubtitleFrame* subtitleFrame = frame->addSubtitle();
+		CHECK_IF_RETURN_1(subtitleLength > 479, false, "Subtitle has too many %ld characters to draw.", subtitleLength);
 
 		subtitleFrame->x = sFile->readInt16LE();
 		subtitleFrame->y = sFile->readInt16LE();
@@ -321,22 +324,10 @@ namespace gs
 		sFile->skip((sizeof(uint16) * 3) + 4);
 		sFile->readBytes(sSubtitleText, subtitleLength);
 
-		char* dialogueBegin, *dialogueEnd;
-		bool wasParsed = parseFormattedDialogue2(sSubtitleText, dialogueBegin, dialogueEnd, subtitleFrame->id, subtitleFrame->font, subtitleFrame->colour);
+		char* out_text = subtitleFrame->string();
+		bool wasParsed = parseFormattedDialogue2(sSubtitleText, out_text, subtitleFrame->hash, subtitleFrame->font, subtitleFrame->colour, subtitleFrame->kind);
 
-		if (wasParsed == false)  {
-			frame->removeSubtitle(subtitleFrame);
-			return;
-		}
-
-		char* dialogueDst = &subtitleFrame->text[0];
-		while(dialogueBegin < dialogueEnd) {
-		 	*dialogueDst++ = *dialogueBegin++;
-		}
-
-		*dialogueDst++ = '\0';
-
-		debug(GS_THIS, "Dialogue is = \"%s\"", &subtitleFrame->text[0]);
+		return wasParsed;
 	}
 
 
