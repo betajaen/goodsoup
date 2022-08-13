@@ -764,6 +764,10 @@ namespace gs {
 			return head != NULL;
 		}
 
+		bool hasOne() const {
+			return head == tail && head != NULL;
+		}
+
 		T* peekFront() {
 			return head;
 		}
