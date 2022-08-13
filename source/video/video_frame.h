@@ -35,13 +35,23 @@ namespace gs
 
 	struct SubtitleFrame {
 		SubtitleFrame *next;
-		uint32 id;
+		uint32 hash;
 		uint8 length;
 		uint8 flags;
 		uint8 font;
 		uint8 colour;
+		uint8 kind;		// See SubtitleKind
 		int16 x, y;
 		char text[480];
+
+		inline const char* string() const {
+			return &text[0];
+		}
+
+		inline char* string() {
+			return &text[0];
+		}
+
 	};
 
 	struct AudioSampleFrame_S16MSB {

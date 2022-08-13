@@ -38,7 +38,7 @@ namespace gs
 	}
 
 	VideoFrame* acquireVideoFrame() {
-		return sVideoFrames.acquire(GS_COMMENT_FILE_LINE);
+		return sVideoFrames.acquire(GS_COMMENT_FILE_LINE_NOTE("Video Frame"));
 	}
 
 	void disposeVideoFrame(VideoFrame* frame) {
@@ -88,7 +88,7 @@ namespace gs
 	}
 
 	SubtitleFrame* VideoFrame::addSubtitle() {
-		SubtitleFrame* subtitle = sSubtitles.acquire(GS_COMMENT_FILE_LINE);
+		SubtitleFrame* subtitle = sSubtitles.acquire(GS_COMMENT_FILE_LINE_NOTE("SubtitleFrame"));
 		_subtitles.pushBack(subtitle);
 		return subtitle;
 	}
@@ -99,14 +99,14 @@ namespace gs
 	}
 
 	AudioSampleFrame_S16MSB* VideoFrame::addAudio() {
-		AudioSampleFrame_S16MSB* audioSample = sAudioSamples.acquire(GS_COMMENT_FILE_LINE);
+		AudioSampleFrame_S16MSB* audioSample = sAudioSamples.acquire(GS_COMMENT_FILE_LINE_NOTE("AudioSampleFrame_S16MSB"));
 		_audio.pushBack(audioSample);
 		return audioSample;
 	}
 
 	ImageFrame* VideoFrame::addImage() {
 		if (_image == NULL) {
-			_image = sImages.acquire(GS_COMMENT_FILE_LINE);
+			_image = sImages.acquire(GS_COMMENT_FILE_LINE_NOTE("ImageFrame"));
 		}
 
 		return _image;
@@ -114,7 +114,7 @@ namespace gs
 
 	PaletteFrame* VideoFrame::addPalette() {
 		if (_palette == NULL) {
-			_palette = sPalettes.acquire(GS_COMMENT_FILE_LINE);
+			_palette = sPalettes.acquire(GS_COMMENT_FILE_LINE_NOTE("PaletteFrame"));
 		}
 
 		return _palette;
