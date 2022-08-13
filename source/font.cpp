@@ -263,18 +263,44 @@ namespace gs
 		return num;
 	}
 
-	bool parseFormattedDialogue2(char* text, char *&out_textBegin, char *&out_textEnd, uint32 &out_translationHash, uint8 &out_fontNum, uint8 &out_Colour) {
+	bool parseFormattedDialogue2(const char* text, char* out_text, uint32 &out_translationHash, uint8 &out_fontNum, uint8 &out_Colour, uint8 &out_kind) {
+
 		CHECK_IF_RETURN(text == NULL, false, "Text is NULL");
 
-		char* originalText = text;
-
+		// Empty text
 		if (*text == '\0') {
 			return false;
 		}
 
+		// Read in the translation marker, this is turned into a hash so the dialogue can be identified
+		// and used with caching later.
+		// This is usually in the form of, and always starts at the beginning of the string
+		// 		/xyx_123/
+
 		if (*text == '/') {
 			HashBuilder hb;
 			text++;
+
+			out_kind = SK_Spoken;
+
+			// Determine Dialogue kind
+			//	Seen in the forms of (in upper and lower-case)
+			//		/ec_xxx/			Credits
+			//		/ec__xxx/			Credits
+			//		/ds_xxx/			Exposition
+			//		/ds__xxx/			Exposition
+			if (text[2] == '_') {
+				if (text[0] == 'd' || text[0] == 'D') {
+					if (text[1] == 's' || text[1] == 'S') {
+						out_kind = SK_Exposition;
+					}
+				}
+				else if (text[0] == 'e' || text[0] == 'E') {
+					if (text[1] == 'c' || text[1] == 'C') {
+						out_kind = SK_Credit;
+					}
+				}
+			}
 
 			while(*text != '\0' && *text != '/') {
 				hb.feed(*text);
@@ -283,21 +309,24 @@ namespace gs
 
 			out_translationHash = hb.hash;
 
-			if (*text == '\0')
-				return text;
-
 			text++;
 		}
 
-		out_textBegin = text;
+		// Just the translation tag
+		if (*text == '\0' || *text == '\r')
+			return false;
 
+		// Read in Font and Colour Codes these are in the form of
+		// ^fxx			-- Font typeface x (decimal)
+		// ^c0xxx		-- Colour of xx (decimal)
+		// These can be in any order, or none at all.
 		for(uint8 i=0;i < 2;i++) {
 
 			if (*text == '^') {
 				text++;
 #if defined(GS_CHECKED) && GS_CHECKED == 1
 				if (*text == '\0')
-					return text;
+					return false;
 #endif
 				if (*text == 'f') {
 					text++;
@@ -319,26 +348,54 @@ namespace gs
 			}
 		}
 
-		out_textBegin = text;
+		// There are cases of dialogue with just a translation marker and a control code
+		// We should return false in that case.
 
-		if (*text == 0) {
+		// Just the translation tag
+		if (*text == '\0' || *text == '\r')
 			return false;
-		}
 
+		bool lastWasNl = false;
+		bool lastWasSpace = false;
+
+		// String Copy the rest of the text.
 		while(*text != 0) {
-			text++;
+			// Skip all non-space white-space and control characters. This is partly to remove unwanted
+			// characters but to apply trimming as well (a bit lower down)
+			if (*text <= 32) {
+				if (*text == '\n') {
+					lastWasNl = true;
+				}
+				if (*text == ' ') {
+					lastWasSpace = true;
+				}
+				text++;
+				continue;
+			}
+
+			// If there was a newline \r\n (usually), add it back in but in LF format. This handles right-trimming
+			// of \r\n in SMUSH dialogue sequences
+			if (lastWasNl) {
+				lastWasNl = false;
+				*out_text = '\n';
+				out_text++;
+			}
+
+			// If there was a " ", add it back in. This handles left and right trimming.
+			if (lastWasSpace) {
+				lastWasSpace = false;
+				*out_text = ' ';
+				out_text++;
+			}
+
+			// Copy a Normal character over
+			*out_text++ = *text++;
 		}
 
-		if (*text == 0)
-			text--;
+		// Dont forget the null!
+		*out_text = '\0';
 
-		// Trim
-		while(isSpace(*text)) {
-			text--;
-		}
-		out_textEnd = text;
-
-		return out_textEnd > out_textBegin;
+		return true;
 	}
 
 	void drawSubtitles(uint32 x, uint32 y, const char* text, bool center) {
@@ -568,6 +625,28 @@ namespace gs
 		lineColour[1] = 0x00;
 
 		_drawSubtitlesImpl(background);
+	}
+
+	static uint32 lastPrintedId = 0;
+
+	void printDialogue(const char* text, uint32 id, uint8 kind) {
+		if (lastPrintedId == id)
+			return;
+
+		lastPrintedId = id;
+
+		if (kind == SK_Spoken) {
+			debug_write_hex(id);
+			debug_write_char('>');
+			debug_write_str(text);
+			debug_write_char('\n');
+		}
+		else if (kind == SK_Exposition) {
+			debug_write_hex(id);
+			debug_write_char(':');
+			debug_write_str(text);
+			debug_write_char('\n');
+		}
 	}
 
 }

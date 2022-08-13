@@ -41,14 +41,31 @@ namespace gs
 		int16 calculateFontWidth(const char* text);
 	};
 
+	enum SubtitleKind
+	{
+		// Spoken Dialogue
+		// An actor or subject on the screen is talking
+		// "Lost at sea for days now. I have no crew or navigational instruments."
+		SK_Spoken = 0,
+		// Exposition Text
+		// Text on the screen is describing an place, event or idea that isnt obvious to the player
+		// "Monkey Island"
+		SK_Exposition = 1,
+		// Credit
+		// Text on the screen of a name, or entity that contributed to the game
+		SK_Credit = 2
+	};
+
 	extern Font* FONT[5];
 
 	const char* parseFormattedDialogue(const char* text, uint32& out_translationHash, uint8& out_fontNum, uint8& out_Colour);
-	bool parseFormattedDialogue2(char* text, char *&out_textBegin, char *&out_textEnd, uint32 &out_translationHash, uint8 &out_fontNum, uint8 &out_Colour);
+	bool parseFormattedDialogue2(const char* text, char* out_text, uint32 &out_translationHash, uint8 &out_fontNum, uint8 &out_Colour);
 
 	void drawSubtitles(uint32 x, uint32 y, const char* text, bool center = false);
 	void drawSubtitlesFrom(byte* background, int16 x, int16 y, const char* text, bool center, bool wrap, uint8 fontNum, uint8 colourNum);
 	void drawSubtitlesFromAgain(byte* background);
+
+	void printDialogue(const char* text, uint32 id, uint8 kind);
 }
 
 #endif
