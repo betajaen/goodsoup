@@ -109,6 +109,9 @@ OBJ +=	source/main_game.o\
 		source/video/san/fobj_47.o\
 		source/video/san/fobj_47_ulong.o\
 		source/video/smush/smush.o\
+		source/video/smush/smush_codec47_opt_none.o\
+		source/video/smush/smush_codec47_opt_ulong.o\
+		source/video/smush/smush_tables.o\
 		source/draw.o\
 		source/codecs/bomp.o\
 		source/codecs/nut.o\
@@ -129,6 +132,7 @@ clean .IGNORE:
 	$(DELETE) source/vm/*.o
 	$(DELETE) source/video/*.o
 	$(DELETE) source/video/san/*.o
+	$(DELETE) source/video/smush/*.o
 	$(DELETE) source/codecs/*.o
 	$(DELETE) source/sdl/*.o
 	$(DELETE) source/amiga/*.o

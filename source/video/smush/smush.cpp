@@ -23,38 +23,66 @@
 #include "endian.h"
 #include "video/video_frame.h"
 #include "video/video_api.h"
+#include "globals.h"
 
 namespace gs
 {
-	TagReadFile* sFile;
-	byte* sPalette;
-	int16* sDeltaPalette;
-	byte* sFrames[3];
-	byte* sTempBuffer;
-	byte  sCurrentFrameBuffer;
-	byte  sDeltaFrameBuffers[2];
-	char* sSubtitleText;
-	byte* sCompressedAudioSample;
-	uint16 sFrameCount;
-	uint16 sFrameNum;
-	uint32 sFrameRate;
-	uint32 sAudioRate;
+	static TagReadFile* sFile;
+	static byte* sPalette;
+	static int16* sDeltaPalette;
+	static byte* sFrames[3];
+	static byte* sTempBuffer;
+	static byte* sStoredFrame;
+	static byte  sCurrentFrameBuffer;
+	static byte  sDeltaFrameBuffers[2];
+	static char* sSubtitleText;
+	static byte* sCompressedAudioSample;
+	static uint16 sFrameCount;
+	static uint16 sFrameNum;
+	static uint32 sFrameRate;
+	static uint32 sAudioRate;
 	static int16 sPreviousSequenceNum;
+	static uint8 sNextRotationOp;
+	static bool sFrameStore;
+	static uint16 sFrameVersion;
+	static uint16 sFrameStoreVersion;
+	static uint16 sFrameFetchVersion;
+	static TagPair sLastFrmeTag;
 
 	// Declared in Font.h
 	bool parseFormattedDialogue2(const char* text, char* out_text, uint32 &out_translationHash, uint8 &out_fontNum, uint8 &out_Colour, uint8& out_Kind);
+
+	// Declared in Font.h
 	void printDialogue(const char* text, uint32 id, uint8 kind);
 
 	// Declared in codecs/bomp.h
 	void decodeBomp(byte* dst, byte* src, uint32 length);
 
+#if GS_SAN_CODEC47 == 1
+	// Declared in codec47_opt_none.cpp
+	void smush_codec47_opt_none(byte* dst, byte* src, byte* src1, byte* src2, byte* params);
+#endif
+
+#if GS_SAN_CODEC47 == 2
+	// Declared in codec47_opt_ulong.cpp
+	void smush_codec47_opt_ulong(uint32* dst, uint32* src, uint32* src1, uint32* src2, byte* params);
+#endif
+
+	// Declared in smush.cpp
+	void smush_tables_initialize();
+
+	// Declared in smush.cpp
+	void smush_tables_teardown();
+
+	// Return a frame buffer 0,1 or 2 or otherwise abort
 	static inline byte* getFrameBuffer(uint8 buffer) {
 		CHECK_IF_RETURN(buffer > 2, sFrames[0], "Out of bounds for FrameBuffer.");
 		return sFrames[buffer];
 	}
 
+	// Clear a frame buffer 0,1,2 with a given palette index
 	static void clearFrameBuffer(uint8 buffer, uint8 colour) {
-		uint32 col = col << 24 | col << 16 | col << 8 | col;
+		uint32 col = colour << 24 | colour << 16 | colour << 8 | colour;
 		uint32* dst = (uint32*) getFrameBuffer(buffer);
 		uint32 length = GS_BITMAP_SIZE / 4;
 		while(length--) {
@@ -62,27 +90,35 @@ namespace gs
 		}
 	}
 
+	// Copy framebuffer src into framebuffer dst
 	static void copyFrameBuffer(uint8 dst, uint8 src) {
 		uint32* dstBuffer = (uint32*) getFrameBuffer(dst);
 		uint32* srcBuffer = (uint32*) getFrameBuffer(src);
 		copyMemQuick(dstBuffer, srcBuffer, GS_BITMAP_SIZE);
 	}
 
+	// Read a 256 colour RGB palette into sPalette.
 	static void readPalette();
 
+	// Read or apply a 16-bit delta multipliers to the current palette.
 	static bool readDeltaPalette(bool isApply);
 
+	// Read the IACT timing tag component
 	static inline void readTiming() {
 		sFile->skip(10);
 		sFrameNum = sFile->readUInt16LE();
 	}
 
+	// Read the IACT audio tag component, and add audio samples to the given frame
 	static void readAudio(TagPair iact, VideoFrame* frame);
 
+	// Read the FOBJ video tag component, and add the video frame data to the frame
 	static void readVideo(TagPair fobj, VideoFrame* frame);
 
+	// Read one dialogue subtitle into the given subtitleFrame
 	static bool readSubtitles(TagPair text, SubtitleFrame* subtitleFrame);
 
+	// Read and validate the SMUSH file header
 	static bool readSmushFileHeader() {
 		uint16 version;
 		TagPair tag;
@@ -129,10 +165,14 @@ namespace gs
 		sFile->seekEndOf(tag);
 
 		sPreviousSequenceNum = -1;
+		sFrameStore = false;
+		sNextRotationOp = 0;
 
 		return true;
 	}
 
+	// Initializer for the SMUSH codec. Should be called via the VideoCodec API before any
+	// video decoding is performed!
 	static bool smush_initialize(TagReadFile* file) {
 		sFile = file;
 
@@ -149,14 +189,28 @@ namespace gs
 		sCompressedAudioSample = (byte*) allocateMemory(4096 + 2, sizeof(byte), MF_Clear, GS_COMMENT_FILE_LINE);
 		sDeltaPalette = (int16*) allocateMemory(256, 3 * sizeof(int16), MF_Clear, GS_COMMENT_FILE_LINE);
 		sTempBuffer = (byte*) allocateMemory(1, GS_BITMAP_SIZE, MF_Clear, GS_COMMENT_FILE_LINE);
+		sStoredFrame = (byte*) allocateMemory(1, GS_BITMAP_SIZE, MF_Clear, GS_COMMENT_FILE_LINE);
 		sCurrentFrameBuffer = 2;
 		sDeltaFrameBuffers[0] = 0;
 		sDeltaFrameBuffers[1] = 1;
 
+		sFrameVersion = 0;
+		sFrameStoreVersion = 0;
+		sFrameFetchVersion = 0;
+
+		smush_tables_initialize();
+
 		return true;
 	}
 
+	// Teardown for the SMUSH codec. Should be called via the VideoCodec API after any
+	// video decoding is performed.
+	// All allocated memory is released.
 	static void smush_teardown() {
+
+		smush_tables_teardown();
+
+		releaseMemoryChecked(sStoredFrame);
 		releaseMemoryChecked(sTempBuffer);
 		releaseMemoryChecked(sDeltaPalette);
 		releaseMemoryChecked(sCompressedAudioSample);
@@ -178,12 +232,25 @@ namespace gs
 
 		CHECK_IF_RETURN_2(frme.isTag(GS_MAKE_ID('F','R','M','E')) == false, 2, "Unexpected tag \"%s\" when trying to read a FRME at pos %ld", frme.tagStr(), (sFile->pos() - 8));
 
+		bool probablySameCredits = false;
+
+		if (sFrameStoreVersion > 0 && frme.length == sLastFrmeTag.length) {
+			// Experimental:
+			//  If we have a frame store, and the last frame length is the same length as this one, then the content
+			//  is probably likely to be the same; such as the Credit sequences. For that we can skip over background redraws,
+			//  and subtitles when they are the same.
+			probablySameCredits = true;
+		}
+
+		// debug(GS_THIS, "%ld Last Size %ld New Size %ld Store %ld Fetch %ld", probablySameCredits, sLastFrmeTag.length, frme.length, sFrameStoreVersion, sFrameFetchVersion);
+
 		while(sFile->pos() < frme.end() && sFile->pos() < sFile->length()) {
 			tag = sFile->readSanTagPair(true);
 
 			switch(tag.tag) {
 
 				case GS_MAKE_ID('N','P','A','L'): {
+					probablySameCredits = false;
 					readPalette();
 					PaletteFrame* pal = frame->addPalette();
 					copyMemQuick((uint32*) &pal->palette[0], (uint32*) sPalette, 3 * 256);
@@ -191,6 +258,7 @@ namespace gs
 				continue;
 
 				case GS_MAKE_ID('X','P','A','L'): {
+					probablySameCredits = false;
 					if (readDeltaPalette(tag.length == 6)) {
 						PaletteFrame* pal = frame->addPalette();
 						copyMemQuick((uint32*) &pal->palette[0], (uint32*) sPalette, 3 * 256);
@@ -222,29 +290,39 @@ namespace gs
 				continue;
 
 				case GS_MAKE_ID('F','O','B','J'): {
+					sFrameVersion++;
+					sFrameStoreVersion = 0;
+					probablySameCredits = false;
 					readVideo(tag, frame);
 					sFile->seekEndOf(tag);
 				}
 				continue;
 
 				case GS_MAKE_ID('T','E','X','T'): {
-					SubtitleFrame* subtitleFrame = frame->addSubtitle();
-					if (readSubtitles(tag, subtitleFrame) == false) {
-						frame->removeSubtitle(subtitleFrame);
+					if (probablySameCredits == false) {
+						SubtitleFrame *subtitleFrame = frame->addSubtitle();
+						if (readSubtitles(tag, subtitleFrame) == false) {
+							frame->removeSubtitle(subtitleFrame);
+						}
 					}
-					printDialogue(subtitleFrame->string(), subtitleFrame->hash, subtitleFrame->kind);
+					else {
+						sFile->seekEndOf(tag);
+					}
 				}
 				continue;
 
 				case GS_MAKE_ID('S','T','O','R'): {
-					// N/A - I think
+					sFrameStore = true;
 					sFile->seekEndOf(tag);
 				}
 				continue;
 
 				case GS_MAKE_ID('F','T','C','H'): {
-					ImageFrame* imageFrame = frame->addImage();
-					copyMemQuick( (uint32*) &imageFrame->frame[0], (uint32*)  getFrameBuffer(sCurrentFrameBuffer), GS_BITMAP_SIZE);
+					if (probablySameCredits == false) {
+						sFrameFetchVersion = sFrameStoreVersion;
+						ImageFrame *imageFrame = frame->addImage();
+						copyMemQuick((uint32 * ) & imageFrame->frame[0], (uint32 *) sStoredFrame, GS_BITMAP_SIZE);
+					}
 					sFile->seekEndOf(tag);
 				}
 				continue;
@@ -255,6 +333,22 @@ namespace gs
 			sFile->seekEndOf(tag);
 		}
 
+
+		if (sFrameStore) {
+			copyMemQuick((uint32*)  sStoredFrame, (uint32*)  getFrameBuffer(sCurrentFrameBuffer), GS_BITMAP_SIZE);
+			sFrameStore = false;
+			sFrameStoreVersion = sFrameVersion;
+			// PAUSED = true;
+		}
+
+		if (sNextRotationOp != 0) {
+			if (sNextRotationOp == 2) {
+				GS_SWAP(byte, sDeltaFrameBuffers[0], sDeltaFrameBuffers[1]);
+			}
+
+			GS_SWAP(byte, sCurrentFrameBuffer, sDeltaFrameBuffers[1]);
+		}
+
 		if (sFile->pos() >= sFile->length()) {
 			return 2;
 		}
@@ -262,6 +356,8 @@ namespace gs
 		if (increaseFrameNum) {
 			sFrameNum++;
 		}
+
+		sLastFrmeTag = frme;
 
 		if (sFrameNum >= sFrameCount) {
 			frame->_timing.action = VFNA_Stop;
@@ -340,7 +436,6 @@ namespace gs
 		byte flags = header[18];
 
 		if (flags & 1) {
-			debug(GS_THIS, "SKIP");
 			sFile->skip(0x8080);
 		}
 
@@ -350,16 +445,39 @@ namespace gs
 		if (sequenceNum == 0) {
 			sPreviousSequenceNum = -1;
 
-			clearFrameBuffer(sDeltaFrameBuffers[1], header[24]);
-			clearFrameBuffer(sDeltaFrameBuffers[0], header[25]);
+			clearFrameBuffer(sDeltaFrameBuffers[0], header[26]);
+			clearFrameBuffer(sDeltaFrameBuffers[1], header[27]);
 		}
 
 		switch(op) {
 
-			case 0: {
-				byte* buffer = getFrameBuffer(sCurrentFrameBuffer);
-				sFile->readBytes(buffer, GS_BITMAP_SIZE);
+			case 0:
+				sFile->readBytes(getFrameBuffer(sCurrentFrameBuffer), GS_BITMAP_SIZE);
 				hasFrame = true;
+			break;
+
+			case 1:
+				break;
+
+			case 2: {
+
+				if (sequenceNum == sPreviousSequenceNum + 1) {
+					uint32 length = fobj.end() - sFile->pos();
+					CHECK_IF(length > GS_BITMAP_SIZE, "FOBJ Case 2 data is to large to read.");
+
+					sFile->readBytes(sTempBuffer, length);
+
+					uint8* dst = getFrameBuffer(sCurrentFrameBuffer);
+					uint8* src = sTempBuffer;
+					uint8* src1 = getFrameBuffer(sDeltaFrameBuffers[1]);
+					uint8* src2 = getFrameBuffer(sDeltaFrameBuffers[0]);
+					uint8* params = &header[22];
+
+					smush_codec47_opt_none(dst, src, src1, src2, params);
+
+					hasFrame = true;
+				}
+
 			}
 			break;
 
@@ -373,8 +491,7 @@ namespace gs
 
 			case 5: {
 				uint32 length = READ_LE_UINT32(&header[28]);
-				debug(GS_THIS, "BOMP LENGTH = %ld", length);
-				CHECK_IF(length > GS_BITMAP_SIZE, "BOMP Frame Length is incorrect.");
+				CHECK_IF(length > GS_BITMAP_SIZE, "BOMP Frame Length is to big.");
 
 				byte* buffer = getFrameBuffer(sCurrentFrameBuffer);
 				sFile->readBytes(sTempBuffer, length);
@@ -385,12 +502,22 @@ namespace gs
 
 		}
 
-
 		if (hasFrame) {
 			ImageFrame* image = frame->addImage();
 			copyMemQuick((uint32*) &image->frame[0], (uint32*) getFrameBuffer(sCurrentFrameBuffer), GS_BITMAP_SIZE);
 		}
 
+		if (sequenceNum == sPreviousSequenceNum + 1) {
+			uint8 rotationOp = header[17];
+
+			if (rotationOp != 0) {
+				CHECK_IF_1(rotationOp > 2, "Unknown rotation op %ld.", rotationOp);
+
+				sNextRotationOp = rotationOp;
+			}
+		}
+
+		sPreviousSequenceNum = sequenceNum;
 	}
 
 
