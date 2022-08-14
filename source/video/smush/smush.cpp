@@ -65,7 +65,7 @@ namespace gs
 
 #if GS_SAN_CODEC47 == 2
 	// Declared in codec47_opt_ulong.cpp
-	void smush_codec47_opt_ulong(uint32* dst, uint32* src, uint32* src1, uint32* src2, byte* params);
+	void smush_codec47_opt_ulong(uint32* dst, byte* src, uint32* src1, uint32* src2, byte* params);
 #endif
 
 	// Declared in smush.cpp
@@ -472,6 +472,7 @@ namespace gs
 					uint32 length = fobj.end() - sFile->pos();
 					CHECK_IF(length > GS_BITMAP_SIZE, "FOBJ Case 2 data is to large to read.");
 
+#if GS_SAN_CODEC47 == 1
 					sFile->readBytes(sTempBuffer, length);
 
 					uint8* dst = getFrameBuffer(sCurrentFrameBuffer);
@@ -481,7 +482,19 @@ namespace gs
 					uint8* params = &header[22];
 
 					smush_codec47_opt_none(dst, src, src1, src2, params);
+#endif
 
+#if GS_SAN_CODEC47 == 2
+					sFile->readBytes(sTempBuffer, length);
+
+					uint32* dst = (uint32*) getFrameBuffer(sCurrentFrameBuffer);
+					uint8* src = sTempBuffer;
+					uint32* src1 = (uint32*) getFrameBuffer(sDeltaFrameBuffers[1]);
+					uint32* src2 = (uint32*) getFrameBuffer(sDeltaFrameBuffers[0]);
+					uint8* params = &header[22];
+
+					smush_codec47_opt_ulong(dst, src, src1, src2, params);
+#endif
 					hasFrame = true;
 				}
 
