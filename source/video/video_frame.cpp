@@ -64,10 +64,10 @@ namespace gs
 		_timing.length_msec = 0;
 
 		while(true) {
-			AudioSampleFrame_S16MSB* audio = _audio.pullFront();
-			if (audio == NULL)
+			AudioSampleFrame_S16MSB* sample = _audio.pullFront();
+			if (sample == NULL)
 				break;
-			sAudioSamples.release_unchecked(audio);
+			sAudioSamples.release_unchecked(sample);
 		}
 
 		while(true) {
@@ -86,7 +86,6 @@ namespace gs
 			sPalettes.release(_palette);
 			_palette = NULL;
 		}
-
 	}
 
 	SubtitleFrame* VideoFrame::addSubtitle() {
@@ -137,7 +136,7 @@ namespace gs
 				drawSubtitlesTo(dstFrameBuffer,
 								  subtitle->x,
 								  subtitle->y,
-								  subtitle->string(),
+								  subtitle->getString(),
 								  subtitle->flags & SF_Center,
 								  subtitle->flags & SF_Wrap,
 								  subtitle->font,
@@ -149,12 +148,12 @@ namespace gs
 		}
 
 		while(subtitle != NULL) {
-			printDialogue(subtitle->string(), subtitle->hash, subtitle->kind);
+			printDialogue(subtitle->getString(), subtitle->hash, subtitle->kind);
 
 			drawSubtitlesTo(dstFrameBuffer,
 							  subtitle->x,
 							  subtitle->y,
-							  subtitle->string(),
+							  subtitle->getString(),
 							  subtitle->flags & SF_Center,
 							  subtitle->flags & SF_Wrap,
 							  subtitle->font,

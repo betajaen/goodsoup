@@ -44,11 +44,11 @@ namespace gs
 		int16 x, y;
 		char text[480];
 
-		inline const char* string() const {
+		inline const char* getString() const {
 			return &text[0];
 		}
 
-		inline char* string() {
+		inline char* getString() {
 			return &text[0];
 		}
 
@@ -57,6 +57,22 @@ namespace gs
 	struct AudioSampleFrame_S16MSB {
 		AudioSampleFrame_S16MSB *next;
 		int16 data[2048];
+
+		inline int16* getData() {
+			return &data[0];
+		}
+
+		inline const int16* getData() const {
+			return &data[0];
+		}
+
+		inline byte* getBytes() {
+			return (byte*) &data[0];
+		}
+
+		inline const byte* getBytes() const {
+			return (byte*) &data[0];
+		}
 	};
 
 	struct ImageFrame {
