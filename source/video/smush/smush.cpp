@@ -226,6 +226,11 @@ namespace gs
 
 		CHECK_IF_RETURN(frame == NULL, 2, "NULL VideoFrame given!");
 
+		if (sFile->pos() >= sFile->length()) {
+			frame->_timing.action = VFNA_Stop;
+			return 2;
+		}
+
 		TagPair frme, tag;
 		frme = sFile->readSanTagPair(true);
 		bool increaseFrameNum = true;
@@ -347,9 +352,11 @@ namespace gs
 			}
 
 			GS_SWAP(byte, sCurrentFrameBuffer, sDeltaFrameBuffers[1]);
+			sNextRotationOp = 0;
 		}
 
 		if (sFile->pos() >= sFile->length()) {
+			frame->_timing.action = VFNA_Stop;
 			return 2;
 		}
 
