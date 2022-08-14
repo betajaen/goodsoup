@@ -39,6 +39,8 @@ namespace gs
 
 	void* reallocateMemory(void* allocation, uint32 itemCount, uint32 itemSize);
 
+	bool checkAllocation(void* allocation);
+
 	template<typename T>
 	inline void releaseMemoryChecked(T*& allocation)
 	{

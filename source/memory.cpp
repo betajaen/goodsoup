@@ -489,6 +489,19 @@ namespace gs
 
 	}
 
+	bool checkAllocation(void* allocation) {
+		if (allocation != NULL) {
+
+#if GS_CHECKED == 1
+			CheckedMemoryHeader* header = _getCheckedMemoryHeader(allocation);
+			return _confirmCheckedMemoryHeader(header);
+#endif
+
+		}
+
+		return true;
+	}
+
 	uint32 memSize(void* mem) {
 
 		if (mem == NULL)
