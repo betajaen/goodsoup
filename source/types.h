@@ -135,5 +135,6 @@
 
 #define _GS_STR_IMPL(X) #X
 #define GS_STR(X) _GS_STR_IMPL(X)
+#define GS_SWAP(T, A, B) do { T t = A; A = B; B = t; } while(0)
 
 #endif
