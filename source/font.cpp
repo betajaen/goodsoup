@@ -484,7 +484,6 @@ namespace gs
 					y += lineHeight;
 					y1 += lineHeight;
 					numLines++;
-					debug(GS_THIS, "end line");
 					break;
 				}
 
@@ -564,11 +563,11 @@ namespace gs
 
 		}
 
-		debug(GS_THIS, "F%ld W%ld C%ld L%d", fontNum , wrap, centre, numLines);
+		//debug(GS_THIS, "F%ld W%ld C%ld L%d", fontNum , wrap, centre, numLines);
 
-		for(uint8 i=0;i < numLines;i++) {
-			debug(GS_THIS, "L%ld X%ld Y%ld \"%s\"", i, linesX[i], linesY[i], linesText[i]);
-		}
+		//for(uint8 i=0;i < numLines;i++) {
+		//	debug(GS_THIS, "L%ld X%ld Y%ld \"%s\"", i, linesX[i], linesY[i], linesText[i]);
+		//}
 
 	}
 
