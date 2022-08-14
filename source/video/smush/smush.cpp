@@ -39,6 +39,7 @@ namespace gs
 	static byte  sCurrentFrameBuffer;
 	static byte  sDeltaFrameBuffers[2];
 	static char* sSubtitleText;
+	static uint32 sIACTPos;
 	static byte* sCompressedAudioSample;
 	static uint16 sFrameCount;
 	static uint16 sFrameNum;
@@ -170,6 +171,7 @@ namespace gs
 		sPreviousSequenceNum = -1;
 		sFrameStore = false;
 		sNextRotationOp = 0;
+		sIACTPos = 0;
 
 		return true;
 	}
@@ -262,10 +264,6 @@ namespace gs
 					readPalette();
 					PaletteFrame* pal = frame->addPalette();
 					copyMemQuick((uint32*) &pal->palette[0], (uint32*) sPalette, 3 * 256);
-
-					if ((tag.length & 1) != 0) {
-						sFile->skip(1);
-					}
 				}
 				continue;
 
@@ -275,33 +273,31 @@ namespace gs
 						PaletteFrame* pal = frame->addPalette();
 						copyMemQuick((uint32*) &pal->palette[0], (uint32*) sPalette, 3 * 256);
 					}
-					if ((tag.length & 1) != 0) {
-						sFile->skip(1);
-					}
 				}
 				continue;
 
 				case GS_MAKE_ID('I','A','C','T'): {
-					//readAudio(tag, frame);
 
-					sFile->skip(tag.length);
+					readAudio(tag, frame);
 
 					if ((tag.length & 1) != 0) {
 						sFile->skip(1);
 					}
+
 				}
 				continue;
 
 				case GS_MAKE_ID('F','O','B','J'): {
+
 					sFrameVersion++;
 					sFrameStoreVersion = 0;
 					probablySameCredits = false;
 
-					if ((tag.length & 1) != 0) {
-						tag.length++;
-					}
-
 					readVideo(tag, frame);
+
+					if ((tag.length & 1) != 0) {
+						sFile->skip(1);
+					}
 				}
 				continue;
 
@@ -432,10 +428,6 @@ namespace gs
 
 	static void applyAudio_S16MSB(byte* src, AudioSampleFrame_S16MSB* dstSample) {
 
-		debug(GS_THIS, "Pushing Sample = %ld", sizeof(dstSample->data));
-
-		src += 2;
-
 		byte* dst = dstSample->getBytes();
 
 		byte v;
@@ -485,13 +477,11 @@ namespace gs
 
 		CHECK_IF(dataSize > TEMP_BUFFER_SIZE, "IACT Audio data is to large to fit in a temporary buffer.");
 
-		debug(GS_THIS, "Audio dataSize = %ld", dataSize);
-
 		byte header[18];
 		sFile->readBytes(header, 18);
 		sFile->readBytes(sTempBuffer, dataSize);
 
-		uint32 pos = 0;
+		uint32 pos = sIACTPos;
 
 		uint8* src = sTempBuffer;
 		uint8* dst = sCompressedAudioSample;
@@ -513,7 +503,7 @@ namespace gs
 					AudioSampleFrame_S16MSB* sample = frame->addAudio();
 
 					if (sample != NULL) {
-						applyAudio_S16MSB(dst, sample);
+						applyAudio_S16MSB(dst + 2, sample);
 					}
 
 					dataSize -= len;
@@ -534,6 +524,7 @@ namespace gs
 
 		}
 
+		sIACTPos = pos;
 
 	}
 
