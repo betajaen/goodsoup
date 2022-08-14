@@ -27,6 +27,9 @@
 
 namespace gs
 {
+#define TEMP_BUFFER_SIZE GS_BITMAP_SIZE
+#define TEMP_HALF_BUFFER_SIZE (TEMP_BUFFER_SIZE / 2)
+
 	static TagReadFile* sFile;
 	static byte* sPalette;
 	static int16* sDeltaPalette;
@@ -247,10 +250,10 @@ namespace gs
 			probablySameCredits = true;
 		}
 
-		// debug(GS_THIS, "%ld Last Size %ld New Size %ld Store %ld Fetch %ld", probablySameCredits, sLastFrmeTag.length, frme.length, sFrameStoreVersion, sFrameFetchVersion);
-
 		while(sFile->pos() < frme.end() && sFile->pos() < sFile->length()) {
-			tag = sFile->readSanTagPair(true);
+			tag = sFile->readSanTagPair(false);
+
+			// debug(GS_THIS, "Frame = %ld, Tag Name = %s  Tag Length = %ld", sFrameNum, tag.tagStr(), tag.length);
 
 			switch(tag.tag) {
 
@@ -259,6 +262,10 @@ namespace gs
 					readPalette();
 					PaletteFrame* pal = frame->addPalette();
 					copyMemQuick((uint32*) &pal->palette[0], (uint32*) sPalette, 3 * 256);
+
+					if ((tag.length & 1) != 0) {
+						sFile->skip(1);
+					}
 				}
 				continue;
 
@@ -268,29 +275,20 @@ namespace gs
 						PaletteFrame* pal = frame->addPalette();
 						copyMemQuick((uint32*) &pal->palette[0], (uint32*) sPalette, 3 * 256);
 					}
+					if ((tag.length & 1) != 0) {
+						sFile->skip(1);
+					}
 				}
 				continue;
 
 				case GS_MAKE_ID('I','A','C','T'): {
-					// IACT Tag is different to other SAN tags.
-					TagPair iact;
-					iact.dataPos = tag.dataPos;
-					sFile->skip(-4);
-					iact.length = sFile->readUInt32BE();
+					//readAudio(tag, frame);
 
-					readTiming();
-					increaseFrameNum = false;
-					frame->_timing.num = sFrameNum;
-					frame->_timing.length_msec = 83; // Default
-					frame->_timing.action = VFNA_Next;
+					sFile->skip(tag.length);
 
-					// debug(GS_THIS, "Frame %ld of %ld", sFrameNum, sFrameCount);
-
-#if GS_MUTE_AUDIO == 0
-					readAudio(iact, frame);
-#endif
-
-					sFile->seekEndOf(tag);
+					if ((tag.length & 1) != 0) {
+						sFile->skip(1);
+					}
 				}
 				continue;
 
@@ -298,8 +296,12 @@ namespace gs
 					sFrameVersion++;
 					sFrameStoreVersion = 0;
 					probablySameCredits = false;
+
+					if ((tag.length & 1) != 0) {
+						tag.length++;
+					}
+
 					readVideo(tag, frame);
-					sFile->seekEndOf(tag);
 				}
 				continue;
 
@@ -311,14 +313,18 @@ namespace gs
 						}
 					}
 					else {
-						sFile->seekEndOf(tag);
+						sFile->skip(tag.length);
+					}
+
+					if ((tag.length & 1) != 0) {
+						sFile->skip(1);
 					}
 				}
 				continue;
 
 				case GS_MAKE_ID('S','T','O','R'): {
 					sFrameStore = true;
-					sFile->seekEndOf(tag);
+					sFile->skip(4);
 				}
 				continue;
 
@@ -328,14 +334,15 @@ namespace gs
 						ImageFrame *imageFrame = frame->addImage();
 						copyMemQuick((uint32 * ) & imageFrame->frame[0], (uint32 *) sStoredFrame, GS_BITMAP_SIZE);
 					}
-					sFile->seekEndOf(tag);
+					sFile->skip(6);
 				}
 				continue;
 
 			}
 
-			warn(GS_THIS, "Unsupported SMUSH FRME tag %s", tag.tagStr());
-			sFile->seekEndOf(tag);
+			error(GS_THIS, "Unsupported SMUSH FRME tag %s", tag.tagStr());
+			frame->_timing.action = VFNA_Stop;
+			return 0;
 		}
 
 
@@ -423,9 +430,111 @@ namespace gs
 	// Audio
 	//
 
+	static void applyAudio_S16MSB(byte* src, AudioSampleFrame_S16MSB* dstSample) {
+
+		debug(GS_THIS, "Pushing Sample = %ld", sizeof(dstSample->data));
+
+		src += 2;
+
+		byte* dst = dstSample->getBytes();
+
+		byte v;
+		byte e1 = *src++;
+		byte e2 = e1 / 16;
+		e1 &= 0x0F;
+
+		int8 v1 = (int8) e1;
+		int8 v2 = (int8) e2;
+
+		uint16 length = 1024;
+
+		while(length--) {
+			// Left Channel
+			v = *src++;
+			if (v == 0x80) {
+				*dst++ = *src++;
+				*dst++ = *src++;
+			}
+			else
+			{
+				int16 m = (int8) v;
+				m <<= e2;
+				*dst++ = m >> 8;
+				*dst++ = (byte) m;
+			}
+			// Right Channel
+			v = *src++;
+			if (v == 0x80) {
+				*dst++ = *src++;
+				*dst++ = *src++;
+			}
+			else
+			{
+				int16 m = (int8) v;
+				m <<= e1;
+				*dst++ = m >> 8;
+				*dst++ = (byte) m;
+			}
+		}
+
+	}
+
 	static void readAudio(TagPair iact, VideoFrame* frame) {
 
-		/* TODO */
+		uint32 dataSize = iact.length - 18;
+
+		CHECK_IF(dataSize > TEMP_BUFFER_SIZE, "IACT Audio data is to large to fit in a temporary buffer.");
+
+		debug(GS_THIS, "Audio dataSize = %ld", dataSize);
+
+		byte header[18];
+		sFile->readBytes(header, 18);
+		sFile->readBytes(sTempBuffer, dataSize);
+
+		uint32 pos = 0;
+
+		uint8* src = sTempBuffer;
+		uint8* dst = sCompressedAudioSample;
+
+		while(dataSize > 0) {
+
+			if (pos >= 2) {
+				int32 len = READ_BE_UINT16(dst) + 2;
+				len -= pos;
+
+				if (len > dataSize) {
+					copyMem(dst + pos, src, dataSize);
+					pos += dataSize;
+					dataSize = 0;
+				}
+				else {
+					copyMem(dst + pos, src, len);
+
+					AudioSampleFrame_S16MSB* sample = frame->addAudio();
+
+					if (sample != NULL) {
+						applyAudio_S16MSB(dst, sample);
+					}
+
+					dataSize -= len;
+					src += len;
+					pos = 0;
+				}
+			}
+			else {
+				if (dataSize > 1 && pos == 0) {
+					dst[0] = *src++;
+					pos = 1;
+					dataSize--;
+				}
+				dst[pos] = *src++;
+				pos++;
+				dataSize--;
+			}
+
+		}
+
+
 	}
 
 	//
@@ -510,12 +619,12 @@ namespace gs
 			break;
 
 			case 5: {
-				uint32 length = READ_LE_UINT32(&header[28]);
-				CHECK_IF(length > GS_BITMAP_SIZE, "BOMP Frame Length is to big.");
+				uint32 length = fobj.end() - sFile->pos();
+				CHECK_IF(length > GS_BITMAP_SIZE, "FOBJ Case 5 data is to large to read.");
 
 				byte* buffer = getFrameBuffer(sCurrentFrameBuffer);
 				sFile->readBytes(sTempBuffer, length);
-				decodeBomp(buffer, sTempBuffer, length);
+				decodeBomp(buffer, sTempBuffer, GS_BITMAP_SIZE);
 				hasFrame = true;
 			}
 			break;
@@ -565,7 +674,7 @@ namespace gs
 		sFile->skip((sizeof(uint16) * 3) + 4);
 		sFile->readBytes(sSubtitleText, subtitleLength);
 
-		char* out_text = subtitleFrame->string();
+		char* out_text = subtitleFrame->getString();
 		bool wasParsed = parseFormattedDialogue2(sSubtitleText, out_text, subtitleFrame->hash, subtitleFrame->font, subtitleFrame->colour, subtitleFrame->kind);
 
 		return wasParsed;
