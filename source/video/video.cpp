@@ -16,7 +16,7 @@
  */
 
 #define GS_FILE_NAME "video"
-#define TEMP_USE_VIDEO_CODEC 1
+#define TEMP_USE_VIDEO_CODEC 0
 #include "video.h"
 #include "video/video_api.h"
 #include "video/video_frame.h"
@@ -26,7 +26,7 @@
 #include "disk.h"
 #include "audio.h"
 
-extern gs::VideoCodec SMUSH_VIDEO_CODEC;
+extern gs::VideoDecoder SMUSH_DECODER;
 
 namespace gs
 {
@@ -102,7 +102,7 @@ namespace gs
 			return;
 		}
 
-		_videoCodec = &SMUSH_VIDEO_CODEC;
+		_videoCodec = &SMUSH_DECODER;
 
 		if (_videoCodec->initialize(_videoFile) == false) {
 			error(GS_THIS, "Could not read Video File!");

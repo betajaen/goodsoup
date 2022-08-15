@@ -28,6 +28,8 @@ namespace gs
 
 	class VideoFrame;
 	class AudioStream_S16MSB;
+	class VideoDecoder;
+	class VideoEncoder;
 
 	enum VideoStateKind {
 		VSK_NotLoaded = 0,
@@ -44,7 +46,7 @@ namespace gs
 
 		ReadFile _file;
 		VideoApi _api;
-		VideoCodec* _videoCodec;
+		VideoDecoder* _videoCodec;
 		TagReadFile* _videoFile;
 		byte* _frameBuffer;
 

@@ -674,7 +674,7 @@ namespace gs
 
 }
 
-gs::VideoCodec SMUSH_VIDEO_CODEC = {
+gs::VideoDecoder SMUSH_DECODER = {
 		&gs::smush_initialize,
 		&gs::smush_teardown,
 		&gs::smush_processFrame

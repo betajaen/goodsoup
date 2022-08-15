@@ -24,6 +24,7 @@ namespace gs
 	class DiskReader;
 	class TagReadFile;
 	class VideoFrame;
+	class WriteFile;
 
 	struct VideoApi {
 		void(*initialize)(DiskReader reader);
@@ -31,8 +32,14 @@ namespace gs
 		int(*processFrame)();
 	};
 
-	struct VideoCodec {
+	struct VideoDecoder {
 		bool(*initialize)(TagReadFile* file);
+		void(*teardown)();
+		uint8(*processFrame)(VideoFrame* frame);
+	};
+
+	struct VideoEncoder {
+		bool(*initialize)(WriteFile* file);
 		void(*teardown)();
 		uint8(*processFrame)(VideoFrame* frame);
 	};
