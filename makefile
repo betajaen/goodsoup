@@ -112,6 +112,8 @@ OBJ +=	source/main_game.o\
 		source/video/smush/smush_codec47_opt_none.o\
 		source/video/smush/smush_codec47_opt_ulong.o\
 		source/video/smush/smush_tables.o\
+		source/video/gsv/gsv_decoder.o\
+		source/video/gsv/gsv_encoder.o\
 		source/draw.o\
 		source/codecs/bomp.o\
 		source/codecs/nut.o\
