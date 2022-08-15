@@ -44,6 +44,8 @@ namespace gs
 		_api.processFrame = NULL;
 
 #if TEMP_USE_VIDEO_CODEC
+		initializeVideoFrameData();
+
 		_audioStream = createAudioStream();
 		pushAudioStream(_audioStream);
 		_frameBuffer = (byte*) allocateMemory(1, GS_BITMAP_SIZE, MF_Clear, GS_COMMENT_FILE_LINE_NOTE("FrameBuffer"));
@@ -68,11 +70,9 @@ namespace gs
 			frame = nextFrame;
 		}
 		_frames.clear();
-		disposeVideoFrameData();
 
 		if (_videoCodec != NULL) {
 			_videoCodec->teardown();
-			return;
 		}
 
 		deleteObject(_videoFile);
@@ -82,6 +82,9 @@ namespace gs
 		releaseAudioStream(_audioStream);
 		_audioStream = NULL;
 
+		debug(GS_THIS, "Video End");
+
+		disposeVideoFrameData();
 #else
 		if (_api.teardown != NULL) {
 			_api.teardown();
@@ -187,16 +190,16 @@ namespace gs
 
 		if (oldest) {
 			_framesInQueue--;
-			debug(GS_THIS, "FrameNum=%ld, Queue = %ld", oldest->_timing.num, _framesInQueue);
 			oldest->apply(_frameBuffer, _audioStream);
 			screenBlitCopy(_frameBuffer);
 			if (oldest->_timing.action == VFNA_Stop) {
-				debug(GS_THIS, "Video Stop Frame %ld", oldest->_timing.num);
 				_videoStateKind = VSK_Stopped;
 			}
+
 			disposeVideoFrame(oldest);
 		}
 		else {
+			debug(GS_THIS, "No more frames. Stopping");
 			_videoStateKind = VSK_Stopped;
 		}
 

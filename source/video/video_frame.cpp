@@ -25,29 +25,51 @@
 
 namespace gs
 {
-	LinkedListPool<VideoFrame> sVideoFrames;
-	LinkedListPool<SubtitleFrame> sSubtitles;
-	LinkedListPool<AudioSampleFrame_S16MSB> sAudioSamples;
-	LinkedListPool<PaletteFrame> sPalettes;
-	LinkedListPool<ImageFrame> sImages;
+	class VideoFramePool
+	{
+	public:
+
+
+		VideoFramePool() {
+		}
+
+		~VideoFramePool() {
+			videoFrames.clear();
+			subtitles.clear();
+			audioSamples.clear();
+			palettes.clear();
+			images.clear();
+		}
+
+		LinkedListPool<VideoFrame> videoFrames;
+		LinkedListPool<SubtitleFrame> subtitles;
+		LinkedListPool<AudioSampleFrame_S16MSB> audioSamples;
+		LinkedListPool<PaletteFrame> palettes;
+		LinkedListPool<ImageFrame> images;
+	};
+
+	static VideoFramePool* sVideoFramePool = NULL;
+
+	void initializeVideoFrameData() {
+		if (sVideoFramePool == NULL) {
+			sVideoFramePool = newObject<VideoFramePool>(GS_COMMENT_FILE_LINE_NOTE("VideoFramePool"));
+		}
+	}
 
 	void disposeVideoFrameData() {
-		sVideoFrames.clear();
-		sSubtitles.clear();
-		sAudioSamples.clear();
-		sPalettes.clear();
-		sImages.clear();
+		deleteObject(sVideoFramePool);
 	}
 
 	VideoFrame* acquireVideoFrame() {
-		return sVideoFrames.acquire(GS_COMMENT_FILE_LINE_NOTE("Video Frame"));
+		return sVideoFramePool->videoFrames.acquire(GS_COMMENT_FILE_LINE_NOTE("Video Frame"));
 	}
 
 	void disposeVideoFrame(VideoFrame* frame) {
 		CHECK_IF(frame == NULL, "Null VideoFrame Given.");
+		CHECK_IF(sVideoFramePool == NULL, "sVideoFramePool is NULL.");
 
 		frame->recycle();
-		sVideoFrames.release_unchecked(frame);
+		sVideoFramePool->videoFrames.release_unchecked(frame);
 	}
 
 	VideoFrame::VideoFrame() {
@@ -67,47 +89,47 @@ namespace gs
 			AudioSampleFrame_S16MSB* sample = _audio.pullFront();
 			if (sample == NULL)
 				break;
-			sAudioSamples.release_unchecked(sample);
+			sVideoFramePool->audioSamples.release_unchecked(sample);
 		}
 
 		while(true) {
 			SubtitleFrame* subtitle = _subtitles.pullFront();
 			if (subtitle == NULL)
 				break;
-			sSubtitles.release_unchecked(subtitle);
+			sVideoFramePool->subtitles.release_unchecked(subtitle);
 		}
 
 		if (_image != NULL) {
-			sImages.release_unchecked(_image);
+			sVideoFramePool->images.release_unchecked(_image);
 			_image = NULL;
 		}
 
 		if (_palette != NULL) {
-			sPalettes.release(_palette);
+			sVideoFramePool->palettes.release(_palette);
 			_palette = NULL;
 		}
 	}
 
 	SubtitleFrame* VideoFrame::addSubtitle() {
-		SubtitleFrame* subtitle = sSubtitles.acquire(GS_COMMENT_FILE_LINE_NOTE("SubtitleFrame"));
+		SubtitleFrame* subtitle = sVideoFramePool->subtitles.acquire(GS_COMMENT_FILE_LINE_NOTE("SubtitleFrame"));
 		_subtitles.pushBack(subtitle);
 		return subtitle;
 	}
 
 	void VideoFrame::removeSubtitle(SubtitleFrame* frame) {
 		_subtitles.pull(frame);
-		sSubtitles.release_unchecked(frame);
+		sVideoFramePool->subtitles.release_unchecked(frame);
 	}
 
 	AudioSampleFrame_S16MSB* VideoFrame::addAudio() {
-		AudioSampleFrame_S16MSB* audioSample = sAudioSamples.acquire(GS_COMMENT_FILE_LINE_NOTE("AudioSampleFrame_S16MSB"));
+		AudioSampleFrame_S16MSB* audioSample = sVideoFramePool->audioSamples.acquire(GS_COMMENT_FILE_LINE_NOTE("AudioSampleFrame_S16MSB"));
 		_audio.pushBack(audioSample);
 		return audioSample;
 	}
 
 	ImageFrame* VideoFrame::addImage() {
 		if (_image == NULL) {
-			_image = sImages.acquire(GS_COMMENT_FILE_LINE_NOTE("ImageFrame"));
+			_image = sVideoFramePool->images.acquire(GS_COMMENT_FILE_LINE_NOTE("ImageFrame"));
 		}
 
 		return _image;
@@ -115,7 +137,7 @@ namespace gs
 
 	PaletteFrame* VideoFrame::addPalette() {
 		if (_palette == NULL) {
-			_palette = sPalettes.acquire(GS_COMMENT_FILE_LINE_NOTE("PaletteFrame"));
+			_palette = sVideoFramePool->palettes.acquire(GS_COMMENT_FILE_LINE_NOTE("PaletteFrame"));
 		}
 
 		return _palette;

@@ -135,6 +135,7 @@ namespace gs
 
 	VideoFrame* acquireVideoFrame();
 	void disposeVideoFrame(VideoFrame* frame);
+	void initializeVideoFrameData();
 	void disposeVideoFrameData();
 
 }
