@@ -108,7 +108,7 @@ OBJ +=	source/main_game.o\
 		source/video/san/tables.o\
 		source/video/san/fobj_47.o\
 		source/video/san/fobj_47_ulong.o\
-		source/video/smush/smush.o\
+		source/video/smush/smush_decoder.o\
 		source/video/smush/smush_codec47_opt_none.o\
 		source/video/smush/smush_codec47_opt_ulong.o\
 		source/video/smush/smush_tables.o\
