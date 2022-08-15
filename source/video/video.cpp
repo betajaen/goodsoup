@@ -16,7 +16,7 @@
  */
 
 #define GS_FILE_NAME "video"
-#define TEMP_USE_VIDEO_CODEC 0
+#define TEMP_USE_VIDEO_CODEC 1
 #include "video.h"
 #include "video/video_api.h"
 #include "video/video_frame.h"
@@ -49,11 +49,6 @@ namespace gs
 		_audioStream = createAudioStream();
 		pushAudioStream(_audioStream);
 		_frameBuffer = (byte*) allocateMemory(1, GS_BITMAP_SIZE, MF_Clear, GS_COMMENT_FILE_LINE_NOTE("FrameBuffer"));
-
-		for(uint32 i=0;i <GS_BITMAP_SIZE;i++) {
-			_frameBuffer[i] = 0xAA;
-		}
-
 #endif
 
 	}
@@ -65,9 +60,8 @@ namespace gs
 
 		VideoFrame* frame = _frames.pullFront();
 		while(frame != NULL) {
-			VideoFrame* nextFrame = frame->next;
 			disposeVideoFrame(frame);
-			frame = nextFrame;
+			frame = _frames.pullFront();
 		}
 		_frames.clear();
 
