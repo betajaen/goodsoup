@@ -38,8 +38,29 @@ namespace gs
 		uint8(*processFrame)(VideoFrame* frame);
 	};
 
+
+	struct VideoEncoderParams {
+		// Left position of a video frame in pixels (i.e. 0)
+		uint16 left;
+		// Top position of a video frame in pixels (i.e. 0)
+		uint16 top;
+		// Width of a video frame in pixels (i.e. 640)
+		uint16 width;
+		// Height of a video frame in pixels (i.e. 480)
+		uint16 height;
+		// Reserved
+		uint8  reserved;
+		// Audio Format (i.e. AF_S16MSB, see AudioFormat in audio.h)
+		uint8  audioFormat;
+		// Audio Frequency in Hertz (i.e. 22050 Hz)
+		uint16 audioFrequency;
+		// Audio Sample Rate in Bytes (i.e. 4096)
+		uint16 audioSampleRate;
+	};
+
+
 	struct VideoEncoder {
-		bool(*initialize)(WriteFile* file);
+		bool(*initialize)(WriteFile* file, const VideoEncoderParams& params);
 		void(*teardown)();
 		uint8(*processFrame)(VideoFrame* frame);
 	};

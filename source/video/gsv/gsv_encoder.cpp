@@ -22,23 +22,56 @@
 #include "video/video_frame.h"
 #include "video/video_api.h"
 
+#define GSV_HEADER "GSV1"
+
 namespace gs
 {
+
 	static WriteFile* sFile;
 
-	bool gsv_encoder_initialize(WriteFile* file) {
+	/*
+ 		General Format of a GSV video file
+
+ 			"GSV1"	- 4	- File Header and Version
+ 			0		- 4	- Offset from beginning to the string table
+ 			...		- sizeof(VideoEncoderParams) - Video Encoding Params
+ 			FRME	- 4
+			0		- 2 - numAudioSamples
+			0		- 2 - numSubtitles
+			0		- 1	- hasImageChange
+			0		- 1	- hasPaletteChange
+			...		- n - 0+ AudioSampleFrame_S16MSB
+			...		- n - 0+ SubtitleFrame
+			...		- 0 or 307200 - Image Data
+			..		- 0 or 768 - Palette Data
+			FRME
+			...
+			FRME
+			...
+			FRME
+ 			...
+ 			STOP
+ 			STBL
+ 			StringTable	- n	- Contents of String table (FUTURE)
+ 			<eof>
+ 	*/
+
+	bool gsv_encoder_initialize(WriteFile* file, const VideoEncoderParams& params) {
 		sFile = file;
-		sFile->writeTag("GSV ");
+		sFile->writeTag(GSV_HEADER);
+		sFile->writeUInt32BE(0);	// /* TODO: Will point to the string table in the file */
+		sFile->writeBytes(&params, sizeof(VideoEncoderParams));
 		return true;
 	}
 
 	void gsv_encoder_teardown() {
 		sFile->writeTag("STOP");
+		/* TODO: STBL - String table */
 	}
 
 	uint8  gsv_encoder_processFrame(VideoFrame* frame) {
+		sFile->writeTag("FRME");
 
-		/* TODO */
 
 		return 0;
 	}

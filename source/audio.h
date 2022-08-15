@@ -25,6 +25,11 @@
 
 namespace gs
 {
+
+	enum AudioFormat {
+		AF_S16MSB = 0
+	};
+
 	struct AudioSample_S16MSB {
         AudioSample_S16MSB() {
 			next = NULL;
