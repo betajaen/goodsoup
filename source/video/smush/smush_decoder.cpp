@@ -364,10 +364,12 @@ namespace gs
 		}
 
 		if (increaseFrameNum) {
+			frame->_timing.num = sFrameNum;
 			sFrameNum++;
 		}
 
 		sLastFrmeTag = frme;
+
 
 		if (sFrameNum >= sFrameCount) {
 			frame->_timing.action = VFNA_Stop;
