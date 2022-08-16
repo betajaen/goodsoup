@@ -40,10 +40,11 @@ namespace gs
 			0		- 2 - numSubtitles
 			0		- 1	- hasImageChange
 			0		- 1	- hasPaletteChange
+			...		- sizeof(VideoTiming) - Timing
 			...		- n - 0+ AudioSampleFrame_S16MSB
 			...		- n - 0+ SubtitleFrame
 			...		- 0 or 307200 - Image Data
-			..		- 0 or 768 - Palette Data
+			...		- 0 or 768 - Palette Data
 			FRME
 			...
 			FRME
@@ -61,6 +62,7 @@ namespace gs
 		sFile->writeTag(GSV_HEADER);
 		sFile->writeUInt32BE(0);	// /* TODO: Will point to the string table in the file */
 		sFile->writeBytes(&params, sizeof(VideoEncoderParams));
+
 		return true;
 	}
 
@@ -71,9 +73,44 @@ namespace gs
 
 	uint8  gsv_encoder_processFrame(VideoFrame* frame) {
 		sFile->writeTag("FRME");
+		sFile->writeUInt16BE(frame->_audio.count());
+		sFile->writeUInt16BE(frame->_subtitles.count());
+		sFile->writeByte(frame->_image != NULL);
+		sFile->writeByte(frame->_palette != NULL);
 
+		sFile->writeUInt16BE(frame->_timing.num);
+		sFile->writeUInt16BE(frame->_timing.length_msec);
+		sFile->writeUInt16BE(frame->_timing.action);
 
-		return 0;
+		AudioSampleFrame_S16MSB* audioSampleFrame = frame->_audio.peekFront();
+		while(audioSampleFrame != NULL) {
+			sFile->writeBytes(&audioSampleFrame->data[0], sizeof(AudioSampleFrame_S16MSB::data));
+			audioSampleFrame = audioSampleFrame->next;
+		}
+
+		SubtitleFrame* subtitleFrame = frame->_subtitles.peekFront();
+		while(subtitleFrame != NULL) {
+			sFile->writeUInt32BE(subtitleFrame->hash);
+			sFile->writeByte(subtitleFrame->length);
+			sFile->writeByte(subtitleFrame->flags);
+			sFile->writeByte(subtitleFrame->font);
+			sFile->writeByte(subtitleFrame->colour);
+			sFile->writeByte(subtitleFrame->kind);
+			sFile->writeInt16LE(subtitleFrame->x);
+			sFile->writeInt16LE(subtitleFrame->y);
+			sFile->writeBytes(&subtitleFrame->text[0], subtitleFrame->length + 1);
+			subtitleFrame = subtitleFrame->next;
+		}
+
+		if (frame->_image != NULL) {
+			sFile->writeBytes(&frame->_image->frame[0], GS_BITMAP_SIZE);
+		}
+
+		if (frame->_palette != NULL) {
+			sFile->writeBytes(&frame->_palette[0], sizeof(PaletteFrame::palette));
+		}
+
+		return 1;
 	}
 }
 
