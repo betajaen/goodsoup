@@ -28,6 +28,7 @@
 
 extern gs::VideoDecoder SMUSH_DECODER;
 extern gs::VideoEncoder GSV_ENCODER;
+extern gs::VideoDecoder GSV_DECODER;
 
 namespace gs
 {
@@ -38,14 +39,18 @@ namespace gs
 
 	VideoContext::VideoContext() {
 
-		_videoDecoder = NULL;
-
 		_api.initialize = NULL;
 		_api.teardown = NULL;
 		_api.processFrame = NULL;
 
 #if TEMP_USE_VIDEO_CODEC
 		initializeVideoFrameData();
+
+		_videoDecoder = NULL;
+		_videoEncoder = NULL;
+
+		_srcFile = NULL;
+		_dstFile = NULL;
 
 		_audioStream = createAudioStream();
 		pushAudioStream(_audioStream);
@@ -101,7 +106,7 @@ namespace gs
 		_srcFile = newObject<TagReadFile>(GS_COMMENT_FILE_LINE);
 		CHECK_IF(_srcFile == NULL, "Could not allocate src Video File!");
 
-		_srcFile->open(GS_GAME_PATH "RESOURCE/OPENING.SAN");
+		_srcFile->open(GS_GAME_PATH "RESOURCE/OPENING.GSV");
 
 		if (_srcFile->isOpen() == false) {
 			error(GS_THIS, "Could not open Video File!");
@@ -110,7 +115,7 @@ namespace gs
 			return;
 		}
 
-		_videoDecoder = &SMUSH_DECODER;
+		_videoDecoder = &GSV_DECODER;
 
 		if (_videoDecoder->initialize(_srcFile) == false) {
 			error(GS_THIS, "Could not read Video File!");
@@ -120,6 +125,7 @@ namespace gs
 			return;
 		}
 
+#if 0
 		_dstFile = newObject<WriteFile>(GS_COMMENT_FILE_LINE);
 		CHECK_IF(_dstFile == NULL, "Could not allocate Video dst File!");
 
@@ -150,7 +156,7 @@ namespace gs
 			_videoEncoder = NULL;
 			return;
 		}
-
+#endif
 
 #else
 		/* Temporary Code to imitate Video Playing */

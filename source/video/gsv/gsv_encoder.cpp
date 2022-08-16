@@ -107,7 +107,7 @@ namespace gs
 		}
 
 		if (frame->_palette != NULL) {
-			sFile->writeBytes(&frame->_palette[0], sizeof(PaletteFrame::palette));
+			sFile->writeBytes(&frame->_palette->palette[0], sizeof(PaletteFrame::palette));
 		}
 
 		return 1;
