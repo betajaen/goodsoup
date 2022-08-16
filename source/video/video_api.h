@@ -41,21 +41,21 @@ namespace gs
 
 	struct VideoEncoderParams {
 		// Left position of a video frame in pixels (i.e. 0)
-		uint16 left;
+		uint16 left_px;
 		// Top position of a video frame in pixels (i.e. 0)
-		uint16 top;
+		uint16 top_px;
 		// Width of a video frame in pixels (i.e. 640)
-		uint16 width;
+		uint16 width_px;
 		// Height of a video frame in pixels (i.e. 480)
-		uint16 height;
+		uint16 height_px;
 		// Reserved
 		uint8  reserved;
 		// Audio Format (i.e. AF_S16MSB, see AudioFormat in audio.h)
 		uint8  audioFormat;
 		// Audio Frequency in Hertz (i.e. 22050 Hz)
-		uint16 audioFrequency;
+		uint16 audioFrequency_hz;
 		// Audio Sample Rate in Bytes (i.e. 4096)
-		uint16 audioSampleRate;
+		uint16 audioSampleRate_bytes;
 	};
 
 
