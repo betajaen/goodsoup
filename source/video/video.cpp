@@ -27,6 +27,7 @@
 #include "audio.h"
 
 extern gs::VideoDecoder SMUSH_DECODER;
+extern gs::VideoEncoder GSV_ENCODER;
 
 namespace gs
 {
@@ -37,7 +38,7 @@ namespace gs
 
 	VideoContext::VideoContext() {
 
-		_videoCodec = NULL;
+		_videoDecoder = NULL;
 
 		_api.initialize = NULL;
 		_api.teardown = NULL;
@@ -65,12 +66,19 @@ namespace gs
 		}
 		_frames.clear();
 
-		if (_videoCodec != NULL) {
-			_videoCodec->teardown();
+		if (_videoEncoder != NULL) {
+			_videoEncoder->teardown();
 		}
 
-		deleteObject(_videoFile);
+		deleteObject(_dstFile);
 
+		if (_videoDecoder != NULL) {
+			_videoDecoder->teardown();
+		}
+
+
+
+		deleteObject(_srcFile);
 
 		popAudioStream();
 		releaseAudioStream(_audioStream);
@@ -90,27 +98,59 @@ namespace gs
 	void VideoContext::loadVideo(uint8 id) {
 #if TEMP_USE_VIDEO_CODEC
 		_videoStateKind = VSK_Loaded;
-		_videoFile = newObject<TagReadFile>(GS_COMMENT_FILE_LINE);
-		CHECK_IF(_videoFile == NULL, "Could not allocate Video File!");
+		_srcFile = newObject<TagReadFile>(GS_COMMENT_FILE_LINE);
+		CHECK_IF(_srcFile == NULL, "Could not allocate src Video File!");
 
-		_videoFile->open(GS_GAME_PATH "RESOURCE/OPENING.SAN");
+		_srcFile->open(GS_GAME_PATH "RESOURCE/OPENING.SAN");
 
-		if (_videoFile->isOpen() == false) {
+		if (_srcFile->isOpen() == false) {
 			error(GS_THIS, "Could not open Video File!");
 			abort_quit_stop();
-			deleteObject(_videoFile);
+			deleteObject(_srcFile);
 			return;
 		}
 
-		_videoCodec = &SMUSH_DECODER;
+		_videoDecoder = &SMUSH_DECODER;
 
-		if (_videoCodec->initialize(_videoFile) == false) {
+		if (_videoDecoder->initialize(_srcFile) == false) {
 			error(GS_THIS, "Could not read Video File!");
 			abort_quit_stop();
-			deleteObject(_videoFile);
-			_videoCodec = NULL;
+			deleteObject(_srcFile);
+			_videoDecoder = NULL;
 			return;
 		}
+
+		_dstFile = newObject<WriteFile>(GS_COMMENT_FILE_LINE);
+		CHECK_IF(_dstFile == NULL, "Could not allocate Video dst File!");
+
+		_dstFile->open(GS_GAME_PATH "RESOURCE/OPENING.GSV");
+
+		if (_dstFile->isOpen() == false) {
+			error(GS_THIS, "Could not open destination Video File!");
+			abort_quit_stop();
+			deleteObject(_dstFile);
+			return;
+		}
+
+		_videoEncoder = &GSV_ENCODER;
+
+		VideoEncoderParams encoderParams;
+		encoderParams.left_px = 0;
+		encoderParams.top_px = 0;
+		encoderParams.width_px = GS_BITMAP_PITCH;
+		encoderParams.height_px = GS_BITMAP_ROWS;
+		encoderParams.audioFormat = AF_S16MSB;
+		encoderParams.audioFrequency_hz = 22050;
+		encoderParams.audioSampleRate_bytes = (1024 * 2 * sizeof(int16));
+
+		if (_videoEncoder->initialize(_dstFile, encoderParams) == false) {
+			error(GS_THIS, "Could not open destination Video File!");
+			abort_quit_stop();
+			deleteObject(_srcFile);
+			_videoEncoder = NULL;
+			return;
+		}
+
 
 #else
 		/* Temporary Code to imitate Video Playing */
@@ -142,7 +182,7 @@ namespace gs
 
 #if TEMP_USE_VIDEO_CODEC
 		VideoFrame* frame = acquireVideoFrame();
-		_nextFrameAction = _videoCodec->processFrame(frame);
+		_nextFrameAction = _videoDecoder->processFrame(frame);
 
 		if (_nextFrameAction == 0) {
 			// An Error has happened
@@ -183,14 +223,28 @@ namespace gs
 		VideoFrame* oldest = _frames.pullFront();
 
 		if (oldest) {
+
 			_framesInQueue--;
+
+			if (_dstFile != NULL && _videoEncoder != NULL) {
+				_videoEncoder->processFrame(oldest);
+			}
+
 			oldest->apply(_frameBuffer, _audioStream);
 			screenBlitCopy(_frameBuffer);
+
 			if (oldest->_timing.action == VFNA_Stop) {
 				_videoStateKind = VSK_Stopped;
 			}
 
+			if (oldest->_timing.num >= 1000) {
+				_videoStateKind = VSK_Stopped;
+			}
+
+
+			debug(GS_THIS, "Frame %ld", oldest->_timing.num);
 			disposeVideoFrame(oldest);
+
 		}
 		else {
 			debug(GS_THIS, "No more frames. Stopping");
