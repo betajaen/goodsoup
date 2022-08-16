@@ -768,6 +768,16 @@ namespace gs {
 			return head == tail && head != NULL;
 		}
 
+		uint16 count() const {
+			uint16 count = 0;
+			T* h = head;
+			while(h) {
+				count++;
+				h = h->next;
+			}
+			return count;
+		}
+
 		T* peekFront() {
 			return head;
 		}
