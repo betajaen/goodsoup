@@ -256,6 +256,17 @@ namespace gs
 			_file.skip(offset);
 		}
 
+		inline TagPair readTag() {
+
+			TagPair pair;
+			byte* tag = (byte*) &pair.tag;
+			_file.readBytes(tag, 4);
+			pair.length = 0;
+			pair.dataPos = _file.pos();
+
+			return pair;
+		}
+
 		inline TagPair readTagPair() {
 			TagPair pair;
 			byte* tag = (byte*) &pair.tag;
