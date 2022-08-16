@@ -670,6 +670,15 @@ namespace gs
 		char* out_text = subtitleFrame->getString();
 		bool wasParsed = parseFormattedDialogue2(sSubtitleText, out_text, subtitleFrame->hash, subtitleFrame->font, subtitleFrame->colour, subtitleFrame->kind);
 
+		/* TODO: To improve upon */
+		uint32 length = 0;
+		char* t = out_text;
+		while(*t++ != 0) {
+			length++;
+		}
+
+		subtitleFrame->length = length;
+
 		return wasParsed;
 	}
 
