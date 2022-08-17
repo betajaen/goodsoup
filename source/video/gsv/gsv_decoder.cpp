@@ -46,17 +46,20 @@ namespace gs
 
 	uint8  gsv_decoder_processFrame(VideoFrame* frame) {
 
+		if (sFile->pos() >= sFile->length()) {
+			frame->_timing.action = VFNA_Stop;
+			return 2;
+		}
+
 		byte str[5] = { 0 };
 		sFile->readBytes(str, 4);
 
 		if (str[0] == 'S' && str[1] == 'T' && str[2] == 'O' && str[3] == 'P') {
 			frame->_timing.action = VFNA_Stop;
-			debug(GS_THIS, "Stop Frame");
 			return 2;
 		}
 
 		if (!(str[0] == 'F' && str[1] == 'R' && str[2] == 'M' && str[3] == 'E')) {
-			debug(GS_THIS, "Not FRME \"%s\"", str);
 			frame->_timing.action = VFNA_Stop;
 			return 0;
 		}
@@ -65,14 +68,14 @@ namespace gs
 		uint16 numSubtitles = sFile->readInt16BE();
 		byte hasImage = sFile->readByte();
 		byte hasPalette = sFile->readByte();
-
+/*
 		debug(GS_THIS, "Num Audio = %ld, Num Subtitles = %ld, Has Image = %ld, HasPalette = %ld",
 			  numAudio,
 			  numSubtitles,
 			  hasImage,
 			  hasPalette
 			  );
-
+*/
 		frame->_timing.num = sFile->readUInt16BE();
 		frame->_timing.length_msec = sFile->readUInt16BE();
 		frame->_timing.action = sFile->readUInt16BE();
@@ -107,7 +110,6 @@ namespace gs
 		}
 
 		sFrameNum = frame->_timing.num;
-		debug(GS_THIS, "Decoded Frame %ld", sFrameNum);
 
 		return 1;
 	}
