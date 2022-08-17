@@ -30,6 +30,7 @@ namespace gs
 	class AudioStream_S16MSB;
 	class VideoDecoder;
 	class VideoEncoder;
+	class VideoConverter;
 
 	enum VideoStateKind {
 		VSK_NotLoaded = 0,
@@ -48,6 +49,7 @@ namespace gs
 		VideoApi _api;
 		VideoDecoder* _videoDecoder;
 		VideoEncoder* _videoEncoder;
+		VideoConverter* _videoConverter;
 		TagReadFile* _srcFile;
 		WriteFile* _dstFile;
 

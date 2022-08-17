@@ -20,6 +20,7 @@
 #include "video.h"
 #include "video/video_api.h"
 #include "video/video_frame.h"
+#include "video/video_converter.h"
 #include "san/codec.h"
 #include "screen.h"
 #include "room.h"  // For RoomPaletteData
@@ -51,6 +52,7 @@ namespace gs
 
 		_srcFile = NULL;
 		_dstFile = NULL;
+		_videoConverter = newObject<VideoConverter>(GS_COMMENT_FILE_LINE_NOTE("VideoConverter"));
 
 		_audioStream = createAudioStream();
 		pushAudioStream(_audioStream);
@@ -82,7 +84,6 @@ namespace gs
 		}
 
 
-
 		deleteObject(_srcFile);
 
 		popAudioStream();
@@ -91,6 +92,7 @@ namespace gs
 
 		debug(GS_THIS, "Video End");
 
+		deleteObject(_videoConverter);
 		disposeVideoFrameData();
 #else
 		if (_api.teardown != NULL) {
@@ -237,6 +239,11 @@ namespace gs
 			}
 
 			oldest->apply(_frameBuffer, _audioStream);
+
+			if (_videoConverter != NULL) {
+				_videoConverter->convert(_frameBuffer, _frameBuffer);
+			}
+
 			screenBlitCopy(_frameBuffer);
 
 			if (oldest->_timing.action == VFNA_Stop) {
@@ -248,7 +255,7 @@ namespace gs
 			}
 
 
-			debug(GS_THIS, "Frame %ld", oldest->_timing.num);
+			// debug(GS_THIS, "Frame %ld", oldest->_timing.num);
 			disposeVideoFrame(oldest);
 
 		}

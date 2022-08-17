@@ -102,6 +102,7 @@ OBJ +=	source/main_game.o\
 		source/costume.o\
 		source/video/video.o\
 		source/video/video_frame.o\
+		source/video/video_converter.o\
 		source/video/san/codec.o\
 		source/video/san/iact_timing.o\
 		source/video/san/iact_audio.o\
