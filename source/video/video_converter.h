@@ -28,14 +28,16 @@ namespace gs
 
 		byte* _lastFrame;
 		byte* _newFrame;
-		bool _doFrameDifference;
 
 	public:
+
+		bool _doFrameDifference;
+		bool _doHalfScale;
 
 		VideoConverter();
 		~VideoConverter();
 
-		void initialize(bool frameDifference);
+		void initialize(bool frameDifference, bool halfScale);
 
 		void convert(byte* dstFrameBuffer, byte* newFrameData);
 

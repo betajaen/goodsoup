@@ -26,6 +26,7 @@
 #include "room.h"  // For RoomPaletteData
 #include "disk.h"
 #include "audio.h"
+#include "image.h"
 
 extern gs::VideoDecoder SMUSH_DECODER;
 extern gs::VideoEncoder GSV_ENCODER;
@@ -52,7 +53,6 @@ namespace gs
 
 		_srcFile = NULL;
 		_dstFile = NULL;
-		_videoConverter = newObject<VideoConverter>(GS_COMMENT_FILE_LINE_NOTE("VideoConverter"));
 
 		_audioStream = createAudioStream();
 		pushAudioStream(_audioStream);
@@ -92,7 +92,6 @@ namespace gs
 
 		debug(GS_THIS, "Video End");
 
-		deleteObject(_videoConverter);
 		disposeVideoFrameData();
 #else
 		if (_api.teardown != NULL) {
@@ -108,7 +107,7 @@ namespace gs
 		_srcFile = newObject<TagReadFile>(GS_COMMENT_FILE_LINE);
 		CHECK_IF(_srcFile == NULL, "Could not allocate src Video File!");
 
-		_srcFile->open(GS_GAME_PATH "RESOURCE/OPENING.GSV");
+		_srcFile->open(GS_GAME_PATH "RESOURCE/OPENING.SAN");
 
 		if (_srcFile->isOpen() == false) {
 			error(GS_THIS, "Could not open Video File!");
@@ -117,7 +116,7 @@ namespace gs
 			return;
 		}
 
-		_videoDecoder = &GSV_DECODER;
+		_videoDecoder = &SMUSH_DECODER;
 
 		if (_videoDecoder->initialize(_srcFile) == false) {
 			error(GS_THIS, "Could not read Video File!");
@@ -239,21 +238,12 @@ namespace gs
 			}
 
 			oldest->apply(_frameBuffer, _audioStream);
-
-			if (_videoConverter != NULL) {
-				_videoConverter->convert(_frameBuffer, _frameBuffer);
-			}
-
 			screenBlitCopy(_frameBuffer);
+
 
 			if (oldest->_timing.action == VFNA_Stop) {
 				_videoStateKind = VSK_Stopped;
 			}
-
-			if (oldest->_timing.num >= 1000) {
-				_videoStateKind = VSK_Stopped;
-			}
-
 
 			// debug(GS_THIS, "Frame %ld", oldest->_timing.num);
 			disposeVideoFrame(oldest);

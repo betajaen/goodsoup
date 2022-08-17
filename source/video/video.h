@@ -49,7 +49,6 @@ namespace gs
 		VideoApi _api;
 		VideoDecoder* _videoDecoder;
 		VideoEncoder* _videoEncoder;
-		VideoConverter* _videoConverter;
 		TagReadFile* _srcFile;
 		WriteFile* _dstFile;
 
