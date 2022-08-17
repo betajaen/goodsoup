@@ -86,7 +86,7 @@ namespace gs
 			SubtitleFrame* subtitleFrame = frame->addSubtitle();
 
 			subtitleFrame->hash = sFile->readUInt32BE();
-			subtitleFrame->length = sFile->readByte();
+			subtitleFrame->length = sFile->readUInt16BE();
 			subtitleFrame->flags = sFile->readByte();
 			subtitleFrame->font = sFile->readByte();
 			subtitleFrame->colour = sFile->readByte();

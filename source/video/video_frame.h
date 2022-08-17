@@ -36,7 +36,7 @@ namespace gs
 	struct SubtitleFrame {
 		SubtitleFrame *next;
 		uint32 hash;
-		uint8 length;
+		uint16 length;
 		uint8 flags;
 		uint8 font;
 		uint8 colour;

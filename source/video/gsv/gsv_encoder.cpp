@@ -91,7 +91,7 @@ namespace gs
 		SubtitleFrame* subtitleFrame = frame->_subtitles.peekFront();
 		while(subtitleFrame != NULL) {
 			sFile->writeUInt32BE(subtitleFrame->hash);
-			sFile->writeByte(subtitleFrame->length);
+			sFile->writeUInt16BE(subtitleFrame->length);
 			sFile->writeByte(subtitleFrame->flags);
 			sFile->writeByte(subtitleFrame->font);
 			sFile->writeByte(subtitleFrame->colour);

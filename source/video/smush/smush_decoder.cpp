@@ -54,7 +54,7 @@ namespace gs
 	static TagPair sLastFrmeTag;
 
 	// Declared in Font.h
-	bool parseFormattedDialogue2(const char* text, char* out_text, uint32 &out_translationHash, uint8 &out_fontNum, uint8 &out_Colour, uint8& out_Kind);
+	bool parseFormattedDialogue2(const char* text, char* out_text, uint32 &out_translationHash, uint8 &out_fontNum, uint8 &out_Colour, uint8& out_Kind, uint16& out_Length);
 
 	// Declared in Font.h
 	void printDialogue(const char* text, uint32 id, uint8 kind);
@@ -668,16 +668,7 @@ namespace gs
 		sFile->readBytes(sSubtitleText, subtitleLength);
 
 		char* out_text = subtitleFrame->getString();
-		bool wasParsed = parseFormattedDialogue2(sSubtitleText, out_text, subtitleFrame->hash, subtitleFrame->font, subtitleFrame->colour, subtitleFrame->kind);
-
-		/* TODO: To improve upon */
-		uint32 length = 0;
-		char* t = out_text;
-		while(*t++ != 0) {
-			length++;
-		}
-
-		subtitleFrame->length = length;
+		bool wasParsed = parseFormattedDialogue2(sSubtitleText, out_text, subtitleFrame->hash, subtitleFrame->font, subtitleFrame->colour, subtitleFrame->kind, subtitleFrame->length);
 
 		return wasParsed;
 	}

@@ -263,9 +263,11 @@ namespace gs
 		return num;
 	}
 
-	bool parseFormattedDialogue2(const char* text, char* out_text, uint32 &out_translationHash, uint8 &out_fontNum, uint8 &out_Colour, uint8 &out_kind) {
+	bool parseFormattedDialogue2(const char* text, char* out_text, uint32 &out_translationHash, uint8 &out_fontNum, uint8 &out_Colour, uint8 &out_kind, uint16& out_Length) {
 
 		CHECK_IF_RETURN(text == NULL, false, "Text is NULL");
+
+		out_Length = 0;
 
 		// Empty text
 		if (*text == '\0') {
@@ -379,6 +381,7 @@ namespace gs
 				lastWasNl = false;
 				*out_text = '\n';
 				out_text++;
+				out_Length++;
 			}
 
 			// If there was a " ", add it back in. This handles left and right trimming.
@@ -386,10 +389,12 @@ namespace gs
 				lastWasSpace = false;
 				*out_text = ' ';
 				out_text++;
+				out_Length++;
 			}
 
 			// Copy a Normal character over
 			*out_text++ = *text++;
+			out_Length++;
 		}
 
 		// Dont forget the null!
