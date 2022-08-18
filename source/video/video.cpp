@@ -16,7 +16,7 @@
  */
 
 #define GS_FILE_NAME "video"
-#define TEMP_USE_VIDEO_CODEC 0
+#define TEMP_USE_VIDEO_CODEC 1
 #include "video.h"
 #include "video/video_api.h"
 #include "video/video_frame.h"
@@ -107,16 +107,35 @@ namespace gs
 		_srcFile = newObject<TagReadFile>(GS_COMMENT_FILE_LINE);
 		CHECK_IF(_srcFile == NULL, "Could not allocate src Video File!");
 
-		_srcFile->open(GS_GAME_PATH "RESOURCE/OPENING.SAN");
+		String srcPath;
 
-		if (_srcFile->isOpen() == false) {
+		if (tryGetVideoPath(srcPath, "GSV", id) == false) {
 			error(GS_THIS, "Could not open Video File!");
 			abort_quit_stop();
 			deleteObject(_srcFile);
 			return;
 		}
 
-		_videoDecoder = &SMUSH_DECODER;
+		_srcFile->open(srcPath.string(), false);
+
+		if (_srcFile->isOpen() == true) {
+			_videoDecoder = &GSV_DECODER;
+		}
+		else {
+			CHECK_IF(tryGetVideoPath(srcPath, "SAN", id) == false, "Could not create Video Path");
+
+			_srcFile->open(srcPath.string());
+
+			if (_srcFile->isOpen() == false) {
+				error(GS_THIS, "Could not open Video File!");
+				abort_quit_stop();
+				deleteObject(_srcFile);
+				return;
+			}
+
+			_videoDecoder = &SMUSH_DECODER;
+		}
+
 
 		if (_videoDecoder->initialize(_srcFile) == false) {
 			error(GS_THIS, "Could not read Video File!");
@@ -209,11 +228,11 @@ namespace gs
 			return false;
 		}
 
-		// Fallback
-		return false;
 
 #endif
 
+		// Fallback
+		return false;
 	}
 
 	void VideoContext::playVideoFrame() {
