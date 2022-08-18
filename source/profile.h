@@ -18,7 +18,7 @@
 #ifndef GS_PROFILE_H
 #define GS_PROFILE_H
 
-#include "types.h"
+#include "forward.h"
 
 #define GS_GAME_NAME "COMI"
 #define GS_GAME_VERSION 8
@@ -74,6 +74,8 @@ namespace gs
 	const char* const RESOURCE_PATH = "RESOURCES/";
 
 	extern const char* RESOURCE_VIDEO[MAX_VIDEOS];
+
+	bool tryGetVideoPath(String& out_String, const char* extension, uint8 videoNum);
 
 }
 

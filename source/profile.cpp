@@ -18,10 +18,11 @@
 #define GS_FILE_NAME "profile"
 
 #include "profile.h"
+#include "string.h"
 
 namespace gs
 {
-	const char* RESOURCE_VIDEO[MAX_VIDEOS] {
+	const char* RESOURCE_VIDEO[MAX_VIDEOS] = {
 		"BBSAN",
 		"CURSERNG",
 		"FG010GP",
@@ -38,4 +39,14 @@ namespace gs
 		"WRECKSAN",
 		"ZAP010"
 	};
+
+
+	bool tryGetVideoPath(String& out_String, const char* extension, uint8 videoNum) {
+		if (videoNum >= MAX_VIDEOS)
+			return false;
+
+		String::format(out_String, "%sRESOURCE/%s.%s", GS_GAME_PATH, RESOURCE_VIDEO[videoNum], extension);
+		return true;
+	}
+
 }
