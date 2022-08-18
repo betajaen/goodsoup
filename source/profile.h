@@ -18,6 +18,8 @@
 #ifndef GS_PROFILE_H
 #define GS_PROFILE_H
 
+#include "types.h"
+
 #define GS_GAME_NAME "COMI"
 #define GS_GAME_VERSION 8
 #define GS_SCREEN_WIDTH 640
@@ -65,8 +67,13 @@ namespace gs
 		OBJECT_MIN = 100,
 		MAX_FONTS = 5,
 		MAX_AUDIO_MIXERS = 4,
-		MAX_DIALOGUE_LENGTH = 384
+		MAX_DIALOGUE_LENGTH = 384,
+		MAX_VIDEOS = 15
 	};
+
+	const char* const RESOURCE_PATH = "RESOURCES/";
+
+	extern const char* RESOURCE_VIDEO[MAX_VIDEOS];
 
 }
 

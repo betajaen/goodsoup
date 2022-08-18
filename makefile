@@ -74,6 +74,7 @@ OBJ +=	source/hash.o\
 
 # Game Sources
 OBJ +=	source/main_game.o\
+		source/profile.o\
 		source/vm/vm.o\
 		source/vm/context.o\
 		source/vm/stack.o\
