@@ -24,6 +24,7 @@
 #include "profile.h"
 #include "file.h"
 #include "audio.h"
+#include "string.h"
 
 extern gs::VideoDecoder SMUSH_DECODER;
 extern gs::VideoEncoder GSV_ENCODER;
@@ -62,7 +63,16 @@ namespace gs
 		_srcFile = newObject<TagReadFile>(GS_COMMENT_FILE_LINE);
 		CHECK_IF_RETURN(_srcFile == NULL, false, "Could not allocate src Video File!");
 
-		_srcFile->open(GS_GAME_PATH "RESOURCE/OPENING.SAN");
+		String srcPath;
+
+		if (tryGetVideoPath(srcPath, "SAN", videoNum) == false) {
+			error(GS_THIS, "Could not find Video File!");
+			abort_quit_stop();
+			deleteObject(_srcFile);
+			return false;
+		}
+
+		_srcFile->open(srcPath.string());
 
 		if (_srcFile->isOpen() == false) {
 			error(GS_THIS, "Could not open Video File!");
@@ -84,7 +94,10 @@ namespace gs
 		_dstFile = newObject<WriteFile>(GS_COMMENT_FILE_LINE);
 		CHECK_IF_RETURN(_dstFile == NULL, false, "Could not allocate Video dst File!");
 
-		_dstFile->open(GS_GAME_PATH "RESOURCE/OPENING.GSV");
+		String dstPath;
+		CHECK_IF_RETURN(tryGetVideoPath(dstPath, "GSV", videoNum) == false, false, "Could not create Destination Video Path");
+
+		_dstFile->open(dstPath.string());
 
 		if (_dstFile->isOpen() == false) {
 			error(GS_THIS, "Could not open destination Video File!");
