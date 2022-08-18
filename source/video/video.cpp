@@ -16,7 +16,7 @@
  */
 
 #define GS_FILE_NAME "video"
-#define TEMP_USE_VIDEO_CODEC 1
+#define TEMP_USE_VIDEO_CODEC 0
 #include "video.h"
 #include "video/video_api.h"
 #include "video/video_frame.h"
@@ -110,7 +110,7 @@ namespace gs
 		String srcPath;
 
 		if (tryGetVideoPath(srcPath, "GSV", id) == false) {
-			error(GS_THIS, "Could not open Video File!");
+			error(GS_THIS, "Could not find Video File!");
 			abort_quit_stop();
 			deleteObject(_srcFile);
 			return;
@@ -122,7 +122,7 @@ namespace gs
 			_videoDecoder = &GSV_DECODER;
 		}
 		else {
-			CHECK_IF(tryGetVideoPath(srcPath, "SAN", id) == false, "Could not create Video Path");
+			CHECK_IF(tryGetVideoPath(srcPath, "SAN", id) == false, "Could not create Source Video Path");
 
 			_srcFile->open(srcPath.string());
 
