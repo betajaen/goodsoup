@@ -18,102 +18,134 @@
 #define GS_FILE_NAME "video_converter"
 
 #include "video_converter.h"
+#include "video_api.h"
+#include "video_frame.h"
 #include "memory.h"
 #include "profile.h"
+#include "file.h"
+#include "audio.h"
+
+extern gs::VideoDecoder SMUSH_DECODER;
+extern gs::VideoEncoder GSV_ENCODER;
+extern gs::VideoDecoder GSV_DECODER;
 
 namespace gs
 {
+	// Declared in video/smush/smush_tables.cpp
+	void smush_tables_initialize();
+	void smush_tables_teardown();
 
 	VideoConverter::VideoConverter() {
-		_lastFrame = NULL;
-		_newFrame = NULL;
+		_srcFile = NULL;
+		_dstFile = NULL;
+		_frameBuffer = NULL;
+		initializeVideoFrameData();
+		smush_tables_initialize();
 	}
 
 	VideoConverter::~VideoConverter() {
-		releaseMemory(_lastFrame);
-		releaseMemory(_newFrame);
+		disposeVideoFrameData();
+		deleteObject(_dstFile);
+		deleteObject(_srcFile);
+		releaseMemory(_frameBuffer);
+		smush_tables_teardown();
 	}
 
-	void VideoConverter::initialize(bool frameDifference, bool halfScale) {
-		_doFrameDifference = frameDifference;
-		_doHalfScale = halfScale;
+	bool VideoConverter::initialize(uint8 videoNum) {
 
-		_lastFrame = (byte*) allocateMemory(1, GS_BITMAP_SIZE, MF_Clear, GS_COMMENT_FILE_LINE);
-		_newFrame = (byte*) allocateMemory(1, GS_BITMAP_SIZE, MF_Clear, GS_COMMENT_FILE_LINE);
+		deleteObject(_dstFile);
+		deleteObject(_srcFile);
+		releaseMemory(_frameBuffer);
 
-	}
+		_frameBuffer = (byte*) allocateMemory(1, GS_BITMAP_SIZE, MF_Clear, GS_COMMENT_FILE_LINE);
 
-	void VideoConverter::convert(byte* dstFrameBuffer, byte* newFrameData) {
-		GS_SWAP(byte*, _lastFrame, _newFrame);
-		copyMemQuick((uint32*) _newFrame, (uint32*) newFrameData, GS_BITMAP_SIZE);
+		_srcFile = newObject<TagReadFile>(GS_COMMENT_FILE_LINE);
+		CHECK_IF_RETURN(_srcFile == NULL, false, "Could not allocate src Video File!");
 
-		if (_doHalfScale) {
-			uint8 y = 240;
-			byte* src = _newFrame;
-			byte* dst = dstFrameBuffer;
+		_srcFile->open(GS_GAME_PATH "RESOURCE/OPENING.SAN");
 
-
-			while(y--) {
-
-				uint16 x = 320;
-				while(x--) {
-
-					*dst++ = *src++;
-					src++;
-				}
-
-				src+=640;
-
-			}
-
+		if (_srcFile->isOpen() == false) {
+			error(GS_THIS, "Could not open Video File!");
+			abort_quit_stop();
+			deleteObject(_srcFile);
+			return false;
 		}
 
-		if (_doFrameDifference) {
+		_videoDecoder = &SMUSH_DECODER;
 
-			uint32* prev = (uint32*) _lastFrame;
-			uint32* now = (uint32*) _newFrame;
-			uint32* dst = (uint32*) dstFrameBuffer;
-
-
-			uint16 y = 480;
-			while(y--) {
-
-				uint8 b = 16;
-
-				while(b--) {
-					uint8 k = 10;
-					uint8 same = 1;
-
-					while(k--) {
-						if (*prev++ == *now++) {
-							continue;
-						}
-
-						same = 0;
-					}
-
-					if (same) {
-						k = 10;
-						while (k--) {
-							dst++;
-						}
-					}
-					else {
-						k = 10;
-						while (k--) {
-							*dst++ = 0xFFffFFff;
-						}
-					}
-
-				}
-
-
-
-
-			}
-
+		if (_videoDecoder->initialize(_srcFile) == false) {
+			error(GS_THIS, "Could not read Video File!");
+			abort_quit_stop();
+			deleteObject(_srcFile);
+			_videoDecoder = NULL;
+			return false;
 		}
+
+		_dstFile = newObject<WriteFile>(GS_COMMENT_FILE_LINE);
+		CHECK_IF_RETURN(_dstFile == NULL, false, "Could not allocate Video dst File!");
+
+		_dstFile->open(GS_GAME_PATH "RESOURCE/OPENING.GSV");
+
+		if (_dstFile->isOpen() == false) {
+			error(GS_THIS, "Could not open destination Video File!");
+			abort_quit_stop();
+			deleteObject(_dstFile);
+			return false;
+		}
+
+		_videoEncoder = &GSV_ENCODER;
+
+		VideoEncoderParams encoderParams;
+		encoderParams.left_px = 0;
+		encoderParams.top_px = 0;
+		encoderParams.width_px = GS_BITMAP_PITCH;
+		encoderParams.height_px = GS_BITMAP_ROWS;
+		encoderParams.audioFormat = AF_S16MSB;
+		encoderParams.audioFrequency_hz = 22050;
+		encoderParams.audioSampleRate_bytes = (1024 * 2 * sizeof(int16));
+
+		if (_videoEncoder->initialize(_dstFile, encoderParams) == false) {
+			error(GS_THIS, "Could not open destination Video File!");
+			abort_quit_stop();
+			deleteObject(_srcFile);
+			_videoEncoder = NULL;
+			return false;
+		}
+
+		return true;
 	}
 
+	void VideoConverter::run() {
+
+		VideoFrame* frame = acquireVideoFrame();
+
+
+		while(true) {
+			frame->recycle();
+			_videoDecoder->processFrame(frame);
+			_videoEncoder->processFrame(frame);
+
+			if (frame->_timing.action == VFNA_Stop) {
+				break;
+			}
+		}
+
+		disposeVideoFrame(frame);
+
+		_videoEncoder->teardown();
+		_videoDecoder->teardown();
+	}
+
+	int convertVideo(uint8 videoNum) {
+		VideoConverter* converter = newObject<VideoConverter>(GS_COMMENT_FILE_LINE);
+		if (converter->initialize(videoNum) == false) {
+			deleteObject(converter);
+			return 1;
+		}
+
+		converter->run();
+		deleteObject(converter);
+		return 0;
+	}
 
 }

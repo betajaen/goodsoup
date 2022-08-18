@@ -23,25 +23,29 @@
 namespace gs
 {
 
+	class VideoDecoder;
+	class VideoEncoder;
+
 	class VideoConverter {
 	private:
 
-		byte* _lastFrame;
-		byte* _newFrame;
+		VideoDecoder* _videoDecoder;
+		VideoEncoder* _videoEncoder;
+		TagReadFile* _srcFile;
+		WriteFile* _dstFile;
+		byte* _frameBuffer;
 
 	public:
-
-		bool _doFrameDifference;
-		bool _doHalfScale;
 
 		VideoConverter();
 		~VideoConverter();
 
-		void initialize(bool frameDifference, bool halfScale);
-
-		void convert(byte* dstFrameBuffer, byte* newFrameData);
+		bool initialize(uint8 videoNum);
+		void run();
 
 	};
+
+	int convertVideo(uint8 num);
 
 }
 
