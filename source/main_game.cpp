@@ -55,9 +55,11 @@ namespace test
 namespace gs
 {
 
+	// Declared in video/video_converter.cpp
+	int convertVideo(uint8 num);
+
 	static int runGame();
 	static int playVideo(uint8 num);
-	static int convertVideo(uint8 num);
 	static int convertFont(uint8 num);
 
 	uint8 NEXT_GAME_STATE = GSK_None;
@@ -270,7 +272,7 @@ namespace gs
 		}
 
 		NEXT_GAME_STATE = GSK_Video;
-		NEXT_GAME_STATE_PARAM = 1;
+		NEXT_GAME_STATE_PARAM = videoNum;
 		GAME_STATE = GSK_None;
 		SCREEN_EVENT_HANDLER_SHOULD_QUIT = false;
 
@@ -283,11 +285,6 @@ namespace gs
 	}
 
 	static int convertFont(uint8 fontNum) {
-		/* TODO */
-		return 1;
-	}
-
-	static int convertVideo(uint8 videoNum) {
 		/* TODO */
 		return 1;
 	}
@@ -426,7 +423,7 @@ namespace gs
 			else {
 				setNextGameState(GSK_Room, 0);
 			}
-			
+
 		}
 		else if (KEY_EVENT == KE_DebugShowPalette) {
 			DEBUG_SHOW_PALETTE = !DEBUG_SHOW_PALETTE;
