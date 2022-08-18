@@ -179,8 +179,8 @@ namespace gs
 			close();
 		}
 
-		inline void open(const char* path) {
-			_file.open(path);
+		inline void open(const char* path, bool throwErrorIsNotOpen = true) {
+			_file.open(path, throwErrorIsNotOpen);
 		}
 
 		inline void close() {
