@@ -15,26 +15,32 @@
  *
  */
 
+#include "forward.h"
 #include <SDL2/SDL.h>
 
 namespace gs
 {
 	int main(int param);
 	void checkMem();
+	uint32 stringToUInt32(const char* str);
 
     int32 getMSec() {
         return SDL_GetTicks();
     }
 
-
 }
 
 int main(int argc, char** argv)
 {
-	using namespace gs;
+	gs::uint32 param = 0;
+
+	if (argc > 1) {
+		param = gs::stringToUInt32(argv[1]);
+	}
+
 	SDL_Init(SDL_INIT_EVERYTHING); //EVENTS | SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_TIMER);
-	int rc = main(0);
-	checkMem();
+	int rc = gs::main(param);
+	gs::checkMem();
 	SDL_Quit();
 	return rc;
 }

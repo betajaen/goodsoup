@@ -55,6 +55,11 @@ namespace test
 namespace gs
 {
 
+	static int runGame();
+	static int playVideo(uint8 num);
+	static int convertVideo(uint8 num);
+	static int convertFont(uint8 num);
+
 	uint8 NEXT_GAME_STATE = GSK_None;
 	int32 GAME_STATE_PARAM = 0;
 	uint8 GAME_STATE = GSK_None;
@@ -98,11 +103,72 @@ namespace gs
         vmDebugStop();
 	}
 
-	int main(int param) {
 
+	int main(int param) {
+		int rc = 0;
+
+		INTS = newObject<VmIntVars>(GS_COMMENT_FILE_LINE);
+		BOOLS = newObject<VmBoolVars>(GS_COMMENT_FILE_LINE);
+
+		switch(param) {
+			default:
+			case 0:
+				rc = runGame();
+			break;
+			case 100:
+			case 101:
+			case 102:
+			case 103:
+			case 104:
+			case 105:
+			case 106:
+			case 107:
+			case 108:
+			case 109:
+			case 110:
+			case 111:
+			case 112:
+			case 113:
+			case 114:
+			case 115:
+				rc = playVideo(param - 100);
+			break;
+			case 200:
+			case 201:
+			case 202:
+			case 203:
+			case 204:
+			case 205:
+				rc = convertFont(param - 200);
+				break;
+			case 300:
+			case 301:
+			case 302:
+			case 303:
+			case 304:
+			case 305:
+			case 306:
+			case 307:
+			case 308:
+			case 309:
+			case 310:
+			case 311:
+			case 312:
+			case 313:
+			case 314:
+			case 315:
+				rc = convertVideo(param - 300);
+			break;
+		}
+
+		cleanup();
+
+		return rc;
+	}
+
+	static int runGame() {
         if (vmDebugStart() == false) {
             error(GS_THIS, "Cannot Start VMD Debugger!");
-            cleanup();
             return 1;
         }
 
@@ -120,15 +186,12 @@ namespace gs
 
 		if (openScreen() == false) {
 			error(GS_THIS, "Could not open screen!");
-			cleanup();
 			return 1;
 		}
 
 		ARRAYS = newObject<VmArrayAllocator>(GS_COMMENT_FILE_LINE);
 		INDEX = newObject<Index>(GS_COMMENT_FILE_LINE);
-		
-		INTS = newObject<VmIntVars>(GS_COMMENT_FILE_LINE);
-		BOOLS = newObject<VmBoolVars>(GS_COMMENT_FILE_LINE);
+
 		OBJECTS = newObject<ObjectState>(GS_COMMENT_FILE_LINE);
 		SCRIPTS = newObject<ScriptState>(GS_COMMENT_FILE_LINE);
 		VERBS = newObject<VerbState>(GS_COMMENT_FILE_LINE);
@@ -136,17 +199,63 @@ namespace gs
 		IMAGES = newObject<ImageState>(GS_COMMENT_FILE_LINE);
 		COSTUMES = newObject<CostumeState>(GS_COMMENT_FILE_LINE);
 		VIDEO = newObject<VideoContext>(GS_COMMENT_FILE_LINE);
+		FONT[0] = newObject<Font>(0, GS_COMMENT_FILE_LINE);
+		FONT[1] = newObject<Font>(1, GS_COMMENT_FILE_LINE);
+		FONT[2] = newObject<Font>(2, GS_COMMENT_FILE_LINE);
+		FONT[3] = newObject<Font>(3, GS_COMMENT_FILE_LINE);
+		FONT[4] = newObject<Font>(4, GS_COMMENT_FILE_LINE);
 
-#if defined(GS_DEMO_MODE) && GS_DEMO_MODE != 0
-#else
 		if (INDEX->readFromFile(GS_GAME_PATH GS_INDEX_FILENAME) == false) {
 			cleanup();
 			return 1;
 		}
-#endif
 
 		if (openTables() == false) {
-			cleanup();
+			return 1;
+		}
+
+
+		if (NEXT_GAME_STATE == GSK_Quit) {
+			return 1;
+		}
+
+		RESOURCES = newObject<Resources>(GS_COMMENT_FILE_LINE);
+		RESOURCES->open();
+
+		if (NEXT_GAME_STATE == GSK_Quit) {
+			return 1;
+		}
+
+		VM = newObject<VirtualMachine>(GS_COMMENT_FILE_LINE);
+		VM->reset();
+
+		if (NEXT_GAME_STATE == GSK_Quit) {
+			return 1;
+		}
+
+		NEXT_GAME_STATE = GSK_Boot;
+		NEXT_GAME_STATE_PARAM = 1;
+		GAME_STATE = GSK_None;
+		SCREEN_EVENT_HANDLER_SHOULD_QUIT = false;
+
+		screenEventHandler();
+
+		cleanup();
+		closeScreen();
+
+		return 0;
+	}
+
+	static int playVideo(uint8 videoNum) {
+
+		debug_write_str(GOODSOUP_VERSION_STR);
+		debug_write_char('\n');
+
+
+		info(GS_THIS, "%s\n", &GOODSOUP_VERSION_STR[6]);
+
+		if (openScreen() == false) {
+			error(GS_THIS, "Could not open screen!");
 			return 1;
 		}
 
@@ -157,39 +266,13 @@ namespace gs
 		FONT[4] = newObject<Font>(4, GS_COMMENT_FILE_LINE);
 
 		if (NEXT_GAME_STATE == GSK_Quit) {
-			cleanup();
 			return 1;
 		}
 
-		RESOURCES = newObject<Resources>(GS_COMMENT_FILE_LINE);
-		RESOURCES->open();
-
-		if (NEXT_GAME_STATE == GSK_Quit) {
-			cleanup();
-			return 1;
-		}
-
-		VM = newObject<VirtualMachine>(GS_COMMENT_FILE_LINE);
-		VM->reset();
-
-		if (NEXT_GAME_STATE == GSK_Quit) {
-			cleanup();
-			return 1;
-		}
-
-#if defined(GS_DEMO_MODE) && GS_DEMO_MODE != 0
-#if GS_DEMO_MODE == 1
 		NEXT_GAME_STATE = GSK_Video;
 		NEXT_GAME_STATE_PARAM = 1;
 		GAME_STATE = GSK_None;
 		SCREEN_EVENT_HANDLER_SHOULD_QUIT = false;
-#endif
-#else
-		NEXT_GAME_STATE = GSK_Boot;
-		NEXT_GAME_STATE_PARAM = 1;
-		GAME_STATE = GSK_None;
-		SCREEN_EVENT_HANDLER_SHOULD_QUIT = false;
-#endif
 
 		screenEventHandler();
 
@@ -197,6 +280,16 @@ namespace gs
 		closeScreen();
 
 		return 0;
+	}
+
+	static int convertFont(uint8 fontNum) {
+		/* TODO */
+		return 1;
+	}
+
+	static int convertVideo(uint8 videoNum) {
+		/* TODO */
+		return 1;
 	}
 
 	uint8 col = 0;
@@ -262,8 +355,11 @@ namespace gs
 	}
 
 	void videoFrameHander(bool start, int32 videoId) {
-
 		if (start) {
+			if (VIDEO == NULL) {
+				VIDEO = newObject<VideoContext>(GS_COMMENT_FILE_LINE);
+			}
+
 			VIDEO->loadVideo(videoId);
 		}
 		else {
@@ -271,28 +367,23 @@ namespace gs
 
 			if (VIDEO->getVideoStateKind() == VSK_Stopped) {
 				VIDEO->unloadVideo();
-#if defined(GS_DEMO_MODE) && GS_DEMO_MODE != 0
-				setNextGameState(GSK_Quit, 0);
-#else
-				setNextGameState(GSK_Room, 0);
-#endif
+				deleteObject(VIDEO);
+
+				if (VM == NULL) {
+					// VM is NULL. Probably started via a non-zero param.
+					setNextGameState(GSK_Quit, 0);
+				}
+				else {
+					setNextGameState(GSK_Room, 0);
+				}
+
 			}
 		}
-
 	}
 
 	void frameHandler() {
 
 		bool newState = false;
-
-		if (NEXT_GAME_STATE != GSK_None) {
-			GAME_STATE = NEXT_GAME_STATE;
-			GAME_STATE_PARAM = NEXT_GAME_STATE_PARAM;
-			NEXT_GAME_STATE = 0;
-			NEXT_GAME_STATE_PARAM = 0;
-			newState = true;
-		}
-
 
 		if (DEBUG_STOP_AFTER_FRAMES) {
 			DEBUG_STOP_AFTER_FRAMES_COUNT--;
@@ -319,12 +410,23 @@ namespace gs
 			INTS->leftbtnDown = 0;
 		}
 
-		if (KEY_EVENT == KE_DebugDumpStack) {
+		if (KEY_EVENT == KE_DebugDumpStack && VM != NULL) {
 			VM->dumpStack();
-		} else if (KEY_EVENT == KE_DebugDumpVerbs) {
+		} else if (KEY_EVENT == KE_DebugDumpVerbs && VERBS != NULL) {
 			VERBS->dumpVerbs();
 		} else if (GAME_STATE == GSK_Video && KEY_EVENT == KE_SkipCutscene) {
-			setNextGameState(GSK_Room, 0);
+
+			VIDEO->unloadVideo();
+			deleteObject(VIDEO);
+
+			if (VM == NULL) {
+				// VM is NULL. Probably started via a non-zero param.
+				setNextGameState(GSK_Quit, 0);
+			}
+			else {
+				setNextGameState(GSK_Room, 0);
+			}
+			
 		}
 		else if (KEY_EVENT == KE_DebugShowPalette) {
 			DEBUG_SHOW_PALETTE = !DEBUG_SHOW_PALETTE;
@@ -338,11 +440,16 @@ namespace gs
 		INTS->virtMouseY = MOUSE_Y;
 		INTS->leftbtnHold = MOUSE_LMB_STATE;
 
+		if (NEXT_GAME_STATE != GSK_None) {
+			GAME_STATE = NEXT_GAME_STATE;
+			GAME_STATE_PARAM = NEXT_GAME_STATE_PARAM;
+			NEXT_GAME_STATE = 0;
+			NEXT_GAME_STATE_PARAM = 0;
+			newState = true;
+		}
+
 		switch(GAME_STATE) {
 			case GSK_Boot: {
-#if defined(GS_VM_DEBUG) && GS_VM_DEBUG==1
-				vmDebugRemark("Boot");
-#endif
 				VM->runScript(GAME_STATE_PARAM, false, false);
 
 				NEXT_GAME_STATE = GSK_Room;
@@ -350,15 +457,6 @@ namespace gs
 			}
 			break;
 			case GSK_Room: {
-#if defined(GS_VM_DEBUG) && GS_VM_DEBUG == 1
-				if (newState) {
-					vmDebugRemark("First Frame");
-				}
-				else {
-					vmDebugRemark("Frame");
-				}
-#endif
-
 				roomFrameHandler(newState);
 			}
 			break;
