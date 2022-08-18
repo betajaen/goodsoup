@@ -147,6 +147,8 @@ namespace gs
 
     uint16 stringLength(const char* str);
     uint16 stringFormatInto(char* dst, uint16 length, const char* fmt, ...);
+
+	uint32 stringToUInt32(const char* str);
 }
 
 #endif

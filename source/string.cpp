@@ -38,6 +38,21 @@ namespace gs
 		return length;
 	}
 
+	uint32 stringToUInt32(const char* str) {
+		uint32 num = 0;
+		while(*str != 0) {
+			if (*str < '0' || *str > '9')
+				break;
+
+			num *= 10;
+			num += *str - '0';
+
+			str++;
+		}
+
+		return num;
+	}
+
 	String::String() {
 		clear();
 	}
