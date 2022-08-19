@@ -36,6 +36,7 @@ namespace gs
 		WriteFile* _dstFile;
 		byte* _frameBuffer;
 		bool _halfFrameSize;
+		uint16 _videoNum;
 
 		void reduceFrameSizeToHalf(VideoFrame* frame);
 

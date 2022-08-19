@@ -58,6 +58,7 @@ namespace gs
 		deleteObject(_srcFile);
 		releaseMemory(_frameBuffer);
 
+		_videoNum = videoNum;
 		_halfFrameSize = halfFrameSize;
 		_frameBuffer = (byte*) allocateMemory(1, GS_BITMAP_SIZE, MF_Clear, GS_COMMENT_FILE_LINE);
 
@@ -144,11 +145,53 @@ namespace gs
 		uint16 counter = 0;
 		uint8 tens = 0;
 
+		uint32 lastDialogue = 0;
+
 		while(true) {
 			frame->recycle();
 			_videoDecoder->processFrame(frame);
 
-			if (_halfFrameSize && frame->_image != NULL) {
+			bool shouldHalfSize = false;
+
+			frame->_timing.clearFlags = 0;
+
+
+			/* Half size */
+			if (_halfFrameSize && frame->_image != NULL ) {
+				shouldHalfSize = true;
+
+				// OPENING.SAN/GSV  Credits
+				if (_videoNum == 9 && frame->_timing.num >= 1722 && frame->_timing.num <= 3057) {
+					shouldHalfSize = false;
+
+					if (frame->_timing.num >= 3038) { // A few frames off.
+						frame->_timing.clearFlags = 1;
+					}
+				}
+
+			}
+
+			/* Clear background for dialogue, if it has changed and half size */
+			if (shouldHalfSize) {
+				if (frame->_subtitles.hasAny()) {
+					SubtitleFrame *subtitleFrame = frame->_subtitles.peekFront();
+
+					if (subtitleFrame->hash != lastDialogue) {
+						frame->_timing.clearFlags = 1;
+					}
+
+					lastDialogue = subtitleFrame->hash;
+				} else {
+					/* Clear background if there was dialogue */
+					if (lastDialogue != 0) {
+						frame->_timing.clearFlags = 1;
+						lastDialogue = 0xFFFFffff;
+					}
+				}
+
+			}
+
+			if (shouldHalfSize) {
 				reduceFrameSizeToHalf(frame);
 			}
 
