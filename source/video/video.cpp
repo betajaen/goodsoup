@@ -49,10 +49,8 @@ namespace gs
 		initializeVideoFrameData();
 
 		_videoDecoder = NULL;
-		_videoEncoder = NULL;
 
 		_srcFile = NULL;
-		_dstFile = NULL;
 
 		_audioStream = createAudioStream();
 		pushAudioStream(_audioStream);
@@ -73,16 +71,9 @@ namespace gs
 		}
 		_frames.clear();
 
-		if (_videoEncoder != NULL) {
-			_videoEncoder->teardown();
-		}
-
-		deleteObject(_dstFile);
-
 		if (_videoDecoder != NULL) {
 			_videoDecoder->teardown();
 		}
-
 
 		deleteObject(_srcFile);
 
@@ -252,13 +243,8 @@ namespace gs
 
 			_framesInQueue--;
 
-			if (_dstFile != NULL && _videoEncoder != NULL) {
-				_videoEncoder->processFrame(oldest);
-			}
-
 			oldest->apply(_frameBuffer, _audioStream);
 			screenBlitCopy(_frameBuffer);
-
 
 			if (oldest->_timing.action == VFNA_Stop) {
 				_videoStateKind = VSK_Stopped;
