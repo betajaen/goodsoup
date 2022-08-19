@@ -631,6 +631,7 @@ namespace gs
 			image->width = GS_BITMAP_PITCH;
 			image->height = GS_BITMAP_ROWS;
 			image->size = GS_BITMAP_SIZE;
+			image->format = IFF_FullFrameRaw;
 			copyMemQuick((uint32*) image->getData(), (uint32*) getFrameBuffer(sCurrentFrameBuffer), GS_BITMAP_SIZE);
 		}
 

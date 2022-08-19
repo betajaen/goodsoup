@@ -25,6 +25,7 @@ namespace gs
 
 	class VideoDecoder;
 	class VideoEncoder;
+	class VideoFrame;
 
 	class VideoConverter {
 	private:
@@ -35,6 +36,8 @@ namespace gs
 		WriteFile* _dstFile;
 		byte* _frameBuffer;
 		bool _halfFrameSize;
+
+		void reduceFrameSizeToHalf(VideoFrame* frame);
 
 	public:
 

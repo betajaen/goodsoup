@@ -75,7 +75,14 @@ namespace gs
 		sFile->writeTag("FRME");
 		sFile->writeUInt16BE(frame->_audio.count());
 		sFile->writeUInt16BE(frame->_subtitles.count());
-		sFile->writeByte(frame->_image != NULL);
+
+		if (frame->_image != NULL) {
+			sFile->writeByte(frame->_image->format);
+		}
+		else {
+			sFile->writeByte(IFF_CopyLast);
+		}
+
 		sFile->writeByte(frame->_palette != NULL);
 
 		sFile->writeUInt16BE(frame->_timing.num);
@@ -103,7 +110,9 @@ namespace gs
 		}
 
 		if (frame->_image != NULL) {
-			sFile->writeBytes(&frame->_image->frame[0], GS_BITMAP_SIZE);
+			ImageFrame* image = frame->_image;
+			sFile->writeUInt32BE(image->size);
+			sFile->writeBytes(image->getData(), image->size);
 		}
 
 		if (frame->_palette != NULL) {

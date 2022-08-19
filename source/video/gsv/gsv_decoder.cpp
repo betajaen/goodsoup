@@ -27,14 +27,16 @@ namespace gs
 {
 	static TagReadFile* sFile;
 	static uint32 sFrameNum;
+	static VideoEncoderParams sParams;
 
 	bool gsv_decoder_initialize(TagReadFile* file) {
 		sFile = file;
 
 		uint32 tagName = sFile->readUInt32BE();
 		uint32 tableOffset = sFile->readUInt32BE();
-		VideoEncoderParams params;
-		sFile->readBytes(&params, sizeof(VideoEncoderParams));
+
+		// This will fail on encoding/playing on different endian arch.
+		sFile->readBytes(&sParams, sizeof(VideoEncoderParams));
 
 		sFrameNum = 0;
 
@@ -66,13 +68,13 @@ namespace gs
 
 		uint16 numAudio = sFile->readUInt16BE();
 		uint16 numSubtitles = sFile->readInt16BE();
-		byte hasImage = sFile->readByte();
+		byte imageFormat = sFile->readByte();
 		byte hasPalette = sFile->readByte();
 /*
 		debug(GS_THIS, "Num Audio = %ld, Num Subtitles = %ld, Has Image = %ld, HasPalette = %ld",
 			  numAudio,
 			  numSubtitles,
-			  hasImage,
+			  imageFormat,
 			  hasPalette
 			  );
 */
@@ -99,9 +101,33 @@ namespace gs
 			sFile->readBytes(&subtitleFrame->text[0], subtitleFrame->length+1);
 		}
 
-		if (hasImage) {
+		if (imageFormat != IFF_CopyLast) {
 			ImageFrame* imageFrame = frame->addImage();
-			sFile->readBytes(&imageFrame->frame[0], GS_BITMAP_SIZE);
+
+			uint32 size = sFile->readUInt32BE();
+			imageFrame->size = size;
+
+			imageFrame->format = imageFormat;
+
+			switch(imageFormat) {
+				default:
+				case IFF_FullFrameRaw:
+				case IFF_FullFrameDelta:
+					imageFrame->left = GS_BITMAP_LEFT;
+					imageFrame->top = GS_BITMAP_TOP;
+					imageFrame->width = GS_BITMAP_PITCH;
+					imageFrame->height = GS_BITMAP_ROWS;
+				break;
+				case IFF_HalfFrameRaw:
+				case IFF_HalfFrameDelta:
+					imageFrame->left = GS_BITMAP_HALF_LEFT;
+					imageFrame->top = GS_BITMAP_HALF_TOP;
+					imageFrame->width = GS_BITMAP_HALF_PITCH;
+					imageFrame->height = GS_BITMAP_HALF_ROWS;
+				break;
+			}
+
+			sFile->readBytes(imageFrame->getData(), size);
 		}
 
 		if (hasPalette) {

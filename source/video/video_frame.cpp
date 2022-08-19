@@ -197,16 +197,19 @@ namespace gs
 				copyMemQuick((uint32 *) dstFrameBuffer, (uint32*) _image->getData(), GS_BITMAP_SIZE);
 			}
 			else {
+				debug(GS_THIS, "Small image");
+
 				uint32* src = (uint32*) _image->getData();
 				uint32* dst = (uint32*) dstFrameBuffer;
-				dst += _image->left;
-				dst += _image->top * GS_BITMAP_PITCH;
+				dst += (_image->left + _image->top * GS_BITMAP_PITCH) / sizeof(uint32);
 				uint32 y = _image->height;
-				uint32 stride = _image->width / sizeof(uint32);
+				uint32 srcStride = _image->width / sizeof(uint32);
+				const uint32 dstStride = GS_BITMAP_PITCH / sizeof(uint32);
+
 				while(y--) {
 					copyMemQuick(dst, src, _image->width);
-					src += _image->width;
-					dst += GS_BITMAP_PITCH;
+					src += srcStride;
+					dst += dstStride;
 				}
 			}
 		}

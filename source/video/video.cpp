@@ -16,7 +16,7 @@
  */
 
 #define GS_FILE_NAME "video"
-#define TEMP_USE_VIDEO_CODEC 1
+#define TEMP_USE_VIDEO_CODEC 0
 #include "video.h"
 #include "video/video_api.h"
 #include "video/video_frame.h"

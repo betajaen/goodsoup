@@ -126,6 +126,13 @@ namespace gs
 			return false;
 		}
 
+
+		debug_write_str("Converting ");
+		debug_write_str(srcPath.string());
+		debug_write_str(" to ");
+		debug_write_str(dstPath.string());
+		debug_write_char('\n');
+
 		return true;
 	}
 
@@ -133,21 +140,66 @@ namespace gs
 
 		VideoFrame* frame = acquireVideoFrame();
 
+		debug_write_str("Processing Frames\n");
+		uint16 counter = 0;
+		uint8 tens = 0;
 
 		while(true) {
 			frame->recycle();
 			_videoDecoder->processFrame(frame);
+
+			if (_halfFrameSize && frame->_image != NULL) {
+				reduceFrameSizeToHalf(frame);
+			}
+
 			_videoEncoder->processFrame(frame);
 
 			if (frame->_timing.action == VFNA_Stop) {
 				break;
 			}
+
+			counter++;
+			tens++;
+
+			if (tens == 10) {
+				tens = 0;
+				debug_write_int(counter);
+				debug_write_char('\n');
+			}
 		}
 
 		disposeVideoFrame(frame);
 
+		debug_write_str("Completed.\n");
 		_videoEncoder->teardown();
 		_videoDecoder->teardown();
+	}
+
+	void VideoConverter::reduceFrameSizeToHalf(VideoFrame* frame) {
+		ImageFrame* image = frame->_image;
+
+		uint8* dst = image->getData();
+		uint8* src = image->getData();
+
+		uint16 y = GS_BITMAP_HALF_ROWS;
+		while(y--) {
+			uint16 x = GS_BITMAP_HALF_PITCH;
+
+			while(x--) {
+				*dst++ = *src++;
+				src++;
+			}
+
+			src += GS_BITMAP_PITCH;
+		}
+
+		image->width = GS_BITMAP_HALF_PITCH;
+		image->height = GS_BITMAP_HALF_ROWS;
+		image->left = GS_BITMAP_LEFT;
+		image->top = GS_BITMAP_TOP;
+		image->size = GS_BITMAP_HALF_SIZE;
+		image->format = IFF_HalfFrameRaw;
+
 	}
 
 	int convertVideo(uint8 videoNum, bool halfSize) {

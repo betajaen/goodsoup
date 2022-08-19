@@ -75,10 +75,19 @@ namespace gs
 		}
 	};
 
+	enum ImageFrameFormat {
+		IFF_CopyLast = 0,
+		IFF_FullFrameRaw = 1,
+		IFF_HalfFrameRaw = 2,
+		IFF_FullFrameDelta = 3,
+		IFF_HalfFrameDelta = 4
+	};
+
 	struct ImageFrame {
 		ImageFrame* next;
 		uint16 left, top;
 		uint16 width, height;
+		uint16 format;
 		uint32 size;
 		byte data[GS_BITMAP_SIZE];
 
