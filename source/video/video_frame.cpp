@@ -191,6 +191,14 @@ namespace gs
 			screenSetPaletteFromArray(&_palette->palette[0]);
 		}
 
+		if (_timing.clearFlags == 1) {
+			uint32 length = GS_BITMAP_SIZE / sizeof(uint32);
+			uint32* dst = (uint32*) dstFrameBuffer;
+			while(length--) {
+				*dst++ = 0x0;
+			}
+		}
+
 		if (_image != NULL) {
 
 			if (_image->left == 0 && _image->top == 0 && _image->width == GS_BITMAP_PITCH && _image->height == GS_BITMAP_ROWS) {

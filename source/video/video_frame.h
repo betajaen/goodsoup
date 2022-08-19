@@ -114,6 +114,7 @@ namespace gs
 		uint16 num;
 		uint16 length_msec;
 		uint16 action;
+		uint16 clearFlags;
 	};
 
 	enum VideoFrameFeature {
