@@ -34,18 +34,19 @@ namespace gs
 		TagReadFile* _srcFile;
 		WriteFile* _dstFile;
 		byte* _frameBuffer;
+		bool _halfFrameSize;
 
 	public:
 
 		VideoConverter();
 		~VideoConverter();
 
-		bool initialize(uint8 videoNum);
+		bool initialize(uint8 videoNum, bool halfFrameSize);
 		void run();
 
 	};
 
-	int convertVideo(uint8 num);
+	int convertVideo(uint8 num, bool halfSize);
 
 }
 

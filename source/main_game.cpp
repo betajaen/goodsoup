@@ -56,7 +56,7 @@ namespace gs
 {
 
 	// Declared in video/video_converter.cpp
-	int convertVideo(uint8 num);
+	int convertVideo(uint8 num, bool halfSize);
 
 	static int runGame();
 	static int playVideo(uint8 num);
@@ -159,7 +159,7 @@ namespace gs
 			case 313:
 			case 314:
 			case 315:
-				rc = convertVideo(param - 300);
+				rc = convertVideo(param - 300, false);
 			break;
 		}
 

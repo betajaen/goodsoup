@@ -192,95 +192,27 @@ namespace gs
 		}
 
 		if (_image != NULL) {
-			copyMemQuick((uint32*) dstFrameBuffer, (uint32*) &_image->frame[0], GS_BITMAP_SIZE);
+
+			if (_image->left == 0 && _image->top == 0 && _image->width == GS_BITMAP_PITCH && _image->height == GS_BITMAP_ROWS) {
+				copyMemQuick((uint32 *) dstFrameBuffer, (uint32*) _image->getData(), GS_BITMAP_SIZE);
+			}
+			else {
+				uint32* src = (uint32*) _image->getData();
+				uint32* dst = (uint32*) dstFrameBuffer;
+				dst += _image->left;
+				dst += _image->top * GS_BITMAP_PITCH;
+				uint32 y = _image->height;
+				uint32 stride = _image->width / sizeof(uint32);
+				while(y--) {
+					copyMemQuick(dst, src, _image->width);
+					src += _image->width;
+					dst += GS_BITMAP_PITCH;
+				}
+			}
 		}
 
 		if (_subtitles.hasAny()) {
 			applySubtitles(dstFrameBuffer);
-		}
-
-	}
-
-	void VideoFrame::save(WriteFile& file) {
-		uint32 len = 0;
-
-		len += 2 + 2 + 2;	// timing.num, timing.length_msec, timing.action;
-
-		uint16 flags = VFF_Timing;
-		uint16 numAudio = 0;
-		uint16 numSubtitles = 0;
-
-		if (_image != NULL) {
-			len += GS_BITMAP_SIZE;
-			flags |= VFF_Image;
-		}
-
-		if (_palette != NULL) {
-			len += 3 * 256;
-			flags |= VFF_Palette;
-		}
-
-		AudioSampleFrame_S16MSB* audioSample = _audio.peekFront();
-		if (audioSample != NULL) {
-			flags |= VFF_Audio;
-			while (audioSample != NULL) {
-				len += sizeof(AudioSampleFrame_S16MSB);
-				audioSample = audioSample->next;
-				numAudio++;
-			}
-		}
-
-		SubtitleFrame* subtitle = _subtitles.peekFront();
-		if (subtitle != NULL) {
-			flags |= VFF_Subtitles;
-			while (subtitle != NULL) {
-				len += sizeof(SubtitleFrame);
-				subtitle = subtitle->next;
-				numSubtitles++;
-			}
-		}
-
-
-		// FOURCC header and length
-		file.writeTag("VFRM");
-		file.writeUInt32BE(len);
-
-		// VFRM Header
-		file.writeUInt16BE(flags);
-		file.writeUInt16BE(numAudio);
-		file.writeUInt16BE(numSubtitles);
-
-		// Timing
-		file.writeUInt16BE(_timing.num);
-		file.writeUInt16BE(_timing.length_msec);
-		file.writeUInt16BE(_timing.action);
-
-		// Audio
-		audioSample = _audio.peekFront();
-		if (audioSample != NULL) {
-			while (audioSample != NULL) {
-				file.writeBytes(audioSample->data, sizeof(2048 * sizeof(int16)));
-				audioSample = audioSample->next;
-			}
-		}
-
-		// Subtitles
-		subtitle = _subtitles.peekFront();
-		if (subtitle != NULL) {
-			while (subtitle != NULL) {
-				file.writeBytes(subtitle, sizeof(SubtitleFrame));
-				subtitle = subtitle->next;
-			}
-		}
-
-		// Image
-		if (_image != NULL) {
-			file.writeBytes(&_image->frame[0], GS_BITMAP_SIZE);
-		}
-
-		// Palette
-		if (_palette != NULL) {
-			file.writeBytes(&_palette->palette, 256 * 3);
 		}
 
 	}

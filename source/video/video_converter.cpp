@@ -52,12 +52,13 @@ namespace gs
 		smush_tables_teardown();
 	}
 
-	bool VideoConverter::initialize(uint8 videoNum) {
+	bool VideoConverter::initialize(uint8 videoNum, bool halfFrameSize) {
 
 		deleteObject(_dstFile);
 		deleteObject(_srcFile);
 		releaseMemory(_frameBuffer);
 
+		_halfFrameSize = halfFrameSize;
 		_frameBuffer = (byte*) allocateMemory(1, GS_BITMAP_SIZE, MF_Clear, GS_COMMENT_FILE_LINE);
 
 		_srcFile = newObject<TagReadFile>(GS_COMMENT_FILE_LINE);
@@ -109,10 +110,10 @@ namespace gs
 		_videoEncoder = &GSV_ENCODER;
 
 		VideoEncoderParams encoderParams;
-		encoderParams.left_px = 0;
-		encoderParams.top_px = 0;
-		encoderParams.width_px = GS_BITMAP_PITCH;
-		encoderParams.height_px = GS_BITMAP_ROWS;
+		encoderParams.left_px = _halfFrameSize ? GS_BITMAP_HALF_LEFT : GS_BITMAP_LEFT;
+		encoderParams.top_px = _halfFrameSize ? GS_BITMAP_HALF_TOP : GS_BITMAP_TOP;
+		encoderParams.width_px = _halfFrameSize ? GS_BITMAP_HALF_PITCH : GS_BITMAP_PITCH;
+		encoderParams.height_px = _halfFrameSize ? GS_BITMAP_HALF_ROWS : GS_BITMAP_ROWS;
 		encoderParams.audioFormat = AF_S16MSB;
 		encoderParams.audioFrequency_hz = 22050;
 		encoderParams.audioSampleRate_bytes = (1024 * 2 * sizeof(int16));
@@ -149,9 +150,9 @@ namespace gs
 		_videoDecoder->teardown();
 	}
 
-	int convertVideo(uint8 videoNum) {
+	int convertVideo(uint8 videoNum, bool halfSize) {
 		VideoConverter* converter = newObject<VideoConverter>(GS_COMMENT_FILE_LINE);
-		if (converter->initialize(videoNum) == false) {
+		if (converter->initialize(videoNum, halfSize) == false) {
 			deleteObject(converter);
 			return 1;
 		}

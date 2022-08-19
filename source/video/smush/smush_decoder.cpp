@@ -328,7 +328,7 @@ namespace gs
 					if (probablySameCredits == false) {
 						sFrameFetchVersion = sFrameStoreVersion;
 						ImageFrame *imageFrame = frame->addImage();
-						copyMemQuick((uint32 * ) & imageFrame->frame[0], (uint32 *) sStoredFrame, GS_BITMAP_SIZE);
+						copyMemQuick((uint32 * ) imageFrame->getData(), (uint32 *) sStoredFrame, GS_BITMAP_SIZE);
 					}
 					sFile->skip(6);
 				}
@@ -626,7 +626,12 @@ namespace gs
 
 		if (hasFrame) {
 			ImageFrame* image = frame->addImage();
-			copyMemQuick((uint32*) &image->frame[0], (uint32*) getFrameBuffer(sCurrentFrameBuffer), GS_BITMAP_SIZE);
+			image->left = GS_BITMAP_LEFT;
+			image->top = GS_BITMAP_TOP;
+			image->width = GS_BITMAP_PITCH;
+			image->height = GS_BITMAP_ROWS;
+			image->size = GS_BITMAP_SIZE;
+			copyMemQuick((uint32*) image->getData(), (uint32*) getFrameBuffer(sCurrentFrameBuffer), GS_BITMAP_SIZE);
 		}
 
 		if (sequenceNum == sPreviousSequenceNum + 1) {

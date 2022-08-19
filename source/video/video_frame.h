@@ -77,7 +77,18 @@ namespace gs
 
 	struct ImageFrame {
 		ImageFrame* next;
-		uint8 frame[GS_BITMAP_SIZE];
+		uint16 left, top;
+		uint16 width, height;
+		uint32 size;
+		byte data[GS_BITMAP_SIZE];
+
+		inline byte* getData() {
+			return &data[0];
+		}
+
+		inline const byte* getData() const {
+			return &data[0];
+		}
 	};
 
 	struct PaletteFrame {
@@ -124,7 +135,6 @@ namespace gs
 
 		void applySubtitles(byte* dstFrameBuffer);
 		void apply(byte* dstFrameBuffer, AudioStream_S16MSB* audioStream);
-		void save(WriteFile& file);
 
 		VideoFrameTiming _timing;
 		Queue<AudioSampleFrame_S16MSB> _audio;
