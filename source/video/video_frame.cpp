@@ -197,8 +197,6 @@ namespace gs
 				copyMemQuick((uint32 *) dstFrameBuffer, (uint32*) _image->getData(), GS_BITMAP_SIZE);
 			}
 			else {
-				debug(GS_THIS, "Small image");
-
 				uint32* src = (uint32*) _image->getData();
 				uint32* dst = (uint32*) dstFrameBuffer;
 				dst += (_image->left + _image->top * GS_BITMAP_PITCH) / sizeof(uint32);
