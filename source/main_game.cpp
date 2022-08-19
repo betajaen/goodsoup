@@ -112,55 +112,23 @@ namespace gs
 		INTS = newObject<VmIntVars>(GS_COMMENT_FILE_LINE);
 		BOOLS = newObject<VmBoolVars>(GS_COMMENT_FILE_LINE);
 
-		switch(param) {
-			default:
-			case 0:
-				rc = runGame();
-			break;
-			case 100:
-			case 101:
-			case 102:
-			case 103:
-			case 104:
-			case 105:
-			case 106:
-			case 107:
-			case 108:
-			case 109:
-			case 110:
-			case 111:
-			case 112:
-			case 113:
-			case 114:
-			case 115:
-				rc = playVideo(param - 100);
-			break;
-			case 200:
-			case 201:
-			case 202:
-			case 203:
-			case 204:
-			case 205:
-				rc = convertFont(param - 200);
-				break;
-			case 300:
-			case 301:
-			case 302:
-			case 303:
-			case 304:
-			case 305:
-			case 306:
-			case 307:
-			case 308:
-			case 309:
-			case 310:
-			case 311:
-			case 312:
-			case 313:
-			case 314:
-			case 315:
-				rc = convertVideo(param - 300, false);
-			break;
+		if (param == 0) {
+			rc = runGame();
+		}
+		else if (param >= 100 && param <= 115) {
+			rc = playVideo(param - 100);
+		}
+		else if (param >= 205 && param <= 205) {
+			rc = convertFont(param - 200);
+		}
+		else if (param >= 300 && param <= 315) {
+			rc = convertVideo(param - 300, false);
+		}
+		else if (param >= 350 && param <= 365) {
+			rc = convertVideo(param - 350, true);
+		}
+		else {
+			rc = runGame();
 		}
 
 		cleanup();
