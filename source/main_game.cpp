@@ -397,8 +397,6 @@ namespace gs
 			DEBUG_SHOW_PALETTE = !DEBUG_SHOW_PALETTE;
 		}
 
-		KEY_EVENT = 0;
-
 		INTS->mouseX = MOUSE_X;
 		INTS->mouseY = MOUSE_Y;
 		INTS->virtMouseX = MOUSE_X;
@@ -455,6 +453,8 @@ namespace gs
 			}
 
 		}
+
+		KEY_EVENT = 0;
 
 	}
 

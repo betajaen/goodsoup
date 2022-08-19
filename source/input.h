@@ -30,7 +30,10 @@ namespace gs
 		KE_DebugDumpStack = 1,
 		KE_DebugDumpVerbs = 2,
 		KE_DebugShowPalette = 3,
-		KE_SkipCutscene = 4
+		KE_SkipCutscene = 4,
+		KE_StepForward = 5,
+		KE_StepBackward = 6,
+		KE_StepAhead = 7
 	};
 
 }

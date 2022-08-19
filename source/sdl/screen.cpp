@@ -177,12 +177,29 @@ namespace gs
                         }
 					}
 					break;
+					case SDL_KEYDOWN: {
+						if (PAUSED) {
+
+							if (event.key.keysym.sym == SDLK_s) {
+								step = true;
+								KEY_EVENT = KE_StepForward;
+							}
+							else if (event.key.keysym.sym == SDLK_a) {
+								step = true;
+								KEY_EVENT = KE_StepBackward;
+							}
+
+						}
+					}
+					break;
 					case SDL_KEYUP: {
 						if (event.key.keysym.sym == SDLK_SPACE) {
 							togglePause();
 						}
-						else if (PAUSED && event.key.keysym.sym == SDLK_s) {
+
+						if (event.key.keysym.sym == SDLK_d) {
 							step = true;
+							KEY_EVENT = KE_StepAhead;
 						}
 
 						if (event.key.keysym.sym == SDLK_m) {
@@ -247,7 +264,6 @@ namespace gs
 			}
 			else {
 				if (step) {
-					debug(GS_THIS, "Step");
 					frameHandler();
 					step = false;
 				}
