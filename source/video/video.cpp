@@ -27,6 +27,8 @@
 #include "disk.h"
 #include "audio.h"
 #include "image.h"
+#include "globals.h"
+#include "input.h"
 
 extern gs::VideoDecoder SMUSH_DECODER;
 extern gs::VideoEncoder GSV_ENCODER;
@@ -229,11 +231,49 @@ namespace gs
 	void VideoContext::playVideoFrame() {
 #if TEMP_USE_VIDEO_CODEC
 
+		if (PAUSED) {
+
+			if (KEY_EVENT != KE_StepForward) {
+				return;
+			}
+
+		}
+
 		while(_framesInQueue < 4) {
 			if (_acquireNextFrame() == false)
 				break;
 		}
 
+#if 0
+		if (KEY_EVENT == KE_StepAhead) {
+			int16 counter = 16;
+			VideoFrame* frame = _frames.pullFront();
+
+			while(frame != NULL) {
+				disposeVideoFrame(frame);
+				frame = _frames.pullFront();
+				counter--;
+			}
+
+			_framesInQueue = 0;
+
+			if (counter > 0 ) {
+				while (counter--) {
+					if (_acquireNextFrame() == false)
+						break;
+					disposeVideoFrame(_frames.pullFront());
+					_framesInQueue--;
+				}
+			}
+
+			while(_framesInQueue < 4) {
+				if (_acquireNextFrame() == false)
+					break;
+			}
+
+			return;
+		}
+#endif
 
 		// TODO: Timing
 
@@ -245,6 +285,10 @@ namespace gs
 
 			oldest->apply(_frameBuffer, _audioStream);
 			screenBlitCopy(_frameBuffer);
+
+			if (KEY_EVENT == KE_StepForward) {
+				debug(GS_THIS, "Frame %ld", oldest->_timing.num);
+			}
 
 			if (oldest->_timing.action == VFNA_Stop) {
 				_videoStateKind = VSK_Stopped;
