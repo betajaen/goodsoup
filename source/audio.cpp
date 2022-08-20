@@ -41,6 +41,11 @@ namespace gs
     AudioStream_S16MSB::~AudioStream_S16MSB() {
 		AudioSample_S16MSB* sample = NULL;
 		while((sample = _queue.pullFront()) != NULL) {
+
+			if (callback) {
+				callback(userData, sample->userData, sample->userMessage);
+			}
+
 			_samplePool.release(sample);
 		}
 	}
