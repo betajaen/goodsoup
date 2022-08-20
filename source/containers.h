@@ -414,6 +414,29 @@ namespace gs {
 			return _begin[idx];
 		}
 
+		bool contains(const T& other) const {
+
+			for(Index i=0;i < _end;i++) {
+				if (_begin[i] == other) {
+					return true;
+				}
+			}
+
+			return false;
+		}
+
+		bool firstIndexOf(const T& other, Index& out_index) const {
+
+			for(Index i=0;i < _end;i++) {
+				if (_begin[i] == other) {
+					out_index = i;
+					return true;
+				}
+			}
+
+			return false;
+		}
+
 	};
 
 
@@ -756,6 +779,11 @@ namespace gs {
 			tail = NULL;
 		}
 
+		void replace(T* newHead, T* newTail) {
+			head = newHead;
+			tail = newTail;
+		}
+
 		bool isEmpty() const {
 			return head == NULL;
 		}
@@ -780,6 +808,10 @@ namespace gs {
 
 		T* peekFront() {
 			return head;
+		}
+
+		T* peekBack() {
+			return tail;
 		}
 
 		T* pullFront() {
