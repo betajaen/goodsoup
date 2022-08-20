@@ -34,6 +34,8 @@ namespace gs
 
     AudioStream_S16MSB::AudioStream_S16MSB() {
         next = NULL;
+		callback = NULL;
+		userData = NULL;
 	}
 
     AudioStream_S16MSB::~AudioStream_S16MSB() {
@@ -59,9 +61,10 @@ namespace gs
 
         sample->remaining = 2048;
         sample->pos = 0;
-		sample->time = 0;
 		sample->frame = 0;
         sample->next = NULL;
+		sample->userMessage = 0;
+		sample->userData = NULL;
 
         return sample;
 	}
@@ -88,20 +91,22 @@ namespace gs
         while(pos < sampleLength && _queue.hasAny()) {
             AudioSample_S16MSB* sample = _queue.peekFront();
 
-            // debug(GS_THIS, "Pos %ld, Remaining %ld", pos, remaining);
 
             uint32 amountCopied = sample->copyInto(samples + pos, remaining);
             pos += amountCopied;
             remaining -= amountCopied;
 
-            //debug(GS_THIS, "Copied %ld", amountCopied);
-
             if (sample->isEmpty()) {
 				_nextTime_msec += _timePerSample_msec; /* TODO: Account for partial samples */
                 _queue.pullFront();
+
+				if (callback) {
+					callback(userData, sample->userData, sample->userMessage);
+				}
+
                 _samplePool.release_unchecked(sample);
                 _queueSize--;
-                //debug(GS_THIS, "Queue Size is lesser %ld", _queueSize);
+                // debug(GS_THIS, "Queue Size is lesser %ld", _queueSize);
             }
 
         }
