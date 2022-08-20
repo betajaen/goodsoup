@@ -25,6 +25,7 @@
 #include "file.h"
 #include "audio.h"
 #include "string.h"
+#include "font.h"
 
 extern gs::VideoDecoder SMUSH_DECODER;
 extern gs::VideoEncoder GSV_ENCODER;
@@ -40,6 +41,8 @@ namespace gs
 		_srcFile = NULL;
 		_dstFile = NULL;
 		_frameBuffer = NULL;
+		_lastFrame = NULL;
+		_compressionFrame = NULL;
 		initializeVideoFrameData();
 		smush_tables_initialize();
 	}
@@ -48,6 +51,8 @@ namespace gs
 		disposeVideoFrameData();
 		deleteObject(_dstFile);
 		deleteObject(_srcFile);
+		releaseMemory(_compressionFrame);
+		releaseMemory(_lastFrame);
 		releaseMemory(_frameBuffer);
 		smush_tables_teardown();
 	}
@@ -56,12 +61,17 @@ namespace gs
 
 		deleteObject(_dstFile);
 		deleteObject(_srcFile);
+		releaseMemory(_compressionFrame);
+		releaseMemory(_lastFrame);
 		releaseMemory(_frameBuffer);
 
 		_videoNum = videoNum;
 		_halfFrameSize = halfFrameSize;
 		_subtitleCompression = subtitleCompression;
+		_bakeSubtitles = true;
 		_frameBuffer = (byte*) allocateMemory(1, GS_BITMAP_SIZE, MF_Clear, GS_COMMENT_FILE_LINE);
+		_lastFrame = (byte*) allocateMemory(1, GS_BITMAP_SIZE, MF_Clear, GS_COMMENT_FILE_LINE);
+		_compressionFrame = (byte*) allocateMemory(1, GS_BITMAP_SIZE + (GS_BITMAP_ROWS * sizeof(uint32)), MF_Clear, GS_COMMENT_FILE_LINE);
 
 		_srcFile = newObject<TagReadFile>(GS_COMMENT_FILE_LINE);
 		CHECK_IF_RETURN(_srcFile == NULL, false, "Could not allocate src Video File!");
@@ -147,12 +157,22 @@ namespace gs
 		uint8 tens = 0;
 
 		uint32 lastDialogue = 0;
-
+		uint32 lastImageNum = 0;
 		while(true) {
+			bool isKeyFrame = false;
+			bool shouldHalfSize = false;
+
 			frame->recycle();
 			_videoDecoder->processFrame(frame);
 
-			bool shouldHalfSize = false;
+			isKeyFrame = false;
+
+
+			// If there is a palette change, its a keyframe
+			if (frame->_palette != NULL) {
+				isKeyFrame = true;
+			}
+
 
 			frame->_timing.clearFlags = 0;
 
@@ -161,73 +181,102 @@ namespace gs
 				shouldHalfSize = true;
 
 				// OPENING.SAN/GSV  Credits
-				if (_videoNum == 9 && frame->_timing.num >= 1722 && frame->_timing.num <= 3057) {
+				if (_videoNum == 9 && frame->getNum() >= 1722 && frame->getNum() <= 3057) {
 					shouldHalfSize = false;
 
-					if (frame->_timing.num >= 3038) { // A few frames off.
+					if (frame->getNum() >= 3038) { // A few frames off.
 						frame->_timing.clearFlags = 1;
 					}
 				}
-
 			}
 
-			if (_subtitleCompression) {
+			if (_halfFrameSize == false && _bakeSubtitles) {
+				bakeSubtitles(frame);
+				isKeyFrame = false;
+			}
+			else {
+				if (_subtitleCompression) {
 
-				if (frame->_subtitles.hasAny()) {
-					uint32 newCount = 0;
-					bool identical = true;
+					if (frame->_subtitles.hasAny()) {
+						uint32 newCount = 0;
+						bool identical = true;
 
-					SubtitleFrame* subtitleFrame = frame->_subtitles.peekFront();
+						SubtitleFrame *subtitleFrame = frame->_subtitles.peekFront();
 
-					while(subtitleFrame != NULL) {
-						if (_lastSubtitles.contains(subtitleFrame->hash) == false) {
-							identical = false;
-							break;
-						}
-						newCount++;
-						subtitleFrame = subtitleFrame->next;
-					}
-
-					// New/Different Subtitles
-					if (identical == false || newCount != _lastSubtitles.getSize()) {
-						_lastSubtitles.clear();
-						subtitleFrame = frame->_subtitles.peekFront();
-						while(subtitleFrame != NULL) {
-							_lastSubtitles.push(subtitleFrame->hash);
+						while (subtitleFrame != NULL) {
+							if (_lastSubtitles.contains(subtitleFrame->hash) == false) {
+								identical = false;
+								break;
+							}
+							newCount++;
 							subtitleFrame = subtitleFrame->next;
 						}
 
-						if (shouldHalfSize) {
-							frame->_timing.clearFlags = 1;
+						if (newCount != _lastSubtitles.getSize()) {
+							identical = false;
 						}
 
-						frame->_timing.keepSubtitles = 1;
+						// New/Different Subtitles
+						if (identical == false) {
+							_lastSubtitles.clear();
+							subtitleFrame = frame->_subtitles.peekFront();
+							while (subtitleFrame != NULL) {
+								_lastSubtitles.push(subtitleFrame->hash);
+								subtitleFrame = subtitleFrame->next;
+							}
 
-					}
-					else {
-						// Same as last frame
-						frame->removeAllSubtitles();
-						frame->_timing.keepSubtitles = 1;
+							if (shouldHalfSize) {
+								frame->_timing.clearFlags = 1;
+							}
+
+							frame->_timing.keepSubtitles = 1;
+							isKeyFrame = true;
+
+							subtitleFrame = frame->_subtitles.peekFront();
+							while (subtitleFrame != NULL) {
+								subtitleFrame = subtitleFrame->next;
+							}
+
+						} else {
+							// Same as last frame
+							frame->removeAllSubtitles();
+							frame->_timing.keepSubtitles = 1;
+						}
+
+					} else {
+						// End of Subtitles (Empty)
+						if (_lastSubtitles.getSize() != 0) {
+							if (shouldHalfSize) {
+								frame->_timing.clearFlags = 1;
+							}
+							_lastSubtitles.clear();
+							frame->_timing.keepSubtitles = 0;
+							isKeyFrame = true;
+						}
 					}
 
 				}
-				else {
-					// End of Subtitles (Empty)
-					if (_lastSubtitles.getSize() != 0) {
-						if (shouldHalfSize) {
-							frame->_timing.clearFlags = 1;
-						}
-						_lastSubtitles.clear();
-						frame->_timing.keepSubtitles = 0;
-					}
-				}
-
 			}
-
-
 
 			if (shouldHalfSize) {
 				reduceFrameSizeToHalf(frame);
+			}
+			else {
+
+				// Compress if there was a good frame.
+				if (frame->hasImage()) {
+					if (isKeyFrame == false) {
+						compressFrame(frame);
+					} else {
+						// A keyframe, either way we should copy the source frame over to last
+						copyMemQuick((uint32 *) _lastFrame, (uint32 *) frame->_image->getData(), GS_BITMAP_SIZE);
+					}
+				}
+			}
+
+
+			if (frame->_image != NULL) {
+				lastImageNum = frame->getNum();
 			}
 
 			_videoEncoder->processFrame(frame);
@@ -280,7 +329,127 @@ namespace gs
 
 	}
 
+	void VideoConverter::compressFrame(VideoFrame* frame) {
+		uint32 compressionSize = 0;
+		// Initialize
+		uint32* dst = (uint32*) _compressionFrame;
+		const uint32* src = (uint32*) frame->_image->getData();
+		const uint32* last = (uint32*) _lastFrame;
+
+		// Compress
+
+		// 0. Each line
+		uint16 y = GS_BITMAP_ROWS; // 480
+		while(y--) {
+
+			uint8 x = 32;	// 32 bits per ULONG/segment, 640/32=20px per bit/segment, 20px/4bytes = 5 ulongs
+			uint32 mask = 0;
+
+			// 1. Detect changes for this line from previous frame in 20px segments.
+			//    Each segment must match exactly.
+			//    Each segment change is encoded as a bit into mask.
+			while(x--) {
+				mask >>= 1;
+				uint32 different = 0;
+
+				different |= *src++ ^ *last++;	// if (src != last) { different = 1 (ish); }
+				different |= *src++ ^ *last++;
+				different |= *src++ ^ *last++;
+				different |= *src++ ^ *last++;
+				different |= *src++ ^ *last++;
+
+				if (different != 0) {
+					mask |= 0x80000000;			// Written MSB first, then bit-shift right in next iteration, so its in the correct order.
+				}
+
+			}
+
+			// 2. Write change mask, and then for each mask those segments in right-to-left bit order
+			*dst++ = mask;
+			src -= 160;		// 5 * 32
+			x = 32;
+
+			while(x--) {
+				uint32 different = (mask & 1);
+				mask >>= 1;
+
+				if (different == 1) {
+					*dst++ = *src++;
+					*dst++ = *src++;
+					*dst++ = *src++;
+					*dst++ = *src++;
+					*dst++ = *src++;
+				}
+				else {
+					src += 5;
+				}
+			}
+		}
+
+		// Finalize
+		compressionSize = (dst - ((uint32*) _compressionFrame)) * sizeof(uint32);
+		dst = (uint32*) _compressionFrame;
+
+		// No changes - So remove the image, and do not copy source to last.
+		if (compressionSize == (GS_BITMAP_ROWS * sizeof(uint32))) {
+			frame->removeImage();
+			return;
+		}
+
+		// Copy source frame over to last
+		copyMemQuick((uint32*) _lastFrame, (uint32*) frame->_image->getData(), GS_BITMAP_SIZE);
+
+		if (compressionSize < GS_BITMAP_SIZE) {
+			copyMemQuick((uint32*) frame->_image->getData(), dst, compressionSize);
+			frame->_image->format = IFF_FullFrameDelta;
+			frame->_image->size = compressionSize;
+		}
+
+	}
+
+	void VideoConverter::bakeSubtitles(gs::VideoFrame *frame) {
+
+		if (frame->hasSubtitles() == false)
+			return;
+
+		if (frame->_image == NULL) {
+			ImageFrame* image = frame->addImage();
+
+			copyMemQuick((uint32*) image->getData(), (uint32*) _lastFrame, GS_BITMAP_SIZE);
+			image->size = GS_BITMAP_SIZE;
+			image->format = IFF_FullFrameRaw;
+		}
+
+		SubtitleFrame* subtitle = frame->_subtitles.peekFront();
+		while(subtitle != NULL) {
+
+			drawSubtitlesTo(frame->_image->getData(),
+							subtitle->x,
+							subtitle->y,
+							subtitle->getString(),
+							subtitle->flags & SF_Center,
+							subtitle->flags & SF_Wrap,
+							subtitle->font,
+							subtitle->colour);
+
+
+			subtitle = subtitle->next;
+		}
+
+		frame->removeAllSubtitles();
+	}
+
+
 	int convertVideo(uint8 videoNum, bool halfSize, bool subtitleCompression) {
+
+		if (FONT[0] == NULL) {
+			FONT[0] = newObject<Font>(0, GS_COMMENT_FILE_LINE);
+			FONT[1] = newObject<Font>(1, GS_COMMENT_FILE_LINE);
+			FONT[2] = newObject<Font>(2, GS_COMMENT_FILE_LINE);
+			FONT[3] = newObject<Font>(3, GS_COMMENT_FILE_LINE);
+			FONT[4] = newObject<Font>(4, GS_COMMENT_FILE_LINE);
+		}
+
 		VideoConverter* converter = newObject<VideoConverter>(GS_COMMENT_FILE_LINE);
 		if (converter->initialize(videoNum, halfSize, subtitleCompression) == false) {
 			deleteObject(converter);

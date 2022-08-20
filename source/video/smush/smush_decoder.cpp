@@ -242,16 +242,6 @@ namespace gs
 
 		CHECK_IF_RETURN_2(frme.isTag(GS_MAKE_ID('F','R','M','E')) == false, 2, "Unexpected tag \"%s\" when trying to read a FRME at pos %ld", frme.tagStr(), (sFile->pos() - 8));
 
-		bool probablySameCredits = false;
-
-		if (sFrameStoreVersion > 0 && frme.length == sLastFrmeTag.length) {
-			// Experimental:
-			//  If we have a frame store, and the last frame length is the same length as this one, then the content
-			//  is probably likely to be the same; such as the Credit sequences. For that we can skip over background redraws,
-			//  and subtitles when they are the same.
-			probablySameCredits = true;
-		}
-
 		frame->_timing.keepSubtitles = 0;
 
 		while(sFile->pos() < frme.end() && sFile->pos() < sFile->length()) {
@@ -262,7 +252,6 @@ namespace gs
 			switch(tag.tag) {
 
 				case GS_MAKE_ID('N','P','A','L'): {
-					probablySameCredits = false;
 					readPalette();
 					PaletteFrame* pal = frame->addPalette();
 					copyMemQuick((uint32*) &pal->palette[0], (uint32*) sPalette, 3 * 256);
@@ -270,7 +259,6 @@ namespace gs
 				continue;
 
 				case GS_MAKE_ID('X','P','A','L'): {
-					probablySameCredits = false;
 					if (readDeltaPalette(tag.length == 6)) {
 						PaletteFrame* pal = frame->addPalette();
 						copyMemQuick((uint32*) &pal->palette[0], (uint32*) sPalette, 3 * 256);
@@ -293,7 +281,6 @@ namespace gs
 
 					sFrameVersion++;
 					sFrameStoreVersion = 0;
-					probablySameCredits = false;
 
 					readVideo(tag, frame);
 
@@ -304,14 +291,9 @@ namespace gs
 				continue;
 
 				case GS_MAKE_ID('T','E','X','T'): {
-					if (probablySameCredits == false) {
-						SubtitleFrame *subtitleFrame = frame->addSubtitle();
-						if (readSubtitles(tag, subtitleFrame) == false) {
-							frame->removeSubtitle(subtitleFrame);
-						}
-					}
-					else {
-						sFile->skip(tag.length);
+					SubtitleFrame *subtitleFrame = frame->addSubtitle();
+					if (readSubtitles(tag, subtitleFrame) == false) {
+						frame->removeSubtitle(subtitleFrame);
 					}
 
 					if ((tag.length & 1) != 0) {
@@ -327,11 +309,10 @@ namespace gs
 				continue;
 
 				case GS_MAKE_ID('F','T','C','H'): {
-					if (probablySameCredits == false) {
-						sFrameFetchVersion = sFrameStoreVersion;
-						ImageFrame *imageFrame = frame->addImage();
-						copyMemQuick((uint32 * ) imageFrame->getData(), (uint32 *) sStoredFrame, GS_BITMAP_SIZE);
-					}
+					sFrameFetchVersion = sFrameStoreVersion;
+					ImageFrame *imageFrame = frame->addImage();
+					copyMemQuick((uint32 * ) imageFrame->getData(), (uint32 *) sStoredFrame, GS_BITMAP_SIZE);
+
 					sFile->skip(6);
 				}
 				continue;

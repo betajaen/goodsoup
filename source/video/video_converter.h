@@ -36,12 +36,17 @@ namespace gs
 		TagReadFile* _srcFile;
 		WriteFile* _dstFile;
 		byte* _frameBuffer;
+		byte* _lastFrame;
+		byte* _compressionFrame;
 		bool _halfFrameSize;
 		bool _subtitleCompression;
+		bool _bakeSubtitles;
 		uint16 _videoNum;
 		Array<uint32> _lastSubtitles;
 
+		void compressFrame(VideoFrame* frame);
 		void reduceFrameSizeToHalf(VideoFrame* frame);
+		void bakeSubtitles(VideoFrame* frame);
 
 	public:
 

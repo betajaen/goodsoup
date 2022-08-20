@@ -172,6 +172,13 @@ namespace gs
 		return _image;
 	}
 
+	void VideoFrame::removeImage() {
+		if (_image != NULL) {
+			sVideoFramePool->images.release_unchecked(_image);
+			_image = NULL;
+		}
+	}
+
 	PaletteFrame* VideoFrame::addPalette() {
 		if (_palette == NULL) {
 			_palette = sVideoFramePool->palettes.acquire(GS_COMMENT_FILE_LINE_NOTE("PaletteFrame"));
@@ -238,23 +245,71 @@ namespace gs
 
 		if (_image != NULL) {
 
-			if (_image->left == 0 && _image->top == 0 && _image->width == GS_BITMAP_PITCH && _image->height == GS_BITMAP_ROWS) {
-				copyMemQuick((uint32 *) dstFrameBuffer, (uint32*) _image->getData(), GS_BITMAP_SIZE);
-			}
-			else {
-				uint32* src = (uint32*) _image->getData();
-				uint32* dst = (uint32*) dstFrameBuffer;
-				dst += (_image->left + _image->top * GS_BITMAP_PITCH) / sizeof(uint32);
-				uint32 y = _image->height;
-				uint32 srcStride = _image->width / sizeof(uint32);
-				const uint32 dstStride = GS_BITMAP_PITCH / sizeof(uint32);
+			switch(_image->format) {
 
-				while(y--) {
-					copyMemQuick(dst, src, _image->width);
-					src += srcStride;
-					dst += dstStride;
+				case IFF_CopyLast:
+					break;
+				case IFF_FullFrameRaw: {
+					copyMemQuick((uint32 *) dstFrameBuffer, (uint32*) _image->getData(), GS_BITMAP_SIZE);
 				}
+				break;
+				case IFF_HalfFrameRaw: {
+					uint32* src = (uint32*) _image->getData();
+					uint32* dst = (uint32*) dstFrameBuffer;
+					dst += (GS_BITMAP_HALF_LEFT + GS_BITMAP_HALF_TOP * GS_BITMAP_PITCH) / sizeof(uint32);
+					uint32 y = GS_BITMAP_HALF_ROWS;
+					const uint32 srcStride = GS_BITMAP_HALF_PITCH / sizeof(uint32);
+					const uint32 dstStride = GS_BITMAP_PITCH / sizeof(uint32);
+
+					while(y--) {
+						copyMemQuick(dst, src, GS_BITMAP_HALF_PITCH);
+						src += srcStride;
+						dst += dstStride;
+					}
+				}
+				break;
+				case IFF_FullFrameDelta: {
+					uint32* dst = (uint32*) dstFrameBuffer;
+					uint32* src = (uint32*) _image->getData();
+
+					uint16 y = GS_BITMAP_ROWS;
+					while(y--) {
+						uint32 mask = *src++;
+
+						for(uint8 i=0;i < 32;i++) {
+							uint32 isDifferent = mask & 1;
+							mask >>= 1;
+
+							if (isDifferent == 1) {
+#if 1
+								*dst++ = *src++;
+								*dst++ = *src++;
+								*dst++ = *src++;
+								*dst++ = *src++;
+								*dst++ = *src++;
+#else
+								*dst++ ^= *src++;
+								*dst++ ^= *src++;
+								*dst++ ^= *src++;
+								*dst++ ^= *src++;
+								*dst++ ^= *src++;
+#endif
+							}
+							else {
+								dst += 5;
+							}
+						}
+					}
+
+				}
+				break;
+				case IFF_HalfFrameDelta: {
+
+				}
+				break;
+
 			}
+
 		}
 
 		if (_subtitles.hasAny()) {

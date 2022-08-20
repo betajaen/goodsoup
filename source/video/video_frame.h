@@ -139,6 +139,9 @@ namespace gs
 
 		VideoFrame *next;
 
+		uint16 getNum() const {
+			return _timing.num;
+		}
 
 		AudioSampleFrame_S16MSB* addAudio();
 
@@ -151,6 +154,8 @@ namespace gs
 		inline bool hasImage() const {
 			return _image != NULL;
 		}
+
+		void removeImage();
 
 		PaletteFrame* addPalette();
 
