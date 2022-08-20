@@ -319,7 +319,6 @@ namespace gs
 	}
 
 	void disposeAudioSampleFrame_S16MSB(AudioSampleFrame_S16MSB* audio) {
-		// debug(GS_THIS, "RELEASE AUDIO");
 		sVideoFramePool->audioSamples.release_unchecked(audio);
 	}
 

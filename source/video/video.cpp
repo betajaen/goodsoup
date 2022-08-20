@@ -36,6 +36,10 @@ extern gs::VideoDecoder GSV_DECODER;
 
 namespace gs
 {
+	// amiga/timer.cpp
+	// sdl/main.cpp
+	int32 getMSec();
+
 	// source/video/video.cpp
 	static void audioStreamCallback(void* videoPtr, void* audioFrame, uint16 frameNum);
 
@@ -150,6 +154,10 @@ namespace gs
 				break;
 		}
 
+
+		startTime = getMSec();
+		nextTime = startTime;
+
 	}
 
 	void VideoContext::unloadVideo() {
@@ -195,19 +203,27 @@ namespace gs
 			}
 		}
 
-		// TODO: Thread/Interrupt safety.
-		mutex.lock();
-		if (showNextFrame == false) {
-			mutex.unlock();
+		uint32 now = getMSec();
+		if (now < nextTime)
 			return;
-		}
-		showNextFrame = false;
-		mutex.unlock();
+		uint32 diff = now - nextTime;
 
+
+		//mutex.lock();
 		while(_framesInQueue < 4) {
 			if (_acquireNextFrame() == false)
 				break;
 		}
+		//mutex.unlock();
+
+		// TODO: Thread/Interrupt safety.
+		// mutex.lock();
+		// if (showNextFrame == false) {
+		// 	mutex.unlock();
+		// 	return;
+		// }
+		// showNextFrame = false;
+		// mutex.unlock();
 
 		VideoFrame* oldest = _frames.pullFront();
 
@@ -244,8 +260,13 @@ namespace gs
 				_videoStateKind = VSK_Stopped;
 			}
 
+
+			nextTime = startTime - diff + ((oldest->getNum() * 1000) / 12);
+
 			// debug(GS_THIS, "Frame %ld", oldest->_timing.num);
 			disposeVideoFrame(oldest);
+
+
 
 		}
 		else {

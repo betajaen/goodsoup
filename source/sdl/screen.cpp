@@ -153,16 +153,17 @@ namespace gs
 
 		while (SCREEN_EVENT_HANDLER_SHOULD_QUIT == false) {
 
-			if (FAST_MODE == 0) {
 
-				if (OVERRIDE_FRAME_WAIT_USEC != 0) {
-					SDL_Delay(OVERRIDE_FRAME_WAIT_USEC / 1000);
-				}
-				else {
-					SDL_Delay(10);
-				}
-
-			}
+			// if (FAST_MODE == 0) {
+//
+			// 	if (OVERRIDE_FRAME_WAIT_USEC != 0) {
+			// 		SDL_Delay(OVERRIDE_FRAME_WAIT_USEC / 1000);
+			// 	}
+			// 	else {
+			// 		SDL_Delay(10);
+			// 	}
+//
+			// }
 
 			bool step = false;
 
@@ -261,6 +262,7 @@ namespace gs
 
 			if (PAUSED == false) {
 				frameHandler();
+
 			}
 			else {
 				if (step) {
@@ -300,6 +302,8 @@ namespace gs
 			}
 
 			SDL_UpdateWindowSurface(sWindow);
+
+			SDL_Delay(10);
 
             if (quitNextFrame) {
 				setNextGameState(GSK_Quit, 0);

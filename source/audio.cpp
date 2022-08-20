@@ -28,7 +28,7 @@
 namespace gs
 {
 
-	InlineArray<AudioStream_S16MSB*, uint8, MAX_AUDIO_MIXERS> sAudioStreams;
+	InlineArray<AudioStream_S16MSB*, uint16, MAX_AUDIO_MIXERS> sAudioStreams;
     Queue<AudioStream_S16MSB> sAudioStack;
     bool locked = false;
 
@@ -138,7 +138,7 @@ namespace gs
 
 	void releaseAudioStream(AudioStream_S16MSB* audioStream) {
 		CHECK_IF(audioStream == NULL, "Tried to release a null AudioStream");
-		uint8 index;
+		uint16 index;
 
 		if (sAudioStreams.indexOf(audioStream, index) == false) {
 			error(GS_THIS, "Tried to release a Audio Mixer twice!");

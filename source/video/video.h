@@ -23,6 +23,7 @@
 #include "file.h"
 #include "video/video_api.h"
 #include "mutex.h"
+#include "timer.h"
 
 namespace gs
 {
@@ -63,6 +64,7 @@ namespace gs
 		bool showNextFrame;
 		uint16 nextFrame;
 		Mutex mutex;
+		int32 startTime, nextTime;
 
 		bool _acquireNextFrame();
 
