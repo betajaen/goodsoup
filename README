@@ -137,6 +137,75 @@ Once the game has been exited, a message will appear to Thanking you for playing
 this ensures that all the memory allocated and disk resources have been released
 correctly.
 
+Shell Arguments
+---------------
+
+The Goodsoup program accepts one numerical argument to change its behaviour, such
+to play videos, convert and optimize files, or run the game in a different way.
+
+In a shell it they can be given in as the following:
+
+	> stack 65536
+	> monkey3 101
+
+These arguments are:
+
+	0     Play the Game normally
+	100   Play the video BBSAN and quit
+	101   Play the video CURSERNG and quit
+	102   Play the video FG010GP and quit
+	103   Play the video FINALE and quit
+	104   Play the video KIS030 and quit
+	105   Play the video LAVARIDE and quit
+	106   Play the video LIFTCRSE and quit
+	107   Play the video MORESLAW and quit
+	108   Play the video NEWBOOTS and quit
+	109   Play the video OPENING and quit
+	110   Play the video SB010 and quit
+	111   Play the video SB020 and quit
+	112   Play the video SINKSHP and quit
+	113   Play the video WRECKSAN and quit
+	114   Play the video ZAP010 and quit
+	115   Play all videos in alphabetical order and then quit
+	200   Convert FONT0.NUT to FONT0.GSF and quit
+	201   Convert FONT1.NUT to FONT1.GSF and quit
+	202   Convert FONT2.NUT to FONT2.GSF and quit
+	203   Convert FONT3.NUT to FONT3.GSF and quit
+	204   Convert FONT4.NUT to FONT4.GSF and quit
+	205   Convert all fonts from NUT to GSF in numerical order and then quit
+	300   Convert and optimize the video BBSAN and quit
+	301   Convert and optimize the video CURSERNG and quit
+	302   Convert and optimize the video FG010GP and quit
+	303   Convert and optimize the video FINALE and quit
+	304   Convert and optimize the video KIS030 and quit
+	305   Convert and optimize the video LAVARIDE and quit
+	306   Convert and optimize the video LIFTCRSE and quit
+	307   Convert and optimize the video MORESLAW and quit
+	308   Convert and optimize the video NEWBOOTS and quit
+	309   Convert and optimize the video OPENING and quit
+	310   Convert and optimize the video SB010 and quit
+	311   Convert and optimize the video SB020 and quit
+	312   Convert and optimize the video SINKSHP and quit
+	313   Convert and optimize the video WRECKSAN and quit
+	314   Convert and optimize the video ZAP010 and quit
+	350   Convert to 320x240 and optimize the video BBSAN and quit
+	351   Convert to 320x240 and optimize the video CURSERNG and quit
+	352   Convert to 320x240 and optimize the video FG010GP and quit
+	353   Convert to 320x240 and optimize the video FINALE and quit
+	354   Convert to 320x240 and optimize the video KIS030 and quit
+	355   Convert to 320x240 and optimize the video LAVARIDE and quit
+	356   Convert to 320x240 and optimize the video LIFTCRSE and quit
+	357   Convert to 320x240 and optimize the video MORESLAW and quit
+	358   Convert to 320x240 and optimize the video NEWBOOTS and quit
+	359   Convert to 320x240 and optimize the video OPENING and quit
+	360   Convert to 320x240 and optimize the video SB010 and quit
+	361   Convert to 320x240 and optimize the video SB020 and quit
+	362   Convert to 320x240 and optimize the video SINKSHP and quit
+	363   Convert to 320x240 and optimize the video WRECKSAN and quit
+	364   Convert to 320x240 and optimize the video ZAP010 and quit
+	365   Convert to 320x240 and optimize all videos in alphabetical order and quit	
+	
+
 Compiling
 ---------
 
