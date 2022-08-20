@@ -22,6 +22,7 @@
 #include "file.h"
 #include "font.h"
 #include "screen.h"
+#include "audio.h"
 
 namespace gs
 {
@@ -150,7 +151,6 @@ namespace gs
 
 	void VideoFrame::injectSubtitles(gs::SubtitleFrame *head, gs::SubtitleFrame *tail) {
 
-
 		if (hasSubtitles()) {
 			disposeExtractedSubtitles(_subtitles.peekFront(), _subtitles.peekBack());
 		}
@@ -229,7 +229,7 @@ namespace gs
 		}
 	}
 
-	void VideoFrame::apply(byte* dstFrameBuffer, AudioStream_S16MSB* audioStream) {
+	void VideoFrame::apply(byte* dstFrameBuffer) {
 
 		if (_palette != NULL) {
 			screenSetPaletteFromArray(&_palette->palette[0]);
@@ -314,6 +314,30 @@ namespace gs
 
 		if (_subtitles.hasAny()) {
 			applySubtitles(dstFrameBuffer);
+		}
+
+	}
+
+	void disposeAudioSampleFrame_S16MSB(AudioSampleFrame_S16MSB* audio) {
+		// debug(GS_THIS, "RELEASE AUDIO");
+		sVideoFramePool->audioSamples.release_unchecked(audio);
+	}
+
+	void VideoFrame::queueAudio(AudioStream_S16MSB *audioStream) {
+
+		AudioSampleFrame_S16MSB* sampleFrame = _audio.pullFront();
+
+		while(sampleFrame != NULL) {
+			AudioSample_S16MSB* sample =  audioStream->allocateSample();
+
+			sample->userMessage = getNum();
+			sample->userData = sampleFrame;
+			sample->data = &sampleFrame->data[0];
+			sample->pos = 0;
+			sample->remaining = 2048;
+			audioStream->pushSample(sample);
+
+			sampleFrame = _audio.pullFront();
 		}
 
 	}

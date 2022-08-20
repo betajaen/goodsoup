@@ -177,8 +177,8 @@ namespace gs
 		}
 
 		void applySubtitles(byte* dstFrameBuffer);
-		void apply(byte* dstFrameBuffer, AudioStream_S16MSB* audioStream);
-
+		void apply(byte* dstFrameBuffer);
+		void queueAudio(AudioStream_S16MSB* audioStream);
 
 
 		VideoFrameTiming _timing;
@@ -193,6 +193,8 @@ namespace gs
 	void initializeVideoFrameData();
 	void disposeVideoFrameData();
 	void disposeExtractedSubtitles(SubtitleFrame* head, SubtitleFrame* tail);
+	void disposeAudioSampleFrame_S16MSB(AudioSampleFrame_S16MSB* audio);
+
 
 }
 

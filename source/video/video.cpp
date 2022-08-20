@@ -16,7 +16,7 @@
  */
 
 #define GS_FILE_NAME "video"
-#define TEMP_USE_VIDEO_CODEC 0
+
 #include "video.h"
 #include "video/video_api.h"
 #include "video/video_frame.h"
@@ -36,6 +36,8 @@ extern gs::VideoDecoder GSV_DECODER;
 
 namespace gs
 {
+	// source/video/video.cpp
+	static void audioStreamCallback(void* videoPtr, void* audioFrame, uint16 frameNum);
 
 	VideoContext* VIDEO = NULL;
 
@@ -43,26 +45,18 @@ namespace gs
 
 	VideoContext::VideoContext() {
 
-		_api.initialize = NULL;
-		_api.teardown = NULL;
-		_api.processFrame = NULL;
-
-#if TEMP_USE_VIDEO_CODEC
 		initializeVideoFrameData();
 
 		_videoDecoder = NULL;
 
 		_srcFile = NULL;
 
-		_audioStream = createAudioStream();
-		pushAudioStream(_audioStream);
+		_audioStream = NULL;
 		_frameBuffer = (byte*) allocateMemory(1, GS_BITMAP_SIZE, MF_Clear, GS_COMMENT_FILE_LINE_NOTE("FrameBuffer"));
-#endif
 
 	}
 
 	VideoContext::~VideoContext() {
-#if TEMP_USE_VIDEO_CODEC
 
 		releaseMemoryChecked(_frameBuffer);
 
@@ -85,23 +79,20 @@ namespace gs
 
 		deleteObject(_srcFile);
 
-		popAudioStream();
-		releaseAudioStream(_audioStream);
-		_audioStream = NULL;
+		if (_audioStream != NULL) {
+			popAudioStream();
+			releaseAudioStream(_audioStream);
+			_audioStream = NULL;
+		}
 
 		debug(GS_THIS, "Video End");
 
 		disposeVideoFrameData();
-#else
-		if (_api.teardown != NULL) {
-			_api.teardown();
-		}
-		_file.close();
-#endif
+
 	}
 
 	void VideoContext::loadVideo(uint8 id) {
-#if TEMP_USE_VIDEO_CODEC
+
 		_videoStateKind = VSK_Loaded;
 		_srcFile = newObject<TagReadFile>(GS_COMMENT_FILE_LINE);
 		CHECK_IF(_srcFile == NULL, "Could not allocate src Video File!");
@@ -144,57 +135,21 @@ namespace gs
 			return;
 		}
 
-#if 0
-		_dstFile = newObject<WriteFile>(GS_COMMENT_FILE_LINE);
-		CHECK_IF(_dstFile == NULL, "Could not allocate Video dst File!");
+		_audioStream = createAudioStream();
+		_audioStream->userData = this;
+		_audioStream->callback = &audioStreamCallback;
 
-		_dstFile->open(GS_GAME_PATH "RESOURCE/OPENING.GSV");
+		pushAudioStream(_audioStream);
 
-		if (_dstFile->isOpen() == false) {
-			error(GS_THIS, "Could not open destination Video File!");
-			abort_quit_stop();
-			deleteObject(_dstFile);
-			return;
+		nextFrame = 0;
+		showNextFrame = false;
+
+		while(_framesInQueue < 4) {
+			debug(GS_THIS, "QUEUE FRAME");
+			if (_acquireNextFrame() == false)
+				break;
 		}
 
-		_videoEncoder = &GSV_ENCODER;
-
-		VideoEncoderParams encoderParams;
-		encoderParams.left_px = 0;
-		encoderParams.top_px = 0;
-		encoderParams.width_px = GS_BITMAP_PITCH;
-		encoderParams.height_px = GS_BITMAP_ROWS;
-		encoderParams.audioFormat = AF_S16MSB;
-		encoderParams.audioFrequency_hz = 22050;
-		encoderParams.audioSampleRate_bytes = (1024 * 2 * sizeof(int16));
-
-		if (_videoEncoder->initialize(_dstFile, encoderParams) == false) {
-			error(GS_THIS, "Could not open destination Video File!");
-			abort_quit_stop();
-			deleteObject(_srcFile);
-			_videoEncoder = NULL;
-			return;
-		}
-#endif
-
-#else
-		/* Temporary Code to imitate Video Playing */
-		_videoStateKind = VSK_Loaded;
-
-		// Temp. Ignore ID and just open OPENING.SAN for now.
-		_file.open(GS_GAME_PATH "RESOURCE/OPENING.SAN");
-
-		if (_file.isOpen() == false) {
-			error(GS_THIS, "Could not open Video File!");
-			abort_quit_stop();
-			return;
-		}
-
-		// Temp. Figure out codec from extension name and call the appropriate API.
-		getSANApi(&_api);
-
-		_api.initialize(DiskReader(_file));
-#endif
 	}
 
 	void VideoContext::unloadVideo() {
@@ -205,7 +160,6 @@ namespace gs
 
 	bool VideoContext::_acquireNextFrame() {
 
-#if TEMP_USE_VIDEO_CODEC
 		VideoFrame* frame = acquireVideoFrame();
 		_nextFrameAction = _videoDecoder->processFrame(frame);
 
@@ -218,70 +172,42 @@ namespace gs
 			// Received a frame
 			_frames.pushBack(frame);
 			_framesInQueue++;
+			frame->queueAudio(_audioStream);
 			return true;
 		}
 		else if (_nextFrameAction == 2) {
 			// Received last frame
 			_frames.pushBack(frame);
 			_framesInQueue++;
+			frame->queueAudio(_audioStream);
 			return false;
 		}
-
-
-#endif
 
 		// Fallback
 		return false;
 	}
 
 	void VideoContext::playVideoFrame() {
-#if TEMP_USE_VIDEO_CODEC
 
 		if (PAUSED) {
-
 			if (KEY_EVENT != KE_StepForward) {
 				return;
 			}
-
 		}
+
+		// TODO: Thread/Interrupt safety.
+		mutex.lock();
+		if (showNextFrame == false) {
+			mutex.unlock();
+			return;
+		}
+		showNextFrame = false;
+		mutex.unlock();
 
 		while(_framesInQueue < 4) {
 			if (_acquireNextFrame() == false)
 				break;
 		}
-
-#if 0
-		if (KEY_EVENT == KE_StepAhead) {
-			int16 counter = 16;
-			VideoFrame* frame = _frames.pullFront();
-
-			while(frame != NULL) {
-				disposeVideoFrame(frame);
-				frame = _frames.pullFront();
-				counter--;
-			}
-
-			_framesInQueue = 0;
-
-			if (counter > 0 ) {
-				while (counter--) {
-					if (_acquireNextFrame() == false)
-						break;
-					disposeVideoFrame(_frames.pullFront());
-					_framesInQueue--;
-				}
-			}
-
-			while(_framesInQueue < 4) {
-				if (_acquireNextFrame() == false)
-					break;
-			}
-
-			return;
-		}
-#endif
-
-		// TODO: Timing
 
 		VideoFrame* oldest = _frames.pullFront();
 
@@ -302,7 +228,7 @@ namespace gs
 				}
 			}
 
-			oldest->apply(_frameBuffer, _audioStream);
+			oldest->apply(_frameBuffer);
 
 			screenBlitCopy(_frameBuffer);
 
@@ -327,56 +253,20 @@ namespace gs
 			_videoStateKind = VSK_Stopped;
 		}
 
-#else
-		int32 frames = -1;
+	}
 
-		/* Temporary Code to imitate Video Playing */
-
-		if (_videoStateKind == VSK_Loaded) {
-			_videoStateKind = VSK_Playing;
-			_videoFrameCounter = 0;
-
-			CHECK_IF(_api.processFrame == NULL, "Initialize API function is NULL");
-
-			frames = _api.processFrame();
-
-			if (frames <0) {
-				_videoStateKind = VSK_Stopped;
-				CHECK_IF(_api.teardown != NULL, "ProcessFrame API function is NULL");
-				_api.processFrame();
-				_file.close();
-			}
-			else {
-				_waitFrames = _waitFrames;
-			}
-
-			return;
+	void VideoContext::streamCallback(AudioSampleFrame_S16MSB* audioSampleFrame, uint16 frameNum) {
+		mutex.lock();
+		if (frameNum == nextFrame) {
+			nextFrame++;
+			showNextFrame = true;
 		}
+		disposeAudioSampleFrame_S16MSB(audioSampleFrame);
+		mutex.unlock();
+	}
 
-
-		if (_videoStateKind == VSK_Playing) {
-			_videoFrameCounter++;
-			_waitFrames--;
-
-			if (_waitFrames <= 0) {
-
-				CHECK_IF(_api.processFrame == NULL, "ProcessFrame API function is NULL");
-				frames = _api.processFrame();
-
-				if (frames < 0) {
-					_videoStateKind = VSK_Stopped;
-					CHECK_IF(_api.teardown != NULL, "Teardown API function is NULL");
-					_api.teardown();
-					_file.close();
-				}
-				else {
-					_waitFrames = frames;
-				}
-			}
-
-			return;
-		}
-#endif
+	static void audioStreamCallback(void* videoPtr, void* audioFrame, uint16 frameNum) {
+		((VideoContext*) videoPtr)->streamCallback((AudioSampleFrame_S16MSB*) audioFrame, frameNum);
 
 	}
 

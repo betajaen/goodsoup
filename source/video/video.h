@@ -22,6 +22,7 @@
 #include "containers.h"
 #include "file.h"
 #include "video/video_api.h"
+#include "mutex.h"
 
 namespace gs
 {
@@ -32,6 +33,8 @@ namespace gs
 	class VideoEncoder;
 	class VideoConverter;
 	struct SubtitleFrame;
+	struct AudioSampleFrame_S16MSB;
+
 
 	enum VideoStateKind {
 		VSK_NotLoaded = 0,
@@ -46,8 +49,6 @@ namespace gs
 		uint32 _videoFrameCounter;
 		int32 _waitFrames;
 
-		ReadFile _file;
-		VideoApi _api;
 		VideoDecoder* _videoDecoder;
 		TagReadFile* _srcFile;
 
@@ -58,6 +59,10 @@ namespace gs
 		uint8 _nextFrameAction;
 		AudioStream_S16MSB* _audioStream;
 		SubtitleFrame* _keptSubtitlesHead, *_keptSubtitlesTail;
+
+		bool showNextFrame;
+		uint16 nextFrame;
+		Mutex mutex;
 
 		bool _acquireNextFrame();
 
@@ -73,6 +78,8 @@ namespace gs
 		inline uint8 getVideoStateKind() const {
 			return _videoStateKind;
 		}
+
+		void streamCallback(AudioSampleFrame_S16MSB* audioSampleFrame, uint16 frameNum);
 
 	};
 
