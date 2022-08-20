@@ -52,7 +52,7 @@ namespace gs
 		smush_tables_teardown();
 	}
 
-	bool VideoConverter::initialize(uint8 videoNum, bool halfFrameSize) {
+	bool VideoConverter::initialize(uint8 videoNum, bool halfFrameSize, bool subtitleCompression) {
 
 		deleteObject(_dstFile);
 		deleteObject(_srcFile);
@@ -60,6 +60,7 @@ namespace gs
 
 		_videoNum = videoNum;
 		_halfFrameSize = halfFrameSize;
+		_subtitleCompression = subtitleCompression;
 		_frameBuffer = (byte*) allocateMemory(1, GS_BITMAP_SIZE, MF_Clear, GS_COMMENT_FILE_LINE);
 
 		_srcFile = newObject<TagReadFile>(GS_COMMENT_FILE_LINE);
@@ -155,7 +156,6 @@ namespace gs
 
 			frame->_timing.clearFlags = 0;
 
-
 			/* Half size */
 			if (_halfFrameSize && frame->_image != NULL ) {
 				shouldHalfSize = true;
@@ -171,25 +171,60 @@ namespace gs
 
 			}
 
-			/* Clear background for dialogue, if it has changed and half size */
-			if (shouldHalfSize) {
-				if (frame->_subtitles.hasAny()) {
-					SubtitleFrame *subtitleFrame = frame->_subtitles.peekFront();
+			if (_subtitleCompression) {
 
-					if (subtitleFrame->hash != lastDialogue) {
-						frame->_timing.clearFlags = 1;
+				if (frame->_subtitles.hasAny()) {
+					uint32 newCount = 0;
+					bool identical = true;
+
+					SubtitleFrame* subtitleFrame = frame->_subtitles.peekFront();
+
+					while(subtitleFrame != NULL) {
+						if (_lastSubtitles.contains(subtitleFrame->hash) == false) {
+							identical = false;
+							break;
+						}
+						newCount++;
+						subtitleFrame = subtitleFrame->next;
 					}
 
-					lastDialogue = subtitleFrame->hash;
-				} else {
-					/* Clear background if there was dialogue */
-					if (lastDialogue != 0) {
-						frame->_timing.clearFlags = 1;
-						lastDialogue = 0xFFFFffff;
+					// New/Different Subtitles
+					if (identical == false || newCount != _lastSubtitles.getSize()) {
+						_lastSubtitles.clear();
+						subtitleFrame = frame->_subtitles.peekFront();
+						while(subtitleFrame != NULL) {
+							_lastSubtitles.push(subtitleFrame->hash);
+							subtitleFrame = subtitleFrame->next;
+						}
+
+						if (shouldHalfSize) {
+							frame->_timing.clearFlags = 1;
+						}
+
+						frame->_timing.keepSubtitles = 1;
+
+					}
+					else {
+						// Same as last frame
+						frame->removeAllSubtitles();
+						frame->_timing.keepSubtitles = 1;
+					}
+
+				}
+				else {
+					// End of Subtitles (Empty)
+					if (_lastSubtitles.getSize() != 0) {
+						if (shouldHalfSize) {
+							frame->_timing.clearFlags = 1;
+						}
+						_lastSubtitles.clear();
+						frame->_timing.keepSubtitles = 0;
 					}
 				}
 
 			}
+
+
 
 			if (shouldHalfSize) {
 				reduceFrameSizeToHalf(frame);
@@ -245,9 +280,9 @@ namespace gs
 
 	}
 
-	int convertVideo(uint8 videoNum, bool halfSize) {
+	int convertVideo(uint8 videoNum, bool halfSize, bool subtitleCompression) {
 		VideoConverter* converter = newObject<VideoConverter>(GS_COMMENT_FILE_LINE);
-		if (converter->initialize(videoNum, halfSize) == false) {
+		if (converter->initialize(videoNum, halfSize, subtitleCompression) == false) {
 			deleteObject(converter);
 			return 1;
 		}

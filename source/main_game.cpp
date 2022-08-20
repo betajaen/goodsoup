@@ -56,7 +56,7 @@ namespace gs
 {
 
 	// Declared in video/video_converter.cpp
-	int convertVideo(uint8 num, bool halfSize);
+	int convertVideo(uint8 num, bool halfSize, bool subtitleCompression);
 
 	static int runGame();
 	static int playVideo(uint8 num);
@@ -115,17 +115,35 @@ namespace gs
 		if (param == 0) {
 			rc = runGame();
 		}
-		else if (param >= 100 && param <= 115) {
+		else if (param >= 100 && param <= 114) {
 			rc = playVideo(param - 100);
 		}
-		else if (param >= 205 && param <= 205) {
+		else if (param == 115) {
+			rc = playVideo(0xFF);
+		}
+		else if (param >= 200 && param <= 204) {
 			rc = convertFont(param - 200);
 		}
-		else if (param >= 300 && param <= 315) {
-			rc = convertVideo(param - 300, false);
+		else if (param == 205) {
+			for(uint8 i=0;i < MAX_FONTS;i++) {
+				rc = convertFont(i);
+			}
 		}
-		else if (param >= 350 && param <= 365) {
-			rc = convertVideo(param - 350, true);
+		else if (param >= 300 && param <= 314) {
+			rc = convertVideo(param - 300, false, true);
+		}
+		else if (param == 315) {
+			for(uint8 i=0;i < MAX_VIDEOS;i++) {
+				rc = convertVideo(i, false, true);
+			}
+		}
+		else if (param >= 350 && param <= 364) {
+			rc = convertVideo(param - 350, true, true);
+		}
+		else if (param == 365) {
+			for(uint8 i=0;i < MAX_VIDEOS;i++) {
+				rc = convertVideo(i, true, true);
+			}
 		}
 		else {
 			rc = runGame();
@@ -239,12 +257,24 @@ namespace gs
 			return 1;
 		}
 
-		NEXT_GAME_STATE = GSK_Video;
-		NEXT_GAME_STATE_PARAM = videoNum;
-		GAME_STATE = GSK_None;
-		SCREEN_EVENT_HANDLER_SHOULD_QUIT = false;
+		if (videoNum != 0xFF) {
+			NEXT_GAME_STATE = GSK_Video;
+			NEXT_GAME_STATE_PARAM = videoNum;
+			GAME_STATE = GSK_None;
+			SCREEN_EVENT_HANDLER_SHOULD_QUIT = false;
 
-		screenEventHandler();
+			screenEventHandler();
+		}
+		else {
+			for(uint8 i=0;i < MAX_VIDEOS;i++) {
+				NEXT_GAME_STATE = GSK_Video;
+				NEXT_GAME_STATE_PARAM = i;
+				GAME_STATE = GSK_None;
+				SCREEN_EVENT_HANDLER_SHOULD_QUIT = false;
+
+				screenEventHandler();
+			}
+		}
 
 		cleanup();
 		closeScreen();

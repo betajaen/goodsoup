@@ -72,6 +72,19 @@ namespace gs
 		sVideoFramePool->videoFrames.release_unchecked(frame);
 	}
 
+	void disposeExtractedSubtitles(SubtitleFrame* head, SubtitleFrame* tail) {
+		Queue<SubtitleFrame> queue;
+		queue.replace(head, tail);
+
+		while(true) {
+			SubtitleFrame* subtitle = queue.pullFront();
+			if (subtitle == NULL)
+				break;
+			sVideoFramePool->subtitles.release_unchecked(subtitle);
+		}
+
+	}
+
 	VideoFrame::VideoFrame() {
 		_image = NULL;
 		_palette = NULL;
@@ -119,6 +132,30 @@ namespace gs
 	void VideoFrame::removeSubtitle(SubtitleFrame* frame) {
 		_subtitles.pull(frame);
 		sVideoFramePool->subtitles.release_unchecked(frame);
+	}
+
+	void VideoFrame::removeAllSubtitles() {
+		SubtitleFrame* subtitleFrame = _subtitles.pullFront();
+		while(subtitleFrame != NULL) {
+			sVideoFramePool->subtitles.release_unchecked(subtitleFrame);
+			subtitleFrame = _subtitles.pullFront();
+		}
+	}
+
+	void VideoFrame::extractSubtitles(SubtitleFrame*& head, SubtitleFrame*& tail) {
+		head = _subtitles.peekFront();
+		tail = _subtitles.peekBack();
+		_subtitles.clear();
+	}
+
+	void VideoFrame::injectSubtitles(gs::SubtitleFrame *head, gs::SubtitleFrame *tail) {
+
+
+		if (hasSubtitles()) {
+			disposeExtractedSubtitles(_subtitles.peekFront(), _subtitles.peekBack());
+		}
+
+		_subtitles.replace(head, tail);
 	}
 
 	AudioSampleFrame_S16MSB* VideoFrame::addAudio() {

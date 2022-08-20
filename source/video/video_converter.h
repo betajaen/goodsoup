@@ -19,6 +19,7 @@
 #define GS_VIDEO_CONVERTER_H
 
 #include "forward.h"
+#include "containers.h"
 
 namespace gs
 {
@@ -36,7 +37,9 @@ namespace gs
 		WriteFile* _dstFile;
 		byte* _frameBuffer;
 		bool _halfFrameSize;
+		bool _subtitleCompression;
 		uint16 _videoNum;
+		Array<uint32> _lastSubtitles;
 
 		void reduceFrameSizeToHalf(VideoFrame* frame);
 
@@ -45,12 +48,12 @@ namespace gs
 		VideoConverter();
 		~VideoConverter();
 
-		bool initialize(uint8 videoNum, bool halfFrameSize);
+		bool initialize(uint8 videoNum, bool halfFrameSize, bool subtitleCompression);
 		void run();
 
 	};
 
-	int convertVideo(uint8 num, bool halfSize);
+	int convertVideo(uint8 num, bool halfSize, bool subtitleCompression);
 
 }
 

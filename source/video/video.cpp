@@ -66,12 +66,18 @@ namespace gs
 
 		releaseMemoryChecked(_frameBuffer);
 
+		disposeExtractedSubtitles(_keptSubtitlesHead, _keptSubtitlesTail);
+		_keptSubtitlesHead = NULL;
+		_keptSubtitlesTail = NULL;
+
 		VideoFrame* frame = _frames.pullFront();
+
 		while(frame != NULL) {
 			disposeVideoFrame(frame);
 			frame = _frames.pullFront();
 		}
 		_frames.clear();
+
 
 		if (_videoDecoder != NULL) {
 			_videoDecoder->teardown();
@@ -283,8 +289,26 @@ namespace gs
 
 			_framesInQueue--;
 
+			if (oldest->keepSubtitles() && oldest->hasSubtitles() == false) {
+				oldest->injectSubtitles(_keptSubtitlesHead, _keptSubtitlesTail);
+				_keptSubtitlesHead = NULL;
+				_keptSubtitlesTail = NULL;
+			}
+			else {
+				if (_keptSubtitlesTail != NULL && _keptSubtitlesHead != NULL) {
+					disposeExtractedSubtitles(_keptSubtitlesHead, _keptSubtitlesTail);
+					_keptSubtitlesHead = NULL;
+					_keptSubtitlesTail = NULL;
+				}
+			}
+
 			oldest->apply(_frameBuffer, _audioStream);
+
 			screenBlitCopy(_frameBuffer);
+
+			if (oldest->keepSubtitles() && oldest->hasSubtitles()) {
+				oldest->extractSubtitles(_keptSubtitlesHead, _keptSubtitlesTail);
+			}
 
 			if (KEY_EVENT == KE_StepForward) {
 				debug(GS_THIS, "Frame %ld", oldest->_timing.num);

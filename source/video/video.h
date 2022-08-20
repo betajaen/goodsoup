@@ -31,6 +31,7 @@ namespace gs
 	class VideoDecoder;
 	class VideoEncoder;
 	class VideoConverter;
+	struct SubtitleFrame;
 
 	enum VideoStateKind {
 		VSK_NotLoaded = 0,
@@ -56,6 +57,7 @@ namespace gs
 		uint16 _framesInQueue;
 		uint8 _nextFrameAction;
 		AudioStream_S16MSB* _audioStream;
+		SubtitleFrame* _keptSubtitlesHead, *_keptSubtitlesTail;
 
 		bool _acquireNextFrame();
 

@@ -252,6 +252,8 @@ namespace gs
 			probablySameCredits = true;
 		}
 
+		frame->_timing.keepSubtitles = 0;
+
 		while(sFile->pos() < frme.end() && sFile->pos() < sFile->length()) {
 			tag = sFile->readSanTagPair(false);
 
@@ -369,6 +371,7 @@ namespace gs
 		}
 
 		sLastFrmeTag = frme;
+
 
 
 		if (sFrameNum >= sFrameCount) {

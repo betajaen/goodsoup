@@ -80,8 +80,10 @@ namespace gs
 */
 		frame->_timing.num = sFile->readUInt16BE();
 		frame->_timing.length_msec = sFile->readUInt16BE();
-		frame->_timing.action = sFile->readUInt16BE();
-		frame->_timing.clearFlags = sFile->readUInt16BE();
+		frame->_timing.action = sFile->readByte();
+		frame->_timing.clearFlags = sFile->readByte();
+		frame->_timing.keepSubtitles = sFile->readByte();
+		frame->_timing.reserved = sFile->readByte();
 
 		while(numAudio--) {
 			AudioSampleFrame_S16MSB* audio = frame->addAudio();

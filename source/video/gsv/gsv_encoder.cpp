@@ -87,8 +87,10 @@ namespace gs
 
 		sFile->writeUInt16BE(frame->_timing.num);
 		sFile->writeUInt16BE(frame->_timing.length_msec);
-		sFile->writeUInt16BE(frame->_timing.action);
-		sFile->writeUInt16BE(frame->_timing.clearFlags);
+		sFile->writeByte(frame->_timing.action);
+		sFile->writeByte(frame->_timing.clearFlags);
+		sFile->writeByte(frame->_timing.keepSubtitles);
+		sFile->writeByte(frame->_timing.reserved);
 
 		AudioSampleFrame_S16MSB* audioSampleFrame = frame->_audio.peekFront();
 		while(audioSampleFrame != NULL) {

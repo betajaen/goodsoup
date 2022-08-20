@@ -113,8 +113,10 @@ namespace gs
 	struct VideoFrameTiming {
 		uint16 num;
 		uint16 length_msec;
-		uint16 action;
-		uint16 clearFlags;
+		uint8  action;
+		uint8  clearFlags;
+		uint8  keepSubtitles;
+		uint8  reserved;
 	};
 
 	enum VideoFrameFeature {
@@ -137,14 +139,42 @@ namespace gs
 
 		VideoFrame *next;
 
-		SubtitleFrame* addSubtitle();
+
 		AudioSampleFrame_S16MSB* addAudio();
+
+		inline bool hasAudio() const {
+			return _audio.hasAny();
+		}
+
 		ImageFrame* addImage();
+
+		inline bool hasImage() const {
+			return _image != NULL;
+		}
+
 		PaletteFrame* addPalette();
+
+		inline bool hasPalette() const {
+			return _palette != NULL;
+		}
+
+		SubtitleFrame* addSubtitle();
 		void removeSubtitle(SubtitleFrame* frame);
+		void removeAllSubtitles();
+		void extractSubtitles(SubtitleFrame*& head, SubtitleFrame*& tail);
+		void injectSubtitles(SubtitleFrame* head, SubtitleFrame* tail);
+		inline bool hasSubtitles() const {
+			return _subtitles.hasAny();
+		}
+
+		inline bool keepSubtitles() const {
+			return _timing.keepSubtitles == 1;
+		}
 
 		void applySubtitles(byte* dstFrameBuffer);
 		void apply(byte* dstFrameBuffer, AudioStream_S16MSB* audioStream);
+
+
 
 		VideoFrameTiming _timing;
 		Queue<AudioSampleFrame_S16MSB> _audio;
@@ -157,6 +187,7 @@ namespace gs
 	void disposeVideoFrame(VideoFrame* frame);
 	void initializeVideoFrameData();
 	void disposeVideoFrameData();
+	void disposeExtractedSubtitles(SubtitleFrame* head, SubtitleFrame* tail);
 
 }
 
