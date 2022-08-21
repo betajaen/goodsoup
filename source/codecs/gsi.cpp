@@ -34,7 +34,7 @@ namespace gs
 
 
 	template<bool isBigEndian>
-	static void writeRoom_endian(EndianWriteFile<isBigEndian>& file, Index* index) {
+	static void writeRoomDisks_endian(EndianWriteFile<isBigEndian>& file, Index* index) {
 
 		file.writeTag("ROOM");
 		file.writeUInt32(NUM_ROOMS + NUM_ROOMS * sizeof(uint32));
@@ -49,6 +49,9 @@ namespace gs
 	template<bool isBigEndian>
 	static bool writeGSI_endian(EndianWriteFile<isBigEndian>& file, Index* index) {
 
+		uint16 count;
+		uint32* offset;
+
 		if (isBigEndian) {
 			file.writeBytes(HEADER_BIG, 4);
 		}
@@ -59,8 +62,31 @@ namespace gs
 		file.writeBytes(GS_GAME_FOURCC, 4);
 		file.writeUInt32(0);	// Future. Game Revision, Type, or Language code.
 
-		writeRoom_endian<isBigEndian>(file, index);
+		// LFLF - Implements DROO and DRSC
+		// These are the Disk number, and the Offset to the LFLF in LA0, and LA1 files
+		file.writeTag("LFLF");
+		file.writeUInt16(NUM_ROOMS);
+		file.writeBytes(index->_roomDisks, NUM_ROOMS);
+		count = NUM_ROOMS;
+		offset = &index->_roomScriptOffsets[0];
+		while(count--) {
+			file.writeUInt32(*offset++);
+		}
 
+		// SCRP - Pointers to SCRP tags which are inside ROOM tags of a Disk.
+		// These are the Room number, and offset to the SCRP tags in inside LFLF which are in LA0 and LA1 files
+		// A room may have multiple SCRP tags, hence NUM_SCRIPTS != NUM_ROOMS
+		file.writeTag("SCRP");
+		file.writeUInt16(NUM_SCRIPTS);
+
+		// This is different to LA0. We store the DISK Number, where as the LA0 stores the ROOM Number. LA0
+		// calculates these after the load to save an additional memory lookup, we cache it here to prevent the
+		// calculation.
+		file.writeBytes(index->_scriptDisk, NUM_SCRIPTS);
+		// This is also different to LA0. LA0 stores an offset relative to the LFLF offset, which requires
+		// a calculation each time. The LA0 will now pre-calculate these on load, and here we cache it to prevent
+		// a calculation on load.
+		file.writeBytes(index->_scriptDiskOffset, sizeof(uint32) * NUM_SCRIPTS);
 
 		return true;
 	}
