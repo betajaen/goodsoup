@@ -67,7 +67,7 @@ namespace gs
 
 	Disk& Resources::_getDisk(uint8 num) {
 
-		if (num >= NUM_DISKS) {
+		if (num > NUM_DISKS) {
 			error(GS_THIS, "Unknown disk %ld", num);
 			return _disk[0];
 		}
@@ -80,8 +80,6 @@ namespace gs
 		/* TODO */
 		uint8 room_diskNum;
 		uint32 room_resOffset;
-
-		
 		if (INDEX->getRoom(num, room_diskNum, room_resOffset) == false) {
 			return NULL;
 		}
