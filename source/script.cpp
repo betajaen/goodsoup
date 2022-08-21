@@ -66,6 +66,8 @@ namespace gs
 
 	ScriptData* ScriptState::_newGlobal(uint16 scriptNum) {
 
+		ScriptData* script = _globals.acquire();
+#if 1
 		uint8 script_roomNum;
 		uint32 script_offset;
 
@@ -84,8 +86,19 @@ namespace gs
 		Disk& disk = RESOURCES->_getDisk(room_diskNum);
 		disk.getRoomOffset(script_roomNum, room_offset);
 
-		ScriptData* script = _globals.acquire();
 		script->_fileOffset = room_offset + script_offset;
+#else
+
+		uint8 diskNum, script_roomNum;
+		uint32 absOffset;
+
+		if (INDEX->getScriptNew(scriptNum, diskNum, script_roomNum, absOffset) == false) {
+			return NULL;
+		}
+
+		Disk& disk = RESOURCES->_getDisk(diskNum);
+		script->_fileOffset = absOffset;
+#endif
 		script->_flags = 0;
 		script->_kind = SDK_Global;
 		script->_id = scriptNum;
