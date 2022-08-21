@@ -22,7 +22,8 @@
 #include "video/video_frame.h"
 #include "video/video_api.h"
 
-#define GSV_HEADER "GSV1"
+#define GSV_HEADER_BIG "GSVb"
+#define GSV_HEADER_LITTLE "GSVl"
 
 namespace gs
 {
@@ -32,7 +33,7 @@ namespace gs
 	/*
  		General Format of a GSV video file
 
- 			"GSV1"	- 4	- File Header and Version
+ 			"GSVb"	- 4	- File Header and Version
  			0		- 4	- Offset from beginning to the string table
  			...		- sizeof(VideoEncoderParams) - Video Encoding Params
  			FRME	- 4
@@ -52,15 +53,12 @@ namespace gs
 			FRME
  			...
  			STOP
- 			STBL
- 			StringTable	- n	- Contents of String table (FUTURE)
  			<eof>
  	*/
 
 	bool gsv_encoder_initialize(WriteFile* file, const VideoEncoderParams& params) {
 		sFile = file;
-		sFile->writeTag(GSV_HEADER);
-		sFile->writeUInt32BE(0);	// /* TODO: Will point to the string table in the file */
+		sFile->writeTag(GSV_HEADER_BIG);
 		sFile->writeBytes(&params, sizeof(VideoEncoderParams));
 
 		return true;

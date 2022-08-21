@@ -33,7 +33,6 @@ namespace gs
 		sFile = file;
 
 		uint32 tagName = sFile->readUInt32BE();
-		uint32 tableOffset = sFile->readUInt32BE();
 
 		// This will fail on encoding/playing on different endian arch.
 		sFile->readBytes(&sParams, sizeof(VideoEncoderParams));
