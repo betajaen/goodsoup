@@ -76,13 +76,16 @@ namespace gs
 			endian = 0;
 #endif
 		}
-		
+
 		return ::gs::writeGSI(&file, this, endian == 1);
 	}
 
 	bool Index::readGSI(const char* path) {
 		TagReadFile file;
-		file.open(path);
+		file.open(path, false);
+
+		if (file.isOpen() == false)
+			return false;
 
 		return ::gs::readGSI(&file, this);
 	}
@@ -91,7 +94,13 @@ namespace gs
 		TagReadFile file;
 		file.open(path);
 
-		return ::gs::readLA0(&file, this);
+		if (::gs::readLA0(&file, this) == false) {
+			error(GS_THIS, "Quitting due to LA0 file not being read correctly.");
+			return false;
+		}
+
+		calculateScriptOffsets();
+		return true;
 	}
 
 	uint16 Index::findObjectNumFromHash(uint32 hash) {
@@ -105,5 +114,36 @@ namespace gs
 		return 0;
 	}
 
+	void Index::calculateScriptOffsets() {
+#if 0
+		Disk& disk1 = RESOURCES->_getDisk(1);
+		Disk& disk2 = RESOURCES->_getDisk(2);
+
+		// Calculate ScriptDisks and ScriptDiskOffsets from RoomDisks
+		for(uint16 scriptNum=1;scriptNum < NUM_SCRIPTS;scriptNum++) {
+			uint8 roomNum = _scriptRoom[scriptNum];
+			uint8 roomDisk = _roomDisks[roomNum];
+			uint32 offset = 0;
+
+			debug(GS_THIS, "%ld -> %ld %ld", scriptNum, roomNum, roomDisk);
+
+			if (roomDisk == 0) {
+				disk1.getRoomOffset(roomNum, offset);
+			}
+			else {
+				disk2.getRoomOffset(roomNum, offset);
+			}
+
+			if (offset != 0) {
+				offset += _scriptOffset[scriptNum];
+			}
+
+			debug(GS_THIS, "%ld -> %ld %ld", scriptNum, roomNum, offset);
+
+			_scriptDisk[scriptNum] = roomDisk;
+			_scriptDiskOffset[scriptNum] = offset;
+		}
+#endif
+	}
 
 }

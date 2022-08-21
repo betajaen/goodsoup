@@ -46,6 +46,8 @@ namespace gs
 		bool readGSI(const char* path);
 		bool saveGSI(const char* path, int8 endian);
 
+		void calculateScriptOffsets();
+
 		bool getRoom(uint16 roomNum, uint8& diskNum, uint32& offset) {
 
 			if (roomNum >= NUM_ROOMS) {
@@ -68,6 +70,20 @@ namespace gs
 
 			roomNum = _scriptRoom[scriptNum];
 			offset = _scriptOffset[scriptNum];
+
+			return true;
+		}
+
+		bool getScriptNew(uint16 scriptNum, uint8& diskNum, uint8& roomNum, uint32& absOffset) const {
+
+			if (scriptNum >= NUM_SCRIPTS) {
+				error(GS_THIS, "Attempted to load script out of bounds! %ld", (uint32) scriptNum);
+				return false;
+			}
+
+			diskNum = _scriptDisk[scriptNum];
+			roomNum = _scriptRoom[scriptNum];
+			absOffset = _scriptDiskOffset[scriptNum];
 
 			return true;
 		}
@@ -157,7 +173,9 @@ namespace gs
 		uint32 _roomOffsets[NUM_ROOMS];
 		uint32 _roomScriptOffsets[NUM_ROOMS];
 		uint8  _scriptRoom[NUM_SCRIPTS];
+		uint8  _scriptDisk[NUM_SCRIPTS];
 		uint32 _scriptOffset[NUM_SCRIPTS];
+		uint32 _scriptDiskOffset[NUM_SCRIPTS];
 		uint8 _costumeRoom[NUM_COSTUMES];
 		uint32 _costumeOffset[NUM_COSTUMES];
 		uint32 _objectNameHash[NUM_OBJECT_GLOBALS];
