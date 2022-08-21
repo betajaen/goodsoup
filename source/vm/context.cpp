@@ -23,15 +23,16 @@
 #include "vm.h"
 #include "vars.h"
 #include "debugger.h"
-
-#include "../containers.h"
-#include "../endian.h"
-#include "../globals.h"
-#include "../room.h"
+#include "containers.h"
+#include "endian.h"
+#include "globals.h"
+#include "room.h"
 #include "font.h"
 
 
 namespace gs {
+
+	StringBuilder<uint16> VmContext::sStringTemp = StringBuilder<uint16>();
 
 	VmContextAllocator::VmContextAllocator() {
 		clear();
@@ -88,6 +89,32 @@ namespace gs {
 		value = FROM_LE_32(value);
 		_pc += 4;
 		return value;
+	}
+
+	void VmContext::_readString() {
+		sStringTemp.clear();
+		sStringTemp.reserve(64);
+		while(true) {
+			char ch = (char) _readByte();
+			if (ch == 0)
+				break;
+			sStringTemp.writeChar(ch);
+			if (ch == 0xFF) {
+				ch = (char) _readByte();
+				sStringTemp.writeChar(ch);
+
+				if (ch != 1 && ch != 2 && ch != 3 && ch != 8) {
+					ch = (char) _readByte();
+					sStringTemp.writeChar(ch);
+					ch = (char) _readByte();
+					sStringTemp.writeChar(ch);
+					ch = (char) _readByte();
+					sStringTemp.writeChar(ch);
+					ch = (char) _readByte();
+					sStringTemp.writeChar(ch);
+				}
+			}
+		}
 	}
 
 	void VmContext::_readStringLength(uint16& from, uint16& len) {

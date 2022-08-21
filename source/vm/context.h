@@ -18,10 +18,10 @@
 #ifndef GS_VM_CONTEXT_H
 #define GS_VM_CONTEXT_H
 
-#include "../types.h"
-#include "../debug.h"
-#include "../profile.h"
-#include "../script.h"
+#include "forward.h"
+#include "debug.h"
+#include "profile.h"
+#include "script.h"
 #include "stack.h"
 
 namespace gs
@@ -96,6 +96,7 @@ namespace gs
 		int32  _readWord();
 		uint32  _readUnsignedWord();
 		int32  _readSignedWord();
+		void _readString();
 		void _readStringLength(uint16& from, uint16& length);
 		void _decodeParseString(uint8 m, uint8 n);
 		void _readBytesForArray();
@@ -133,7 +134,7 @@ namespace gs
 		OpcodeSpan 			_script;
 		ScriptDataReference _scriptReference;
 		int32 _locals[NUM_INT_LOCALS];
-
+		static StringBuilder<uint16> sStringTemp;
 
 	};
 
