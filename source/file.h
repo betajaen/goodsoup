@@ -88,11 +88,13 @@ namespace gs
 
 		void writeUInt16LE(uint16 value);
 		void writeUInt16BE(uint16 value);
+
 		void writeUInt32LE(uint32 value);
 		void writeUInt32BE(uint32 value);
 
 		void writeInt16LE(int16 value);
 		void writeInt16BE(int16 value);
+
 		void writeInt32LE(int32 value);
 		void writeInt32BE(int32 value);
 
@@ -308,6 +310,86 @@ namespace gs
 
 	};
 
+	template<bool isBigEndian>
+	struct EndianWriteFile
+	{
+	};
+
+	template<>
+	struct EndianWriteFile<false> {
+
+		WriteFile* file;
+
+		inline EndianWriteFile(WriteFile* f) {
+			file = f;
+		}
+
+		inline void writeByte(byte b) {
+			file->writeByte(b);
+		}
+
+		inline void writeBytes(const void* data, uint32 length) {
+			file->writeBytes(data, length);
+		}
+
+		inline void writeUInt16(uint16 value) {
+			file->writeUInt16LE(value);
+		}
+
+		inline void writeUInt32(uint32 value) {
+			file->writeUInt32LE(value);
+		}
+
+		inline void writeInt16(int16 value) {
+			file->writeInt16LE(value);
+		}
+
+		inline void writeInt32(int32 value) {
+			file->writeInt32LE(value);
+		}
+
+		inline void writeTag(const char* tag) {
+			file->writeTag(tag);
+		}
+	};
+
+	template<>
+	struct EndianWriteFile<true> {
+
+		WriteFile* file;
+
+		inline EndianWriteFile(WriteFile* f) {
+			file = f;
+		}
+
+		inline void writeByte(byte b) {
+			file->writeByte(b);
+		}
+
+		inline void writeBytes(const void* data, uint32 length) {
+			file->writeBytes(data, length);
+		}
+
+		inline void writeUInt16(uint16 value) {
+			file->writeUInt16BE(value);
+		}
+
+		inline void writeUInt32(uint32 value) {
+			file->writeUInt32BE(value);
+		}
+
+		inline void writeInt16(int16 value) {
+			file->writeInt16BE(value);
+		}
+
+		inline void writeInt32(int32 value) {
+			file->writeInt32BE(value);
+		}
+
+		inline void writeTag(const char* tag) {
+			file->writeTag(tag);
+		}
+	};
 }
 
 
