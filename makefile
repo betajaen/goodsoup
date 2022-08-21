@@ -139,6 +139,7 @@ clean .IGNORE:
 	$(DELETE) source/video/*.o
 	$(DELETE) source/video/san/*.o
 	$(DELETE) source/video/smush/*.o
+	$(DELETE) source/video/gsv/*.o
 	$(DELETE) source/codecs/*.o
 	$(DELETE) source/sdl/*.o
 	$(DELETE) source/amiga/*.o
