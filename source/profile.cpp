@@ -40,6 +40,50 @@ namespace gs
 		"ZAP010"
 	};
 
+	static inline char upper(char m) {
+		if (m < 'a' || m > 'z')
+			return m;
+		m = m - 'a' + 'A';
+		return m;
+	}
+
+	bool tryGetVideoId(uint8& out_videoNum, const char* string) {
+		// Known forms come in as "opening.san"
+
+		for(uint8 i=0;i < MAX_VIDEOS;i++) {
+			const char* test = string;
+			const char* orig = RESOURCE_VIDEO[i];
+			bool foundIt = true;
+
+			while(true) {
+				char o = *orig, t = upper(*test);
+
+				debug(GS_THIS, "%c %c", o, t);
+
+				// Original ends with a null char, whilst test ends with a period.
+				if (o == 0 || t == '.') {
+					break; // Found it.
+				}
+
+				if (o != t) {
+					foundIt = false;
+					break;
+				}
+
+				orig++;
+				test++;
+			}
+
+			if (foundIt == false)
+				continue;
+
+			out_videoNum = i;
+			return true;
+
+		}
+
+		return false;
+	}
 
 	bool tryGetVideoPath(String& out_String, const char* extension, uint8 videoNum) {
 		if (videoNum >= MAX_VIDEOS)

@@ -1699,10 +1699,16 @@ namespace gs
 				GS_UNHANDLED_OP;
 			return;
 			case OP_startVideo: {
-				uint16 from, length;
-				_readStringLength(from, length);
-				setNextGameState(GSK_Video, 1);
-				VM->interrupt();
+				_readString();
+				uint8 videoNum;
+
+				if (tryGetVideoId(videoNum, sStringTemp.getString())) {
+					setNextGameState(GSK_Video, videoNum);
+					VM->interrupt();
+				}
+				else {
+					warn(GS_THIS, "Could not play unknown named video %s", sStringTemp.getString());
+				}
 			}
 			return;
 			case OP_kernelSetFunctions: {

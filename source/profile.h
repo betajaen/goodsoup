@@ -82,6 +82,7 @@ namespace gs
 
 	extern const char* RESOURCE_VIDEO[MAX_VIDEOS];
 
+	bool tryGetVideoId(uint8& out_videoNum, const char* string);
 	bool tryGetVideoPath(String& out_String, const char* extension, uint8 videoNum);
 
 }
