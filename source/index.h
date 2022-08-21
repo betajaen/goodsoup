@@ -32,6 +32,9 @@ namespace gs
 	class Index;
 	extern Index* INDEX;
 
+	class NewIndex;
+	extern Index* NEW_INDEX;
+
 	class Index
 	{
 	public:
@@ -39,7 +42,9 @@ namespace gs
 		Index();
 		~Index();
 
-		bool readFromFile(const char* path);
+		bool readLA0(const char* path);
+		bool readGSI(const char* path);
+		bool saveGSI(const char* path, int8 endian);
 
 		bool getRoom(uint16 roomNum, uint8& diskNum, uint32& offset) {
 
@@ -147,7 +152,6 @@ namespace gs
 			return _objectPrototypeRoomNum[objectNum];
 		}
 
-	private:
 
 		uint8 _roomDisks[NUM_ROOMS];
 		uint32 _roomOffsets[NUM_ROOMS];
@@ -164,6 +168,8 @@ namespace gs
 
 
 	};
+
+
 }
 
 #endif

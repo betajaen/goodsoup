@@ -117,6 +117,8 @@ OBJ +=	source/main_game.o\
 		source/video/gsv/gsv_decoder.o\
 		source/video/gsv/gsv_encoder.o\
 		source/draw.o\
+		source/codecs/la0.o\
+		source/codecs/gsi.o\
 		source/codecs/bomp.o\
 		source/codecs/nut.o\
 		source/codecs/rle.o\

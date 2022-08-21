@@ -145,6 +145,26 @@ namespace gs
 				rc = convertVideo(i, true, true);
 			}
 		}
+		else if (param >= 400 && param <= 402) {
+			ARRAYS = newObject<VmArrayAllocator>(GS_COMMENT_FILE_LINE);
+			INDEX = newObject<Index>(GS_COMMENT_FILE_LINE);
+
+			if (INDEX->readLA0(GS_GAME_PATH GS_INDEX_FILENAME "LA0") == false) {
+				cleanup();
+				return 1;
+			}
+
+			param -= 400;
+			if (param == 0)
+				INDEX->saveGSI(GS_GAME_PATH GS_INDEX_FILENAME "GSI", -1);
+			else if (param == 1)
+				INDEX->saveGSI(GS_GAME_PATH GS_INDEX_FILENAME "GSI", 1);
+			else if (param == 2)
+				INDEX->saveGSI(GS_GAME_PATH GS_INDEX_FILENAME "GSI", 0);
+
+			deleteObject(INDEX);
+			deleteObject(ARRAYS);
+		}
 		else {
 			rc = runGame();
 		}
@@ -193,9 +213,13 @@ namespace gs
 		FONT[3] = newObject<Font>(3, GS_COMMENT_FILE_LINE);
 		FONT[4] = newObject<Font>(4, GS_COMMENT_FILE_LINE);
 
-		if (INDEX->readFromFile(GS_GAME_PATH GS_INDEX_FILENAME) == false) {
-			cleanup();
-			return 1;
+		if (INDEX->readGSI(GS_GAME_PATH GS_INDEX_FILENAME "GSI") == false) {
+
+			if (INDEX->readLA0(GS_GAME_PATH GS_INDEX_FILENAME "LA0") == false) {
+				cleanup();
+				return 1;
+			}
+
 		}
 
 		if (openTables() == false) {

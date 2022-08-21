@@ -25,6 +25,9 @@
 #include "profile.h"
 #include "vm/array.h"
 
+#include "codecs/la0.h"
+#include "codecs/gsi.h"
+
 namespace gs
 {
 	Index* INDEX = NULL;
@@ -61,253 +64,34 @@ namespace gs
 	Index::~Index() {
 	}
 
-	bool Index::readFromFile(const char* path) {
-		ReadFile file;
+	bool Index::saveGSI(const char* path, int8 endian) {
+		WriteFile file;
 		file.open(path);
 
-		if (file.isOpen() == false) {
-			error(GS_THIS, "Could not open Index file %s for reading", path);
-			abort_quit_stop();
-			return false;
+		if (endian == -1) {
+#if defined(GS_AMIGA)
+			endian = 1;
+#endif
+#if defined(GS_SDL)
+			endian = 0;
+#endif
 		}
+		
+		return ::gs::writeGSI(&file, this, endian == 1);
+	}
 
-		DiskReader reader(file);
+	bool Index::readGSI(const char* path) {
+		TagReadFile file;
+		file.open(path);
 
-		while(file.pos() < file.length()) {
+		return ::gs::readGSI(&file, this);
+	}
 
-			TagPair tag = reader.readTagPair();
+	bool Index::readLA0(const char* path) {
+		TagReadFile file;
+		file.open(path);
 
-			if (tag.isTag(GS_MAKE_ID('R', 'N', 'A', 'M'))) {
-				// Skip RNAMEs as it seems to be a debug feature, and possible waste of memory.
-				reader.skip(tag);
-				continue;
-			}
-
-			if (tag.isTag(GS_MAKE_ID('M', 'A', 'X', 'S'))) {
-
-#if GS_CHECKED == 1
-				reader.skip(100); // Copyright header.
-
-				uint32 value;
-
-#define ENFORCE_MAXS1(CONSTANT) \
-				value = reader.readUInt32LE();\
-				if (value != CONSTANT) {\
-					error(GS_THIS, "MAXS has an unexpected constant. Expect=%ld, Got=%ld, For=%s", CONSTANT, value, STRINGIFY_ARG(CONSTANT));\
-					return false;\
-				}
-
-				ENFORCE_MAXS1(NUM_INT_GLOBALS);
-				ENFORCE_MAXS1(NUM_BOOL_GLOBALS);
-				reader.skip(sizeof(uint32));
-				ENFORCE_MAXS1(NUM_SCRIPTS);
-				ENFORCE_MAXS1(NUM_SOUNDS);
-				ENFORCE_MAXS1(NUM_CHARSETS);
-				ENFORCE_MAXS1(NUM_COSTUMES);
-				ENFORCE_MAXS1(NUM_ROOMS);
-				reader.skip(sizeof(uint32));
-				ENFORCE_MAXS1(NUM_OBJECT_GLOBALS);
-				reader.skip(sizeof(uint32));
-				ENFORCE_MAXS1(NUM_OBJECT_LOCALS);
-				ENFORCE_MAXS1(NUM_NEWNAMES);
-				ENFORCE_MAXS1(NUM_FLOBJECTS);
-				ENFORCE_MAXS1(NUM_INVENTORY);
-				ENFORCE_MAXS1(NUM_ARRAY);
-				ENFORCE_MAXS1(NUM_VERBS);
-#undef ENFORCE_MAXS1
-#else
-				reader.skip(tag);
-#endif
-				continue;
-			}
-
-
-			if (tag.isTag(GS_MAKE_ID('D', 'R', 'O', 'O'))) {
-
-				uint32 length = reader.readUInt32LE();
-
-#if GS_CHECKED == 1
-				if (length != NUM_ROOMS) {
-					error(GS_THIS, "Number of rooms %ld is unexpected %ld", length, NUM_ROOMS);
-					abort_quit_stop();
-					return false;
-				}
-#endif
-				for(uint8 i=0;i < NUM_ROOMS;i++) {
-					_roomDisks[i] = reader.readByte();
-				}
-
-				reader.seekEndOf(tag);
-
-				goto checkTag;
-			}
-
-
-			if (tag.isTag(GS_MAKE_ID('D', 'R', 'S', 'C'))) {
-
-				uint32 length = reader.readUInt32LE();
-
-#if GS_CHECKED == 1
-				if (length != NUM_ROOMS) {
-					error(GS_THIS, "Number of rooms %ld is unexpected %ld", length, NUM_ROOMS);
-					abort_quit_stop();
-					return false;
-				}
-#endif
-
-				// We dont need to store these as they are implied by the array index.
-				for(uint8 i=0;i < NUM_ROOMS;i++) {
-					uint8 x = reader.readByte();
-					if (x != i) {
-						error(GS_THIS, "Order of DRSC is unexpected!", (uint32) i, (uint32) x);
-						abort_quit_stop();
-						return false;
-					}
-				}
-
-				for(uint8 i=0;i < NUM_ROOMS;i++) {
-					uint32 offset = reader.readUInt32LE();
-					_roomScriptOffsets[i] = offset;
-				}
-
-				goto checkTag;
-			}
-
-			if (tag.isTag(GS_MAKE_ID('D', 'S', 'C', 'R'))) {
-
-				uint32 length = reader.readUInt32LE();
-
-#if GS_CHECKED == 1
-
-				if (length != NUM_SCRIPTS) {
-					error(GS_THIS, "Number of scripts %ld is unexpected %ld", length, NUM_SCRIPTS);
-					abort_quit_stop();
-					return false;
-				}
-#endif
-
-				for(uint16 i=0;i < NUM_SCRIPTS;i++) {
-					_scriptRoom[i] = reader.readByte();
-				}
-
-				for(uint32 i=0;i < NUM_SCRIPTS;i++) {
-					_scriptOffset[i] = reader.readUInt32LE();
-				}
-
-				goto checkTag;
-			}
-
-			if (tag.isTag(GS_MAKE_ID('D', 'O', 'B', 'J'))) {
-
-				uint32 length = reader.readUInt32LE();
-
-#if GS_CHECKED == 1
-				if (length != NUM_OBJECT_GLOBALS) {
-					error(GS_THIS, "Number of objects %ld is unexpected %ld", length, NUM_SCRIPTS);
-					abort_quit_stop();
-					return false;
-				}
-#endif
-
-				for(uint16 i=0;i < NUM_OBJECT_GLOBALS;i++) {
-					_objectNameHash[i] = reader.readFixedStringAsHash(40);
-					_objectPrototypeState[i] = reader.readByte();
-					_objectPrototypeRoomNum[i] = reader.readByte();
-					_objectPrototypeClass[i] = reader.readUInt32LE();
-					_objectPrototypeOwner[i] = 0xFF;
-				}
-
-				goto checkTag;
-			}
-
-			if (tag.isTag(GS_MAKE_ID('D', 'C', 'O', 'S'))) {
-
-				uint32 length = reader.readUInt32LE();
-
-#if GS_CHECKED == 1
-				if (length != NUM_COSTUMES) {
-					error(GS_THIS, "Number of scripts %ld is unexpected %ld", length, NUM_COSTUMES);
-					abort_quit_stop();
-					return false;
-				}
-#endif
-
-				for(uint16 i=0;i < NUM_COSTUMES;i++) {
-					_costumeRoom[i] = reader.readByte();
-				}
-
-				for(uint32 i=0;i < NUM_COSTUMES;i++) {
-					_costumeOffset[i] = reader.readUInt32LE();
-				}
-
-				goto checkTag;
-			}
-
-			if (tag.isTag(GS_MAKE_ID('A', 'A', 'R', 'Y'))) {
-
-				uint16 count = 0, arrayNum = 0;
-				uint16 a, b;
-
-				while (reader.pos() < tag.end()) {
-
-#if GS_CHECKED == 1
-					if (count > NUM_AARY) {
-						error(GS_THIS, "(AARY, %ld, %ld) Expected AARY count has been exceeded!");
-						return false;
-					}
-#endif
-
-					arrayNum = reader.readUInt32LE();
-
-					if (arrayNum == 0)
-						break;
-
-					a = reader.readUInt32LE();
-					b = reader.readUInt32LE();
-
-					if (b != 0)
-					{
-						ARRAYS->allocate(arrayNum, a, b, VAK_Integer);
-					}
-					else
-					{
-						ARRAYS->allocate(arrayNum, b, a, VAK_Integer);
-					}
-
-					count++;
-
-				}
-
-				goto checkTag;
-			}
-
-
-			/* TODO DSOU */
-			/* TODO DCHR */
-
-			NO_FEATURE(GS_THIS, "Missing support for Index Tag %s", tag.tagStr());
-			reader.skip(tag);
-			continue;
-
-			checkTag:
-
-#if GS_CHECKED == 1
-			if (reader.pos() > tag.end()) {
-
-				error(GS_THIS, "Tag overread!! %s %ld %ld", tag.tagStr(), reader.pos(), tag.end());
-				abort_quit_stop();
-				return false;
-			}
-#endif
-
-			continue;
-
-		}
-
-
-		debug(GS_THIS, "End");
-
-		return true;
+		return ::gs::readLA0(&file, this);
 	}
 
 	uint16 Index::findObjectNumFromHash(uint32 hash) {
