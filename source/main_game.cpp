@@ -83,6 +83,12 @@ namespace gs
 	uint32 OVERRIDE_FRAME_WAIT_USEC = 0;
 
 	void cleanup() {
+
+		if (RESOURCES) {
+			RESOURCES->close();
+		}
+
+		closeScreen();
 		closeTables();
 		deleteObject(FONT[4]);
 		deleteObject(FONT[3]);
@@ -147,7 +153,10 @@ namespace gs
 		}
 		else if (param >= 400 && param <= 402) {
 			ARRAYS = newObject<VmArrayAllocator>(GS_COMMENT_FILE_LINE);
+			RESOURCES = newObject<Resources>(GS_COMMENT_FILE_LINE);
 			INDEX = newObject<Index>(GS_COMMENT_FILE_LINE);
+
+			RESOURCES->open();
 
 			if (INDEX->readLA0(GS_GAME_PATH GS_INDEX_FILENAME "LA0") == false) {
 				cleanup();
@@ -162,6 +171,9 @@ namespace gs
 			else if (param == 2)
 				INDEX->saveGSI(GS_GAME_PATH GS_INDEX_FILENAME "GSI", 0);
 
+			RESOURCES->close();
+
+			deleteObject(RESOURCES);
 			deleteObject(INDEX);
 			deleteObject(ARRAYS);
 		}
@@ -199,6 +211,7 @@ namespace gs
 
 		ARRAYS = newObject<VmArrayAllocator>(GS_COMMENT_FILE_LINE);
 		INDEX = newObject<Index>(GS_COMMENT_FILE_LINE);
+		RESOURCES = newObject<Resources>(GS_COMMENT_FILE_LINE);
 
 		OBJECTS = newObject<ObjectState>(GS_COMMENT_FILE_LINE);
 		SCRIPTS = newObject<ScriptState>(GS_COMMENT_FILE_LINE);
@@ -213,6 +226,8 @@ namespace gs
 		FONT[3] = newObject<Font>(3, GS_COMMENT_FILE_LINE);
 		FONT[4] = newObject<Font>(4, GS_COMMENT_FILE_LINE);
 
+		RESOURCES->open();
+
 		if (INDEX->readGSI(GS_GAME_PATH GS_INDEX_FILENAME "GSI") == false) {
 
 			if (INDEX->readLA0(GS_GAME_PATH GS_INDEX_FILENAME "LA0") == false) {
@@ -223,16 +238,14 @@ namespace gs
 		}
 
 		if (openTables() == false) {
+			error(GS_THIS, "Could not open tables");
 			return 1;
 		}
-
 
 		if (NEXT_GAME_STATE == GSK_Quit) {
+			warn(GS_THIS, "Quitting game due to setup error");
 			return 1;
 		}
-
-		RESOURCES = newObject<Resources>(GS_COMMENT_FILE_LINE);
-		RESOURCES->open();
 
 		if (NEXT_GAME_STATE == GSK_Quit) {
 			return 1;
