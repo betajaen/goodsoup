@@ -163,6 +163,7 @@ namespace gs
 	}
 
 	void openAudio() {
+#if 0
 		sAudioThread = (struct Task*) CreateNewProcTags(
 			NP_Name, (ULONG) "GSAudio",
 			NP_CloseOutput, FALSE,
@@ -173,14 +174,18 @@ namespace gs
 		);
 
 		SetTaskPri(sAudioThread, 0);
+#endif
 	}
 
+
 	void closeAudio() {
+#if 0
 		if (sAudioThread != NULL) {
 			Signal(sAudioThread, SIGBREAKF_CTRL_C);
 			Delay(10);
 			sAudioThread = NULL;
 		}
+#endif
 	}
 
 	void pauseAudio(uint8 isPaused) {
