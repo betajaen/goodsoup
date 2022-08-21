@@ -536,7 +536,7 @@ namespace gs
 
 	void copyMemQuick(uint32* dst, uint32* src, uint32 size_bytes) {
 #if defined(GS_AMIGA)
-		CopyMemQuick(dst, src, size_bytes);
+		CopyMemQuick(src, dst, size_bytes);
 #endif
 
 #if defined(GS_SDL)
