@@ -203,11 +203,15 @@ namespace gs
 			}
 		}
 
+#if GS_SDL
 		uint32 now = getMSec();
+		debug(GS_THIS, "Now %ld %ld", now, nextTime);
 		if (now < nextTime)
 			return;
 		uint32 diff = now - nextTime;
-
+#else
+		uint32 diff = 0;
+#endif
 
 		//mutex.lock();
 		while(_framesInQueue < 4) {
