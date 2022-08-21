@@ -1389,6 +1389,160 @@ namespace gs {
 
 	};
 
+	template<typename Index>
+	class StringBuilder {
+	private:
+
+		char* _begin;
+		Index _end, _capacity;
+
+		void grow() {
+			if (_capacity == 0) {
+				_capacity = 8;
+				_begin = (char*) allocateMemory(_capacity, sizeof(char), MF_Clear, GS_COMMENT_FILE_LINE);
+				_begin[0] = '\0';
+			}
+			else {
+				_capacity *= 2;
+				_begin = (char*) reallocateMemory(_begin, _capacity, sizeof(char));
+			}
+		}
+
+	public:
+
+		StringBuilder() :
+				_begin(NULL), _end(0), _capacity(0) {
+		}
+
+		~StringBuilder() {
+			release();
+		}
+
+		void reserve(Index capacity) {
+			if (capacity > _capacity) {
+				release();
+				_begin = (char *) allocateMemory(capacity, sizeof(char), MF_Clear, GS_COMMENT_FILE_LINE);
+				_begin[0] = '\0';
+				_capacity = capacity;
+				_end = 0;
+			}
+		}
+
+		void release() {
+			if (_begin) {
+				releaseMemory(_begin);
+				_begin = NULL;
+				_end = 0;
+				_capacity = 0;
+			}
+		}
+
+		void clear() {
+			if (_begin != NULL) {
+				_begin[0] = '\0';
+			}
+			_end = 0;
+		}
+
+		char* getString() {
+			return _begin;
+		}
+
+		const char* getString() const {
+			return _begin;
+		}
+
+		Index getSize() const {
+			return _end;
+		}
+
+		Index getCapacity() const {
+			return _capacity;
+		}
+
+		void writeChar(const char& value) {
+			if (_end == _capacity) {
+				grow();
+			}
+
+			_begin[_end] = value;
+			_begin[_end+1] = 0;
+			++_end;
+		}
+
+		inline char& operator[](Index idx) {
+#if GS_CHECKED == 1
+			if (idx >= _end) {
+				error(GS_THIS, "(FIXED, %d, %d) Out of bounds access", _end, idx);
+			}
+#endif
+
+			return _begin[idx];
+		}
+
+		inline const char& operator[](Index idx) const {
+#if GS_CHECKED == 1
+			if (idx >= _end) {
+				error(GS_THIS, "(FIXED, %d, %d) Out of bounds access", _end, idx);
+			}
+#endif
+
+			return _begin[idx];
+		}
+
+		inline char& get(Index idx) {
+#if GS_CHECKED == 1
+			if (idx >= _end) {
+				error(GS_THIS, "(FIXED, %d, %d) Out of bounds access", _end, idx);
+			}
+#endif
+
+			return _begin[idx];
+		}
+
+		inline const char& get(Index idx) const {
+#if GS_CHECKED == 1
+			if (idx >= _end) {
+				error(GS_THIS, "(FIXED, %d, %d) Out of bounds access", _end, idx);
+			}
+#endif
+
+			return _begin[idx];
+		}
+
+		inline char& get_unchecked(Index idx) {
+			return _begin[idx];
+		}
+
+		inline const char& get_unchecked(Index idx) const {
+			return _begin[idx];
+		}
+
+		bool contains(const char& other) const {
+
+			for(Index i=0;i < _end;i++) {
+				if (_begin[i] == other) {
+					return true;
+				}
+			}
+
+			return false;
+		}
+
+		bool firstIndexOf(const char& other, Index& out_index) const {
+
+			for(Index i=0;i < _end;i++) {
+				if (_begin[i] == other) {
+					out_index = i;
+					return true;
+				}
+			}
+
+			return false;
+		}
+
+	};
+
 }
 
 #endif
