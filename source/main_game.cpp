@@ -204,10 +204,6 @@ namespace gs
 
 		info(GS_THIS, "%s\n", &GOODSOUP_VERSION_STR[6]);
 
-		if (openScreen() == false) {
-			error(GS_THIS, "Could not open screen!");
-			return 1;
-		}
 
 		ARRAYS = newObject<VmArrayAllocator>(GS_COMMENT_FILE_LINE);
 		INDEX = newObject<Index>(GS_COMMENT_FILE_LINE);
@@ -255,6 +251,11 @@ namespace gs
 		VM->reset();
 
 		if (NEXT_GAME_STATE == GSK_Quit) {
+			return 1;
+		}
+
+		if (openScreen() == false) {
+			error(GS_THIS, "Could not open screen!");
 			return 1;
 		}
 

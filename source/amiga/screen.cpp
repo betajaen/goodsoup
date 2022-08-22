@@ -61,13 +61,13 @@ namespace gs
 {
 	typedef VOID(*PUTCHARPROC)();
 
-	void openAudio();
+	bool openAudio();
 	void closeAudio();
 	void pauseAudio(uint8 isPaused);
 
-	struct Screen* sScreen;
-	struct Window* sWindow;
-	struct ScreenBuffer* sScreenBuffer;
+	struct Screen* sScreen = NULL;
+	struct Window* sWindow = NULL;
+	struct ScreenBuffer* sScreenBuffer = NULL;
 	struct RastPort sRastPort;
 	SystemTimer sSystemTimer;
 	bool sPaletteDirty = false;
@@ -97,6 +97,10 @@ namespace gs
 	static void stepFrame();
 
 	bool openScreen() {
+
+		if (openAudio() == false) {
+			return false;
+		}
 
 		uint32 modeId = BestCModeIDTags(
 			CYBRBIDTG_NominalWidth, GS_SCREEN_WIDTH,
@@ -180,7 +184,6 @@ namespace gs
 
 		openAmigaCursor(sWindow);
 
-		openAudio();
 
 		return true;
 	}

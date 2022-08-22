@@ -35,6 +35,10 @@
 #include <inline/dos.h>
 #include <dos/dostags.h>
 
+#ifndef GS_AHI_PRIORITY
+#define GS_AHI_PRIORITY 10
+#endif
+
 #define BUFFER_SIZE (2048 * 2 * sizeof(int16))
 
 namespace gs
@@ -49,37 +53,70 @@ namespace gs
 	static struct Task* sAudioThread = NULL;
 
 	static bool _openAHIAudio() {
+
 		sAHIPort = (struct MsgPort*) CreateMsgPort();
 
-		CHECK_IF_RETURN(sAHIPort != NULL, false, "Could not create Message Port for AHI");
+		if (sAHIPort == NULL) {
+			error(GS_THIS, "Could not create MessagePort for AHI.");
+			abort_quit_stop();
+			return false;
+		}
 
 		sAHIRequest[0] = (struct AHIRequest*) CreateIORequest(sAHIPort, sizeof(struct AHIRequest));
 
-		CHECK_IF_RETURN(sAHIPort != NULL, false, "Could not create AHI Request 0");
+		if (sAHIRequest[0] == NULL) {
+			error(GS_THIS, "Could not create AHI Request 0");
+			abort_quit_stop();
+			return false;
+		}
 
 		sAHIRequest[0]->ahir_Version = 4;
 
 		BYTE result = OpenDevice(AHINAME, AHI_DEFAULT_UNIT, (struct IORequest*) sAHIRequest[0], 0);
 
-		CHECK_IF_RETURN(result != 0, false, "Unable to open AHI Device");
+		if (result != 0) {
+			error(GS_THIS, "Unable to open AHI Device");
+			abort_quit_stop();
+			return false;
+		}
 
 		// Note: Not using memory system, as it is not thread safe.
-		sAudioBuffers[0] = (byte*) AllocVec(BUFFER_SIZE, MF_Public | MF_Clear);
-		CHECK_IF_RETURN(sAudioBuffers[0] != NULL, false, "Unable to allocate AHI buffer 0");
-		sAudioBuffers[1] = (byte*) AllocVec(BUFFER_SIZE, MF_Public | MF_Clear);
-		CHECK_IF_RETURN(sAudioBuffers[1] != NULL, false, "Unable to allocate AHI buffer 1");
+		sAudioBuffers[0] = (byte*) AllocVec(BUFFER_SIZE, MEMF_PUBLIC | MEMF_CLEAR);
+
+		if (sAudioBuffers[0] == NULL) {
+			error(GS_THIS, "Unable to allocate AHI buffer 0");
+			abort_quit_stop();
+			return false;
+		}
+
+		sAudioBuffers[1] = (byte*) AllocVec(BUFFER_SIZE, MEMF_PUBLIC | MEMF_CLEAR);
+
+		if (sAudioBuffers[1] == NULL) {
+			error(GS_THIS, "Unable to allocate AHI buffer 1");
+			abort_quit_stop();
+			return false;
+		}
 
 		sAHIRequest[1] = (struct AHIRequest*) AllocVec(sizeof(struct AHIRequest), MEMF_PUBLIC);
-		CHECK_IF_RETURN(sAudioBuffers[1] != NULL, false, "Unable to allocate AHI Request 1");
+
+		if (sAHIRequest[1] == NULL) {
+			error(GS_THIS, "Unable to allocate AHI buffer 1");
+			abort_quit_stop();
+			return false;
+		}
 
 		CopyMem(sAHIRequest[0], sAHIRequest[1], sizeof(struct AHIRequest));
 
 		sAudioWriteBuffer = 0;
-		sAHIRequestSent[0] = 0;
-		sAHIRequestSent[1] = 0;
+		sAHIRequestSent[0] = false;
+		sAHIRequestSent[1] = false;
+		
+		return true;
 	}
 
 	static void _closeAHIAudio() {
+
+#if 0
 
 		uint8 buffer = sAudioWriteBuffer;
 
@@ -119,6 +156,7 @@ namespace gs
 		if (sAHIPort) {
 			DeleteMsgPort(sAHIPort);
 		}
+#endif
 
 	}
 
@@ -130,26 +168,41 @@ namespace gs
 		LONG priority = 0;
 		ULONG signals = 0;
 
-		if (_openAHIAudio() == false) {
-			_closeAHIAudio();
-			return;
-		}
+		debug(GS_THIS, "IN AUDIO THREAD");
+
+		uint8 count = 0;
 
 		while(true) {
 
 			while(
-					!sAHIRequest[sAudioWriteBuffer] ||
+					(sAHIRequestSent[sAudioWriteBuffer] == false) ||
 					CheckIO((struct IORequest*) sAHIRequest[sAudioWriteBuffer]))
 			{
 				struct AHIRequest* req = sAHIRequest[sAudioWriteBuffer];
 
-				if (sAHIRequestSent[sAudioWriteBuffer] == 1) {
+				if (sAHIRequestSent[sAudioWriteBuffer] == true) {
 					WaitIO((struct IORequest*) req);
 				}
 
+				req->ahir_Std.io_Message.mn_Node.ln_Pri = GS_AHI_PRIORITY;
+				req->ahir_Std.io_Command = CMD_WRITE;
+				req->ahir_Std.io_Data = sAudioBuffers[sAudioWriteBuffer];
+				req->ahir_Std.io_Length = BUFFER_SIZE;
+				req->ahir_Std.io_Offset = 0;
+				req->ahir_Type = AHIST_S16S;
+				req->ahir_Frequency = GS_AUDIO_FREQUENCY_HZ;
+				req->ahir_Position = 0x8000;
+				req->ahir_Volume = 0x10000;
+				req->ahir_Link = (sAHIRequestSent[sAudioWriteBuffer^1]) ? sAHIRequest[sAudioWriteBuffer^1] : NULL;
 
+				// TODO: Can Callback
+
+				SendIO((struct IORequest*) sAHIRequest[sAudioWriteBuffer]);
+				sAHIRequestSent[sAudioWriteBuffer] = true;
+
+				sAudioWriteBuffer ^= 1;
 			}
-			_audioWorker();
+
 
 			signals = Wait(SIGBREAKF_CTRL_C | (1 << sAHIPort->mp_SigBit));
 			if (signals & SIGBREAKF_CTRL_C) {
@@ -158,28 +211,48 @@ namespace gs
 
 		}
 
+		debug(GS_THIS, "LEFT AUDIO THREAD!!!!1");
+
 		_closeAHIAudio();
 
 	}
 
-	void openAudio() {
-#if 0
+	bool openAudio() {
+#if 1
+
+		if (_openAHIAudio() == false) {
+			_closeAHIAudio();
+			return false;
+		}
+
+
 		sAudioThread = (struct Task*) CreateNewProcTags(
 			NP_Name, (ULONG) "GSAudio",
+			NP_Output, (ULONG) Output(),
+			NP_Input, (ULONG) Input(),
 			NP_CloseOutput, FALSE,
 			NP_CloseInput, FALSE,
-			NP_StackSize, 24576,
+			NP_StackSize, 65536,
 			NP_Entry, (ULONG) &audioThread,
 			TAG_DONE
 		);
 
-		SetTaskPri(sAudioThread, 0);
+		if (sAudioThread != NULL) {
+			SetTaskPri(sAudioThread, GS_AHI_PRIORITY);
+
+			return true;
+		}
+
+		return false;
+#else
+		return true;
 #endif
+
 	}
 
 
 	void closeAudio() {
-#if 0
+#if 1
 		if (sAudioThread != NULL) {
 			Signal(sAudioThread, SIGBREAKF_CTRL_C);
 			Delay(10);
