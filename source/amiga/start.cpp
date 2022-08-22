@@ -15,17 +15,19 @@
   *
   */
 
+#include "forward.h"
+
 namespace gs
 {
 	int main(int param);
 	void checkMem();
 }
 
-int amiga_main()
+int amiga_main(ULONG param)
 {
 	using namespace gs;
 
-	int rc = main(0);
+	int rc = main(param);
 	checkMem();
 	return rc;
 }

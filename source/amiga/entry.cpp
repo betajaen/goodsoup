@@ -24,20 +24,23 @@
 #include <inline/exec.h>
 #include <inline/dos.h>
 
+#define MIN_STACK_SIZE 65536U
+
 int __nocommandline = 1;
 int __initlibraries = 0;
-
+extern char  *__commandline;
 struct DosLibrary* DOSBase = NULL;
 struct IntuitionBase* IntuitionBase = NULL;
 struct GfxBase* GfxBase = NULL;
 struct Library* CyberGfxBase = NULL;
 extern struct WBStartup* _WBenchMsg;
 
-extern int amiga_main();
-
-#define MIN_STACK_SIZE 65536U
+static ULONG string_to_int(STRPTR str);
+extern int amiga_main(ULONG param);
 
 int main(void) {
+
+	int param;
 
 	if ((DOSBase = (struct DosLibrary*)OpenLibrary("dos.library", 33)) == NULL) {
 		return RETURN_FAIL;
@@ -88,7 +91,13 @@ int main(void) {
 		return RETURN_FAIL;
 	}
 
-	amiga_main();
+	param = 0;
+
+	if (_WBenchMsg == NULL && __commandline != NULL) {
+		param = string_to_int(__commandline);
+	}
+
+	amiga_main(param);
 
 	if (_WBenchMsg) {
 		EasyStruct str;
@@ -110,4 +119,19 @@ int main(void) {
 	CloseLibrary((struct Library*)DOSBase);
 
 	return RETURN_OK;
+}
+
+static ULONG string_to_int(STRPTR str) {
+	ULONG num = 0;
+	while(*str != 0) {
+		if (*str < '0' || *str > '9')
+			break;
+
+		num *= 10UL;
+		num += *str - '0';
+
+		str++;
+	}
+
+	return num;
 }
