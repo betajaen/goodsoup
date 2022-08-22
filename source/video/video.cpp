@@ -149,7 +149,6 @@ namespace gs
 		showNextFrame = false;
 
 		while(_framesInQueue < 4) {
-			debug(GS_THIS, "QUEUE FRAME");
 			if (_acquireNextFrame() == false)
 				break;
 		}
@@ -205,7 +204,6 @@ namespace gs
 
 #if GS_SDL
 		uint32 now = getMSec();
-		debug(GS_THIS, "Now %ld %ld", now, nextTime);
 		if (now < nextTime)
 			return;
 		uint32 diff = now - nextTime;
