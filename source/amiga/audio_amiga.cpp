@@ -41,6 +41,7 @@
 
 #define BUFFER_SIZE (2048 * 2 * sizeof(int16))
 
+#if 0
 namespace gs
 {
     void audioCallback_S16MSB(int16* samples, uint32 sampleLength);
@@ -265,3 +266,130 @@ namespace gs
 
 	}
 }
+
+#else
+
+struct Library* AHIBase = NULL;
+
+namespace gs
+{
+	static struct MsgPort* sAHIPort = NULL;
+	static struct AHIRequest* sAHIRequest = NULL;
+	static struct AHIAudioCtrl* sAHIAudioCtrl = NULL;
+	static byte* sAHISampleData = NULL;
+	static struct AHISampleInfo sAHISampleInfo;
+
+	bool openAudio() {
+
+		sAHIPort = CreateMsgPort();
+
+		if (sAHIPort == NULL) {
+			error(GS_THIS, "Could not create AHI MsgPort");
+			abort_quit_stop();
+			return false;
+		}
+
+		sAHIRequest = (struct AHIRequest*) CreateIORequest(sAHIPort, sizeof(struct AHIRequest));
+
+		if (sAHIRequest == NULL) {
+			error(GS_THIS, "Could not create AHI Request");
+			abort_quit_stop();
+			return false;
+		}
+
+		sAHIRequest->ahir_Version = 4;
+
+		BYTE isError = OpenDevice(AHINAME, AHI_NO_UNIT, (struct IORequest*) sAHIRequest, NULL);
+
+		if (isError) {
+			error(GS_THIS, "Could not open AHI device");
+			abort_quit_stop();
+			return false;
+		}
+
+		AHIBase = (struct Library*) sAHIRequest->ahir_Std.io_Device;
+
+		sAHIAudioCtrl = AHI_AllocAudio(
+				AHIA_AudioID, 0,
+				AHIA_MixFreq, GS_AUDIO_FREQUENCY_HZ,
+				AHIA_Channels, 1,
+				AHIA_Sounds, 1,
+				TAG_DONE);
+
+		if (sAHIAudioCtrl == NULL) {
+			error(GS_THIS, "Could not Allocate AHI Audio");
+			abort_quit_stop();
+			return false;
+		}
+
+		uint32 gotFrequency;
+		AHI_ControlAudio(sAHIAudioCtrl, AHIC_MixFreq_Query, (ULONG) &gotFrequency, TAG_DONE);
+
+		debug(GS_THIS, "Want Frequency = %ld, Got Frequency = %ld", GS_AUDIO_FREQUENCY_HZ, gotFrequency);
+
+
+		sAHISampleData = (byte*) AllocVec(BUFFER_SIZE, MEMF_CLEAR  | MEMF_PUBLIC);
+		sAHISampleInfo.ahisi_Address = (APTR) sAHISampleData;
+		sAHISampleInfo.ahisi_Length = 2048;
+		sAHISampleInfo.ahisi_Type = AHIST_S16S;
+
+#if 0
+		for(uint16 i=0;i < 1024;i+=2) {
+			sAHISampleData[i] =   i & 0xFF;	// Noise test.
+			sAHISampleData[i+1] = i & 0xFF;	// Noise test.
+		}
+#endif
+
+		AHI_SetFreq(0, gotFrequency, sAHIAudioCtrl, AHISF_IMM);
+		AHI_SetVol(0, 0x10000, 0x8000, sAHIAudioCtrl, AHISF_IMM);
+
+		AHI_LoadSound(0, AHIST_DYNAMICSAMPLE, &sAHISampleInfo, sAHIAudioCtrl);
+		AHI_SetSound(0, 0,0,0,  sAHIAudioCtrl, AHISF_IMM);
+
+		AHI_ControlAudio(sAHIAudioCtrl, AHIC_Play, TRUE, TAG_DONE);
+
+		debug(GS_THIS, "Opened AHI Audio");
+
+		return true;
+	}
+
+	void closeAudio() {
+
+		if (sAHIAudioCtrl != NULL) {
+			AHI_ControlAudio(sAHIAudioCtrl,
+							 AHIC_Play, FALSE,
+							 TAG_DONE);
+
+			AHI_UnloadSound(0, sAHIAudioCtrl);
+			AHI_FreeAudio(sAHIAudioCtrl);
+			sAHIAudioCtrl = NULL;
+		}
+
+		if (sAHISampleData != NULL) {
+			FreeVec(sAHISampleData);
+		}
+
+		if (sAHIRequest != NULL) {
+			CloseDevice((struct IORequest*) sAHIRequest);
+			DeleteIORequest((struct IORequest*) sAHIRequest);
+			sAHIRequest = NULL;
+		}
+
+		if (sAHIPort != NULL) {
+			DeleteMsgPort(sAHIPort);
+			sAHIPort = NULL;
+		}
+
+
+		debug(GS_THIS, "Closed AHI Audio");
+	}
+
+	void pauseAudio(uint8 isPaused) {
+
+	}
+
+
+}
+
+#endif
+
