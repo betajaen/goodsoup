@@ -42,6 +42,7 @@
 #include "costume.h"
 #include "draw.h"
 #include "font.h"
+#include "audio.h"
 
 extern const char GOODSOUP_VERSION_STR[] = "$VER: goodsoup 0.5 (" __AMIGADATE__ ")";
 
@@ -176,6 +177,9 @@ namespace gs
 			deleteObject(RESOURCES);
 			deleteObject(INDEX);
 			deleteObject(ARRAYS);
+		}
+		else if (param == 1001) {
+			openAudio();
 		}
 		else {
 			rc = runGame();
