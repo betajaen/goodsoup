@@ -84,9 +84,9 @@ namespace gs
 
     void AudioStream_S16MSB::audioCallback_S16MSB(int16* samples, uint32 sampleLength) {
 
-        //debug(GS_THIS, "Samples Begin %ld", sampleLength);
+        // debug(GS_THIS, "Samples Begin %ld", sampleLength);
 
-        _sampleLock.lock();
+        //_sampleLock.lock();
 
         uint32 pos = 0;
         uint32 remaining = sampleLength;
@@ -116,7 +116,7 @@ namespace gs
 
         }
 
-        _sampleLock.unlock();
+        //_sampleLock.unlock();
     }
 
     uint32 AudioSample_S16MSB::copyInto(int16* buffer, uint32 length) {
@@ -160,6 +160,7 @@ namespace gs
 
     void audioCallback_S16MSB(int16* samples, uint32 sampleLength) {
 
+
 		if (PAUSED) {
 			return;
 		}
@@ -169,6 +170,7 @@ namespace gs
         if (stream) {
             stream->audioCallback_S16MSB(samples, sampleLength);
         }
+
     }
 
 }

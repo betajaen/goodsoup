@@ -323,7 +323,8 @@ namespace gs
 	}
 
 	void VideoFrame::queueAudio(AudioStream_S16MSB *audioStream) {
-#if GS_SDL
+#if 1 // GS_SDL
+
 		AudioSampleFrame_S16MSB* sampleFrame = _audio.pullFront();
 
 		while(sampleFrame != NULL) {

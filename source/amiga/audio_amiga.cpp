@@ -22,10 +22,10 @@
 
 #define GS_FILE_NAME "audio"
 
-#include "../types.h"
-#include "../debug.h"
-#include "../profile.h"
-#include "../memory.h"
+#include "forward.h"
+#include "debug.h"
+#include "profile.h"
+#include "memory.h"
 
 #include <proto/exec.h>
 #include <inline/exec.h>
@@ -34,12 +34,13 @@
 #include <proto/dos.h>
 #include <inline/dos.h>
 #include <dos/dostags.h>
+#include "amiga/SDI/SDI_hook.h"
 
 #ifndef GS_AHI_PRIORITY
 #define GS_AHI_PRIORITY 10
 #endif
 
-#define BUFFER_SIZE (2048 * 2 * sizeof(int16))
+#define BUFFER_SIZE (4096 * 2 * sizeof(int16))
 
 #if 0
 namespace gs
@@ -270,14 +271,17 @@ namespace gs
 #else
 
 struct Library* AHIBase = NULL;
+static struct MsgPort* sAHIPort = NULL;
+static struct AHIRequest* sAHIRequest = NULL;
+static struct AHIAudioCtrl* sAHIAudioCtrl = NULL;
+static gs::byte* sAHISampleData = NULL;
+static struct AHISampleInfo sAHISampleInfo;
+
+extern struct Hook gs_ahi_player_fn_hook;
+extern struct Hook gs_ahi_sound_fn_hook;
 
 namespace gs
 {
-	static struct MsgPort* sAHIPort = NULL;
-	static struct AHIRequest* sAHIRequest = NULL;
-	static struct AHIAudioCtrl* sAHIAudioCtrl = NULL;
-	static byte* sAHISampleData = NULL;
-	static struct AHISampleInfo sAHISampleInfo;
 
 	bool openAudio() {
 
@@ -314,6 +318,8 @@ namespace gs
 				AHIA_MixFreq, GS_AUDIO_FREQUENCY_HZ,
 				AHIA_Channels, 1,
 				AHIA_Sounds, 1,
+				//AHIA_SoundFunc, (ULONG) &gs_ahi_sound_fn_hook,
+				AHIA_PlayerFunc, (ULONG) &gs_ahi_player_fn_hook,
 				TAG_DONE);
 
 		if (sAHIAudioCtrl == NULL) {
@@ -333,10 +339,10 @@ namespace gs
 		sAHISampleInfo.ahisi_Length = 2048;
 		sAHISampleInfo.ahisi_Type = AHIST_S16S;
 
-#if 0
+#if 1
 		for(uint16 i=0;i < 1024;i+=2) {
-			sAHISampleData[i] =   i & 0xFF;	// Noise test.
-			sAHISampleData[i+1] = i & 0xFF;	// Noise test.
+			sAHISampleData[i] =   0x33;	// Noise test.
+			sAHISampleData[i+1] = 0x33;	// Noise test.
 		}
 #endif
 
@@ -349,6 +355,8 @@ namespace gs
 		AHI_ControlAudio(sAHIAudioCtrl, AHIC_Play, TRUE, TAG_DONE);
 
 		debug(GS_THIS, "Opened AHI Audio");
+
+		Delay(150);
 
 		return true;
 	}
@@ -388,7 +396,16 @@ namespace gs
 
 	}
 
+	void audioCallback_S16MSB(int16* samples, uint32 sampleLength);
+}
 
+gs::uint8 rando = 0;
+
+extern "C" void gs_ahi_player_cb() {
+	gs::audioCallback_S16MSB((gs::int16*) sAHISampleData, 4096);
+}
+
+extern "C" void gs_ahi_sound_cb(struct AHISoundMessage* msg) {
 }
 
 #endif

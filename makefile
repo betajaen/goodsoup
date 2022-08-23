@@ -23,7 +23,8 @@ ifeq ($(PLATFORM), amiga)
 				source/amiga/screen.o\
 				source/amiga/timer.o\
 				source/amiga/cursor.o\
-				source/amiga/audio_amiga.o
+				source/amiga/audio_amiga.o\
+				source/amiga/audio_hook.o
 
 	CC		= m68k-amigaos-gcc
 	DELETE	= rm
