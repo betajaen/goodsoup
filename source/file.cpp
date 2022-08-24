@@ -310,6 +310,9 @@ namespace gs
 	}
 
 	void WriteFile::writeBytes(const void* data, uint32 length) {
+		if (length == 0)
+			return;
+
 #if defined(GS_AMIGA)
 		Write(_file, (APTR) data, length);
 #else
