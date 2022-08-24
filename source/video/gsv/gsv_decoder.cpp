@@ -86,7 +86,10 @@ namespace gs
 
 		while(numAudio--) {
 			AudioSampleFrame_S16MSB* audio = frame->addAudio();
-			sFile->readBytes(&audio->data[0], sizeof(AudioSampleFrame_S16MSB::data));
+
+			uint32 length = sFile->readUInt32BE();
+
+			sFile->readBytes(&audio->data[0], length);
 		}
 
 		while(numSubtitles--) {

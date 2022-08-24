@@ -69,6 +69,28 @@ namespace gs
 		/* TODO: STBL - String table */
 	}
 
+	static int16 audio_temp[2048];
+
+	static void write_audio_full_rate(AudioSampleFrame_S16MSB* audioSampleFrame) {
+		sFile->writeUInt32BE(sizeof(AudioSampleFrame_S16MSB::data));
+		sFile->writeBytes(&audioSampleFrame->data[0], sizeof(AudioSampleFrame_S16MSB::data));
+	}
+
+	static void write_audio_half_rate(AudioSampleFrame_S16MSB* audioSampleFrame) {
+		uint32 length = sizeof(AudioSampleFrame_S16MSB::data) / 2;
+		sFile->writeUInt32BE(length);
+
+		int16* src = &audioSampleFrame->data[0];
+		int16* dst = &audio_temp[0];
+		uint32 count = length;
+		while(count--) {
+			*dst++ = *src++;
+			*dst++ = *src++;
+			src += 2;
+		}
+		sFile->writeBytes(&audio_temp[0], length);
+	}
+
 	uint8  gsv_encoder_processFrame(VideoFrame* frame) {
 		sFile->writeTag("FRME");
 		sFile->writeUInt16BE(frame->_audio.count());
@@ -92,7 +114,11 @@ namespace gs
 
 		AudioSampleFrame_S16MSB* audioSampleFrame = frame->_audio.peekFront();
 		while(audioSampleFrame != NULL) {
-			sFile->writeBytes(&audioSampleFrame->data[0], sizeof(AudioSampleFrame_S16MSB::data));
+#if GS_AUDIO_FREQUENCY_HZ == 22050
+			write_audio_full_rate(audioSampleFrame);
+#else
+			write_audio_half_rate(audioSampleFrame);
+#endif
 			audioSampleFrame = audioSampleFrame->next;
 		}
 
