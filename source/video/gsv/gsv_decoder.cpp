@@ -22,6 +22,7 @@
 #include "video/video_frame.h"
 #include "video/video_api.h"
 #include "endian.h"
+#include "audio.h"
 
 namespace gs
 {
@@ -65,7 +66,6 @@ namespace gs
 			return 0;
 		}
 
-		uint16 numAudio = sFile->readUInt16BE();
 		uint16 numSubtitles = sFile->readInt16BE();
 		byte imageFormat = sFile->readByte();
 		byte hasPalette = sFile->readByte();
@@ -84,12 +84,15 @@ namespace gs
 		frame->_timing.keepSubtitles = sFile->readByte();
 		frame->_timing.reserved = sFile->readByte();
 
-		while(numAudio--) {
-			AudioSampleFrame_S16MSB* audio = frame->addAudio();
+		uint32 audioLength = sFile->readUInt32BE();
 
-			uint32 length = sFile->readUInt32BE();
-
-			sFile->readBytes(&audio->data[0], length);
+		if (audioLength != 0) {
+			AudioPacket* audioPacket = allocateAudioPacket(audioLength);
+			frame->_audioPacket = audioPacket;
+			audioPacket->length_samples = sFile->readUInt16BE();
+			audioPacket->type = sFile->readByte();
+			audioPacket->channel = sFile->readByte();
+			sFile->readBytes(audioPacket->data, audioLength);
 		}
 
 		while(numSubtitles--) {

@@ -21,6 +21,7 @@
 #include "file.h"
 #include "video/video_frame.h"
 #include "video/video_api.h"
+#include "audio.h"
 
 #define GSV_HEADER_BIG "GSVb"
 #define GSV_HEADER_LITTLE "GSVl"
@@ -69,31 +70,10 @@ namespace gs
 		/* TODO: STBL - String table */
 	}
 
-	static int16 audio_temp[2048];
-
-	static void write_audio_full_rate(AudioSampleFrame_S16MSB* audioSampleFrame) {
-		sFile->writeUInt32BE(sizeof(AudioSampleFrame_S16MSB::data));
-		sFile->writeBytes(&audioSampleFrame->data[0], sizeof(AudioSampleFrame_S16MSB::data));
-	}
-
-	static void write_audio_half_rate(AudioSampleFrame_S16MSB* audioSampleFrame) {
-		uint32 length = sizeof(AudioSampleFrame_S16MSB::data) / 2;
-		sFile->writeUInt32BE(length);
-
-		int16* src = &audioSampleFrame->data[0];
-		int16* dst = &audio_temp[0];
-		uint32 count = length;
-		while(count--) {
-			*dst++ = *src++;
-			*dst++ = *src++;
-			src += 2;
-		}
-		sFile->writeBytes(&audio_temp[0], length);
-	}
+	static int16 audio_temp[8192];
 
 	uint8  gsv_encoder_processFrame(VideoFrame* frame) {
 		sFile->writeTag("FRME");
-		sFile->writeUInt16BE(frame->_audio.count());
 		sFile->writeUInt16BE(frame->_subtitles.count());
 
 		if (frame->_image != NULL) {
@@ -112,14 +92,45 @@ namespace gs
 		sFile->writeByte(frame->_timing.keepSubtitles);
 		sFile->writeByte(frame->_timing.reserved);
 
-		AudioSampleFrame_S16MSB* audioSampleFrame = frame->_audio.peekFront();
-		while(audioSampleFrame != NULL) {
-#if GS_AUDIO_FREQUENCY_HZ == 22050
-			write_audio_full_rate(audioSampleFrame);
-#else
-			write_audio_half_rate(audioSampleFrame);
-#endif
-			audioSampleFrame = audioSampleFrame->next;
+		// New AudioPacket Form
+		if (frame->_audioPacket != NULL) {
+			AudioPacket* audioPacket = frame->_audioPacket;
+			sFile->writeUInt32BE(audioPacket->length_bytes);
+			sFile->writeUInt16BE(audioPacket->length_samples);
+			sFile->writeByte(audioPacket->type);
+			sFile->writeByte(audioPacket->channel);
+			sFile->writeBytes(audioPacket->data, audioPacket->length_bytes);
+		}
+		// Older AudioSampleFrame form. Gets written as a AudioPacket
+		else {
+			uint32 audioLength = 0;
+			uint16 audioSamples = 0;
+
+			AudioSampleFrame_S16MSB *audioSampleFrame = frame->_audio.peekFront();
+
+			while (audioSampleFrame != NULL) {
+				audioLength += 4096; // 1024 * 2 * 2
+				audioSamples += 1024;
+				audioSampleFrame = audioSampleFrame->next;
+			}
+
+			if (audioLength != 0) {
+
+				sFile->writeUInt32BE(audioLength);
+				sFile->writeUInt16BE(audioSamples);
+				sFile->writeByte(AF_Stereo16);
+				sFile->writeByte(AC_Music_CutScene);
+
+				audioSampleFrame = frame->_audio.peekFront();
+
+				while (audioSampleFrame != NULL) {
+					sFile->writeBytes(&audioSampleFrame->data[0], 4096);
+					audioSampleFrame = audioSampleFrame->next;
+				}
+			}
+			else {
+				sFile->writeUInt32BE(0);
+			}
 		}
 
 		SubtitleFrame* subtitleFrame = frame->_subtitles.peekFront();
