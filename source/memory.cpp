@@ -30,6 +30,8 @@
 
 #include "containers.h"
 
+#define GS_FREE_MEM 0xDEADBEEF
+
 namespace gs
 {
     struct CheckedMemoryHeader;
@@ -184,6 +186,13 @@ namespace gs
 
 	static bool _confirmCheckedMemoryHeader(CheckedMemoryHeader* header) {
 
+		if ((header->_guard_begin == GS_FREE_MEM)) {
+			error(GS_THIS, "Caught Double Free!");
+			_writeCheckedAllocation(header);
+			abort_quit_stop();
+			return false;
+		}
+
 		// Check Header Guard
 		if ((header->_guard_begin ^ header->allocationSize) != (uint32) header) {
 			error(GS_THIS, "Caught Corrupted Allocation Header");
@@ -281,6 +290,7 @@ namespace gs
 		if (_confirmCheckedMemoryHeader(header)) {
 
 			sCheckedAllocations.pull(header);
+			header->_guard_begin = GS_FREE_MEM;
 
 			sMemoryAllocated -= header->allocationSize;
 #if defined(GS_AMIGA)
