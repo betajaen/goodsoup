@@ -24,22 +24,12 @@
 #include <SDL2/SDL.h>
 
 
+#define gs_min(X,Y) ((X) < (Y) ? (X) : (Y))
+
 
 namespace gs
 {
-	// Note: Multiples of these per channel.
-	Mutex sAudioQueueMutex;
-	Queue<AudioPacket> sAudioQueue;
-	AudioPacket* sCurrentPacket;
-	uint32 sCurrentPosBytes, sCurrentRemainingBytes;
-
-    SDL_AudioDeviceID sAudioDevice;
-
-	void audioCallback(void* userdata, uint8* stream, int len) {
-		SDL_memset(stream, 0, len);
-
-		// TODO
-	}
+	SDL_AudioDeviceID sAudioDevice;
 
 	bool openAudio() {
 
@@ -48,9 +38,9 @@ namespace gs
 		SDL_memset(&want, 0, sizeof(want)); /* or SDL_zero(want) */
 		want.freq = GS_AUDIO_FREQUENCY_HZ;
 		want.format = AUDIO_S16MSB;
-		want.channels = 1;
-		want.samples = 2048;
-		want.callback =  &audioCallback;
+		want.channels = 2;
+		want.samples = 1024;
+		want.callback =  NULL;
 
 		int count = SDL_GetNumAudioDevices(0);
 		for(int i=0;i < count;i++) {
@@ -110,9 +100,8 @@ namespace gs
 	}
 
 	void submitAudioPacket(AudioPacket* audioPacket) {
-		sAudioQueueMutex.lock();
-		sAudioQueue.pushBack(audioPacket);
-		sAudioQueueMutex.unlock();
+		SDL_QueueAudio(sAudioDevice, audioPacket->data, audioPacket->length_bytes);
+		releaseAudioPacket(audioPacket);
 	}
 
 	void releaseAudioPacket(AudioPacket* audioPacket) {
