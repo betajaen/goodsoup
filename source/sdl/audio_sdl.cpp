@@ -17,19 +17,71 @@
 
 #define GS_FILE_NAME "audio"
 
-#include "../types.h"
-#include "../containers.h"
-#include "../profile.h"
-#include "../audio.h"
+#include "types.h"
+#include "containers.h"
+#include "profile.h"
+#include "audio.h"
 #include <SDL2/SDL.h>
 
 
 #define gs_min(X,Y) ((X) < (Y) ? (X) : (Y))
 
+#ifndef GS_USE_SDL_MIXER
+#define GS_USE_SDL_MIXER 1
+#endif
+
+#define gs_min(X,Y) ((X) < (Y) ? (X) : (Y))
 
 namespace gs
 {
 	SDL_AudioDeviceID sAudioDevice;
+
+#if GS_USE_SDL_MIXER
+	Queue<AudioPacket> sQueue;
+	Mutex sQueueMutex;
+	AudioPacket* sCurrentPacket = NULL;
+	uint32 sCurrentPos = 0;
+	uint32 sCurrentRemaining = 0;
+
+	void gs_sdl_audio_cb(void*  userdata, uint8* stream, int len)
+	{
+		SDL_memset(stream, 0, len);
+		uint32 remaining = (uint32) len;
+
+		uint8* dst = stream;
+
+		while(remaining > 0) {
+
+			if (sCurrentPacket == NULL) {
+
+				sQueueMutex.lock();
+				sCurrentPacket = sQueue.pullFront();
+				sQueueMutex.unlock();
+
+				if (sCurrentPacket == NULL)
+					break;
+
+				sCurrentPos = 0;
+				sCurrentRemaining = sCurrentPacket->length_bytes;
+			}
+
+			uint32 toCopy = gs_min(sCurrentRemaining, remaining);
+			copyMem(dst, ((byte*) sCurrentPacket->data) + sCurrentPos, toCopy);
+			dst += toCopy;
+			sCurrentPos += toCopy;
+			sCurrentRemaining -= toCopy;
+			remaining -= toCopy;
+
+			if (sCurrentRemaining == 0) {
+				releaseAudioPacket(sCurrentPacket);
+				sCurrentPacket = NULL;
+			}
+
+		}
+
+	}
+
+#endif
 
 	bool openAudio() {
 
@@ -40,8 +92,11 @@ namespace gs
 		want.format = AUDIO_S16MSB;
 		want.channels = 2;
 		want.samples = 1024;
+#if GS_USE_SDL_MIXER == 1
+		want.callback =  &gs_sdl_audio_cb;
+#else
 		want.callback =  NULL;
-
+#endif
 		int count = SDL_GetNumAudioDevices(0);
 		for(int i=0;i < count;i++) {
 			const char* name = SDL_GetAudioDeviceName(i, 0);
@@ -100,8 +155,14 @@ namespace gs
 	}
 
 	void submitAudioPacket(AudioPacket* audioPacket) {
+#if GS_USE_SDL_MIXER == 1
+		sQueueMutex.lock();
+		sQueue.pushBack(audioPacket);
+		sQueueMutex.unlock();
+#else
 		SDL_QueueAudio(sAudioDevice, audioPacket->data, audioPacket->length_bytes);
 		releaseAudioPacket(audioPacket);
+#endif
 	}
 
 	void releaseAudioPacket(AudioPacket* audioPacket) {
