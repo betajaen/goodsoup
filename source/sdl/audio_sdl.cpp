@@ -91,7 +91,7 @@ namespace gs
 		want.freq = GS_AUDIO_FREQUENCY_HZ;
 		want.format = AUDIO_S16MSB;
 		want.channels = 2;
-		want.samples = 1024;
+		want.samples = 4096;
 #if GS_USE_SDL_MIXER == 1
 		want.callback =  &gs_sdl_audio_cb;
 #else
