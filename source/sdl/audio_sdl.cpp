@@ -27,28 +27,28 @@
 
 namespace gs
 {
-
-    void audioCallback_S16MSB(int16* samples, uint32 sampleLength);
+	// Note: Multiples of these per channel.
+	Mutex sAudioQueueMutex;
+	Queue<AudioPacket> sAudioQueue;
+	AudioPacket* sCurrentPacket;
+	uint32 sCurrentPosBytes, sCurrentRemainingBytes;
 
     SDL_AudioDeviceID sAudioDevice;
 
-	void audioCallback(void* userdata, uint8* stream, int len)
-	{
+	void audioCallback(void* userdata, uint8* stream, int len) {
 		SDL_memset(stream, 0, len);
 
-        uint32 sampleLength = ((uint32) len) / sizeof(int16);
-
-        audioCallback_S16MSB((int16*) stream, sampleLength);
+		// TODO
 	}
 
-	void openAudio() {
+	bool openAudio() {
 
 		SDL_AudioSpec want, have;
 
 		SDL_memset(&want, 0, sizeof(want)); /* or SDL_zero(want) */
 		want.freq = GS_AUDIO_FREQUENCY_HZ;
 		want.format = AUDIO_S16MSB;
-		want.channels = 2;
+		want.channels = 1;
 		want.samples = 2048;
 		want.callback =  &audioCallback;
 
@@ -69,25 +69,27 @@ namespace gs
 			if (want.format != have.format) {
 				error(GS_THIS, "Incompatible requested Audio format!");
 				abort_quit_stop();
-				return;
+				return false;
 			}
 
 			if (want.freq != have.freq) {
 				error(GS_THIS, "Incompatible requested Audio frequency!");
 				abort_quit_stop();
-				return;
+				return false;
 			}
 
 			if (want.samples != have.samples) {
 				error(GS_THIS, "Incompatible requested Audio samples per second!");
 				abort_quit_stop();
-				return;
+				return false;
 			}
 
 			break;
 		}
 
 		SDL_PauseAudioDevice(sAudioDevice, 0);
+
+		return true;
 	}
 
 	void closeAudio() {
@@ -98,6 +100,29 @@ namespace gs
 		SDL_PauseAudioDevice(sAudioDevice, isPaused);
 	}
 
+	AudioPacket* allocateAudioPacket(uint32 length_bytes) {
+		// No AudioPools for now
+		AudioPacket* audioPacket = (AudioPacket*) allocateMemory(1, sizeof(AudioPacket), 0, GS_COMMENT_FILE_LINE);
+		audioPacket->next = NULL;
+		audioPacket->length_bytes = length_bytes;
+		audioPacket->data = allocateMemory(1, length_bytes, 0, GS_COMMENT_FILE_LINE);
+		return audioPacket;
+	}
+
+	void submitAudioPacket(AudioPacket* audioPacket) {
+		sAudioQueueMutex.lock();
+		sAudioQueue.pushBack(audioPacket);
+		sAudioQueueMutex.unlock();
+	}
+
+	void releaseAudioPacket(AudioPacket* audioPacket) {
+		if (audioPacket) {
+			if (audioPacket->data) {
+				releaseMemory(audioPacket->data);
+			}
+			releaseMemory(audioPacket);
+		}
+	}
 }
 
 

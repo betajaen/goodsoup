@@ -23,10 +23,24 @@
 #include "memory.h"
 #include "mutex.h"
 
+#define MAX_AUDIO_PACKET_POOLSIZE 8192
+
 namespace gs {
 
 	enum AudioFormat {
-		AF_S16MSB = 0
+		AF_Mono8 = 0,
+		AF_Stereo8 = 1,
+		AF_Mono16 = 2,
+		AF_Stereo16 = 3,
+
+		AF_S16MSB = 3,
+	};
+
+	enum AudioChannel {
+		AC_Music_CutScene = 0,
+		AC_Voice = 1,
+		AC_Sfx = 2,
+		AC_Voice2_Sfx2 = 3
 	};
 
 	struct AudioSample_S16MSB {
@@ -94,7 +108,7 @@ namespace gs {
 
 	};
 
-	void openAudio();
+	bool openAudio();
 
 	void closeAudio();
 
@@ -106,6 +120,19 @@ namespace gs {
 
 	AudioStream_S16MSB *popAudioStream();
 
+
+	struct AudioPacket {
+		AudioPacket* next;
+		uint32 length_bytes;
+		uint16 length_samples;
+		uint8 type;
+		uint8 channel;
+		void*  data;
+	};
+
+	AudioPacket* allocateAudioPacket(uint32 length_bytes);
+	void submitAudioPacket(AudioPacket* audioPacket);
+	void releaseAudioPacket(AudioPacket* audioPacket);
 }
 
 #endif
