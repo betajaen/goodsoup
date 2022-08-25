@@ -89,6 +89,7 @@ namespace gs
 	VideoFrame::VideoFrame() {
 		_image = NULL;
 		_palette = NULL;
+		_audioPacket = NULL;
 	}
 
 	VideoFrame::~VideoFrame() {
@@ -122,6 +123,13 @@ namespace gs
 			sVideoFramePool->palettes.release(_palette);
 			_palette = NULL;
 		}
+
+		if (_audioPacket) {
+			// Was unused
+			releaseAudioPacket(_audioPacket);
+			_audioPacket = NULL;
+		}
+
 	}
 
 	SubtitleFrame* VideoFrame::addSubtitle() {
@@ -323,12 +331,16 @@ namespace gs
 	}
 
 	void VideoFrame::queueAudio(AudioStream_S16MSB *audioStream) {
-#if 1 // GS_SDL
+
+		if (_audioPacket != NULL) {
+			submitAudioPacket(_audioPacket);
+			_audioPacket = NULL;
+		}
 
 		AudioSampleFrame_S16MSB* sampleFrame = _audio.pullFront();
 
 		while(sampleFrame != NULL) {
-			AudioSample_S16MSB* sample =  audioStream->allocateSample();
+			AudioSample_S16MSB *sample = audioStream->allocateSample();
 
 			sample->userMessage = getNum();
 			sample->userData = sampleFrame;
@@ -339,7 +351,7 @@ namespace gs
 
 			sampleFrame = _audio.pullFront();
 		}
-#endif
+
 	}
 
 

@@ -27,6 +27,7 @@ namespace gs
 
 	class AudioStream_S16MSB;
 	class WriteFile;
+	struct AudioPacket;
 
 	enum SubtitleFlags {
 		SF_Center = 1,
@@ -186,6 +187,7 @@ namespace gs
 		Queue<SubtitleFrame> _subtitles;
 		ImageFrame* _image;
 		PaletteFrame* _palette;
+		AudioPacket* _audioPacket;
 	};
 
 	VideoFrame* acquireVideoFrame();
