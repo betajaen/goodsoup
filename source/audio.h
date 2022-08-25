@@ -33,7 +33,7 @@ namespace gs {
 		AF_Mono16 = 2,
 		AF_Stereo16 = 3,
 
-		AF_S16MSB = 3,
+		AF_S16MSB = 3
 	};
 
 	enum AudioChannel {
