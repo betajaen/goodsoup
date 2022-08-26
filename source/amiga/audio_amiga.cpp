@@ -27,6 +27,7 @@
 #include "profile.h"
 #include "memory.h"
 #include "audio.h"
+#include "timer_amiga.h"
 
 #include <proto/exec.h>
 #include <inline/exec.h>
@@ -35,6 +36,8 @@
 #include <proto/dos.h>
 #include <inline/dos.h>
 #include <dos/dostags.h>
+
+
 #include "amiga/SDI/SDI_hook.h"
 
 #define GS_AHI_AUDIO_THREAD_NAME "GSAudio"
@@ -66,7 +69,7 @@ namespace gs
 	static void closeAHI();
 	static void releaseAudioPacketFromData(void* data);
 	static void freeSlot(uint8 num);
-	static bool playFreeSlot(AudioPacket* audioPacket);
+	static bool playFreeSlot(AudioPacket* audioPacket, bool imm);
 }
 
 extern "C" void gs_ahi_sound_cb(struct AHIAudioCtrl *actrl, struct AHISoundMessage* msg) {
@@ -84,19 +87,75 @@ extern "C" void gs_ahi_sound_cb(struct AHIAudioCtrl *actrl, struct AHISoundMessa
 			audioSlot->state = 2;
 			AHI_SetSound(num, AHI_NOSOUND, 0, 0, sAHIAudioCtrl, 0);
 			// End Play
-			//freeSlot(msg->ahism_Channel);
-			//AudioPacket *packet = sQueue.peekFront();
-			//if (playFreeSlot(packet)) {
-			//	sQueue.pullFront();
-			//}
+			// freeSlot(msg->ahism_Channel);
+			// AudioPacket *packet = sQueue.peekFront();
+			// if (playFreeSlot(packet, false)) {
+			// 	sQueue.pullFront();
+			// }
 		}
 	}
+}
+
+static int gs_ahi_thread_function(STRPTR args, ULONG argsLength) {
+
+	SystemTimer timer;
+	timer.open();
+	const ULONG signalBit = timer.getSignalBit();
+
+	ULONG signals;
+
+	while(true) {
+		timer.start(10000);
+
+		signals = Wait(SIGBREAKF_CTRL_C | signalBit);
+
+		if (signals & SIGBREAKB_CTRL_C) {
+			break;
+		}
+
+		if (signals & signalBit) {
+			AudioPacket *packet = sQueue.peekFront();
+			if (packet != NULL && playFreeSlot(packet, true)) {
+				sQueue.pullFront();
+			}
+		}
+
+	}
+
+	timer.close();
+
 }
 
 extern Hook gs_ahi_sound_fn_hook;
 
 
 namespace gs {
+
+	static void openThread() {
+		sThread = (struct Task*) CreateNewProcTags(
+				NP_Name, (ULONG) GS_AHI_AUDIO_THREAD_NAME,
+				NP_CloseOutput, FALSE,
+				NP_CloseInput, FALSE,
+				NP_Output, Output(),
+				NP_Input, Input(),
+				NP_StackSize, 32678,
+				NP_Entry, (ULONG) &gs_ahi_thread_function,
+				TAG_END
+				);
+	}
+
+	static void closeThread() {
+		if (sThread != NULL) {
+			Signal(sThread, SIGBREAKF_CTRL_C);
+			uint32 counter = 0;
+			while(sThreadOpen) {
+				Delay(10);
+				debug(GS_THIS, "Waiting for Audio Thread to quit... %ld", counter++);
+			}
+			Delay(50);
+			sThread = NULL;
+		}
+	}
 
 	static void freeSlot(uint8 num) {
 		AudioSlot* audioSlot = &sAudioSlots[num];
@@ -110,11 +169,12 @@ namespace gs {
 		audioSlot->state = 0;
 	}
 
-	static bool playFreeSlot(AudioPacket* audioPacket) {
+	static bool playFreeSlot(AudioPacket* audioPacket, bool imm) {
 		for(uint8 num=0; num < GS_AHI_AUDIO_MAX_SLOTS; num++) {
 			AudioSlot* audioSlot = &sAudioSlots[num];
 			if (audioSlot->state != 1) {
 				audioSlot->state = 3;
+
 				if (audioSlot->current != NULL) {
 					AHI_UnloadSound(num, sAHIAudioCtrl);
 					releaseAudioPacket(audioSlot->current);
@@ -123,18 +183,18 @@ namespace gs {
 				audioSlot->current = audioPacket;
 				audioSlot->counter = 0;
 
+				ULONG immFlag = imm ? AHISF_IMM : 0;
+
 				struct AHISampleInfo sample;
 				sample.ahisi_Address = audioPacket->data;
 				sample.ahisi_Length = audioPacket->length_samples;
 				sample.ahisi_Type = AHIST_S16S;
 				AHI_LoadSound(num, AHIST_SAMPLE, &sample, sAHIAudioCtrl);
-				AHI_SetFreq(num, GS_AUDIO_FREQUENCY_HZ, sAHIAudioCtrl, AHISF_IMM);
-				AHI_SetVol(num, 0x10000, 0x8000, sAHIAudioCtrl, AHISF_IMM);
-				AHI_SetSound(num, num, 0, 0, sAHIAudioCtrl, AHISF_IMM);
+				AHI_SetFreq(num, GS_AUDIO_FREQUENCY_HZ, sAHIAudioCtrl, immFlag);
+				AHI_SetVol(num, 0x10000, 0x8000, sAHIAudioCtrl, immFlag);
+				AHI_SetSound(num, num, 0, 0, sAHIAudioCtrl, immFlag);
 				// AHI_SetSound(i, AHI_NOSOUND, 0, 0, sAHIAudioCtrl, 0); // Queue a stop after?
 				audioSlot->state = 1;
-
-				debug(GS_THIS, "Audio Queue %ld %ld samples", num, sample.ahisi_Length);
 
 				return true;
 
@@ -145,10 +205,10 @@ namespace gs {
 	}
 
 	static void addToQueue(AudioPacket* audioPacket) {
-		if (playFreeSlot(audioPacket) == false) {
-			sQueue.pushBack(audioPacket);
+		//if (playFreeSlot(audioPacket, true) == false) {
+		sQueue.pushBack(audioPacket);
 			// Should the timer.device call a function periodically to handle these?
-		}
+		//}
 	}
 
 	static bool openAHI() {
@@ -229,12 +289,16 @@ namespace gs {
 	}
 
 	bool openAudio() {
-		openAHI();
+		openThread();
+		if (openAHI() == false)
+			return false;
+
 		return true;
 	}
 
 	void closeAudio() {
 		closeAHI();
+		closeThread();
 		debug(GS_THIS, "Audio Closed.");
 	}
 
@@ -249,7 +313,7 @@ namespace gs {
 		audioPacket->length_bytes = length_bytes;
 		// 4 bytes prefixes the datapacket which contains a pointer to AudioPacket, the caller
 		// only sees the memory after this.
-		ULONG* dataPacket = (ULONG*) AllocVec(sizeof(AudioPacket*) + length_bytes, MF_Any);
+		ULONG* dataPacket = (ULONG*) AllocVec(sizeof(AudioPacket*) + length_bytes, MEMF_CHIP);
 		*dataPacket = (ULONG) audioPacket;
 		audioPacket->data = (void*) (dataPacket + 1);
 		return audioPacket;
