@@ -107,16 +107,13 @@ namespace gs
 
 	Font::Font(uint8 id) {
 
-		// if (loadFontRLEFile(*this, id)) {
-		// 	return;
-		// }
-
-		if (convertNutFontToRleFont(id) == false) {
-			return;
-		}
-
-		if (loadFontRLEFile(*this, id)) {
-			return;
+		if (loadFontRLEFile(*this, id) == false) {
+			if (convertNutFontToRleFont(id) == false) {
+				return;
+			}
+			if (loadFontRLEFile(*this, id)) {
+				return;
+			}
 		}
 
 
