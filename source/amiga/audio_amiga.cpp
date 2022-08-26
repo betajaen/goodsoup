@@ -37,64 +37,127 @@
 #include <dos/dostags.h>
 #include "amiga/SDI/SDI_hook.h"
 
+#define GS_AHI_AUDIO_THREAD_NAME "GSAudio"
+#define GS_AHI_AUDIO_MAX_SLOTS 1
+
 using namespace gs;
 
-#ifndef GS_AHI_DEVICE_MODE
-#define GS_AHI_DEVICE_MODE 1
-#endif
+struct AudioSlot {
+	gs::AudioPacket* current;
+	int8 state;
+	uint8 counter;
+};
 
-struct Library* AHIBase = NULL;
-static struct MsgPort* sAHIPort = NULL;
-static struct AHIRequest* sAHIRequest = NULL;
-static struct AHIAudioCtrl* sAHIAudioCtrl = NULL;
-static Queue<AudioPacket> sQueue;
+Library* AHIBase = NULL;
+struct MsgPort* sAHIPort = NULL;
+struct AHIRequest* sAHIRequest = NULL;
+struct AHIAudioCtrl* sAHIAudioCtrl = NULL;
+gs::Queue<gs::AudioPacket> sQueue;
 
-#if GS_AHI_DEVICE_MODE == 1
-
-#define GS_AHI_AUDIO_THREAD_NAME "GSAudio"
-
-static AudioPacket* sCurrentPacket = NULL;
-static uint32 sCurrentPos = 0;
-static uint32 sCurrentRemaining = 0;
-static struct Task* sThread = NULL;
-static bool sThreadOpen = false;
+struct MsgPort* sQueueReadyPort = NULL;
+struct Task* sThread = NULL;
+bool sThreadOpen = false;
+BYTE sReadySignalBit = 0;
+AudioSlot sAudioSlots[GS_AHI_AUDIO_MAX_SLOTS];
 
 namespace gs
 {
-
 	static bool openAHI();
 	static void closeAHI();
-
+	static void releaseAudioPacketFromData(void* data);
+	static void freeSlot(uint8 num);
+	static bool playFreeSlot(AudioPacket* audioPacket);
 }
 
-static int gs_ahi_thread_function(STRPTR args, ULONG argsLength) {
-	ULONG signals;
+extern "C" void gs_ahi_sound_cb(struct AHIAudioCtrl *actrl, struct AHISoundMessage* msg) {
 
-	sThreadOpen = true;
+	const uint8 num = msg->ahism_Channel;
 
-	if (openAHI() == false) {
-		sThreadOpen = false;
-		return 1;
+	if (num >= GS_AHI_AUDIO_MAX_SLOTS)
+		return;
+
+	AudioSlot* audioSlot = &sAudioSlots[num];
+
+	if (audioSlot->state == 1) {
+		audioSlot->counter++;
+		if (audioSlot->counter == 2) {
+			audioSlot->state = 2;
+			AHI_SetSound(num, AHI_NOSOUND, 0, 0, sAHIAudioCtrl, 0);
+			// End Play
+			//freeSlot(msg->ahism_Channel);
+			//AudioPacket *packet = sQueue.peekFront();
+			//if (playFreeSlot(packet)) {
+			//	sQueue.pullFront();
+			//}
+		}
+	}
+}
+
+extern Hook gs_ahi_sound_fn_hook;
+
+
+namespace gs {
+
+	static void freeSlot(uint8 num) {
+		AudioSlot* audioSlot = &sAudioSlots[num];
+
+		if (audioSlot->state != 0)
+			return;
+
+		AHI_UnloadSound(num, sAHIAudioCtrl);
+		releaseAudioPacket(audioSlot->current);
+		audioSlot->current = NULL;
+		audioSlot->state = 0;
 	}
 
-	while(true) {
-		Delay(10);
-		signals = Wait(SIGBREAKF_CTRL_C);
+	static bool playFreeSlot(AudioPacket* audioPacket) {
+		for(uint8 num=0; num < GS_AHI_AUDIO_MAX_SLOTS; num++) {
+			AudioSlot* audioSlot = &sAudioSlots[num];
+			if (audioSlot->state != 1) {
+				audioSlot->state = 3;
+				if (audioSlot->current != NULL) {
+					AHI_UnloadSound(num, sAHIAudioCtrl);
+					releaseAudioPacket(audioSlot->current);
+					audioSlot->current = NULL;
+				}
+				audioSlot->current = audioPacket;
+				audioSlot->counter = 0;
 
-		if (signals & SIGBREAKF_CTRL_C) {
-			break;
+				struct AHISampleInfo sample;
+				sample.ahisi_Address = audioPacket->data;
+				sample.ahisi_Length = audioPacket->length_samples;
+				sample.ahisi_Type = AHIST_S16S;
+				AHI_LoadSound(num, AHIST_SAMPLE, &sample, sAHIAudioCtrl);
+				AHI_SetFreq(num, GS_AUDIO_FREQUENCY_HZ, sAHIAudioCtrl, AHISF_IMM);
+				AHI_SetVol(num, 0x10000, 0x8000, sAHIAudioCtrl, AHISF_IMM);
+				AHI_SetSound(num, num, 0, 0, sAHIAudioCtrl, AHISF_IMM);
+				// AHI_SetSound(i, AHI_NOSOUND, 0, 0, sAHIAudioCtrl, 0); // Queue a stop after?
+				audioSlot->state = 1;
+
+				debug(GS_THIS, "Audio Queue %ld %ld samples", num, sample.ahisi_Length);
+
+				return true;
+
+			}
+		}
+
+		return false;
+	}
+
+	static void addToQueue(AudioPacket* audioPacket) {
+		if (playFreeSlot(audioPacket) == false) {
+			sQueue.pushBack(audioPacket);
+			// Should the timer.device call a function periodically to handle these?
 		}
 	}
 
-	closeAHI();
-	sThreadOpen = false;
-}
-#endif
-
-namespace gs
-{
-
 	static bool openAHI() {
+
+		for(uint8 i=0; i < GS_AHI_AUDIO_MAX_SLOTS; i++) {
+			AudioSlot* audioSlot = &sAudioSlots[i];
+			audioSlot->current = NULL;
+			audioSlot->state = 0;
+		}
 
 		sAHIPort = CreateMsgPort();
 
@@ -124,44 +187,35 @@ namespace gs
 
 		AHIBase = (struct Library*) sAHIRequest->ahir_Std.io_Device;
 
-		sAHIAudioCtrl = AHI_AllocAudio(
-				AHIA_AudioID, 0,
-				AHIA_MixFreq, GS_AUDIO_FREQUENCY_HZ,
-				AHIA_Channels, 2,
-				AHIA_Sounds, 2,
-		//AHIA_SoundFunc, (ULONG) &gs_ahi_sound_fn_hook,
-		//AHIA_PlayerFunc, (ULONG) &gs_ahi_player_fn_hook,
-				TAG_DONE);
+
+		sAHIAudioCtrl = AHI_AllocAudio(AHIA_AudioID, AHI_DEFAULT_ID,
+									   AHIA_MixFreq, GS_AUDIO_FREQUENCY_HZ,
+									   AHIA_Channels, 2,
+									   AHIA_Sounds, 1,
+									   AHIA_SoundFunc, (ULONG) &gs_ahi_sound_fn_hook,
+									   TAG_END);
 
 		if (sAHIAudioCtrl == NULL) {
-			error(GS_THIS, "Could not Allocate AHI Audio");
+			error(GS_THIS, "Could not create AHI Audio Control");
 			abort_quit_stop();
 			return false;
 		}
 
-		uint32 gotFrequency;
-		AHI_ControlAudio(sAHIAudioCtrl, AHIC_MixFreq_Query, (ULONG) &gotFrequency, TAG_DONE);
-
-		debug(GS_THIS, "Want Frequency = %ld, Got Frequency = %ld", GS_AUDIO_FREQUENCY_HZ, gotFrequency);
+		AHI_ControlAudio(sAHIAudioCtrl, AHIC_Play, TRUE, TAG_DONE);
 
 		return true;
 	}
 
 	static void closeAHI() {
 
-		if (sAHIAudioCtrl != NULL) {
-			AHI_ControlAudio(sAHIAudioCtrl,
-							 AHIC_Play, FALSE,
-							 TAG_DONE);
-
-			AHI_UnloadSound(0, sAHIAudioCtrl);
+		if (sAHIAudioCtrl) {
 			AHI_FreeAudio(sAHIAudioCtrl);
 			sAHIAudioCtrl = NULL;
 		}
 
 		if (sAHIRequest != NULL) {
-			CloseDevice((struct IORequest*) sAHIRequest);
-			DeleteIORequest((struct IORequest*) sAHIRequest);
+			CloseDevice((struct IORequest *) sAHIRequest);
+			DeleteIORequest((struct IORequest *) sAHIRequest);
 			sAHIRequest = NULL;
 		}
 
@@ -172,6 +226,247 @@ namespace gs
 
 
 		debug(GS_THIS, "Closed AHI Audio");
+	}
+
+	bool openAudio() {
+		openAHI();
+		return true;
+	}
+
+	void closeAudio() {
+		closeAHI();
+		debug(GS_THIS, "Audio Closed.");
+	}
+
+	void pauseAudio(uint8 isPaused) {
+
+	}
+
+	AudioPacket* allocateAudioPacket(uint32 length_bytes) {
+		// No AudioPools for now
+		AudioPacket* audioPacket = (AudioPacket*) AllocVec(sizeof(AudioPacket), MF_Clear | MF_Any);
+		audioPacket->next = NULL;
+		audioPacket->length_bytes = length_bytes;
+		// 4 bytes prefixes the datapacket which contains a pointer to AudioPacket, the caller
+		// only sees the memory after this.
+		ULONG* dataPacket = (ULONG*) AllocVec(sizeof(AudioPacket*) + length_bytes, MF_Any);
+		*dataPacket = (ULONG) audioPacket;
+		audioPacket->data = (void*) (dataPacket + 1);
+		return audioPacket;
+	}
+
+	void submitAudioPacket(AudioPacket* audioPacket) {
+		addToQueue(audioPacket);
+	}
+
+	static void releaseAudioPacketFromData(void* data) {
+		if (data) {
+			ULONG* dataPacket = ((ULONG*) data) - 1;
+			AudioPacket* audioPacket = (AudioPacket*) *dataPacket;
+			FreeVec(dataPacket);
+			FreeVec(audioPacket);
+		}
+	}
+
+	void releaseAudioPacket(AudioPacket* audioPacket) {
+		if (audioPacket) {
+			if (audioPacket->data) {
+				ULONG* dataPacket = ((ULONG*) audioPacket->data) - 1;
+				FreeVec(dataPacket);
+			}
+			FreeVec(audioPacket);
+		}
+	}
+}
+
+
+
+#if 0
+
+using namespace gs;
+
+#ifndef GS_AHI_DEVICE_MODE
+#define GS_AHI_DEVICE_MODE 1
+#endif
+
+struct Library* AHIBase = NULL;
+static struct MsgPort* sAHIPort = NULL;
+static struct AHIRequest* sAHIRequest1 = NULL;
+static struct AHIRequest* sAHIRequest2 = NULL;
+static Queue<AudioPacket> sQueue;
+static Mutex sQueueMutex;
+
+#if GS_AHI_DEVICE_MODE == 1
+
+#define GS_AHI_AUDIO_THREAD_NAME "GSAudio"
+
+struct MsgPort* sQueueReadyPort = NULL;
+AudioPacket* sCurrentPacket = NULL;
+uint32 sCurrentPos = 0;
+uint32 sCurrentRemaining = 0;
+struct Task* sThread = NULL;
+bool sThreadOpen = false;
+uint32 sRead = 0;
+byte sReadySignalBit = 0;
+
+namespace gs
+{
+
+	static bool openAHI();
+	static void closeAHI();
+
+}
+
+static int gs_ahi_thread_function(STRPTR args, ULONG argsLength) {
+	ULONG signals;
+
+	sThreadOpen = true;
+
+	if (openAHI() == false) {
+		sThreadOpen = false;
+		return 1;
+	}
+
+	sReadySignalBit = AllocSignal(-1L);
+	ULONG readySignalFlag = (1 << (ULONG) (sReadySignalBit));
+	ULONG ahiFlag = (1 << sAHIPort->mp_SigBit);
+
+	debug_write_str("**** THREAD BEGIN");
+
+	struct AHIRequest* req1 = sAHIRequest1;
+	struct AHIRequest* req2 = sAHIRequest2;
+	struct AHIRequest* link = NULL;
+	bool doWaitIo = false;
+
+	while(true) {
+
+		signals = Wait(SIGBREAKF_CTRL_C | ahiFlag | readySignalFlag);
+
+		if (doWaitIo) {
+			doWaitIo = false;
+			WaitIO((struct IORequest *) link);
+		}
+
+		if (signals & SIGBREAKF_CTRL_C) {
+			break;
+		}
+
+		if (signals & ahiFlag) {
+			CheckIO((struct IORequest*) sAHIRequest1);
+		}
+
+		if (signals & readySignalFlag) {
+
+			if (sCurrentPacket) {
+				releaseAudioPacket(sCurrentPacket);
+				sCurrentPacket = NULL;
+			}
+
+			sCurrentPacket = sQueue.pullFront();
+
+			if (sCurrentPacket == NULL) {
+				continue;
+			}
+
+			sRead--;
+
+			req1->ahir_Std.io_Message.mn_Node.ln_Pri = 0;
+			req1->ahir_Std.io_Command  = CMD_WRITE;
+			req1->ahir_Std.io_Data     = ((uint8*)sCurrentPacket->data);
+			req1->ahir_Std.io_Length   = sCurrentPacket->length_bytes;
+			req1->ahir_Std.io_Offset   = 0;
+			req1->ahir_Frequency       = GS_AUDIO_FREQUENCY_HZ;
+			req1->ahir_Type            = AHIST_S16S;
+			req1->ahir_Volume          = 0x10000;          // Full volume
+			req1->ahir_Position        = 0x8000;           // Centered
+			req1->ahir_Link            = link;
+			SendIO((struct IORequest *) req1);
+
+			if (link) {
+				doWaitIo = true;
+				continue;
+			}
+
+			link = req1;
+			GS_SWAP(struct AHIRequest*, req1, req2);
+
+			if (sCurrentPacket) {
+				releaseAudioPacket(sCurrentPacket);
+				sCurrentPacket = NULL;
+			}
+		}
+
+
+	}
+
+	debug_write_str("**** THREAD END");
+
+exit_thread:
+	FreeSignal(sReadySignalBit);
+	sReadySignalBit = 0;
+	closeAHI();
+	sThreadOpen = false;
+}
+#endif
+
+namespace gs
+{
+
+	static bool openAHI() {
+
+		sAHIPort = CreateMsgPort();
+
+		if (sAHIPort == NULL) {
+			error(GS_THIS, "Could not create AHI MsgPort");
+			abort_quit_stop();
+			return false;
+		}
+
+		sAHIRequest1 = (struct AHIRequest*) CreateIORequest(sAHIPort, sizeof(struct AHIRequest));
+
+		if (sAHIRequest1 == NULL) {
+			error(GS_THIS, "Could not create AHI Request");
+			abort_quit_stop();
+			return false;
+		}
+
+		sAHIRequest1->ahir_Version = 4;
+
+		BYTE isError = OpenDevice(AHINAME, AHI_NO_UNIT, (struct IORequest*) sAHIRequest1, NULL);
+
+		if (isError) {
+			error(GS_THIS, "Could not open AHI device");
+			abort_quit_stop();
+			return false;
+		}
+
+		AHIBase = (struct Library*) sAHIRequest1->ahir_Std.io_Device;
+
+		sAHIRequest2 = (struct AHIRequest*) AllocVec(sizeof(struct AHIRequest), MF_Any);
+		CopyMem(sAHIRequest1, sAHIRequest2, sizeof(struct AHIRequest));
+
+		return true;
+	}
+
+	static void closeAHI() {
+
+		if (sAHIRequest1 != NULL) {
+			CloseDevice((struct IORequest*) sAHIRequest1);
+			DeleteIORequest((struct IORequest*) sAHIRequest1);
+			sAHIRequest1 = NULL;
+		}
+
+		if (sAHIPort != NULL) {
+			DeleteMsgPort(sAHIPort);
+			sAHIPort = NULL;
+		}
+
+
+		debug(GS_THIS, "Closed AHI Audio");
+
+		debug_write_str("sRead = ");
+		debug_write_int(sRead);
+		debug_write_str("\n");
 	}
 
 	static void openThread() {
@@ -228,8 +523,11 @@ namespace gs
 	}
 
 	void submitAudioPacket(AudioPacket* audioPacket) {
-		// TEMP
-		releaseAudioPacket(audioPacket);
+		sQueue.pushBack(audioPacket);
+		sRead++;
+		if (sThread != NULL && sReadySignalBit != 0) {
+			Signal(sThread, (1 << (ULONG) sReadySignalBit));
+		}
 	}
 
 	void releaseAudioPacket(AudioPacket* audioPacket) {
@@ -242,4 +540,5 @@ namespace gs
 	}
 }
 
+#endif
 
