@@ -123,6 +123,7 @@ OBJ +=	source/main_game.o\
 		source/codecs/bomp.o\
 		source/codecs/nut.o\
 		source/codecs/rle.o\
+		source/codecs/image.o\
 		source/font.o\
 		source/audio.o\
 		source/timer.o\
