@@ -1399,7 +1399,7 @@ namespace gs {
 		void grow() {
 			if (_capacity == 0) {
 				_capacity = 8;
-				_begin = (char*) allocateMemory(_capacity, sizeof(char), MF_Clear, GS_COMMENT_FILE_LINE);
+				_begin = (char*) allocateMemory(_capacity, sizeof(char), MF_Clear, GS_COMMENT_FILE_LINE_NOTE("StringBuilder"));
 				_begin[0] = '\0';
 			}
 			else {
@@ -1407,6 +1407,7 @@ namespace gs {
 				_begin = (char*) reallocateMemory(_begin, _capacity, sizeof(char));
 			}
 		}
+
 
 	public:
 
@@ -1460,14 +1461,57 @@ namespace gs {
 			return _capacity;
 		}
 
-		void writeChar(const char& value) {
+		void writeInt(int32 num) {
+			static char temp[22];
+
+			if (num == 0 || num == -0) {
+				writeChar('0');
+				return;
+			}
+
+			uint8 i=0;
+			bool isNegative = false;
+			if (num < 0) {
+				isNegative = true;
+				num = -num;
+			}
+
+			while(num != 0) {
+				int32 n = num % 10;
+				temp[i++] = n + '0';
+				num /= 10;
+			}
+
+			if (isNegative) {
+				temp[i++] = '-';
+			}
+
+			for(int8 m=i-1;m > -1;m--) {
+				writeChar(temp[m]);
+			}
+		}
+
+		void writeStr(const char* str) {
+			if (str) {
+				while(*str) {
+					writeChar(*str++);
+				}
+			}
+		}
+
+		void writeChar(char value) {
 			if (_end == _capacity) {
 				grow();
 			}
 
 			_begin[_end] = value;
-			_begin[_end+1] = 0;
 			++_end;
+
+			if (_end == _capacity) {
+				grow();
+			}
+
+			_begin[_end] = 0;
 		}
 
 		inline char& operator[](Index idx) {
