@@ -27,6 +27,8 @@
 #include "string.h"
 #include "font.h"
 
+#define GS_EXPORT_FRAMES 0
+
 extern gs::VideoDecoder SMUSH_DECODER;
 extern gs::VideoEncoder GSV_ENCODER;
 extern gs::VideoDecoder GSV_DECODER;
@@ -36,6 +38,10 @@ namespace gs
 	// Declared in video/smush/smush_tables.cpp
 	void smush_tables_initialize();
 	void smush_tables_teardown();
+
+	// Declared in codecs/iff.cpp
+	void writeIff(const char* path, uint16 w, uint16 h, byte* palette, byte* data);
+	void writeRaw(const char* path, uint16 w, uint16 h, byte* palette, byte* data);
 
 	VideoConverter::VideoConverter() {
 		_srcFile = NULL;
@@ -148,6 +154,7 @@ namespace gs
 		return true;
 	}
 
+
 	void VideoConverter::run() {
 
 		VideoFrame* frame = acquireVideoFrame();
@@ -158,6 +165,7 @@ namespace gs
 
 		uint32 lastDialogue = 0;
 		uint32 lastImageNum = 0;
+
 		while(true) {
 			bool isKeyFrame = false;
 			bool shouldHalfSize = false;
@@ -258,6 +266,33 @@ namespace gs
 				}
 			}
 
+#if defined(GS_EXPORT_FRAMES) && GS_EXPORT_FRAMES == 1
+			if (frame->hasPalette()) {
+				StringBuilder<uint8> name;
+				name.writeStr("frame_");
+				name.writeInt(frame->getNum());
+				name.writeStr(".pal");
+				WriteFile file;
+				file.open(name.getString());
+				if (file.isOpen()) {
+					file.writeBytes(&frame->_palette->palette[0], 3 * 256);
+				}
+				file.close();
+			}
+			if (frame->hasImage()) {
+				StringBuilder<uint8> name;
+				name.writeStr("frame_");
+				name.writeInt(frame->getNum());
+				name.writeStr(".img");
+				WriteFile file;
+				file.open(name.getString());
+				if (file.isOpen()) {
+					file.writeBytes(frame->_image->getData(), GS_BITMAP_SIZE);
+				}
+				file.close();
+			}
+#endif
+
 			if (shouldHalfSize) {
 				reduceFrameSizeToHalf(frame);
 			}
@@ -278,7 +313,6 @@ namespace gs
 			if (frame->_image != NULL) {
 				lastImageNum = frame->getNum();
 			}
-
 			_videoEncoder->processFrame(frame);
 
 			if (frame->_timing.action == VFNA_Stop) {
