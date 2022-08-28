@@ -207,8 +207,13 @@ namespace gs
 		if (now < nextTime)
 			return;
 		uint32 diff = now - nextTime;
-#else
-		uint32 diff = 0;
+#endif
+
+#if GS_AMIGA
+		// uint32 now = getMSec();
+		// if (now < nextTime)
+		// 	return;
+		// uint32 diff = now - nextTime;
 #endif
 
 		//mutex.lock();
@@ -263,9 +268,9 @@ namespace gs
 			}
 
 
-			nextTime = startTime - diff + ((oldest->getNum() * 1000) / 12);
+			nextTime = startTime - diff + ((oldest->getNum() * 1000L) / 12L);
 
-			// debug(GS_THIS, "Frame %ld", oldest->_timing.num);
+//			debug(GS_THIS, "Now %ld Diff %ld Frame %ld", now, diff, nextTime);
 			disposeVideoFrame(oldest);
 
 
