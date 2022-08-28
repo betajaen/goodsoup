@@ -59,8 +59,6 @@ gs::Queue<gs::AudioPacket> sQueue;
 
 struct MsgPort* sQueueReadyPort = NULL;
 struct Task* sThread = NULL;
-bool sThreadOpen = false;
-BYTE sReadySignalBit = 0;
 AudioSlot sAudioSlots[GS_AHI_AUDIO_MAX_SLOTS];
 
 namespace gs
@@ -119,7 +117,6 @@ static int gs_ahi_thread_function(STRPTR args, ULONG argsLength) {
 				sQueue.pullFront();
 			}
 		}
-
 	}
 
 	timer.close();
@@ -147,11 +144,6 @@ namespace gs {
 	static void closeThread() {
 		if (sThread != NULL) {
 			Signal(sThread, SIGBREAKF_CTRL_C);
-			uint32 counter = 0;
-			while(sThreadOpen) {
-				Delay(10);
-				debug(GS_THIS, "Waiting for Audio Thread to quit... %ld", counter++);
-			}
 			Delay(50);
 			sThread = NULL;
 		}
