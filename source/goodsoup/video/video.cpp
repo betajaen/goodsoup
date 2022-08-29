@@ -42,8 +42,6 @@ namespace gs
 
 	VideoContext* VIDEO = NULL;
 
-	void getSANApi(VideoApi* api);
-
 	VideoContext::VideoContext() {
 
 		initializeVideoFrameData();

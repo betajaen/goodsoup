@@ -26,12 +26,6 @@ namespace gs
 	class VideoFrame;
 	class WriteFile;
 
-	struct VideoApi {
-		void(*initialize)(DiskReader reader);
-		void(*teardown)();
-		int(*processFrame)();
-	};
-
 	struct VideoDecoder {
 		bool(*initialize)(TagReadFile* file);
 		void(*teardown)();
