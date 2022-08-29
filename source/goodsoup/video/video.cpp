@@ -268,8 +268,9 @@ namespace gs
 			}
 
 
+#if GS_SDL
 			nextTime = startTime - diff + ((oldest->getNum() * 1000L) / 12L);
-
+#endif
 //			debug(GS_THIS, "Now %ld Diff %ld Frame %ld", now, diff, nextTime);
 			disposeVideoFrame(oldest);
 
