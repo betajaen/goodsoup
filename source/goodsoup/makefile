@@ -105,12 +105,6 @@ OBJ +=	main_game.o\
 		video/video.o\
 		video/video_frame.o\
 		video/video_converter.o\
-		video/san/codec.o\
-		video/san/iact_timing.o\
-		video/san/iact_audio.o\
-		video/san/tables.o\
-		video/san/fobj_47.o\
-		video/san/fobj_47_ulong.o\
 		video/smush/smush_decoder.o\
 		video/smush/smush_codec47_opt_none.o\
 		video/smush/smush_codec47_opt_ulong.o\

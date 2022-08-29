@@ -21,14 +21,11 @@
 #include "video/video_api.h"
 #include "video/video_frame.h"
 #include "video/video_converter.h"
-#include "san/codec.h"
 #include "screen.h"
-#include "room.h"  // For RoomPaletteData
-#include "disk.h"
 #include "audio.h"
-#include "image.h"
 #include "globals.h"
 #include "input.h"
+#include "string.h"
 
 extern gs::VideoDecoder SMUSH_DECODER;
 extern gs::VideoEncoder GSV_ENCODER;
