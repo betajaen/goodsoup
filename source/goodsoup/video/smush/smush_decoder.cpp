@@ -557,6 +557,9 @@ namespace gs
 				if (sequenceNum == sPreviousSequenceNum + 1) {
 					uint32 length = fobj.end() - sFile->pos();
 					CHECK_IF(length > GS_BITMAP_SIZE, "FOBJ Case 2 data is to large to read.");
+#if GS_SAN_CODEC47 == 0
+					sFile->skip(length);
+#endif
 
 #if GS_SAN_CODEC47 == 1
 					sFile->readBytes(sTempBuffer, length);
