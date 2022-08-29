@@ -133,7 +133,6 @@ clean .IGNORE:
 	$(DELETE) *.o
 	$(DELETE) vm/*.o
 	$(DELETE) video/*.o
-	$(DELETE) video/san/*.o
 	$(DELETE) video/smush/*.o
 	$(DELETE) video/gsv/*.o
 	$(DELETE) codecs/*.o
