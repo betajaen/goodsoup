@@ -1,12 +1,13 @@
 OBJ = main.o
 
 
-all: $(OBJ)
-	$(CC) -o $(PROGRAM) $(OBJ) $(CFLAGS)
+all: $(OBJ) $(POBJ)
+	$(CC) -o $(PROGRAM) $(OBJ) $(POBJ) $(CFLAGS)
 
 %.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
 clean .IGNORE:
-	$(DELETE) *.o
-	$(DELETE) $(PROGRAM)
+	rm $(OBJ)
+	rm $(POBJ)
+	rm $(PROGRAM)

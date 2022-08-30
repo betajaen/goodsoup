@@ -17,18 +17,11 @@
 
 #include "shared/forward.h"
 
-// graphics/rtg.c
-extern gs_bool gs_open_screen();
-
-// graphics/rtg.c
-extern gs_bool gs_close_screen();
-
-int main() {
-	if (gs_open_screen() == GS_FALSE) {
-		return 1;
-	}
-
-	gs_close_screen();
-
-    return 0;
+extern gs_bool gs_open_screen() {
+	return GS_FALSE;
 }
+
+extern gs_bool gs_close_screen() {
+	return GS_FALSE;
+}
+
