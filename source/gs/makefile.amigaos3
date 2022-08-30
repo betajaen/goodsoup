@@ -1,5 +1,5 @@
 CC = m68k-amigaos-gcc
-PROGRAM = monkey3
+PROGRAM = ../../dist/monkey3
 DATESTR  = $(shell date +"%-d.%-m.%Y")
 CFLAGS = -I. -D__AMIGADATE__="\"$(DATESTR)\""
 CFLAGS += -Iamiga -DGS_AMIGA -DGS_BIG -noixemul -fno-exceptions -m68020
