@@ -1,5 +1,8 @@
-OBJ = entry.o main.o
+PLATFORM = amigaos3rtg
 
+include $(PLATFORM).make
+
+OBJ = entry.o main.o
 
 all: $(OBJ) $(POBJ)
 	$(CC) -o $(PROGRAM) $(OBJ) $(POBJ) $(CFLAGS)

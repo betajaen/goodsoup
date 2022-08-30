@@ -4,6 +4,3 @@ DATESTR  = $(shell date +"%-d.%-m.%Y")
 CFLAGS = -I. -D__AMIGADATE__="\"$(DATESTR)\""
 CFLAGS += -Iamiga -DGS_AMIGA -DGS_BIG -noixemul -fno-exceptions -m68020
 POBJ = graphics/rtg.o
-
-include makefile.inc
-
