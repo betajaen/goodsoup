@@ -1,4 +1,4 @@
-OBJ = main.o
+OBJ = entry.o main.o
 
 
 all: $(OBJ) $(POBJ)
