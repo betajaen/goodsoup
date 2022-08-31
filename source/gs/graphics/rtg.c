@@ -16,12 +16,192 @@
  */
 
 #include "shared/forward.h"
+#include "shared/game.h"
 
-extern gs_bool gs_open_screen() {
-	return GS_FALSE;
+#include <proto/exec.h>
+#include <proto/dos.h>
+#include <proto/intuition.h>
+#include <proto/cybergraphics.h>
+#include <proto/graphics.h>
+#include <cybergraphx/cybergraphics.h>
+
+struct GfxBase* GfxBase = NULL;
+struct Library* CyberGfxBase = NULL;
+
+static struct Screen* sScreen = NULL;
+static struct ScreenBuffer* sScreenBuffer = NULL;
+static struct Window* sWindow = NULL;
+static struct RastPort sRastPort;
+static struct TextAttr sDefaultFont =
+{
+		(STRPTR) "topaz.font", 		/* Name */
+		8, 				/* YSize */
+		FS_NORMAL,			/* Style */
+		FPF_ROMFONT | FPF_DESIGNED,	/* Flags */
+};
+static ULONG sPalette[2 + (256 * 3)] = { 0 };
+
+static gs_bool InitializeScreenAndWindow() {
+
+	gs_bool rc = TRUE;
+
+	uint32 modeId = BestCModeIDTags(
+			CYBRBIDTG_NominalWidth, GS_WIDTH,
+			CYBRBIDTG_NominalHeight, GS_HEIGHT,
+			CYBRBIDTG_Depth, GS_DEPTH,
+			TAG_DONE
+	);
+
+	if (modeId == INVALID_ID) {
+		// TODO: Log Error Message
+		rc = FALSE;
+		goto exit_function;
+	}
+
+	sScreen = OpenScreenTags(NULL,
+							 SA_DisplayID, modeId,
+							 SA_Left, 0,
+							 SA_Top, 0,
+							 SA_Width, GS_WIDTH,
+							 SA_Height, GS_HEIGHT,
+							 SA_Depth, GS_DEPTH,
+							 SA_Title, (ULONG) GS_GAME_TITLE,
+							 SA_ShowTitle, FALSE,
+							 SA_Type, CUSTOMSCREEN,
+							 SA_FullPalette, TRUE,
+							 SA_Colors32, TRUE,
+							 SA_Exclusive, TRUE,
+							 SA_AutoScroll, FALSE,
+							 SA_Font, (ULONG) &sDefaultFont,
+							 TAG_DONE
+	);
+
+	if (sScreen == NULL) {
+		// TODO: Log Error Message
+		rc = FALSE;
+		goto exit_function;
+	}
+
+	sScreenBuffer = AllocScreenBuffer(
+			sScreen,
+			NULL,
+			SB_SCREEN_BITMAP
+	);
+
+	if (sScreenBuffer == NULL) {
+		// TODO: Log Error Message
+		rc = FALSE;
+		goto exit_function;
+	}
+
+	LoadRGB32(&sScreen->ViewPort, &sPalette[0]);
+
+	InitRastPort(&sRastPort);
+	sRastPort.BitMap = sScreenBuffer->sb_BitMap;
+
+	sWindow = OpenWindowTags(NULL,
+							 WA_Left, 0,
+							 WA_Top, 0,
+							 WA_Width, GS_WIDTH,
+							 WA_Height, GS_HEIGHT,
+							 WA_CustomScreen, (ULONG)sScreen,
+							 WA_Backdrop, TRUE,
+							 WA_Borderless, TRUE,
+							 WA_DragBar, FALSE,
+							 WA_Activate, TRUE,
+							 WA_SimpleRefresh, TRUE,
+							 WA_CloseGadget, FALSE,
+							 WA_DepthGadget, FALSE,
+							 WA_IDCMP, IDCMP_CLOSEWINDOW | IDCMP_VANILLAKEY | IDCMP_IDCMPUPDATE | IDCMP_MOUSEBUTTONS,
+							 TAG_END
+	);
+
+	if (sWindow == NULL) {
+		// TODO: Log Error Message
+		rc = FALSE;
+		goto exit_function;
+	}
+
+	Printf("Screen Opened\n");
+
+	exit_function:
+
+	if (sWindow)
+	{
+		CloseWindow(sWindow);
+		sWindow = NULL;
+	}
+
+	if (sScreenBuffer && sScreen)
+	{
+		FreeScreenBuffer(sScreen, sScreenBuffer);
+		sScreenBuffer = NULL;
+	}
+
+	if (sScreen)
+	{
+		CloseScreen(sScreen);
+		sScreen = NULL;
+	}
+
+	return rc;
 }
 
-extern gs_bool gs_close_screen() {
-	return GS_FALSE;
+static void TeardownScreenAndWindow() {
+
+	if (sScreen)
+	{
+		CloseScreen(sScreen);
+		sScreen = NULL;
+	}
+}
+
+extern gs_bool gs_OpenScreen() {
+
+	gs_bool rc = TRUE;
+
+	if ((GfxBase = (struct GfxBase*)OpenLibrary("graphics.library", 33)) == NULL) {
+		rc = GS_FALSE;
+		goto exit_function;
+	}
+
+	if ((CyberGfxBase  = (struct Library*)OpenLibrary("cybergraphics.library", 41)) == NULL) {
+		rc = GS_FALSE;
+		goto exit_function;
+	}
+
+	if (InitializeScreenAndWindow() == GS_FALSE) {
+		rc = GS_FALSE;
+		goto exit_function;
+	}
+
+	return rc;
+
+	exit_function:
+
+	if (CyberGfxBase != NULL) {
+		CloseLibrary((struct Library *) CyberGfxBase);
+	}
+
+	if (GfxBase != NULL) {
+		CloseLibrary((struct Library *) GfxBase);
+	}
+
+	return rc;
+}
+
+extern gs_bool gs_CloseScreen() {
+
+	TeardownScreenAndWindow();
+
+	if (CyberGfxBase != NULL) {
+		CloseLibrary((struct Library *) CyberGfxBase);
+	}
+
+	if (GfxBase != NULL) {
+		CloseLibrary((struct Library *) GfxBase);
+	}
+
+	return GS_TRUE;
 }
 

@@ -30,16 +30,14 @@
 
 int __nocommandline = 1;
 int __initlibraries = 0;
-extern char  *__commandline;
+extern char * __commandline;
 struct DosLibrary* DOSBase = NULL;
 struct IntuitionBase* IntuitionBase = NULL;
-struct GfxBase* GfxBase = NULL;
-struct Library* CyberGfxBase = NULL;
 extern struct WBStartup* _WBenchMsg;
 
 static ULONG string_to_int(STRPTR str);
 // main.c
-extern int gs_main(int param);
+extern int gs_Main(int param);
 
 int main(void) {
 
@@ -49,7 +47,7 @@ int main(void) {
 		return RETURN_FAIL;
 	}
 
-	struct Task*thisTask = FindTask(NULL);
+	struct Task* thisTask = FindTask(NULL);
 	ULONG currentStack=(ULONG) thisTask->tc_SPUpper-(ULONG)thisTask->tc_SPLower;
 
 	if (currentStack < MIN_STACK_SIZE) {
@@ -81,18 +79,6 @@ int main(void) {
 		return RETURN_FAIL;
 	}
 
-	if ((GfxBase = (struct GfxBase*)OpenLibrary("graphics.library", 33)) == NULL) {
-		CloseLibrary((struct Library*)IntuitionBase);
-		CloseLibrary((struct Library*)DOSBase);
-		return RETURN_FAIL;
-	}
-
-	if ((CyberGfxBase  = (struct Library*)OpenLibrary("cybergraphics.library", 41)) == NULL) {
-		CloseLibrary((struct Library*)GfxBase);
-		CloseLibrary((struct Library*)IntuitionBase);
-		CloseLibrary((struct Library*)DOSBase);
-		return RETURN_FAIL;
-	}
 
 	param = 0;
 
@@ -100,7 +86,7 @@ int main(void) {
 		param = string_to_int(__commandline);
 	}
 
-	gs_main(param);
+	gs_Main(param);
 
 	if (_WBenchMsg) {
 		struct EasyStruct str;
@@ -116,8 +102,6 @@ int main(void) {
 		PutStr("Thanks for playing!\n");
 	}
 
-	CloseLibrary((struct Library*)CyberGfxBase);
-	CloseLibrary((struct Library*)GfxBase);
 	CloseLibrary((struct Library*)IntuitionBase);
 	CloseLibrary((struct Library*)DOSBase);
 

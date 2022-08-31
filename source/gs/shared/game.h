@@ -15,20 +15,13 @@
  *
  */
 
-#include "shared/forward.h"
+#ifndef GS_GAME_H
+#define GS_GAME_H
 
-// graphics.rtg.c
-extern gs_bool gs_OpenScreen();
+#define GS_WIDTH 640
+#define GS_HEIGHT 480
+#define GS_DEPTH 8
+#define GS_GAME_NAME "COMI"
+#define GS_GAME_TITLE "The Curse of Monkey Island"
 
-// graphics.rtg.c
-extern gs_bool gs_CloseScreen();
-
-int32 gs_Main(int32 param) {
-
-	if (gs_OpenScreen() == GS_FALSE)
-		return 0;
-
-
-	gs_CloseScreen();
-	return 0;
-}
+#endif
