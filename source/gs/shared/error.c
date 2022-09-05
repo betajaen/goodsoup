@@ -15,22 +15,45 @@
  *
  */
 
-#include "shared/forward.h"
+#include "shared/error.h"
 
-const char* gs_VersionString = __AMIGADATE__;
+// shared/error.c
+extern int gs_StartedFromCli;
 
-// graphics.rtg.c
-extern gs_bool gs_OpenScreen();
+void gs__error_fmt(const char* source, uint32 line, const char* function, uint16 category, const char* fmt, ...) {
 
-// graphics.rtg.c
-extern gs_bool gs_CloseScreen();
+	if (category == 0 && gs_StartedFromCli == 0) {
 
-int32 gs_Main(int32 param) {
+	}
+	else {
 
-	if (gs_OpenScreen() == GS_FALSE)
-		return 0;
+	}
+}
+
+void gs__error_str(const char* source, uint32 line, const char* function, uint16 category, const char* str) {
 
 
-	gs_CloseScreen();
-	return 0;
+	if (category == 0 && gs_StartedFromCli == 0) {
+
+	}
+	else {
+
+	}
+
+}
+
+void gs_print_fmt(const char* fmt, ...) {
+
+}
+
+void gs_print_str(const char* str) {
+
+}
+
+void gs_message_fmt(const char* fmt, ...) {
+
+}
+
+void gs_message_str(const char* str) {
+
 }

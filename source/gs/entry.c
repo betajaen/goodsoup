@@ -34,10 +34,12 @@ extern char * __commandline;
 struct DosLibrary* DOSBase = NULL;
 struct IntuitionBase* IntuitionBase = NULL;
 extern struct WBStartup* _WBenchMsg;
+int gs_StartedFromCli = 0;
 
 static ULONG string_to_int(STRPTR str);
 // main.c
 extern int gs_Main(int param);
+
 
 int main(void) {
 
@@ -84,6 +86,10 @@ int main(void) {
 
 	if (_WBenchMsg == NULL && __commandline != NULL) {
 		param = string_to_int(__commandline);
+		gs_StartedFromCli = TRUE;
+	}
+	else {
+		gs_StartedFromCli = FALSE;
 	}
 
 	gs_Main(param);

@@ -17,6 +17,7 @@
 
 #include "shared/forward.h"
 #include "shared/game.h"
+#include "shared/error.h"
 
 #include <proto/exec.h>
 #include <proto/dos.h>
@@ -53,7 +54,7 @@ static gs_bool InitializeScreenAndWindow() {
 	);
 
 	if (modeId == INVALID_ID) {
-		// TODO: Log Error Message
+		gs_error_fmt("Could not find CyberGfx mode for a %ldx%ldx%ld resolution.", GS_WIDTH, GS_HEIGHT, GS_DEPTH);
 		rc = FALSE;
 		goto exit_function;
 	}
@@ -77,7 +78,7 @@ static gs_bool InitializeScreenAndWindow() {
 	);
 
 	if (sScreen == NULL) {
-		// TODO: Log Error Message
+		gs_error_str("Could not open the screen.");
 		rc = FALSE;
 		goto exit_function;
 	}
@@ -89,6 +90,7 @@ static gs_bool InitializeScreenAndWindow() {
 	);
 
 	if (sScreenBuffer == NULL) {
+		gs_error_str("Could not allocate a screen buffer.");
 		// TODO: Log Error Message
 		rc = FALSE;
 		goto exit_function;
@@ -117,12 +119,12 @@ static gs_bool InitializeScreenAndWindow() {
 	);
 
 	if (sWindow == NULL) {
-		// TODO: Log Error Message
+		gs_error_str("Could not open a window.");
 		rc = FALSE;
 		goto exit_function;
 	}
 
-	Printf("Screen Opened\n");
+	gs_verbose_str("Screen opened.");
 
 	exit_function:
 

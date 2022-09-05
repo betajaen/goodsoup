@@ -1,11 +1,11 @@
 PLATFORM = amigaos3rtg
-
+DEBUG = 0
 include $(PLATFORM).make
 
-OBJ = entry.o main.o
+OBJ = entry.o shared/error.o main.o
 
 all: $(OBJ) $(POBJ)
-	$(CC) -o $(PROGRAM) $(OBJ) $(POBJ) $(CFLAGS)
+	$(CC) -o $(PROGRAM) $(OBJ) $(POBJ) $(CFLAGS) -DGS_DEBUG=$(DEBUG)
 
 %.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@
