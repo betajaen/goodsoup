@@ -15,6 +15,8 @@
  *
  */
 
+#define GS_FILE "rtg"
+
 #include "shared/forward.h"
 #include "shared/game.h"
 #include "shared/error.h"
@@ -49,7 +51,7 @@ static gs_bool InitializeScreenAndWindow() {
 	uint32 modeId = BestCModeIDTags(
 			CYBRBIDTG_NominalWidth, GS_WIDTH,
 			CYBRBIDTG_NominalHeight, GS_HEIGHT,
-			CYBRBIDTG_Depth, GS_DEPTH,
+			CYBRBIDTG_Depth,  GS_DEPTH,
 			TAG_DONE
 	);
 
@@ -91,7 +93,6 @@ static gs_bool InitializeScreenAndWindow() {
 
 	if (sScreenBuffer == NULL) {
 		gs_error_str("Could not allocate a screen buffer.");
-		// TODO: Log Error Message
 		rc = FALSE;
 		goto exit_function;
 	}
@@ -156,6 +157,8 @@ static void TeardownScreenAndWindow() {
 		CloseScreen(sScreen);
 		sScreen = NULL;
 	}
+
+	gs_verbose_str("Screen closed.");
 }
 
 extern gs_bool gs_OpenScreen() {
@@ -203,6 +206,7 @@ extern gs_bool gs_CloseScreen() {
 	if (GfxBase != NULL) {
 		CloseLibrary((struct Library *) GfxBase);
 	}
+
 
 	return GS_TRUE;
 }

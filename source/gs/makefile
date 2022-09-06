@@ -5,7 +5,7 @@ include $(PLATFORM).make
 OBJ = entry.o shared/error.o shared/string.o main.o
 
 all: $(OBJ) $(POBJ)
-	$(CC) -o $(PROGRAM) $(OBJ) $(POBJ) $(CFLAGS) -DGS_DEBUG=$(DEBUG)
+	$(CC) -o $(PROGRAM) $(OBJ) $(POBJ) $(CFLAGS)
 
 %.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@

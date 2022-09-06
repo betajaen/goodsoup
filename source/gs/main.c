@@ -15,9 +15,12 @@
  *
  */
 
-#include "shared/forward.h"
+#define GS_FILE "main"
 
-const char* gs_VersionString = __AMIGADATE__;
+#include "shared/forward.h"
+#include "shared/error.h"
+
+const char* gs_VersionString = "$VER: goodsoup 0.6 (" __AMIGADATE__ ")";
 
 // graphics.rtg.c
 extern gs_bool gs_OpenScreen();
@@ -26,6 +29,8 @@ extern gs_bool gs_OpenScreen();
 extern gs_bool gs_CloseScreen();
 
 int32 gs_Main(int32 param) {
+
+	gs_debug_fmt("%s",&gs_VersionString[6]);
 
 	if (gs_OpenScreen() == GS_FALSE)
 		return 0;

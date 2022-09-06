@@ -15,6 +15,8 @@
  *
  */
 
+#define GS_FILE "string"
+
 #include "shared/error.h"
 // shared/error.c
 extern int gs_StartedFromCli;
@@ -39,13 +41,18 @@ uint32 gs_format(char* buf, uint32 bufLength, const char* fmt, ...) {
 
 #if defined(GS_AMIGA)
 	uint32 length = 0;
-	const char* args = (const char*)(&fmt + 1);
-	RawDoFmt((CONST_STRPTR)fmt, (APTR)args, (PUTCHARPROC)&LenChar, &length);
+	VA_LIST args;
+	VA_START(args, fmt);
+	RawDoFmt((CONST_STRPTR)fmt, VA_ARG(args, void*), (PUTCHARPROC)&LenChar, &length);
 	if (length >= bufLength) {
+		PutStr("Big length");
 		return 0;
 	}
 
-	RawDoFmt((CONST_STRPTR)fmt, (APTR)args, (PUTCHARPROC)&PutChar, buf);
+	RawDoFmt((CONST_STRPTR)fmt, VA_ARG(args, void*), (PUTCHARPROC)&PutChar, buf);
+	buf[length] = 0;
+
+	VA_END(args);
 
 	return length;
 #endif
@@ -61,11 +68,14 @@ uint32 gs_format_vargs(char* buf, uint32 bufLength, const char* fmt, void* args)
 #if defined(GS_AMIGA)
 	uint32 length = 0;
 	RawDoFmt((CONST_STRPTR)fmt, (APTR)args, (PUTCHARPROC)&LenChar, &length);
+
 	if (length >= bufLength) {
+		PutStr("Big length2");
 		return 0;
 	}
 
 	RawDoFmt((CONST_STRPTR)fmt, (APTR)args, (PUTCHARPROC)&PutChar, buf);
+	buf[length] = 0;
 
 	return length;
 #endif
@@ -80,8 +90,10 @@ uint32 gs_format_length(const char* fmt, ...) {
 
 #if defined(GS_AMIGA)
 	uint32 length = 0;
-	const char* args = (const char*)(&fmt + 1);
-	RawDoFmt((CONST_STRPTR)fmt, (APTR)args, (PUTCHARPROC)&LenChar, &length);
+	VA_LIST args;
+	VA_START(args, fmt);
+	RawDoFmt((CONST_STRPTR)fmt, VA_ARG(args, void*), (PUTCHARPROC)&LenChar, &length);
+	VA_END(args);
 	return length;
 #endif
 

@@ -15,6 +15,8 @@
  *
  */
 
+#define GS_FILE "entry"
+
 #if defined(GS_AMIGA)
 
 #include <proto/exec.h>

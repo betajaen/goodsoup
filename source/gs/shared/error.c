@@ -15,9 +15,12 @@
  *
  */
 
+#define GS_FILE "error"
+
 #include "shared/string.h"
 #if defined(GS_AMIGA)
 #include <proto/dos.h>
+#include "shared/sdi/SDI_stdarg.h"
 #endif
 
 // shared/error.h
@@ -26,16 +29,22 @@ void gs_message_str(const char* str);
 // shared/error.c
 extern int gs_StartedFromCli;
 
-static const char kCategoryCodes[] = { 'E', 'W', 'I', 'D', 'V' };
+static const char* kCategoryCodes[] = { "E", "W", "I", "D", "V" };
 static char tempFmtBuffer[1024];
+static char tempFmtBuffer2[128];
+static const char* kPadding = "................................................................................";
 
 void gs__error_fmt(const char* source, uint32 line, const char* function, uint16 category, const char* fmt, ...) {
 
-	void* args = (void*) ((const char*) fmt + 1);
 
 	if (category == 0 && gs_StartedFromCli == FALSE) {
-		gs_format_vargs(tempFmtBuffer, sizeof(tempFmtBuffer), fmt, args);
+#if defined(GS_AMIGA)
+		VA_LIST args;
+		VA_START(args, fmt);
+		gs_format_vargs(tempFmtBuffer, sizeof(tempFmtBuffer), fmt, VA_ARG(args, void *));
 		gs_message_str(&tempFmtBuffer[0]);
+		VA_END(args);
+#endif
 		return;
 	}
 
@@ -43,17 +52,21 @@ void gs__error_fmt(const char* source, uint32 line, const char* function, uint16
 		category == 4;
 	}
 
-	gs_format(tempFmtBuffer, sizeof(tempFmtBuffer), "%c\t%-10s\t%-10s\t%ld\t", kCategoryCodes[category], source, line, function);
-
 #if defined(GS_AMIGA)
-	PutStr((CONST_STRPTR) &tempFmtBuffer[0]);
-#endif
-
-	gs_format_vargs(tempFmtBuffer, sizeof(tempFmtBuffer), fmt, args);
-
-#if defined(GS_AMIGA)
+	VA_LIST args;
+	VA_START(args, fmt);
+	uint32 l = gs_format(tempFmtBuffer, sizeof(tempFmtBuffer2), "%s %.8s/%-.18s:%ld", kCategoryCodes[category], source, function, line);
+	if (l > 0 && l < 30) {
+		for(uint32 i=l-1; i < 30;i++) {
+			tempFmtBuffer[i] = ' ';
+		}
+		tempFmtBuffer[30] = 0;
+	}
+	PutStr((CONST_STRPTR) tempFmtBuffer);
+	gs_format_vargs(tempFmtBuffer, sizeof(tempFmtBuffer), fmt, VA_ARG(args, void *));
 	PutStr((CONST_STRPTR) &tempFmtBuffer[0]);
 	PutStr("\n");
+	VA_END(args);
 #endif
 
 }
@@ -69,13 +82,15 @@ void gs__error_str(const char* source, uint32 line, const char* function, uint16
 		category == 4;
 	}
 
-	gs_format(tempFmtBuffer, sizeof(tempFmtBuffer), "%c\t%-10s\t%-10s\t%ld\t", kCategoryCodes[category], source, line, function);
-
 #if defined(GS_AMIGA)
+	uint32 l = gs_format(tempFmtBuffer, sizeof(tempFmtBuffer2), "%s %.8s/%-.18s:%ld", kCategoryCodes[category], source, function, line);
+	if (l > 0 && l < 30) {
+		for(uint32 i=l-1; i < 30;i++) {
+			tempFmtBuffer[i] = ' ';
+		}
+		tempFmtBuffer[30] = 0;
+	}
 	PutStr((CONST_STRPTR) &tempFmtBuffer[0]);
-#endif
-
-#if defined(GS_AMIGA)
 	PutStr((CONST_STRPTR) str);
 	PutStr("\n");
 #endif
@@ -83,9 +98,12 @@ void gs__error_str(const char* source, uint32 line, const char* function, uint16
 }
 
 void gs_print_fmt(const char* fmt, ...) {
-	void* args = (void*) ((const char*) fmt + 1);
-	gs_format_vargs(tempFmtBuffer, sizeof(tempFmtBuffer), fmt, args);
 #if defined(GS_AMIGA)
+	VA_LIST args;
+	VA_START(args, fmt);
+	gs_format_vargs(&tempFmtBuffer[0], sizeof(tempFmtBuffer), fmt, VA_ARG(args, void *));
+	VA_END(args);
+
 	PutStr((CONST_STRPTR) &tempFmtBuffer[0]);
 #endif
 }
@@ -97,7 +115,10 @@ void gs_print_str(const char* str) {
 }
 
 void gs_message_fmt(const char* fmt, ...) {
-
+	VA_LIST args;
+	VA_START(args, fmt);
+	// @TODO
+	VA_END(args);
 }
 
 void gs_message_str(const char* str) {

@@ -27,45 +27,49 @@ void gs_print_str(const char* str);
 void gs_message_fmt(const char* fmt, ...);
 void gs_message_str(const char* str);
 
-#ifndef GS_DEBUG
+#ifndef GS_FILE
+#define GS_FILE __FILE__
+#endif
+
+#if !defined(GS_DEBUG)
 #define GS_DEBUG 1
 #endif
 
 #if GS_DEBUG >= 4
-#define gs_verbose_fmt(FMT, ...) gs__error_fmt(__FILE__, __LINE__, __FUNCTION__, 4, FMT, __VA_ARGS__)
-#define gs_verbose_str(STR)      gs__error_str(__FILE__, __LINE__, __FUNCTION__, 4, STR)
+#define gs_verbose_fmt(FMT, ...) gs__error_fmt(GS_FILE, __LINE__, __FUNCTION__, 4, FMT, __VA_ARGS__)
+#define gs_verbose_str(STR)      gs__error_str(GS_FILE, __LINE__, __FUNCTION__, 4, STR)
 #else
 #define gs_verbose_fmt(FMT, ...)
 #define gs_verbose_str(STR)
 #endif
 
 #if GS_DEBUG >= 3
-#define gs_debug_fmt(FMT, ...) gs__error_fmt(__FILE__, __LINE__, __FUNCTION__, 3, FMT, __VA_ARGS__)
-#define gs_debug_str(STR)      gs__error_str(__FILE__, __LINE__, __FUNCTION__, 3, STR)
+#define gs_debug_fmt(FMT, ...) gs__error_fmt(GS_FILE, __LINE__, __FUNCTION__, 3, FMT, __VA_ARGS__)
+#define gs_debug_str(STR)      gs__error_str(GS_FILE, __LINE__, __FUNCTION__, 3, STR)
 #else
 #define gs_debug_fmt(FMT, ...)
 #define gs_debug_str(STR)
 #endif
 
 #if GS_DEBUG >= 2
-#define gs_info_fmt(FMT, ...) gs__error_fmt(__FILE__, __LINE__, __FUNCTION__, 2, FMT, __VA_ARGS__)
-#define gs_info_str(STR)      gs__error_str(__FILE__, __LINE__, __FUNCTION__, 2, STR)
+#define gs_info_fmt(FMT, ...) gs__error_fmt(GS_FILE, __LINE__, __FUNCTION__, 2, FMT, __VA_ARGS__)
+#define gs_info_str(STR)      gs__error_str(GS_FILE, __LINE__, __FUNCTION__, 2, STR)
 #else
 #define gs_info_fmt(FMT, ...)
 #define gs_info_str(STR)
 #endif
 
 #if GS_DEBUG >= 1
-#define gs_warn_fmt(FMT, ...) gs__error_fmt(__FILE__, __LINE__, __FUNCTION__, 1, FMT, __VA_ARGS__)
-#define gs_warn_str(STR)      gs__error_str(__FILE__, __LINE__, __FUNCTION__, 1, STR)
+#define gs_warn_fmt(FMT, ...) gs__error_fmt(GS_FILE, __LINE__, __FUNCTION__, 1, FMT, __VA_ARGS__)
+#define gs_warn_str(STR)      gs__error_str(GS_FILE, __LINE__, __FUNCTION__, 1, STR)
 #else
 #define gs_warn_fmt(FMT, ...)
 #define gs_warn_str(STR)
 #endif
 
 #if GS_DEBUG >= 0
-#define gs_error_fmt(FMT, ...) gs__error_fmt(__FILE__, __LINE__, __FUNCTION__, 0, FMT, __VA_ARGS__)
-#define gs_error_str(STR)      gs__error_str(__FILE__, __LINE__, __FUNCTION__, 0, STR)
+#define gs_error_fmt(FMT, ...) gs__error_fmt(GS_FILE, __LINE__, __FUNCTION__, 0, FMT, __VA_ARGS__)
+#define gs_error_str(STR)      gs__error_str(GS_FILE, __LINE__, __FUNCTION__, 0, STR)
 #else
 #define gs_error_fmt(FMT, ...)
 #define gs_error_str(STR)
