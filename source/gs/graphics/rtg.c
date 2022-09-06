@@ -31,10 +31,10 @@
 struct GfxBase* GfxBase = NULL;
 struct Library* CyberGfxBase = NULL;
 
-static struct Screen* sScreen = NULL;
-static struct ScreenBuffer* sScreenBuffer = NULL;
-static struct Window* sWindow = NULL;
-static struct RastPort sRastPort;
+struct Screen* gs_Screen = NULL;
+struct ScreenBuffer* gs_ScreenBuffer = NULL;
+struct Window* gs_Window = NULL;
+struct RastPort gs_RastPort;
 static struct TextAttr sDefaultFont =
 {
 		(STRPTR) "topaz.font", 		/* Name */
@@ -42,7 +42,7 @@ static struct TextAttr sDefaultFont =
 		FS_NORMAL,			/* Style */
 		FPF_ROMFONT | FPF_DESIGNED,	/* Flags */
 };
-static ULONG sPalette[2 + (256 * 3)] = { 0 };
+uint32 gs_PaletteMem[2 + (256 * 3)] = { 0 };
 
 static gs_bool InitializeScreenAndWindow() {
 
@@ -57,11 +57,10 @@ static gs_bool InitializeScreenAndWindow() {
 
 	if (modeId == INVALID_ID) {
 		gs_error_fmt("Could not find CyberGfx mode for a %ldx%ldx%ld resolution.", GS_WIDTH, GS_HEIGHT, GS_DEPTH);
-		rc = FALSE;
-		goto exit_function;
+		return FALSE;
 	}
 
-	sScreen = OpenScreenTags(NULL,
+	gs_Screen = OpenScreenTags(NULL,
 							 SA_DisplayID, modeId,
 							 SA_Left, 0,
 							 SA_Top, 0,
@@ -79,35 +78,33 @@ static gs_bool InitializeScreenAndWindow() {
 							 TAG_DONE
 	);
 
-	if (sScreen == NULL) {
+	if (gs_Screen == NULL) {
 		gs_error_str("Could not open the screen.");
-		rc = FALSE;
-		goto exit_function;
+		return FALSE;
 	}
 
-	sScreenBuffer = AllocScreenBuffer(
-			sScreen,
+	gs_ScreenBuffer = AllocScreenBuffer(
+			gs_Screen,
 			NULL,
 			SB_SCREEN_BITMAP
 	);
 
-	if (sScreenBuffer == NULL) {
+	if (gs_ScreenBuffer == NULL) {
 		gs_error_str("Could not allocate a screen buffer.");
-		rc = FALSE;
-		goto exit_function;
+		return FALSE;
 	}
 
-	LoadRGB32(&sScreen->ViewPort, &sPalette[0]);
+	LoadRGB32(&gs_Screen->ViewPort, &gs_PaletteMem[0]);
 
-	InitRastPort(&sRastPort);
-	sRastPort.BitMap = sScreenBuffer->sb_BitMap;
+	InitRastPort(&gs_RastPort);
+	gs_RastPort.BitMap = gs_ScreenBuffer->sb_BitMap;
 
-	sWindow = OpenWindowTags(NULL,
+	gs_Window = OpenWindowTags(NULL,
 							 WA_Left, 0,
 							 WA_Top, 0,
 							 WA_Width, GS_WIDTH,
 							 WA_Height, GS_HEIGHT,
-							 WA_CustomScreen, (ULONG)sScreen,
+							 WA_CustomScreen, (ULONG)gs_Screen,
 							 WA_Backdrop, TRUE,
 							 WA_Borderless, TRUE,
 							 WA_DragBar, FALSE,
@@ -119,43 +116,35 @@ static gs_bool InitializeScreenAndWindow() {
 							 TAG_END
 	);
 
-	if (sWindow == NULL) {
+	if (gs_Window == NULL) {
 		gs_error_str("Could not open a window.");
-		rc = FALSE;
-		goto exit_function;
+		return FALSE;
 	}
 
 	gs_verbose_str("Screen opened.");
 
-	exit_function:
+	return TRUE;
 
-	if (sWindow)
-	{
-		CloseWindow(sWindow);
-		sWindow = NULL;
-	}
-
-	if (sScreenBuffer && sScreen)
-	{
-		FreeScreenBuffer(sScreen, sScreenBuffer);
-		sScreenBuffer = NULL;
-	}
-
-	if (sScreen)
-	{
-		CloseScreen(sScreen);
-		sScreen = NULL;
-	}
-
-	return rc;
 }
 
 static void TeardownScreenAndWindow() {
 
-	if (sScreen)
+	if (gs_Window)
 	{
-		CloseScreen(sScreen);
-		sScreen = NULL;
+		CloseWindow(gs_Window);
+		gs_Window = NULL;
+	}
+
+	if (gs_ScreenBuffer && gs_Screen)
+	{
+		FreeScreenBuffer(gs_Screen, gs_ScreenBuffer);
+		gs_ScreenBuffer = NULL;
+	}
+
+	if (gs_Screen)
+	{
+		CloseScreen(gs_Screen);
+		gs_Screen = NULL;
 	}
 
 	gs_verbose_str("Screen closed.");

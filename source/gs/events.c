@@ -15,31 +15,27 @@
  *
  */
 
-#define GS_FILE "main"
+#define GS_FILE "events"
 
 #include "shared/forward.h"
 #include "shared/error.h"
 
-const char* gs_VersionString = "$VER: goodsoup 0.6 (" __AMIGADATE__ ")";
+#if defined(GS_AMIGA)
 
-// graphics/rtg.c
-extern gs_bool gs_OpenScreen();
+#include <proto/exec.h>
+#include <proto/dos.h>
+#include <proto/intuition.h>
 
-// graphics/rtg.c
-extern gs_bool gs_CloseScreen();
+extern struct Screen* gs_Screen;
+extern struct ScreenBuffer* gs_ScreenBuffer;
+extern struct Window* gs_Window;
+extern struct RastPort gs_RastPort;
 
-// events.c
-extern void gs_Listen();
+void gs_Listen() {
 
-int32 gs_Main(int32 param) {
+	gs_debug_str("Starting to listen.");
 
-	gs_debug_fmt("%s",&gs_VersionString[6]);
-
-	if (gs_OpenScreen() == GS_FALSE)
-		return 0;
-
-	gs_Listen();
-
-	gs_CloseScreen();
-	return 0;
+	Delay(100);
 }
+
+#endif
