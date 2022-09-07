@@ -45,7 +45,6 @@ uint32 gs_format(char* buf, uint32 bufLength, const char* fmt, ...) {
 	VA_START(args, fmt);
 	RawDoFmt((CONST_STRPTR)fmt, VA_ARG(args, void*), (PUTCHARPROC)&LenChar, &length);
 	if (length >= bufLength) {
-		PutStr("Big length");
 		return 0;
 	}
 
@@ -70,7 +69,6 @@ uint32 gs_format_vargs(char* buf, uint32 bufLength, const char* fmt, void* args)
 	RawDoFmt((CONST_STRPTR)fmt, (APTR)args, (PUTCHARPROC)&LenChar, &length);
 
 	if (length >= bufLength) {
-		PutStr("Big length2");
 		return 0;
 	}
 
