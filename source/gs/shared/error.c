@@ -31,8 +31,16 @@ extern int gs_StartedFromCli;
 
 static const char* kCategoryCodes[] = { "E", "W", "I", "D", "V" };
 static char tempFmtBuffer[1024];
-static char tempFmtBuffer2[128];
-static const char* kPadding = "................................................................................";
+static const char* kPadding = "\40\40\40\40\40\40\40\40\40\40\40\40\40\40\40\40\40\40\40\40\40\40\40\40\40\40\40\40\40\40\40\40\40\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0";
+
+static void WriteHeader(const char* source, uint32 line, const char* function, uint16 category) {
+	uint32 l = gs_format(tempFmtBuffer, sizeof(tempFmtBuffer), "%s %.8s/%-.18s:%ld", kCategoryCodes[category], source, function, line);
+	PutStr((CONST_STRPTR) tempFmtBuffer);
+	int32 padding = 32 - l;
+	if (padding > 0) {
+		PutStr(&kPadding[l]);
+	}
+}
 
 void gs__error_fmt(const char* source, uint32 line, const char* function, uint16 category, const char* fmt, ...) {
 
@@ -55,17 +63,12 @@ void gs__error_fmt(const char* source, uint32 line, const char* function, uint16
 #if defined(GS_AMIGA)
 	VA_LIST args;
 	VA_START(args, fmt);
-	uint32 l = gs_format(tempFmtBuffer, sizeof(tempFmtBuffer2), "%s %.8s/%-.18s:%ld", kCategoryCodes[category], source, function, line);
-	if (l > 0 && l < 30) {
-		for(uint32 i=l-1; i < 30;i++) {
-			tempFmtBuffer[i] = ' ';
-		}
-		tempFmtBuffer[30] = 0;
-	}
-	PutStr((CONST_STRPTR) tempFmtBuffer);
+	WriteHeader(source, line, function, category);
 	gs_format_vargs(tempFmtBuffer, sizeof(tempFmtBuffer), fmt, VA_ARG(args, void *));
 	PutStr((CONST_STRPTR) &tempFmtBuffer[0]);
 	PutStr("\n");
+
+
 	VA_END(args);
 #endif
 
@@ -83,14 +86,7 @@ void gs__error_str(const char* source, uint32 line, const char* function, uint16
 	}
 
 #if defined(GS_AMIGA)
-	uint32 l = gs_format(tempFmtBuffer, sizeof(tempFmtBuffer2), "%s %.8s/%-.18s:%ld", kCategoryCodes[category], source, function, line);
-	if (l > 0 && l < 30) {
-		for(uint32 i=l-1; i < 30;i++) {
-			tempFmtBuffer[i] = ' ';
-		}
-		tempFmtBuffer[30] = 0;
-	}
-	PutStr((CONST_STRPTR) &tempFmtBuffer[0]);
+	WriteHeader(source, line, function, category);
 	PutStr((CONST_STRPTR) str);
 	PutStr("\n");
 #endif
