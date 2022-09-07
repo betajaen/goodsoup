@@ -34,19 +34,23 @@
 
 
 struct Device* TimerBase;
-struct MsgPort* sTimerMsgPort;
-struct timerequest* sTimerRequest;
-uint32 sTimerBit;
+static struct MsgPort* sTimerMsgPort = NULL;
+static struct timerequest* sTimerRequest = NULL;
+static uint32 sTimerBit = 0;
 
 typedef struct TimerCallbackState {
 	struct TimerCallbackState *prev, *next;
 	uint32 time_usec;
-	gs_TimerCallback callback;
+	gs_callback callback;
 } TimerCallbackState;
 
-TimerCallbackState *sTimerFirst, *sTimerLast;
+static TimerCallbackState *sTimerFirst = NULL;
+static TimerCallbackState *sTimerLast = NULL;
 
 gs_bool gs_InitializeTimer() {
+
+		gs_debug_str("Initializing Timer.");
+
 		sTimerMsgPort = CreatePort(NULL, 0);
 		if (sTimerMsgPort == NULL) {
 			gs_error_str("Could not open timer message port.");
@@ -71,11 +75,16 @@ gs_bool gs_InitializeTimer() {
 			return FALSE;
 		}
 
+		gs_debug_str("Initialized Timer.");
+
 		return TRUE;
 }
 
 void gs_TeardownTimer() {
-	if (sTimerRequest != NULL) {
+
+	gs_debug_str("Tearing down Timer.");
+
+	if (sTimerRequest != NULL && sTimerBit != 0) {
 
 		AbortIO((struct IORequest*) sTimerRequest);
 		WaitIO((struct IORequest*) sTimerRequest);
@@ -89,6 +98,8 @@ void gs_TeardownTimer() {
 		DeletePort(sTimerMsgPort);
 		sTimerMsgPort = NULL;
 	}
+
+	gs_debug_str("Teared down Timer.");
 }
 
 #endif

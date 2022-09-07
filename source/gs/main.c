@@ -28,18 +28,28 @@ extern gs_bool gs_OpenScreen();
 // graphics/rtg.c
 extern gs_bool gs_CloseScreen();
 
-// events.c
-extern void gs_Listen();
+// events/timer.c
+extern gs_bool gs_InitializeTimer();
+
+// events/timer.c
+extern void gs_TeardownTimer();
 
 int32 gs_Main(int32 param) {
 
 	gs_debug_fmt("%s",&gs_VersionString[6]);
 
-	if (gs_OpenScreen() == GS_FALSE)
-		return 0;
+	if (gs_OpenScreen() == GS_FALSE) {
+		goto exit;
+	}
 
-	gs_Listen();
+	if (gs_InitializeTimer() == GS_FALSE) {
+		goto exit;
+	}
 
+
+
+	exit:
+	gs_TeardownTimer();
 	gs_CloseScreen();
 	return 0;
 }
