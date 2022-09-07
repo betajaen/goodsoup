@@ -15,11 +15,12 @@
  *
  */
 
-#define GS_FILE "events"
+#define GS_FILE "timer"
+
+#if defined(GS_AMIGA)
 
 #include "shared/forward.h"
 #include "shared/error.h"
-#include "events.h"
 
 #include <proto/exec.h>
 #include <proto/dos.h>
@@ -31,22 +32,6 @@
 #include <clib/exec_protos.h>
 #include <clib/alib_protos.h>
 
-// --- Intution Events ---
-
-extern struct Screen* gs_Screen;
-extern struct ScreenBuffer* gs_ScreenBuffer;
-extern struct Window* gs_Window;
-extern struct RastPort gs_RastPort;
-
-static void InitializeWindowEvents() {
-	// @TODO
-}
-
-static void TeardownWindowEvents() {
-	// @TODO
-}
-
-// --- Timer Events ---
 
 struct Device* TimerBase;
 struct MsgPort* sTimerMsgPort;
@@ -61,8 +46,7 @@ typedef struct TimerCallbackState {
 
 TimerCallbackState *sTimerFirst, *sTimerLast;
 
-
-static gs_bool InitializeTimerEvents() {
+gs_bool gs_InitializeTimer() {
 		sTimerMsgPort = CreatePort(NULL, 0);
 		if (sTimerMsgPort == NULL) {
 			gs_error_str("Could not open timer message port.");
@@ -90,7 +74,7 @@ static gs_bool InitializeTimerEvents() {
 		return TRUE;
 }
 
-static void TeardownTimerEvents() {
+void gs_TeardownTimer() {
 	if (sTimerRequest != NULL) {
 
 		AbortIO((struct IORequest*) sTimerRequest);
@@ -107,14 +91,4 @@ static void TeardownTimerEvents() {
 	}
 }
 
-
-// --- General Signal/Wait Loop ---
-
-void gs_Listen() {
-	InitializeTimerEvents();
-
-	gs_debug_str("Starting to listen.");
-
-	Delay(100);
-	TeardownTimerEvents();
-}
+#endif
