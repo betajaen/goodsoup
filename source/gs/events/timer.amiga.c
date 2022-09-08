@@ -17,7 +17,9 @@
 
 #define GS_FILE "timer"
 
-#if defined(GS_AMIGA)
+#ifndef GS_AMIGA
+#error "GS_AMIGA must be defined to compile this file."
+#endif
 
 #include "shared/forward.h"
 #include "shared/error.h"
@@ -101,5 +103,3 @@ void gs_TeardownTimer() {
 
 	gs_debug_str("Teared down Timer.");
 }
-
-#endif

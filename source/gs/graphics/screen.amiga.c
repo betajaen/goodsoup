@@ -17,6 +17,10 @@
 
 #define GS_FILE "rtg"
 
+#ifndef GS_AMIGA
+#error "GS_AMIGA must be defined to compile this file."
+#endif
+
 #include "shared/forward.h"
 #include "shared/game.h"
 #include "shared/error.h"

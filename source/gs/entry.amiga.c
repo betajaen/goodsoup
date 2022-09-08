@@ -17,7 +17,9 @@
 
 #define GS_FILE "entry"
 
-#if defined(GS_AMIGA)
+#ifndef GS_AMIGA
+#error "GS_AMIGA must be defined to compile this file."
+#endif
 
 #include <proto/exec.h>
 #include <proto/dos.h>
@@ -131,4 +133,3 @@ static ULONG string_to_int(STRPTR str) {
 	return num;
 }
 
-#endif
