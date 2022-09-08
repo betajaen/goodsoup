@@ -20,7 +20,9 @@
 #include "shared/forward.h"
 #include "shared/error.h"
 
-const char* gs_VersionString = "$VER: goodsoup 0.6 (" __AMIGADATE__ ")";
+#define VERSION_NUM "0.6"
+
+const char* gs_VersionString = "$VER: goodsoup " VERSION_NUM " " GS_ARCH_NAME " (" __AMIGADATE__ ")";
 
 // graphics/rtg.c
 extern gs_bool gs_OpenScreen();
@@ -36,7 +38,7 @@ extern void gs_TeardownTimer();
 
 int32 gs_Main(int32 param) {
 
-	gs_debug_fmt("%s",&gs_VersionString[6]);
+	gs_debug_str(&gs_VersionString[6]);
 
 	if (gs_OpenScreen() == GS_FALSE) {
 		goto exit;

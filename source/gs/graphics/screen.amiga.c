@@ -28,12 +28,43 @@
 #include <proto/exec.h>
 #include <proto/dos.h>
 #include <proto/intuition.h>
-#include <proto/cybergraphics.h>
 #include <proto/graphics.h>
-#include <cybergraphx/cybergraphics.h>
 
 struct GfxBase* GfxBase = NULL;
+
+#if defined(GS_RTG)
+
+#include <proto/cybergraphics.h>
+#include <cybergraphx/cybergraphics.h>
+
 struct Library* CyberGfxBase = NULL;
+
+static uint32 GetAmigaScreenModeId() {
+	return BestCModeIDTags(
+			CYBRBIDTG_NominalWidth, GS_WIDTH,
+			CYBRBIDTG_NominalHeight, GS_HEIGHT,
+			CYBRBIDTG_Depth,  GS_DEPTH,
+			TAG_DONE
+	);
+}
+
+#endif
+
+
+#if defined(GS_AGA)
+
+static uint32 GetAmigaScreenModeId() {
+	return BestModeID(BIDTAG_NominalWidth, GS_WIDTH,
+				BIDTAG_NominalHeight, GS_HEIGHT,
+				BIDTAG_DesiredWidth, GS_WIDTH,
+				BIDTAG_DesiredHeight, GS_HEIGHT,
+				BIDTAG_Depth, GS_DEPTH,
+				BIDTAG_MonitorID, PAL_MONITOR_ID,
+				TAG_END);
+}
+
+#endif
+
 
 struct Screen* gs_Screen = NULL;
 struct ScreenBuffer* gs_ScreenBuffer = NULL;
@@ -52,15 +83,10 @@ static gs_bool InitializeScreenAndWindow() {
 
 	gs_bool rc = TRUE;
 
-	uint32 modeId = BestCModeIDTags(
-			CYBRBIDTG_NominalWidth, GS_WIDTH,
-			CYBRBIDTG_NominalHeight, GS_HEIGHT,
-			CYBRBIDTG_Depth,  GS_DEPTH,
-			TAG_DONE
-	);
+	uint32 modeId = GetAmigaScreenModeId();
 
 	if (modeId == INVALID_ID) {
-		gs_error_fmt("Could not find CyberGfx mode for a %ldx%ldx%ld resolution.", GS_WIDTH, GS_HEIGHT, GS_DEPTH);
+		gs_error_fmt("Could not find graphics mode for a %ldx%ldx%ld resolution.", GS_WIDTH, GS_HEIGHT, GS_DEPTH);
 		return FALSE;
 	}
 
@@ -163,10 +189,12 @@ extern gs_bool gs_OpenScreen() {
 		goto exit_function;
 	}
 
+#if defined(GS_RTG)
 	if ((CyberGfxBase  = (struct Library*)OpenLibrary("cybergraphics.library", 41)) == NULL) {
 		rc = GS_FALSE;
 		goto exit_function;
 	}
+#endif
 
 	if (InitializeScreenAndWindow() == GS_FALSE) {
 		rc = GS_FALSE;
@@ -177,9 +205,11 @@ extern gs_bool gs_OpenScreen() {
 
 	exit_function:
 
+#if defined(GS_RTG)
 	if (CyberGfxBase != NULL) {
 		CloseLibrary((struct Library *) CyberGfxBase);
 	}
+#endif
 
 	if (GfxBase != NULL) {
 		CloseLibrary((struct Library *) GfxBase);
@@ -192,9 +222,11 @@ extern gs_bool gs_CloseScreen() {
 
 	TeardownScreenAndWindow();
 
+#if defined(GS_RTG)
 	if (CyberGfxBase != NULL) {
 		CloseLibrary((struct Library *) CyberGfxBase);
 	}
+#endif
 
 	if (GfxBase != NULL) {
 		CloseLibrary((struct Library *) GfxBase);
