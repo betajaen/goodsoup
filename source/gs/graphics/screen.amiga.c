@@ -78,6 +78,7 @@ static struct TextAttr sDefaultFont =
 		FPF_ROMFONT | FPF_DESIGNED,	/* Flags */
 };
 uint32 gs_PaletteMem[2 + (256 * 3)] = { 0 };
+static gs_bool sQuitLoopAlive = FALSE;
 
 static gs_bool InitializeScreenAndWindow() {
 
@@ -234,4 +235,48 @@ extern gs_bool gs_CloseScreen() {
 
 
 	return TRUE;
+}
+
+extern void gs_EnterScreenLoop() {
+
+	uint32 timerBit = 0; /* TODO: Get from Timer, via a private extern function */
+	uint32 windowBit = (1 << gs_Window->UserPort->mp_SigBit);
+	uint32 signalBits = windowBit | timerBit | SIGBREAKF_CTRL_C;
+	struct IntuiMessage* intMsg;
+
+	sQuitLoopAlive = TRUE;
+
+	while(sQuitLoopAlive) {
+		ULONG signal = Wait(signalBits);
+
+		if (signal & SIGBREAKF_CTRL_C) {
+			break;
+		}
+
+		if (signal & windowBit) {
+
+			while ((intMsg = (struct IntuiMessage *) GetMsg(gs_Window->UserPort)) != NULL) {
+
+				switch (intMsg->Class) {
+
+					/* TODO */
+
+				}
+
+				ReplyMsg((struct Message*) intMsg);
+			}
+
+		}
+
+		if (signal & timerBit) {
+			/* TODO: Timer */
+		}
+
+	}
+
+	sQuitLoopAlive = FALSE;
+}
+
+extern void gs_LeaveScreenLoop() {
+
 }

@@ -2,7 +2,7 @@ PLATFORM = amigaos3rtg
 DEBUG = 0
 include $(PLATFORM).make
 
-OBJ = shared/error.o shared/string.o main.o
+OBJ = shared/error.o shared/string.o main.o events/events.o
 
 all: $(OBJ) $(POBJ)
 	$(CC) -o $(PROGRAM) $(OBJ) $(POBJ) $(CFLAGS)

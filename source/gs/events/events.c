@@ -15,46 +15,31 @@
  *
  */
 
-#define GS_FILE "main"
+#define GS_FILE "events"
 
 #include "shared/forward.h"
-#include "shared/error.h"
+#include "events/events.h"
 
-#define VERSION_NUM "0.6"
+typedef struct InputEventHandler {
+	struct InputEventHandler *prev, *next;
+	gs_InputEventHandler callback;
+} InputEventHandler;
 
-const char* gs_VersionString = "$VER: goodsoup " VERSION_NUM " " GS_ARCH_NAME " (" __AMIGADATE__ ")";
+typedef struct InputEventHandlers {
+	struct InputEventHandler *head, *tail;
+} InputEventHandlers;
 
-// graphics/screen.amiga.c
-extern gs_bool gs_OpenScreen();
+InputEventHandlers sInputEventHandlerStack = { NULL, NULL };
 
-// graphics/screen.amiga.c
-extern gs_bool gs_CloseScreen();
-
-// graphics/screen.amiga.c
-extern gs_bool gs_EnterScreenLoop();
-
-// events/timer.amiga.c
-extern gs_bool gs_InitializeTimer();
-
-// events/timer.amiga.c
-extern void gs_TeardownTimer();
-
-int32 gs_Main(int32 param) {
-
-	gs_debug_str(&gs_VersionString[6]);
-
-	if (gs_OpenScreen() == FALSE) {
-		goto exit;
-	}
-
-	if (gs_InitializeTimer() == FALSE) {
-		goto exit;
-	}
-
-	gs_EnterScreenLoop();
-
-	exit:
-	gs_TeardownTimer();
-	gs_CloseScreen();
-	return 0;
+void gs_HandleInputEvent(uint16 kind, int32 p0, int32 p1) {
+	/* TODO */
 }
+
+void gs_PushInputEventHandler(gs_InputEventHandler handler) {
+	/* TODO */
+}
+
+void gs_PopInputEventHandler() {
+	/* TODO */
+}
+

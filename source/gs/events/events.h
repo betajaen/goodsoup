@@ -15,46 +15,27 @@
  *
  */
 
-#define GS_FILE "main"
+#ifndef GS_EVENTS_H
+#define GS_EVENTS_H
 
 #include "shared/forward.h"
-#include "shared/error.h"
 
-#define VERSION_NUM "0.6"
+typedef enum gs_InputEventKind {
+	IEK_MouseMove,
+	IEK_MouseLeftButton,
+	IEK_MouseRightButton,
+	IEK_KeyPress,
+	IEK_KeyUp,
+	IEK_Quit,
+	IEK_Load,
+	IEK_Save,
+	IEK_Pause,
+} gs_InputEventKind;
 
-const char* gs_VersionString = "$VER: goodsoup " VERSION_NUM " " GS_ARCH_NAME " (" __AMIGADATE__ ")";
+typedef void(*gs_InputEventHandler)(uint16 kind, int32 p0, int32 p1);
 
-// graphics/screen.amiga.c
-extern gs_bool gs_OpenScreen();
+void gs_HandleInputEvent(uint16 kind, int32 p0, int32 p1);
+void gs_PushInputEventHandler(gs_InputEventHandler handler);
+void gs_PopInputEventHandler();
 
-// graphics/screen.amiga.c
-extern gs_bool gs_CloseScreen();
-
-// graphics/screen.amiga.c
-extern gs_bool gs_EnterScreenLoop();
-
-// events/timer.amiga.c
-extern gs_bool gs_InitializeTimer();
-
-// events/timer.amiga.c
-extern void gs_TeardownTimer();
-
-int32 gs_Main(int32 param) {
-
-	gs_debug_str(&gs_VersionString[6]);
-
-	if (gs_OpenScreen() == FALSE) {
-		goto exit;
-	}
-
-	if (gs_InitializeTimer() == FALSE) {
-		goto exit;
-	}
-
-	gs_EnterScreenLoop();
-
-	exit:
-	gs_TeardownTimer();
-	gs_CloseScreen();
-	return 0;
-}
+#endif
