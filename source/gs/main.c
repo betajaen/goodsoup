@@ -40,15 +40,13 @@ int32 gs_Main(int32 param) {
 
 	gs_debug_str(&gs_VersionString[6]);
 
-	if (gs_OpenScreen() == GS_FALSE) {
+	if (gs_OpenScreen() == FALSE) {
 		goto exit;
 	}
 
-	if (gs_InitializeTimer() == GS_FALSE) {
+	if (gs_InitializeTimer() == FALSE) {
 		goto exit;
 	}
-
-
 
 	exit:
 	gs_TeardownTimer();

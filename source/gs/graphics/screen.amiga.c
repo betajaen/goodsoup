@@ -185,19 +185,19 @@ extern gs_bool gs_OpenScreen() {
 	gs_bool rc = TRUE;
 
 	if ((GfxBase = (struct GfxBase*)OpenLibrary("graphics.library", 33)) == NULL) {
-		rc = GS_FALSE;
+		rc = FALSE;
 		goto exit_function;
 	}
 
 #if defined(GS_RTG)
 	if ((CyberGfxBase  = (struct Library*)OpenLibrary("cybergraphics.library", 41)) == NULL) {
-		rc = GS_FALSE;
+		rc = FALSE;
 		goto exit_function;
 	}
 #endif
 
-	if (InitializeScreenAndWindow() == GS_FALSE) {
-		rc = GS_FALSE;
+	if (InitializeScreenAndWindow() == FALSE) {
+		rc = FALSE;
 		goto exit_function;
 	}
 
@@ -233,6 +233,5 @@ extern gs_bool gs_CloseScreen() {
 	}
 
 
-	return GS_TRUE;
+	return TRUE;
 }
-

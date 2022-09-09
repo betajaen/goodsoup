@@ -50,8 +50,14 @@ typedef uint16	gs_bool;
 
 #endif
 
-#define GS_FALSE (0)
-#define GS_TRUE  (1)
+
+#ifndef FALSE
+#define FALSE 0
+#endif
+
+#ifndef TRUE
+#define TRUE  1
+#endif
 
 typedef int32(*gs_callback)(void* user, int32 param);
 
