@@ -30,7 +30,13 @@
 #include <proto/intuition.h>
 #include <proto/graphics.h>
 
-struct GfxBase* GfxBase = NULL;
+
+extern void gs_ClearPalette();
+extern void gs_ApplyPalette();
+extern void gs_SetPaletteColour(uint8 index, uint8 r, uint8 g, uint8 b);
+static void InitializeMenu();
+static void TeardownMenu();
+static void HandleMenuEvent(uint32 menuCode);
 
 #if defined(GS_RTG)
 
@@ -66,6 +72,9 @@ static uint32 GetAmigaScreenModeId() {
 #endif
 
 
+
+/// --- SCREENS  ---
+
 struct Screen* gs_Screen = NULL;
 struct ScreenBuffer* gs_ScreenBuffer = NULL;
 struct Window* gs_Window = NULL;
@@ -77,14 +86,20 @@ static struct TextAttr sDefaultFont =
 		FS_NORMAL,			/* Style */
 		FPF_ROMFONT | FPF_DESIGNED,	/* Flags */
 };
-uint32 gs_PaletteMem[2 + (256 * 3)] = { 0 };
+
+struct GfxBase* GfxBase = NULL;
 static gs_bool sQuitLoopAlive = FALSE;
 
+
 static gs_bool InitializeScreenAndWindow() {
+
+	gs_verbose_str("Opening Window");
 
 	gs_bool rc = TRUE;
 
 	uint32 modeId = GetAmigaScreenModeId();
+
+	gs_verbose_fmt("Mode ID is %lx", modeId);
 
 	if (modeId == INVALID_ID) {
 		gs_error_fmt("Could not find graphics mode for a %ldx%ldx%ld resolution.", GS_WIDTH, GS_HEIGHT, GS_DEPTH);
@@ -125,11 +140,19 @@ static gs_bool InitializeScreenAndWindow() {
 		return FALSE;
 	}
 
-	LoadRGB32(&gs_Screen->ViewPort, &gs_PaletteMem[0]);
+	gs_verbose_str("Clearing Palette");
+	gs_ClearPalette();
+	gs_SetPaletteColour(1, 0xFF, 0xFF, 0xFF);
+	gs_SetPaletteColour(2, 0xFF, 0, 0);
+	gs_SetPaletteColour(3, 0, 0xFF, 0);
+	gs_SetPaletteColour(17, 0xFF, 0xFF, 0xFF);
+	gs_verbose_str("Applying Palette");
+	gs_ApplyPalette();
 
 	InitRastPort(&gs_RastPort);
 	gs_RastPort.BitMap = gs_ScreenBuffer->sb_BitMap;
 
+	gs_debug_str("Opening Window");
 	gs_Window = OpenWindowTags(NULL,
 							 WA_Left, 0,
 							 WA_Top, 0,
@@ -190,17 +213,24 @@ extern gs_bool gs_OpenScreen() {
 		goto exit_function;
 	}
 
+	gs_debug_str("Opened graphics.library");
+
 #if defined(GS_RTG)
 	if ((CyberGfxBase  = (struct Library*)OpenLibrary("cybergraphics.library", 41)) == NULL) {
 		rc = FALSE;
 		goto exit_function;
 	}
+
+	gs_debug_str("Opened cybergraphics.library");
+
 #endif
 
 	if (InitializeScreenAndWindow() == FALSE) {
 		rc = FALSE;
 		goto exit_function;
 	}
+
+	gs_verbose_str("Opened Screen and Window");
 
 	return rc;
 
@@ -246,6 +276,8 @@ extern void gs_EnterScreenLoop() {
 
 	sQuitLoopAlive = TRUE;
 
+	InitializeMenu();
+
 	while(sQuitLoopAlive) {
 		ULONG signal = Wait(signalBits);
 
@@ -255,13 +287,18 @@ extern void gs_EnterScreenLoop() {
 
 		if (signal & windowBit) {
 
-			while ((intMsg = (struct IntuiMessage *) GetMsg(gs_Window->UserPort)) != NULL) {
+			while ((intMsg = (struct IntuiMessage *) GetMsg(gs_Window->UserPort))) {
 
-				switch (intMsg->Class) {
+				if (intMsg == NULL)
+					break;
 
-					/* TODO */
-
+				if (intMsg->Class == IDCMP_CLOSEWINDOW) {
+					sQuitLoopAlive = FALSE;
 				}
+				else if (intMsg->Class == IDCMP_MENUPICK) {
+					HandleMenuEvent(intMsg->Code);
+				}
+
 
 				ReplyMsg((struct Message*) intMsg);
 			}
@@ -274,9 +311,112 @@ extern void gs_EnterScreenLoop() {
 
 	}
 
+	TeardownMenu();
+
 	sQuitLoopAlive = FALSE;
 }
 
 extern void gs_LeaveScreenLoop() {
+	sQuitLoopAlive = FALSE;
+}
+
+/// --- PALETTE ---
+
+uint32 gs_PaletteMem[2 + (256 * 3)] = { 0 };
+uint16 gs_PaletteSize = 256;
+uint16 gs_PaletteDepth = 8;
+
+extern void gs_ClearPalette() {
+	const uint16 limit = gs_PaletteSize * 3;
+
+	ULONG* dst = &gs_PaletteMem[0];
+
+	*dst++ = gs_PaletteSize << 16 | 0;
+
+	for (uint16 i = 0; i < limit; i++) {
+		*dst++ = 0 | 0xFFFFFF;
+	}
+
+	*dst = 0;
+}
+
+extern void gs_ApplyPalette() {
+	LoadRGB32(&gs_Screen->ViewPort, &gs_PaletteMem[0]);
+}
+
+extern void gs_SetPaletteColour(uint8 index, uint8 r, uint8 g, uint8 b) {
+	const uint16 offset = (((uint16)index) * 3) + 1;
+	gs_PaletteMem[offset] = r << 24 | 0xFFFFFF;
+	gs_PaletteMem[offset+1] = r << 24 | 0xFFFFFF;
+	gs_PaletteMem[offset+2] = r << 24 | 0xFFFFFF;
+}
+
+/// --- MENUS ---
+
+#define GS_AMIGA_TEXT(NAME, STR)\
+	static struct IntuiText NAME = { 0, 1, JAM2, 4, 2, NULL, (UBYTE*) STR, NULL }
+#define GS_AMIGA_MENU_ITEM(NAME, TEXT, PREV, Y)\
+	static struct MenuItem NAME = { PREV, 0, Y, 48, 12, ITEMTEXT|ITEMENABLED|HIGHCOMP, 0, (APTR) TEXT, (APTR) TEXT, NULL, NULL, 0 }
+#define GS_AMIGA_MENU(NAME, TEXT, FIRST_CHILD)\
+	static struct Menu NAME = { NULL, 0, 0, 48, 12, MENUENABLED, (BYTE*) TEXT, FIRST_CHILD, 0, 0, 0, 0 }
+
+GS_AMIGA_TEXT(TEXT_Unpause, "Resume");
+GS_AMIGA_TEXT(TEXT_Quit, "Quit");
+GS_AMIGA_MENU_ITEM(MENUITEM_Unpause, &TEXT_Unpause, NULL, 0);
+GS_AMIGA_MENU_ITEM(MENUITEM_Quit, &TEXT_Quit, &MENUITEM_Unpause, 12);
+GS_AMIGA_MENU(MENU_Game, GS_GAME_NAME, &MENUITEM_Quit);
+
+static gs_bool sMenuActive = FALSE;
+
+static void InitializeMenu() {
+	if (sMenuActive == TRUE) {
+		return;
+	}
+
+	sMenuActive = TRUE;
+	SetMenuStrip (gs_Window, &MENU_Game);
+	ModifyIDCMP(gs_Window, IDCMP_IDCMPUPDATE | IDCMP_VANILLAKEY | IDCMP_MENUPICK);
+}
+
+static void TeardownMenu() {
+	if (sMenuActive == TRUE) {
+		return;
+	}
+
+	sMenuActive = FALSE;
+	ClearMenuStrip(gs_Window);
+	ModifyIDCMP(gs_Window, IDCMP_CLOSEWINDOW | IDCMP_VANILLAKEY | IDCMP_IDCMPUPDATE | IDCMP_MOUSEBUTTONS);
+}
+
+static void HandleMenuEvent(uint32 menuCode) {
+
+	if (sMenuActive == FALSE) {
+		return;
+	}
+
+	uint16 menuNum = MENUNUM(menuCode);
+	uint16 itemNum = ITEMNUM(menuCode);
+
+	switch(menuNum){
+
+		case 0:
+		{
+			switch(itemNum) {
+				// Pause
+				case 1: {
+					/* TODO */
+				}
+				break;
+				// Quit
+				case 0: {
+					gs_verbose_str("Requesting Quit from Menu");
+					gs_LeaveScreenLoop();
+				}
+				break;
+			}
+		}
+		break;
+
+	}
 
 }
