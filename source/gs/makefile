@@ -1,6 +1,8 @@
 PLATFORM = amigaos3rtg
 DEBUG = 0
-include $(PLATFORM).make
+PDIR = backends/$(PLATFORM)
+
+include $(PDIR)/makefile.inc
 
 OBJ = shared/error.o shared/string.o main.o events/events.o
 

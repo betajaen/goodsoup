@@ -51,35 +51,35 @@ static TimerCallbackState *sTimerLast = NULL;
 
 gs_bool gs_InitializeTimer() {
 
-		gs_debug_str("Initializing Timer.");
+	gs_debug_str("Initializing Timer.");
 
-		sTimerMsgPort = CreatePort(NULL, 0);
-		if (sTimerMsgPort == NULL) {
-			gs_error_str("Could not open timer message port.");
-			return FALSE;
-		}
+	sTimerMsgPort = CreatePort(NULL, 0);
+	if (sTimerMsgPort == NULL) {
+		gs_error_str("Could not open timer message port.");
+		return FALSE;
+	}
 
-		sTimerRequest = (struct timerequest*) CreateExtIO(sTimerMsgPort, sizeof(struct timerequest));
+	sTimerRequest = (struct timerequest*) CreateExtIO(sTimerMsgPort, sizeof(struct timerequest));
 
-		if (sTimerRequest == NULL) {
-			DeletePort(sTimerMsgPort);
-			sTimerMsgPort = NULL;
-			gs_error_str("Could not create timer request");
-			return FALSE;
-		}
+	if (sTimerRequest == NULL) {
+		DeletePort(sTimerMsgPort);
+		sTimerMsgPort = NULL;
+		gs_error_str("Could not create timer request");
+		return FALSE;
+	}
 
-		if (OpenDevice(TIMERNAME, UNIT_MICROHZ, (struct IORequest*)sTimerRequest, 0) != 0) {
-			DeleteExtIO((struct IORequest*) sTimerRequest);
-			sTimerRequest = NULL;
-			DeletePort(sTimerMsgPort);
-			sTimerMsgPort = NULL;
-			gs_error_str("Could not open timer device.");
-			return FALSE;
-		}
+	if (OpenDevice(TIMERNAME, UNIT_MICROHZ, (struct IORequest*)sTimerRequest, 0) != 0) {
+		DeleteExtIO((struct IORequest*) sTimerRequest);
+		sTimerRequest = NULL;
+		DeletePort(sTimerMsgPort);
+		sTimerMsgPort = NULL;
+		gs_error_str("Could not open timer device.");
+		return FALSE;
+	}
 
-		gs_debug_str("Initialized Timer.");
+	gs_debug_str("Initialized Timer.");
 
-		return TRUE;
+	return TRUE;
 }
 
 void gs_TeardownTimer() {
