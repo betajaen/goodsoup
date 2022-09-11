@@ -50,7 +50,7 @@ GS_PRIVATE uint32 sTimerBit = 0;
 GS_PRIVATE TimerCallbackState *sTimerFirst = NULL;
 GS_PRIVATE TimerCallbackState *sTimerLast = NULL;
 
-GS_IMPORT gs_bool gs_InitializeTimer() {
+GS_EXPORT gs_bool gs_InitializeTimer() {
 
 	gs_debug_str("Initializing Timer.");
 
@@ -83,7 +83,7 @@ GS_IMPORT gs_bool gs_InitializeTimer() {
 	return TRUE;
 }
 
-GS_IMPORT void gs_TeardownTimer() {
+GS_EXPORT void gs_TeardownTimer() {
 
 	gs_debug_str("Tearing down Timer.");
 
@@ -103,4 +103,12 @@ GS_IMPORT void gs_TeardownTimer() {
 	}
 
 	gs_debug_str("Teared down Timer.");
+}
+
+GS_EXPORT void gs_QueueTimer_usec(uint32 time_usec) {
+	/* TODO */
+}
+
+GS_EXPORT void gs_QueueTimer_msec(uint32 time_msec) {
+	gs_QueueTimer_usec(time_msec * 1000);
 }

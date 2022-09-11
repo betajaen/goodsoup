@@ -7,4 +7,6 @@ POBJ =  $(PDIR)/entry.o \
         $(PDIR)/screen.o \
         $(PDIR)/timer.o\
         $(PDIR)/loop.o\
-        $(PDIR)/menu.o
+        $(PDIR)/menu.o\
+        $(PDIR)/file.o\
+        $(PDIR)/memory.o
