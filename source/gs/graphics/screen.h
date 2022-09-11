@@ -20,12 +20,12 @@
 
 #include "shared/forward.h"
 
-gs_bool gs_OpenScreen();
+GS_IMPORT gs_bool gs_OpenScreen();
 
-gs_bool gs_CloseScreen();
+GS_IMPORT gs_bool gs_CloseScreen();
 
-void gs_EnterScreenLoop();
+GS_IMPORT void gs_EnterScreenLoop();
 
-void gs_ExitScreenLoop();
+GS_IMPORT void gs_ExitScreenLoop();
 
 #endif

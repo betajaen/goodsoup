@@ -18,8 +18,7 @@
 #define GS_FILE "string"
 
 #include "shared/error.h"
-// shared/error.c
-extern int gs_StartedFromCli;
+
 
 #if defined(GS_AMIGA)
 
@@ -28,12 +27,16 @@ extern int gs_StartedFromCli;
 
 typedef VOID(*PUTCHARPROC)();
 
-static const uint32 PutChar = 0x16c04e75;
-static const uint32 LenChar = 0x52934e75;
+GS_PRIVATE const uint32 PutChar = 0x16c04e75;
+GS_PRIVATE const uint32 LenChar = 0x52934e75;
 
 #endif
 
-uint32 gs_format(char* buf, uint32 bufLength, const char* fmt, ...) {
+// shared/error.c
+GS_IMPORT int gs_StartedFromCli;
+
+
+GS_EXPORT uint32 gs_format(char* buf, uint32 bufLength, const char* fmt, ...) {
 
 	if (buf == NULL || bufLength == 0 || fmt == NULL) {
 		return 0;
@@ -58,7 +61,7 @@ uint32 gs_format(char* buf, uint32 bufLength, const char* fmt, ...) {
 
 }
 
-uint32 gs_format_vargs(char* buf, uint32 bufLength, const char* fmt, void* args) {
+GS_EXPORT uint32 gs_format_vargs(char* buf, uint32 bufLength, const char* fmt, void* args) {
 
 	if (buf == NULL || bufLength == 0 || fmt == NULL || args == NULL) {
 		return 0;
@@ -80,7 +83,7 @@ uint32 gs_format_vargs(char* buf, uint32 bufLength, const char* fmt, void* args)
 
 }
 
-uint32 gs_format_length(const char* fmt, ...) {
+GS_EXPORT uint32 gs_format_length(const char* fmt, ...) {
 
 	if (fmt == NULL) {
 		return 0;
@@ -97,7 +100,7 @@ uint32 gs_format_length(const char* fmt, ...) {
 
 }
 
-uint32 gs_format_length_vargs(const char* fmt, void* args) {
+GS_EXPORT uint32 gs_format_length_vargs(const char* fmt, void* args) {
 
 	if (fmt == NULL) {
 		return 0;

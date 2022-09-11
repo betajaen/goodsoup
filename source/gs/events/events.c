@@ -29,17 +29,17 @@ typedef struct InputEventHandlers {
 	struct InputEventHandler *head, *tail;
 } InputEventHandlers;
 
-InputEventHandlers sInputEventHandlerStack = { NULL, NULL };
+GS_PRIVATE InputEventHandlers sInputEventHandlerStack = { NULL, NULL };
 
-void gs_HandleInputEvent(uint16 kind, int32 p0, int32 p1) {
+GS_EXPORT void gs_HandleInputEvent(uint16 kind, int32 p0, int32 p1) {
 	/* TODO */
 }
 
-void gs_PushInputEventHandler(gs_InputEventHandler handler) {
+GS_EXPORT void gs_PushInputEventHandler(gs_InputEventHandler handler) {
 	/* TODO */
 }
 
-void gs_PopInputEventHandler() {
+GS_EXPORT void gs_PopInputEventHandler() {
 	/* TODO */
 }
 

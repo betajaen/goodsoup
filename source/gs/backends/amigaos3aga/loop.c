@@ -28,16 +28,15 @@
 #include <proto/exec.h>
 #include <proto/intuition.h>
 
-extern void gs_InitializeMenu();
-extern void gs_TeardownMenu();
-extern void gs_HandleMenuEvent(uint32 menuCode);
-extern void gs_EnterScreenLoop();
-extern void gs_ExitScreenLoop();
-extern struct Window* gs_Window;
+GS_IMPORT void gs_InitializeMenu();
+GS_IMPORT void gs_TeardownMenu();
+GS_IMPORT void gs_HandleMenuEvent(uint32 menuCode);
+GS_IMPORT void gs_EnterScreenLoop();
+GS_IMPORT void gs_ExitScreenLoop();
+GS_IMPORT struct Window* gs_Window;
+GS_PRIVATE gs_bool sQuitLoopAlive = TRUE;
 
-static gs_bool sQuitLoopAlive = TRUE;
-
-extern void gs_EnterScreenLoop() {
+GS_EXPORT void gs_EnterScreenLoop() {
 
 	uint32 timerBit = 0; /* TODO: Get from Timer, via a private extern function */
 	uint32 windowBit = (1 << gs_Window->UserPort->mp_SigBit);
@@ -86,6 +85,6 @@ extern void gs_EnterScreenLoop() {
 	sQuitLoopAlive = FALSE;
 }
 
-extern void gs_ExitScreenLoop() {
+GS_EXPORT void gs_ExitScreenLoop() {
 	sQuitLoopAlive = FALSE;
 }

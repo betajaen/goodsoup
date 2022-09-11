@@ -29,49 +29,35 @@
 #include <proto/dos.h>
 #include <proto/intuition.h>
 #include <proto/graphics.h>
-
-
-extern void gs_ClearPalette();
-extern void gs_ApplyPalette();
-extern void gs_SetPaletteColour(uint8 index, uint8 r, uint8 g, uint8 b);
-static void InitializeMenu();
-static void TeardownMenu();
-static void HandleMenuEvent(uint32 menuCode);
-
 #include <proto/cybergraphics.h>
 #include <cybergraphx/cybergraphics.h>
 
+// Required by cybergraphics.library
 struct Library* CyberGfxBase = NULL;
 
-static uint32 GetAmigaScreenModeId() {
-	return BestCModeIDTags(
-			CYBRBIDTG_NominalWidth, GS_WIDTH,
-			CYBRBIDTG_NominalHeight, GS_HEIGHT,
-			CYBRBIDTG_Depth,  GS_DEPTH,
-			TAG_DONE
-	);
-}
+// Required by graphics.library
+struct GfxBase* GfxBase = NULL;
 
-
-
+GS_IMPORT void gs_ClearPalette();
+GS_IMPORT void gs_ApplyPalette();
+GS_IMPORT void gs_SetPaletteColour(uint8 index, uint8 r, uint8 g, uint8 b);
+GS_PRIVATE uint32 GetAmigaScreenModeId();
 
 /// --- SCREENS  ---
 
-struct Screen* gs_Screen = NULL;
-struct ScreenBuffer* gs_ScreenBuffer = NULL;
-struct Window* gs_Window = NULL;
-struct RastPort gs_RastPort;
-static struct TextAttr sDefaultFont =
-		{
-				(STRPTR) "topaz.font", 		/* Name */
-				8, 				/* YSize */
-				FS_NORMAL,			/* Style */
-				FPF_ROMFONT | FPF_DESIGNED,	/* Flags */
-		};
+GS_EXPORT struct Screen* gs_Screen = NULL;
+GS_EXPORT struct ScreenBuffer* gs_ScreenBuffer = NULL;
+GS_EXPORT struct Window* gs_Window = NULL;
+GS_EXPORT struct RastPort gs_RastPort;
+GS_PRIVATE struct TextAttr sDefaultFont = {
+		(STRPTR) "topaz.font", 		/* Name */
+		8, 				/* YSize */
+		FS_NORMAL,			/* Style */
+		FPF_ROMFONT | FPF_DESIGNED,	/* Flags */
+};
 
-struct GfxBase* GfxBase = NULL;
 
-static gs_bool InitializeScreenAndWindow() {
+GS_EXPORT gs_bool InitializeScreenAndWindow() {
 
 	gs_verbose_str("Opening Window");
 
@@ -161,7 +147,7 @@ static gs_bool InitializeScreenAndWindow() {
 
 }
 
-static void TeardownScreenAndWindow() {
+GS_EXPORT void TeardownScreenAndWindow() {
 
 	if (gs_Window)
 	{
@@ -184,7 +170,7 @@ static void TeardownScreenAndWindow() {
 	gs_verbose_str("Screen closed.");
 }
 
-extern gs_bool gs_OpenScreen() {
+GS_EXPORT gs_bool gs_OpenScreen() {
 
 	gs_bool rc = TRUE;
 
@@ -226,7 +212,7 @@ extern gs_bool gs_OpenScreen() {
 	return rc;
 }
 
-extern gs_bool gs_CloseScreen() {
+GS_EXPORT gs_bool gs_CloseScreen() {
 
 	TeardownScreenAndWindow();
 
@@ -242,18 +228,27 @@ extern gs_bool gs_CloseScreen() {
 	return TRUE;
 }
 
+GS_PRIVATE uint32 GetAmigaScreenModeId() {
+	return BestCModeIDTags(
+			CYBRBIDTG_NominalWidth, GS_WIDTH,
+			CYBRBIDTG_NominalHeight, GS_HEIGHT,
+			CYBRBIDTG_Depth,  GS_DEPTH,
+			TAG_DONE
+	);
+}
+
 /// --- PALETTE ---
 
-uint32 gs_PaletteMem[2 + (256 * 3)] = { 0 };
-uint16 gs_PaletteSize = 256;
-uint16 gs_PaletteDepth = 8;
+GS_PRIVATE uint32 sPaletteMem[2 + (256 * 3)] = { 0 };
+GS_PRIVATE uint16 sPaletteSize = 256;
+GS_PRIVATE uint16 sPaletteDepth = 8;
 
-extern void gs_ClearPalette() {
-	const uint16 limit = gs_PaletteSize * 3;
+GS_EXPORT void gs_ClearPalette() {
+	const uint16 limit = sPaletteSize * 3;
 
-	ULONG* dst = &gs_PaletteMem[0];
+	ULONG* dst = &sPaletteMem[0];
 
-	*dst++ = gs_PaletteSize << 16 | 0;
+	*dst++ = sPaletteSize << 16 | 0;
 
 	for (uint16 i = 0; i < limit; i++) {
 		*dst++ = 0 | 0xFFFFFF;
@@ -262,13 +257,13 @@ extern void gs_ClearPalette() {
 	*dst = 0;
 }
 
-extern void gs_ApplyPalette() {
-	LoadRGB32(&gs_Screen->ViewPort, &gs_PaletteMem[0]);
+GS_EXPORT void gs_ApplyPalette() {
+	LoadRGB32(&gs_Screen->ViewPort, &sPaletteMem[0]);
 }
 
-extern void gs_SetPaletteColour(uint8 index, uint8 r, uint8 g, uint8 b) {
+GS_EXPORT void gs_SetPaletteColour(uint8 index, uint8 r, uint8 g, uint8 b) {
 	const uint16 offset = (((uint16)index) * 3) + 1;
-	gs_PaletteMem[offset] = r << 24 | 0xFFFFFF;
-	gs_PaletteMem[offset+1] = g << 24 | 0xFFFFFF;
-	gs_PaletteMem[offset+2] = b << 24 | 0xFFFFFF;
+	sPaletteMem[offset] = r << 24 | 0xFFFFFF;
+	sPaletteMem[offset+1] = g << 24 | 0xFFFFFF;
+	sPaletteMem[offset+2] = b << 24 | 0xFFFFFF;
 }

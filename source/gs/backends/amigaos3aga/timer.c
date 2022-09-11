@@ -34,11 +34,8 @@
 #include <clib/exec_protos.h>
 #include <clib/alib_protos.h>
 
-
+// Required by timer.device
 struct Device* TimerBase;
-static struct MsgPort* sTimerMsgPort = NULL;
-static struct timerequest* sTimerRequest = NULL;
-static uint32 sTimerBit = 0;
 
 typedef struct TimerCallbackState {
 	struct TimerCallbackState *prev, *next;
@@ -46,10 +43,14 @@ typedef struct TimerCallbackState {
 	gs_callback callback;
 } TimerCallbackState;
 
-static TimerCallbackState *sTimerFirst = NULL;
-static TimerCallbackState *sTimerLast = NULL;
 
-gs_bool gs_InitializeTimer() {
+GS_PRIVATE struct MsgPort* sTimerMsgPort = NULL;
+GS_PRIVATE struct timerequest* sTimerRequest = NULL;
+GS_PRIVATE uint32 sTimerBit = 0;
+GS_PRIVATE TimerCallbackState *sTimerFirst = NULL;
+GS_PRIVATE TimerCallbackState *sTimerLast = NULL;
+
+GS_IMPORT gs_bool gs_InitializeTimer() {
 
 	gs_debug_str("Initializing Timer.");
 
@@ -82,7 +83,7 @@ gs_bool gs_InitializeTimer() {
 	return TRUE;
 }
 
-void gs_TeardownTimer() {
+GS_IMPORT void gs_TeardownTimer() {
 
 	gs_debug_str("Tearing down Timer.");
 

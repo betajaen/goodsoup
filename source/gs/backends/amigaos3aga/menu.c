@@ -28,9 +28,6 @@
 
 #include <proto/intuition.h>
 
-
-extern struct Window* gs_Window;
-
 #define GS_AMIGA_TEXT(NAME, STR)\
 	struct IntuiText NAME = { 0, 1, JAM2, 4, 2, NULL, (UBYTE*) STR, NULL }
 #define GS_AMIGA_MENU_ITEM(NAME, TEXT, PREV, Y)\
@@ -38,15 +35,15 @@ extern struct Window* gs_Window;
 #define GS_AMIGA_MENU(NAME, TEXT, FIRST_CHILD)\
 	struct Menu NAME = { NULL, 0, 0, 48, 12, MENUENABLED, (BYTE*) TEXT, FIRST_CHILD, 0, 0, 0, 0 }
 
-static GS_AMIGA_TEXT(TEXT_Unpause, "Resume");
-static GS_AMIGA_TEXT(TEXT_Quit, "Quit");
-static GS_AMIGA_MENU_ITEM(MENUITEM_Unpause, &TEXT_Unpause, NULL, 0);
-static GS_AMIGA_MENU_ITEM(MENUITEM_Quit, &TEXT_Quit, &MENUITEM_Unpause, 12);
-static GS_AMIGA_MENU(MENU_Game, GS_GAME_NAME, &MENUITEM_Quit);
+GS_IMPORT struct Window* gs_Window;
+GS_PRIVATE GS_AMIGA_TEXT(TEXT_Unpause, "Resume");
+GS_PRIVATE GS_AMIGA_TEXT(TEXT_Quit, "Quit");
+GS_PRIVATE GS_AMIGA_MENU_ITEM(MENUITEM_Unpause, &TEXT_Unpause, NULL, 0);
+GS_PRIVATE GS_AMIGA_MENU_ITEM(MENUITEM_Quit, &TEXT_Quit, &MENUITEM_Unpause, 12);
+GS_PRIVATE GS_AMIGA_MENU(MENU_Game, GS_GAME_NAME, &MENUITEM_Quit);
+GS_PRIVATE gs_bool sMenuActive = FALSE;
 
-static gs_bool sMenuActive = FALSE;
-
-extern void gs_InitializeMenu() {
+GS_EXPORT void gs_InitializeMenu() {
 	if (sMenuActive == TRUE) {
 		return;
 	}
@@ -56,7 +53,7 @@ extern void gs_InitializeMenu() {
 	ModifyIDCMP(gs_Window, IDCMP_IDCMPUPDATE | IDCMP_VANILLAKEY | IDCMP_MENUPICK);
 }
 
-extern void gs_TeardownMenu() {
+GS_EXPORT void gs_TeardownMenu() {
 	if (sMenuActive == TRUE) {
 		return;
 	}
@@ -66,7 +63,7 @@ extern void gs_TeardownMenu() {
 	ModifyIDCMP(gs_Window, IDCMP_CLOSEWINDOW | IDCMP_VANILLAKEY | IDCMP_IDCMPUPDATE | IDCMP_MOUSEBUTTONS);
 }
 
-extern void gs_HandleMenuEvent(uint32 menuCode) {
+GS_EXPORT void gs_HandleMenuEvent(uint32 menuCode) {
 
 	if (sMenuActive == FALSE) {
 		return;

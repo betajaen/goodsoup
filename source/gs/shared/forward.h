@@ -59,6 +59,10 @@ typedef uint16	gs_bool;
 #define TRUE  1
 #endif
 
+#define GS_PRIVATE static
+#define GS_IMPORT  extern
+#define GS_EXPORT  /* extern */
+
 typedef int32(*gs_callback)(void* user, int32 param);
 
 #define GS__CONCAT(a, b) a##b

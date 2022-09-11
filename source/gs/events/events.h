@@ -34,8 +34,8 @@ typedef enum gs_InputEventKind {
 
 typedef void(*gs_InputEventHandler)(uint16 kind, int32 p0, int32 p1);
 
-void gs_HandleInputEvent(uint16 kind, int32 p0, int32 p1);
-void gs_PushInputEventHandler(gs_InputEventHandler handler);
-void gs_PopInputEventHandler();
+GS_IMPORT void gs_HandleInputEvent(uint16 kind, int32 p0, int32 p1);
+GS_IMPORT void gs_PushInputEventHandler(gs_InputEventHandler handler);
+GS_IMPORT void gs_PopInputEventHandler();
 
 #endif

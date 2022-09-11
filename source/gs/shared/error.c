@@ -24,16 +24,16 @@
 #endif
 
 // shared/error.h
-void gs_message_str(const char* str);
+GS_IMPORT void gs_message_str(const char* str);
 
 // shared/error.c
-extern int gs_StartedFromCli;
+GS_IMPORT int gs_StartedFromCli;
 
-static const char* kCategoryCodes[] = { "E", "W", "I", "D", "V" };
-static char tempFmtBuffer[1024];
-static const char* kPadding = "\40\40\40\40\40\40\40\40\40\40\40\40\40\40\40\40\40\40\40\40\40\40\40\40\40\40\40\40\40\40\40\40\40\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0";
+GS_PRIVATE const char* kCategoryCodes[] = { "E", "W", "I", "D", "V" };
+GS_PRIVATE char tempFmtBuffer[1024];
+GS_PRIVATE const char* kPadding = "\40\40\40\40\40\40\40\40\40\40\40\40\40\40\40\40\40\40\40\40\40\40\40\40\40\40\40\40\40\40\40\40\40\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0";
 
-static void WriteHeader(const char* source, uint32 line, const char* function, uint16 category) {
+GS_PRIVATE void WriteHeader(const char* source, uint32 line, const char* function, uint16 category) {
 	uint32 l = gs_format(tempFmtBuffer, sizeof(tempFmtBuffer), "%s %.8s/%-.18s:%ld", kCategoryCodes[category], source, function, line);
 	PutStr((CONST_STRPTR) tempFmtBuffer);
 	int32 padding = 32 - l;
@@ -42,7 +42,7 @@ static void WriteHeader(const char* source, uint32 line, const char* function, u
 	}
 }
 
-void gs__error_fmt(const char* source, uint32 line, const char* function, uint16 category, const char* fmt, ...) {
+GS_EXPORT void gs__error_fmt(const char* source, uint32 line, const char* function, uint16 category, const char* fmt, ...) {
 
 
 	if (category == 0 && gs_StartedFromCli == FALSE) {
@@ -74,7 +74,7 @@ void gs__error_fmt(const char* source, uint32 line, const char* function, uint16
 
 }
 
-void gs__error_str(const char* source, uint32 line, const char* function, uint16 category, const char* str) {
+GS_EXPORT void gs__error_str(const char* source, uint32 line, const char* function, uint16 category, const char* str) {
 
 	if (category == 0 && gs_StartedFromCli == FALSE) {
 		gs_message_str(str);
@@ -93,7 +93,7 @@ void gs__error_str(const char* source, uint32 line, const char* function, uint16
 
 }
 
-void gs_print_fmt(const char* fmt, ...) {
+GS_EXPORT void gs_print_fmt(const char* fmt, ...) {
 #if defined(GS_AMIGA)
 	VA_LIST args;
 	VA_START(args, fmt);
@@ -104,19 +104,19 @@ void gs_print_fmt(const char* fmt, ...) {
 #endif
 }
 
-void gs_print_str(const char* str) {
+GS_EXPORT void gs_print_str(const char* str) {
 #if defined(GS_AMIGA)
 	PutStr(str);
 #endif
 }
 
-void gs_message_fmt(const char* fmt, ...) {
+GS_EXPORT void gs_message_fmt(const char* fmt, ...) {
 	VA_LIST args;
 	VA_START(args, fmt);
 	// @TODO
 	VA_END(args);
 }
 
-void gs_message_str(const char* str) {
-
+GS_EXPORT void gs_message_str(const char* str) {
+	// @TODO
 }

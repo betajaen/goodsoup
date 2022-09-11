@@ -20,9 +20,9 @@
 
 #include "shared/forward.h"
 
-uint32 gs_format(char* buf, uint32 bufLength, const char* fmt, ...);
-uint32 gs_format_vargs(char* buf, uint32 bufLength, const char* fmt, void* args);
-uint32 gs_format_length(const char* fmt, ...);
-uint32 gs_format_length_vargs(const char* fmt, void* args);
+GS_IMPORT uint32 gs_format(char* buf, uint32 bufLength, const char* fmt, ...);
+GS_IMPORT uint32 gs_format_vargs(char* buf, uint32 bufLength, const char* fmt, void* args);
+GS_IMPORT uint32 gs_format_length(const char* fmt, ...);
+GS_IMPORT uint32 gs_format_length_vargs(const char* fmt, void* args);
 
 #endif

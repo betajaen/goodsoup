@@ -20,12 +20,12 @@
 
 #include "shared/forward.h"
 
-void gs__error_fmt(const char* source, uint32 line, const char* function, uint16 category, const char* fmt, ...);
-void gs__error_str(const char* source, uint32 line, const char* function, uint16 category, const char* str);
-void gs_print_fmt(const char* fmt, ...);
-void gs_print_str(const char* str);
-void gs_message_fmt(const char* fmt, ...);
-void gs_message_str(const char* str);
+GS_IMPORT void gs__error_fmt(const char* source, uint32 line, const char* function, uint16 category, const char* fmt, ...);
+GS_IMPORT void gs__error_str(const char* source, uint32 line, const char* function, uint16 category, const char* str);
+GS_IMPORT void gs_print_fmt(const char* fmt, ...);
+GS_IMPORT void gs_print_str(const char* str);
+GS_IMPORT void gs_message_fmt(const char* fmt, ...);
+GS_IMPORT void gs_message_str(const char* str);
 
 #ifndef GS_FILE
 #define GS_FILE __FILE__
