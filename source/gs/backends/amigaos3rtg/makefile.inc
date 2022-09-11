@@ -8,4 +8,6 @@ PAGADIR = $(PDIR)/../amigaos3aga
 
 POBJ =  $(PAGADIR)/entry.o\
         $(PAGADIR)/timer.o\
+        $(PAGADIR)/loop.o\
+        $(PAGADIR)/menu.o\
         $(PDIR)/screen.o

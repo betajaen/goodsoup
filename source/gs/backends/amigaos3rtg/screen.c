@@ -15,7 +15,7 @@
  *
  */
 
-#define GS_FILE "rtg"
+#define GS_FILE "screenrtg"
 
 #ifndef GS_AMIGA
 #error "GS_AMIGA must be defined to compile this file."
@@ -70,8 +70,6 @@ static struct TextAttr sDefaultFont =
 		};
 
 struct GfxBase* GfxBase = NULL;
-static gs_bool sQuitLoopAlive = FALSE;
-
 
 static gs_bool InitializeScreenAndWindow() {
 
@@ -244,59 +242,6 @@ extern gs_bool gs_CloseScreen() {
 	return TRUE;
 }
 
-extern void gs_EnterScreenLoop() {
-
-	uint32 timerBit = 0; /* TODO: Get from Timer, via a private extern function */
-	uint32 windowBit = (1 << gs_Window->UserPort->mp_SigBit);
-	uint32 signalBits = windowBit | timerBit | SIGBREAKF_CTRL_C;
-	struct IntuiMessage* intMsg;
-
-	sQuitLoopAlive = TRUE;
-
-	InitializeMenu();
-
-	while(sQuitLoopAlive) {
-		ULONG signal = Wait(signalBits);
-
-		if (signal & SIGBREAKF_CTRL_C) {
-			break;
-		}
-
-		if (signal & windowBit) {
-
-			while ((intMsg = (struct IntuiMessage *) GetMsg(gs_Window->UserPort))) {
-
-				if (intMsg == NULL)
-					break;
-
-				if (intMsg->Class == IDCMP_CLOSEWINDOW) {
-					sQuitLoopAlive = FALSE;
-				}
-				else if (intMsg->Class == IDCMP_MENUPICK) {
-					HandleMenuEvent(intMsg->Code);
-				}
-
-
-				ReplyMsg((struct Message*) intMsg);
-			}
-
-		}
-
-		if (signal & timerBit) {
-			/* TODO: Timer */
-		}
-
-	}
-
-	TeardownMenu();
-
-	sQuitLoopAlive = FALSE;
-}
-
-extern void gs_LeaveScreenLoop() {
-	sQuitLoopAlive = FALSE;
-}
-
 /// --- PALETTE ---
 
 uint32 gs_PaletteMem[2 + (256 * 3)] = { 0 };
@@ -324,76 +269,6 @@ extern void gs_ApplyPalette() {
 extern void gs_SetPaletteColour(uint8 index, uint8 r, uint8 g, uint8 b) {
 	const uint16 offset = (((uint16)index) * 3) + 1;
 	gs_PaletteMem[offset] = r << 24 | 0xFFFFFF;
-	gs_PaletteMem[offset+1] = r << 24 | 0xFFFFFF;
-	gs_PaletteMem[offset+2] = r << 24 | 0xFFFFFF;
-}
-
-/// --- MENUS ---
-
-#define GS_AMIGA_TEXT(NAME, STR)\
-	static struct IntuiText NAME = { 0, 1, JAM2, 4, 2, NULL, (UBYTE*) STR, NULL }
-#define GS_AMIGA_MENU_ITEM(NAME, TEXT, PREV, Y)\
-	static struct MenuItem NAME = { PREV, 0, Y, 48, 12, ITEMTEXT|ITEMENABLED|HIGHCOMP, 0, (APTR) TEXT, (APTR) TEXT, NULL, NULL, 0 }
-#define GS_AMIGA_MENU(NAME, TEXT, FIRST_CHILD)\
-	static struct Menu NAME = { NULL, 0, 0, 48, 12, MENUENABLED, (BYTE*) TEXT, FIRST_CHILD, 0, 0, 0, 0 }
-
-GS_AMIGA_TEXT(TEXT_Unpause, "Resume");
-GS_AMIGA_TEXT(TEXT_Quit, "Quit");
-GS_AMIGA_MENU_ITEM(MENUITEM_Unpause, &TEXT_Unpause, NULL, 0);
-GS_AMIGA_MENU_ITEM(MENUITEM_Quit, &TEXT_Quit, &MENUITEM_Unpause, 12);
-GS_AMIGA_MENU(MENU_Game, GS_GAME_NAME, &MENUITEM_Quit);
-
-static gs_bool sMenuActive = FALSE;
-
-static void InitializeMenu() {
-	if (sMenuActive == TRUE) {
-		return;
-	}
-
-	sMenuActive = TRUE;
-	SetMenuStrip (gs_Window, &MENU_Game);
-	ModifyIDCMP(gs_Window, IDCMP_IDCMPUPDATE | IDCMP_VANILLAKEY | IDCMP_MENUPICK);
-}
-
-static void TeardownMenu() {
-	if (sMenuActive == TRUE) {
-		return;
-	}
-
-	sMenuActive = FALSE;
-	ClearMenuStrip(gs_Window);
-	ModifyIDCMP(gs_Window, IDCMP_CLOSEWINDOW | IDCMP_VANILLAKEY | IDCMP_IDCMPUPDATE | IDCMP_MOUSEBUTTONS);
-}
-
-static void HandleMenuEvent(uint32 menuCode) {
-
-	if (sMenuActive == FALSE) {
-		return;
-	}
-
-	uint16 menuNum = MENUNUM(menuCode);
-	uint16 itemNum = ITEMNUM(menuCode);
-
-	switch(menuNum){
-
-		case 0:
-		{
-			switch(itemNum) {
-				// Pause
-				case 1: {
-					/* TODO */
-				}
-					break;
-					// Quit
-				case 0: {
-					gs_verbose_str("Requesting Quit from Menu");
-					gs_LeaveScreenLoop();
-				}
-					break;
-			}
-		}
-			break;
-
-	}
-
+	gs_PaletteMem[offset+1] = g << 24 | 0xFFFFFF;
+	gs_PaletteMem[offset+2] = b << 24 | 0xFFFFFF;
 }

@@ -24,6 +24,8 @@ gs_bool gs_OpenScreen();
 
 gs_bool gs_CloseScreen();
 
-void gs_gs_EnterScreenLoop();
+void gs_EnterScreenLoop();
+
+void gs_ExitScreenLoop();
 
 #endif
