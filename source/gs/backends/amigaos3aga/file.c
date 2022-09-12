@@ -17,6 +17,7 @@
 
 #include "shared/forward.h"
 #include "shared/memory.h"
+#include "shared/endian.h"
 
 #include <proto/dos.h>
 
@@ -27,11 +28,36 @@ typedef struct gs_File {
 } gs_File;
 
 GS_EXPORT gs_File* gs_OpenRead(const char* path) {
-	return NULL;
+	BPTR handle = Open(path, MODE_OLDFILE);
+
+	if (handle == 0) {
+		return NULL;
+	}
+
+	gs_File* file = gs_new(gs_File, GS_COMMENT_FILE_LINE);
+	file->handle = handle;
+	file->pos = 0;
+	Seek(handle, 0, OFFSET_END);
+	file->length = Seek(handle, 0, OFFSET_BEGINNING);
+
+	return file;
 }
 
 GS_EXPORT gs_File* gs_OpenWrite(const char* path) {
-	return NULL;
+
+	BPTR handle = Open(path, MODE_NEWFILE);
+
+	if (handle == 0) {
+		return NULL;
+	}
+
+	gs_File* file = gs_new(gs_File, GS_COMMENT_FILE_LINE);
+	file->handle = handle;
+	file->pos = 0;
+	Seek(handle, 0, OFFSET_END);
+	file->length = Seek(handle, 0, OFFSET_BEGINNING);
+
+	return file;
 }
 
 GS_EXPORT void gs_Close(gs_File* file) {
@@ -45,64 +71,100 @@ GS_EXPORT void gs_Close(gs_File* file) {
 }
 
 GS_EXPORT uint32 gs_ReadBytes(gs_File* file, void* data, uint32 length) {
-	return 0;	/* TODO */
+	uint32 bytesRead = Read(file->handle, data, length);
+	file->pos += bytesRead;
+	return bytesRead;
 }
 
 GS_EXPORT byte gs_ReadByte(gs_File* file) {
-	return 0;	/* TODO */
+	byte val;
+	file->pos += Read(file->handle, &val, sizeof(val));
+	return val;
 }
 
 GS_EXPORT int8 gs_ReadInt8(gs_File* file) {
-	return 0;	/* TODO */
+	int8 val;
+	file->pos += Read(file->handle, &val, sizeof(val));
+	return val;
 }
 GS_EXPORT uint8 gs_ReadUInt8(gs_File* file) {
-	return 0;	/* TODO */
+	uint8 val;
+	file->pos += Read(file->handle, &val, sizeof(val));
+	return val;
 }
 
 GS_EXPORT int16 gs_ReadInt16_BE(gs_File* file) {
-	return 0;	/* TODO */
+	int16 val;
+	file->pos += Read(file->handle, &val, sizeof(val));
+	return val;
 }
 
 GS_EXPORT uint16 gs_ReadUInt16_BE(gs_File* file) {
-	return 0;	/* TODO */
+	uint16 val;
+	file->pos += Read(file->handle, &val, sizeof(val));
+	return val;
 }
 
 GS_EXPORT int16 gs_ReadInt16_LE(gs_File* file) {
-	return 0;	/* TODO */
+	int16 val;
+	file->pos += Read(file->handle, &val, sizeof(val));
+	val = gs_from_le16(val);
+	return val;
 }
 
 GS_EXPORT uint16 gs_ReadUInt16_LE(gs_File* file) {
-	return 0;	/* TODO */
+	uint16 val;
+	file->pos += Read(file->handle, &val, sizeof(val));
+	val = gs_from_le16(val);
+	return val;
 }
 
 GS_EXPORT int16 gs_ReadInt16_Native(gs_File* file) {
-	return 0;	/* TODO */
+	int16 val;
+	file->pos += Read(file->handle, &val, sizeof(val));
+	return val;
 }
 
 GS_EXPORT uint16 gs_ReadUInt16_Native(gs_File* file) {
-	return 0;	/* TODO */
+	uint16 val;
+	file->pos += Read(file->handle, &val, sizeof(val));
+	return val;
 }
 
 GS_EXPORT int32 gs_ReadInt32_BE(gs_File* file) {
-	return 0;	/* TODO */
+	int32 val;
+	file->pos += Read(file->handle, &val, sizeof(val));
+	return val;
 }
 
 GS_EXPORT uint32 gs_ReadUInt32_BE(gs_File* file) {
-	return 0;	/* TODO */
+	uint32 val;
+	file->pos += Read(file->handle, &val, sizeof(val));
+	return val;
 }
 
 GS_EXPORT int32 gs_ReadInt32_LE(gs_File* file) {
-	return 0;	/* TODO */
+	int32 val;
+	file->pos += Read(file->handle, &val, sizeof(val));
+	val = gs_from_le32(val);
+	return val;
 }
 
 GS_EXPORT uint32 gs_ReadUInt32_LE(gs_File* file) {
-	return 0;	/* TODO */
+	uint32 val;
+	file->pos += Read(file->handle, &val, sizeof(val));
+	val = gs_from_le32(val);
+	return val;
 }
 
 GS_EXPORT int32 gs_ReadInt32_Native(gs_File* file) {
-	return 0;	/* TODO */
+	int32 val;
+	file->pos += Read(file->handle, &val, sizeof(val));
+	return val;
 }
 
 GS_EXPORT uint32 gs_ReadUInt32_Native(gs_File* file) {
-	return 0;	/* TODO */
+	uint32 val;
+	file->pos += Read(file->handle, &val, sizeof(val));
+	return val;
 }

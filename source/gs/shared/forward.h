@@ -69,4 +69,11 @@ typedef int32(*gs_callback)(void* user, int32 param);
 #define GS_CONCAT(a, b) GS__CONCAT(a, b)
 #define GS_CONCAT2(a, b) GS_CONCAT(a, GS_CONCAT(_, b))
 
+#define _GS_STR_IMPL(X) #X
+#define GS_STR(X) _GS_STR_IMPL(X)
+#define GS_COMMENT_FILE_LINE	(uint32) (__FILE__ ":" GS_STR(__LINE__))
+#define GS_COMMENT_FILE_LINE_NOTE(NOTE)	(uint32) (__FILE__ ":" GS_STR(__LINE__) " " NOTE)
+
+#define GS_SWAP(T, A, B) do { T t = A; A = B; B = t; } while(0)
+
 #endif
