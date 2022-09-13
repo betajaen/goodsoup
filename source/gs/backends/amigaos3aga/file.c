@@ -119,18 +119,6 @@ GS_EXPORT uint16 gs_ReadUInt16_LE(gs_File* file) {
 	return val;
 }
 
-GS_EXPORT int16 gs_ReadInt16_Native(gs_File* file) {
-	int16 val;
-	file->pos += Read(file->handle, &val, sizeof(val));
-	return val;
-}
-
-GS_EXPORT uint16 gs_ReadUInt16_Native(gs_File* file) {
-	uint16 val;
-	file->pos += Read(file->handle, &val, sizeof(val));
-	return val;
-}
-
 GS_EXPORT int32 gs_ReadInt32_BE(gs_File* file) {
 	int32 val;
 	file->pos += Read(file->handle, &val, sizeof(val));
@@ -157,14 +145,53 @@ GS_EXPORT uint32 gs_ReadUInt32_LE(gs_File* file) {
 	return val;
 }
 
-GS_EXPORT int32 gs_ReadInt32_Native(gs_File* file) {
-	int32 val;
-	file->pos += Read(file->handle, &val, sizeof(val));
-	return val;
+GS_EXPORT void gs_WriteBytes(gs_File* file, void* data, uint32 length) {
+	file->pos += Write(file->handle, data, length);	
 }
 
-GS_EXPORT uint32 gs_ReadUInt32_Native(gs_File* file) {
-	uint32 val;
-	file->pos += Read(file->handle, &val, sizeof(val));
-	return val;
+GS_EXPORT void gs_WriteByte(gs_File* file, byte value) {
+	file->pos += Write(file->handle, &value, sizeof(value));
+}
+
+GS_EXPORT void gs_WriteInt8(gs_File* file, int8 value) {
+	file->pos += Write(file->handle, &value, sizeof(value));
+}
+
+GS_EXPORT void gs_WriteUInt8(gs_File* file, uint16 value) {
+	file->pos += Write(file->handle, &value, sizeof(value));
+}
+
+GS_EXPORT void gs_WriteInt16_BE(gs_File* file, int16 value) {
+	file->pos += Write(file->handle, &value, sizeof(value));
+}
+GS_EXPORT void gs_WriteUInt16_BE(gs_File* file, uint16 value) {
+	file->pos += Write(file->handle, &value, sizeof(value));
+}
+
+GS_EXPORT void gs_WriteInt16_LE(gs_File* file, int16 value) {
+	value = gs_to_le16(value);
+	file->pos += Write(file->handle, &value, sizeof(value));
+}
+
+GS_EXPORT void gs_WriteUInt16_LE(gs_File* file, uint16 value) {
+	value = gs_to_le16(value);
+	file->pos += Write(file->handle, &value, sizeof(value));
+}
+
+GS_EXPORT void gs_WriteInt32_BE(gs_File* file, int32 value) {
+	file->pos += Write(file->handle, &value, sizeof(value));
+}
+
+GS_EXPORT void gs_WriteUInt32_BE(gs_File* file, uint32 value) {
+	file->pos += Write(file->handle, &value, sizeof(value));
+}
+
+GS_EXPORT void gs_WriteInt32_LE(gs_File* file, int32 value) {
+	value = gs_to_le32(value);
+	file->pos += Write(file->handle, &value, sizeof(value));
+}
+
+GS_EXPORT void gs_WriteUInt32_LE(gs_File* file, uint32 value) {
+	value = gs_to_le32(value);
+	file->pos += Write(file->handle, &value, sizeof(value));
 }
