@@ -15,17 +15,10 @@
  *
  */
 
-#ifndef GS_GAME_H
-#define GS_GAME_H
+#define GS_FILE "gsi"
 
-#define GS_WIDTH 640
-#define GS_HEIGHT 480
-#define GS_DEPTH 8
-#define GS_GAME_NAME "COMI"
-#define GS_GAME_TITLE "The Curse of Monkey Island"
+#include "shared/forward.h"
+#include "shared/file.h"
+#include "shared/index.h"
 
-#define GS_NUM_ROOMS 95
-#define GS_NUM_GLOBAL_SCRIPTS 458
-#define GS_NUM_GLOBAL_OBJECTS 1401
-#define GS_COROUTINE_STACK_SIZE 80
 

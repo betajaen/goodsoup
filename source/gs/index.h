@@ -15,17 +15,24 @@
  *
  */
 
-#ifndef GS_GAME_H
-#define GS_GAME_H
+#ifndef GS_INDEX_H
+#define GS_INDEX_H
 
-#define GS_WIDTH 640
-#define GS_HEIGHT 480
-#define GS_DEPTH 8
-#define GS_GAME_NAME "COMI"
-#define GS_GAME_TITLE "The Curse of Monkey Island"
+#include "shared/forward.h"
+#include "shared/game.h"
 
-#define GS_NUM_ROOMS 95
-#define GS_NUM_GLOBAL_SCRIPTS 458
-#define GS_NUM_GLOBAL_OBJECTS 1401
-#define GS_COROUTINE_STACK_SIZE 80
+// This is a reinterpretation of the LA0 files which have been converted to GSI files.
+// These hold:-
+//		- Room Files (ideally sequential)
+//		- Global Script Offsets (from the GSS file)
+//
+// Object data is held in the GSO file.
+//
+typedef struct gs_Index {
+	// Which Room corresponds to a GSR file.
+	uint8	roomFiles[GS_NUM_ROOMS];
+	// The offset to a global script in the GSS file.
+	uint16  globalScriptOffsets[GS_NUM_GLOBAL_SCRIPTS];
+} gs_Index;
 
+#endif

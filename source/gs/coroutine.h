@@ -15,17 +15,30 @@
  *
  */
 
-#ifndef GS_GAME_H
-#define GS_GAME_H
+#ifndef GS_COROUTINE_H
+#define GS_COROUTINE_H
 
-#define GS_WIDTH 640
-#define GS_HEIGHT 480
-#define GS_DEPTH 8
-#define GS_GAME_NAME "COMI"
-#define GS_GAME_TITLE "The Curse of Monkey Island"
+#include "shared/forward.h"
+#include "shared/game.h"
 
-#define GS_NUM_ROOMS 95
-#define GS_NUM_GLOBAL_SCRIPTS 458
-#define GS_NUM_GLOBAL_OBJECTS 1401
-#define GS_COROUTINE_STACK_SIZE 80
+typedef struct gs_Coroutine {
+	gs_Coroutine *prev, *next;
+	uint16 num;
+	uint16 pc;
+	uint8 state;
+	uint8 flags;
+	uint8 verb;
+	uint8 freezeCount;
+	uint8 bFreezeResistant;
+	uint8 recursive;
+	uint8 bIsExecuted;
+	uint8 cutSceneOverride;
+	uint8 hasScript;
+	int32 locals[GS_NUM_LOCAL_INTS];
+	void* scriptDataRef;
+	// TODO...
+} gs_Coroutine;
 
+extern gs_Coroutine* gs_CoroutineStack[1 + GS_COROUTINE_STACK_SIZE];
+
+#endif
