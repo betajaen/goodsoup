@@ -21,3 +21,4 @@ goodsoup.lha
 .fuse_hidden*
 *.GSV
 *.GSI
+source/gs/CppProperties.json
