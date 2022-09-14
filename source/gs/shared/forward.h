@@ -20,7 +20,12 @@
 
 typedef char __32BIT_ARCH_ONLY__[(!!(sizeof(void*) == 4))*2-1];
 
+#if !defined(GS_AMIGA) && !defined(GS_SDL)
+#define GS_AMIGA
+#endif
+
 #if defined(GS_AMIGA)
+#define GS_BIG
 
 #include <exec/types.h>
 
@@ -36,6 +41,7 @@ typedef uint16	gs_bool;
 #endif
 
 #if defined(GS_SDL)
+#define GS_LITTLE
 
 #include <stdint.h>
 

@@ -1,5 +1,6 @@
 PLATFORM = amigaos3rtg
 DEBUG = 0
+POBJ =
 PDIR = backends/$(PLATFORM)
 CFLAGS = -I.
 include $(PDIR)/makefile.inc
