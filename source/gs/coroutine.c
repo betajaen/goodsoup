@@ -15,30 +15,16 @@
  *
  */
 
-#ifndef GS_COROUTINE_H
-#define GS_COROUTINE_H
+#define GS_FILE "coroutine"
 
 #include "shared/forward.h"
-#include "shared/game.h"
+#include "shared/error.h"
+#include "coroutine.h"
 
-typedef struct gs_Coroutine {
-	struct gs_Coroutine *prev, *next;
-	uint16 num;
-	uint16 pc;
-	uint8 state;
-	uint8 flags;
-	uint8 verb;
-	uint8 freezeCount;
-	uint8 bFreezeResistant;
-	uint8 recursive;
-	uint8 bIsExecuted;
-	uint8 cutSceneOverride;
-	uint8 hasScript;
-	int32 locals[GS_NUM_LOCAL_INTS];
-	void* scriptDataRef;
-	// TODO...
-} gs_Coroutine;
+#define T gs_Coroutine
+#define LIST_NAME CoroutineList
+#include "shared/list.h"
 
-extern gs_Coroutine* gs_CoroutineStack[1 + GS_COROUTINE_STACK_SIZE];
+CoroutineList sCoroutines = { NULL, NULL };
 
-#endif
+gs_Coroutine* gs_CoroutineStack[1 + GS_COROUTINE_STACK_SIZE] = { NULL };
