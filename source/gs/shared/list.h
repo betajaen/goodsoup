@@ -98,10 +98,10 @@ static inline void GS_CONCAT2(LIST_NAME, Remove)(LIST_NAME* list, T* item) {
 	if (item != NULL) {
 		
 		if (item == list->head) {
-			pullFront();
+			GS_CONCAT2(LIST_NAME, PullFront)(list);
 		}
 		else if (item == list->tail) {
-			pullBack();
+			GS_CONCAT2(LIST_NAME, PullBack)(list);
 		}
 		else {
 			T* before = item->prev;
