@@ -37,15 +37,29 @@ GS_IMPORT int16 gs_ReadInt16_BE(gs_File* file);
 GS_IMPORT uint16 gs_ReadUInt16_BE(gs_File* file);
 GS_IMPORT int16 gs_ReadInt16_LE(gs_File* file);
 GS_IMPORT uint16 gs_ReadUInt16_LE(gs_File* file);
+
+#if defined(GS_BIG)
 #define gs_ReadInt16_Native gs_ReadInt16_BE
 #define gs_ReadUInt16_Native gs_ReadUInt16_BE
+#else
+#define gs_ReadInt16_Native gs_ReadInt16_LE
+#define gs_ReadUInt16_Native gs_ReadUInt16_LE
+#endif
 
 GS_IMPORT int32 gs_ReadInt32_BE(gs_File* file);
 GS_IMPORT uint32 gs_ReadUInt32_BE(gs_File* file);
 GS_IMPORT int32 gs_ReadInt32_LE(gs_File* file);
 GS_IMPORT uint32 gs_ReadUInt32_LE(gs_File* file);
+
+#if defined(GS_BIG)
 #define gs_ReadInt32_Native gs_ReadInt32_BE
 #define gs_ReadUInt32_Native gs_ReadUInt32_BE
+#else
+#define gs_ReadInt32_Native gs_ReadInt32_LE
+#define gs_ReadUInt32_Native gs_ReadUInt32_LE
+#endif
+
+GS_IMPORT void gs_ReadTag(gs_File* file, char* tagStr);
 
 GS_IMPORT void gs_WriteBytes(gs_File* file, void* data, uint32 length);
 
@@ -58,14 +72,28 @@ GS_IMPORT void gs_WriteInt16_BE(gs_File* file, int16 value);
 GS_IMPORT void gs_WriteUInt16_BE(gs_File* file, uint16 value);
 GS_IMPORT void gs_WriteInt16_LE(gs_File* file, int16 value);
 GS_IMPORT void gs_WriteUInt16_LE(gs_File* file, uint16 value);
+
+#if defined(GS_BIG)
 #define gs_WriteInt16_Native gs_WriteInt16_BE
 #define gs_WriteUInt16_Native gs_WriteUInt16_BE
+#else
+#define gs_WriteInt16_Native gs_WriteInt16_LE
+#define gs_WriteUInt16_Native gs_WriteUInt16_LE
+#endif
 
 GS_IMPORT void gs_WriteInt32_BE(gs_File* file, int32 value);
 GS_IMPORT void gs_WriteUInt32_BE(gs_File* file, uint32 value);
 GS_IMPORT void gs_WriteInt32_LE(gs_File* file, int32 value);
 GS_IMPORT void gs_WriteUInt32_LE(gs_File* file, uint32 value);
+
+#if defined(GS_BIG)
 #define gs_WriteInt32_Native gs_WriteInt32_BE
 #define gs_WriteUInt32_Native gs_WriteUInt32_BE
+#else
+#define gs_WriteInt32_Native gs_WriteInt32_LE
+#define gs_WriteUInt32_Native gs_WriteUInt32LBE
+#endif
+
+GS_IMPORT void gs_WriteTag(gs_File* file, const char* tagStr);
 
 #endif

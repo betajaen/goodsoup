@@ -145,6 +145,10 @@ GS_EXPORT uint32 gs_ReadUInt32_LE(gs_File* file) {
 	return val;
 }
 
+GS_EXPORT void gs_ReadTag(gs_File* file, char* tagStr) {
+	file->pos += Read(file->handle, tagStr, 4);
+}
+
 GS_EXPORT void gs_WriteBytes(gs_File* file, void* data, uint32 length) {
 	file->pos += Write(file->handle, data, length);	
 }
@@ -194,4 +198,8 @@ GS_EXPORT void gs_WriteInt32_LE(gs_File* file, int32 value) {
 GS_EXPORT void gs_WriteUInt32_LE(gs_File* file, uint32 value) {
 	value = gs_to_le32(value);
 	file->pos += Write(file->handle, &value, sizeof(value));
+}
+
+GS_EXPORT void gs_WriteTag(gs_File* file, char* tagStr) {
+	file->pos += Write(file->handle, tagStr, 4);
 }
