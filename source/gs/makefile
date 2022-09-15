@@ -2,7 +2,7 @@ PLATFORM = rtg-os3
 DEBUG = 0
 POBJ =
 PDIR = backends/$(PLATFORM)
-CFLAGS = -I.
+CFLAGS = -std=c11 -I.
 include $(PDIR)/makefile.inc
 
 OBJ = shared/error.o shared/string.o main.o events/events.o coroutine.o
