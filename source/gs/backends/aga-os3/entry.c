@@ -17,8 +17,10 @@
 
 #define GS_FILE "entry"
 
-#ifndef GS_AMIGA
-#error "GS_AMIGA must be defined to compile this file."
+#include "shared/forward.h"
+
+#ifndef GS_OS3_ARCH
+#error "GS_OS3_ARCH must be defined to compile this file."
 #endif
 
 #include <proto/exec.h>

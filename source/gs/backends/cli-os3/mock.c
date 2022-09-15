@@ -17,6 +17,11 @@
 
 #include "shared/forward.h"
 
+#ifndef GS_OS3_ARCH
+#error "GS_OS3_ARCH must be defined to compile this file."
+#endif
+
+
 GS_EXPORT gs_bool gs_OpenScreen() {
 	return TRUE;
 }

@@ -17,11 +17,12 @@
 
 #define GS_FILE "menu"
 
-#ifndef GS_AMIGA
-#error "GS_AMIGA must be defined to compile this file."
+#include "shared/forward.h"
+
+#ifndef GS_OS3_ARCH
+#error "GS_OS3_ARCH must be defined to compile this file."
 #endif
 
-#include "shared/forward.h"
 #include "shared/game.h"
 #include "shared/error.h"
 #include "graphics/screen.h"

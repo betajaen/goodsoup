@@ -16,6 +16,11 @@
  */
 
 #include "shared/forward.h"
+
+#ifndef GS_OS3_ARCH
+#error "GS_OS3_ARCH must be defined to compile this file."
+#endif
+
 #include "shared/memory.h"
 #include "shared/endian.h"
 
