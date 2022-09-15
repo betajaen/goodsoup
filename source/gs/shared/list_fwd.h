@@ -18,10 +18,10 @@
 #ifndef GS_LIST_MACROS_H
 #define GS_LIST_MACROS_H
 
-#define list_fwd(T) \
+#define GS_LIST_FWD(T) \
 	typedef struct GS_CONCAT2(T, List) GS_CONCAT2(T, List)
 
-#define list_fwd_named(NAME) \
+#define GS_LIST_FWD_NAMED(NAME) \
 	typedef struct NAME NAME
 
 #endif
