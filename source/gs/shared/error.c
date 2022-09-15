@@ -18,9 +18,19 @@
 #define GS_FILE "error"
 
 #include "shared/string.h"
-#if defined(GS_AMIGA)
+
+#if defined(GS_OS3_ARCH)
 #include <proto/dos.h>
 #include "shared/sdi/SDI_stdarg.h"
+
+#define GS_PUT_CSTRING PutStr
+#define GS_VAR_ARG(X) VA_LIST X
+#endif
+
+#if defined(GS_CSTD_ARCH)
+#include <stdio.h>
+
+#define GS_PUT_CSTRING puts
 #endif
 
 // shared/error.h
@@ -35,10 +45,10 @@ GS_PRIVATE const char* kPadding = "\40\40\40\40\40\40\40\40\40\40\40\40\40\40\40
 
 GS_PRIVATE void WriteHeader(const char* source, uint32 line, const char* function, uint16 category) {
 	uint32 l = gs_format(tempFmtBuffer, sizeof(tempFmtBuffer), "%s %.8s/%-.18s:%ld", kCategoryCodes[category], source, function, line);
-	PutStr((CONST_STRPTR) tempFmtBuffer);
+	GS_PUT_CSTRING((const char*) tempFmtBuffer);
 	int32 padding = 32 - l;
 	if (padding > 0) {
-		PutStr(&kPadding[l]);
+		GS_PUT_CSTRING(&kPadding[l]);
 	}
 }
 
@@ -46,31 +56,25 @@ GS_EXPORT void gs__error_fmt(const char* source, uint32 line, const char* functi
 
 
 	if (category == 0 && gs_StartedFromCli == FALSE) {
-#if defined(GS_AMIGA)
-		VA_LIST args;
-		VA_START(args, fmt);
-		gs_format_vargs(tempFmtBuffer, sizeof(tempFmtBuffer), fmt, VA_ARG(args, void *));
+		GS_VARARG_LIST(args);
+		GS_VARARG_BEGIN(args, fmt);
+		gs_format_vargs(tempFmtBuffer, sizeof(tempFmtBuffer), fmt, GS_VARARG_ARG(args, void*));
 		gs_message_str(&tempFmtBuffer[0]);
-		VA_END(args);
-#endif
+		GS_VARARG_END(args);
 		return;
 	}
 
 	if (category > 4) {
 		category == 4;
 	}
-
-#if defined(GS_AMIGA)
-	VA_LIST args;
-	VA_START(args, fmt);
+	
+	GS_VARARG_LIST(args);
+	GS_VARARG_BEGIN(args, fmt);
 	WriteHeader(source, line, function, category);
-	gs_format_vargs(tempFmtBuffer, sizeof(tempFmtBuffer), fmt, VA_ARG(args, void *));
-	PutStr((CONST_STRPTR) &tempFmtBuffer[0]);
-	PutStr("\n");
-
-
-	VA_END(args);
-#endif
+	gs_format_vargs(tempFmtBuffer, sizeof(tempFmtBuffer), fmt, GS_VARARG_ARG(args, void *));
+	GS_PUT_CSTRING(&tempFmtBuffer[0]);
+	GS_PUT_CSTRING("\n");
+	GS_VARARG_END(args);
 
 }
 
@@ -85,36 +89,30 @@ GS_EXPORT void gs__error_str(const char* source, uint32 line, const char* functi
 		category == 4;
 	}
 
-#if defined(GS_AMIGA)
 	WriteHeader(source, line, function, category);
-	PutStr((CONST_STRPTR) str);
-	PutStr("\n");
-#endif
+	GS_PUT_CSTRING(str);
+	GS_PUT_CSTRING("\n");
 
 }
 
 GS_EXPORT void gs_print_fmt(const char* fmt, ...) {
-#if defined(GS_AMIGA)
-	VA_LIST args;
-	VA_START(args, fmt);
-	gs_format_vargs(&tempFmtBuffer[0], sizeof(tempFmtBuffer), fmt, VA_ARG(args, void *));
-	VA_END(args);
+	GS_VARARG_LIST(args);
+	GS_VARARG_BEGIN(args, fmt);
+	gs_format_vargs(&tempFmtBuffer[0], sizeof(tempFmtBuffer), fmt, GS_VARARG_ARG(args, void *));
+	GS_VARARG_END(args);
 
-	PutStr((CONST_STRPTR) &tempFmtBuffer[0]);
-#endif
+	GS_PUT_CSTRING(&tempFmtBuffer[0]);
 }
 
 GS_EXPORT void gs_print_str(const char* str) {
-#if defined(GS_AMIGA)
-	PutStr(str);
-#endif
+	GS_PUT_CSTRING(str);
 }
 
 GS_EXPORT void gs_message_fmt(const char* fmt, ...) {
-	VA_LIST args;
-	VA_START(args, fmt);
+	GS_VARARG_LIST(args);
+	GS_VARARG_BEGIN(args, fmt);
 	// @TODO
-	VA_END(args);
+	GS_VARARG_END(args);
 }
 
 GS_EXPORT void gs_message_str(const char* str) {

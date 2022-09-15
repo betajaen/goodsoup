@@ -20,14 +20,16 @@
 
 typedef char __32BIT_ARCH_ONLY__[(!!(sizeof(void*) == 4))*2-1];
 
-#if !defined(GS_AMIGA) && !defined(GS_SDL)
+#if !defined(GS_AMIGA) && !defined(GS_SDL) && !defined(GS_HEADLESS_X86)
 #define GS_AMIGA
 #endif
 
 #if defined(GS_AMIGA)
 #define GS_BIG
+#define GS_OS3_ARCH
 
 #include <exec/types.h>
+#include "shared/sdi/SDI_stdarg.h"
 
 typedef UBYTE	uint8;
 typedef BYTE	int8;
@@ -38,12 +40,21 @@ typedef ULONG	uint32;
 typedef LONG	int32;
 typedef uint16	gs_bool;
 
+#define GS_VARARG_LIST(ARGS) VA_LIST ARGS
+#define GS_VARARG_BEGIN(ARGS, FMT) VA_START(ARGS, FMT)
+#define GS_VARARG_END(ARGS) VA_END(ARGS)
+#define GS_VARARG_ARG(ARGS, TYPE) ((TYPE) ARGS)
+
 #endif
 
-#if defined(GS_SDL)
+
+#if defined(GS_SDL_X86) || defined(GS_HEADLESS_X86)
 #define GS_LITTLE
+#define GS_CSTD_ARCH
 
 #include <stdint.h>
+#include <stddef.h>
+#include <stdarg.h>
 
 typedef uint8_t		uint8;
 typedef int8_t		int8;
@@ -53,6 +64,11 @@ typedef int16_t		int16;
 typedef uint32_t	uint32;
 typedef int32_t		int32;
 typedef uint16	gs_bool;
+
+#define GS_VARARG_LIST(ARGS) va_list ARGS
+#define GS_VARARG_BEGIN(ARGS, FMT) va_start(ARGS, FMT)
+#define GS_VARARG_END(ARGS) va_end(ARGS)
+#define GS_VARARG_ARG(ARGS, TYPE) ((TYPE) ARGS)
 
 #endif
 
