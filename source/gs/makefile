@@ -1,4 +1,4 @@
-PLATFORM = amigaos3rtg
+PLATFORM = rtg-os3
 DEBUG = 0
 POBJ =
 PDIR = backends/$(PLATFORM)
