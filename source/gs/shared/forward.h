@@ -18,7 +18,9 @@
 #ifndef GS_FORWARD_H
 #define GS_FORWARD_H
 
-typedef char __32BIT_ARCH_ONLY__[(!!(sizeof(void*) == 4))*2-1];
+_Static_assert(sizeof(void*) == 4, "Goodsoup can only be compiled on a 32-bit architecture.");
+
+// typedef char __32BIT_ARCH_ONLY__[(!!(sizeof(void*) == 4))*2-1];
 
 #if defined(GS_AGA_OS3)
 
@@ -54,12 +56,7 @@ typedef char __32BIT_ARCH_ONLY__[(!!(sizeof(void*) == 4))*2-1];
 
 #else
 
-#define GS_AGA_OS3
-#define GS_OS3_ARCH
-#define GS_BIG
-#define GS_AGA
-
-#define GS_ARCH_NAME "AGA OS3"
+#error "GS_AGA_OS3, GS_RTG_OS3, GS_CLI_OS3 or GS_CLI_X86 was not defined in defines. Please fix appropriate makefile."
 
 #endif
 
