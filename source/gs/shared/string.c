@@ -20,7 +20,7 @@
 #include "shared/error.h"
 
 
-#if defined(GS_AMIGA)
+#if defined(GS_OS3_ARCH)
 
 #include <proto/exec.h>
 #include "shared/sdi/SDI_stdarg.h"
@@ -42,7 +42,7 @@ GS_EXPORT uint32 gs_format(char* buf, uint32 bufLength, const char* fmt, ...) {
 		return 0;
 	}
 
-#if defined(GS_AMIGA)
+#if defined(GS_OS3_ARCH)
 	uint32 length = 0;
 	VA_LIST args;
 	VA_START(args, fmt);
@@ -67,7 +67,7 @@ GS_EXPORT uint32 gs_format_vargs(char* buf, uint32 bufLength, const char* fmt, v
 		return 0;
 	}
 
-#if defined(GS_AMIGA)
+#if defined(GS_OS3_ARCH)
 	uint32 length = 0;
 	RawDoFmt((CONST_STRPTR)fmt, (APTR)args, (PUTCHARPROC)&LenChar, &length);
 
@@ -89,7 +89,7 @@ GS_EXPORT uint32 gs_format_length(const char* fmt, ...) {
 		return 0;
 	}
 
-#if defined(GS_AMIGA)
+#if defined(GS_OS3_ARCH)
 	uint32 length = 0;
 	VA_LIST args;
 	VA_START(args, fmt);
@@ -106,7 +106,7 @@ GS_EXPORT uint32 gs_format_length_vargs(const char* fmt, void* args) {
 		return 0;
 	}
 
-#if defined(GS_AMIGA)
+#if defined(GS_OS3_ARCH)
 	uint32 length = 0;
 	RawDoFmt((CONST_STRPTR)fmt, (APTR)args, (PUTCHARPROC)&LenChar, &length);
 	return length;

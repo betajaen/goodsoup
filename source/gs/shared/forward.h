@@ -20,13 +20,51 @@
 
 typedef char __32BIT_ARCH_ONLY__[(!!(sizeof(void*) == 4))*2-1];
 
-#if !defined(GS_AMIGA) && !defined(GS_SDL) && !defined(GS_HEADLESS_X86)
-#define GS_AMIGA
+#if defined(GS_AGA_OS3)
+
+#define GS_OS3_ARCH
+#define GS_BIG
+#define GS_AGA
+
+#define GS_ARCH_NAME "AGA OS3"
+
+#elif defined(GS_RTG_OS3)
+
+#define GS_OS3_ARCH
+#define GS_BIG
+#define GS_RTG
+
+#define GS_ARCH_NAME "RTG OS3"
+
+#elif defined(GS_CLI_OS3)
+
+#define GS_OS3_ARCH
+#define GS_BIG
+#define GS_CLI
+
+#define GS_ARCH_NAME "CLI OS3"
+
+#elif defined(GS_CLI_X86)
+
+#define GS_CSTD_ARCH
+#define GS_LITTLE
+#define GS_CLI
+
+#define GS_ARCH_NAME "CLI X86"
+
+#else
+
+#define GS_AGA_OS3
+#define GS_OS3_ARCH
+#define GS_BIG
+#define GS_AGA
+
+#define GS_ARCH_NAME "AGA OS3"
+
 #endif
 
-#if defined(GS_AMIGA)
-#define GS_BIG
-#define GS_OS3_ARCH
+
+#if defined(GS_OS3_ARCH)
 
 #include <exec/types.h>
 #include "shared/sdi/SDI_stdarg.h"
@@ -45,12 +83,7 @@ typedef uint16	gs_bool;
 #define GS_VARARG_END(ARGS) VA_END(ARGS)
 #define GS_VARARG_ARG(ARGS, TYPE) ((TYPE) ARGS)
 
-#endif
-
-
-#if defined(GS_SDL_X86) || defined(GS_HEADLESS_X86)
-#define GS_LITTLE
-#define GS_CSTD_ARCH
+#elif defined(GS_CSTD_ARCH)
 
 #include <stdint.h>
 #include <stddef.h>
@@ -70,6 +103,8 @@ typedef uint16	gs_bool;
 #define GS_VARARG_END(ARGS) va_end(ARGS)
 #define GS_VARARG_ARG(ARGS, TYPE) ((TYPE) ARGS)
 
+#else
+#error "Unknown Arch!"
 #endif
 
 
