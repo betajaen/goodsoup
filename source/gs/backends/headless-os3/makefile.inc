@@ -4,7 +4,7 @@ DATESTR  = $(shell date +"%-d.%-m.%Y")
 CFLAGS += -D__AMIGADATE__="\"$(DATESTR)\""
 CFLAGS += -DGS_AMIGA -DGS_DEBUG=$(DEBUG) -DGS_ARCH_NAME="\"Amiga OS3 Headless\"" -noixemul -fno-exceptions -m68020
 
-PAGADIR = $(PDIR)/../amigaos3aga
+PAGADIR = $(PDIR)/../aga-os3
 
 POBJ +=  $(PAGADIR)/entry.o\
         $(PAGADIR)/file.o\
