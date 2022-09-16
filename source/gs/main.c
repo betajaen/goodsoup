@@ -19,42 +19,66 @@
 
 #include "shared/forward.h"
 #include "shared/error.h"
+#include "shared/game.h"
 
 #define VERSION_NUM "0.6"
 
 const char* gs_VersionString = "$VER: goodsoup " VERSION_NUM " " GS_ARCH_NAME " (" __AMIGADATE__ ")";
 
 // graphics/screen.amiga.c
-extern gs_bool gs_OpenScreen();
+GS_IMPORT gs_bool gs_OpenScreen();
 
 // graphics/screen.amiga.c
-extern gs_bool gs_CloseScreen();
+GS_IMPORT gs_bool gs_CloseScreen();
 
 // graphics/screen.amiga.c
-extern gs_bool gs_EnterScreenLoop();
+GS_IMPORT gs_bool gs_EnterScreenLoop();
 
 // events/timer.amiga.c
-extern gs_bool gs_InitializeTimer();
+GS_IMPORT gs_bool gs_InitializeTimer();
 
 // events/timer.amiga.c
-extern void gs_TeardownTimer();
+GS_IMPORT void gs_TeardownTimer();
+
+// formats/la0.c
+GS_IMPORT int gs_LA0_ConvertGlobalScripts();
 
 int32 gs_Main(int32 param) {
 
 	gs_debug_str(&gs_VersionString[6]);
 
-	if (gs_OpenScreen() == FALSE) {
-		goto exit;
-	}
 
-	if (gs_InitializeTimer() == FALSE) {
-		goto exit;
-	}
 
-	gs_EnterScreenLoop();
+	if (param == 0)
+	{
+		
+		if (gs_OpenScreen() == FALSE) {
+			goto exit;
+		}
 
+		if (gs_InitializeTimer() == FALSE) {
+			goto exit;
+		}
+
+		gs_EnterScreenLoop();
+	
 	exit:
-	gs_TeardownTimer();
-	gs_CloseScreen();
-	return 0;
+
+		gs_TeardownTimer();
+		gs_CloseScreen();
+
+		return 0;
+	}
+	else
+	{
+		switch (param)
+		{
+			case GS_PARAM_CONVERT_SCRIPTS:
+				return gs_LA0_ConvertGlobalScripts();
+		}
+	}
+
+
+
+	return 1;
 }

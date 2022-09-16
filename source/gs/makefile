@@ -5,7 +5,12 @@ PDIR = backends/$(PLATFORM)
 CFLAGS = -std=c11 -I.
 include $(PDIR)/makefile.inc
 
-OBJ = shared/error.o shared/string.o main.o events/events.o coroutine.o
+OBJ =	shared/error.o \
+		shared/string.o \
+		main.o \
+		events/events.o \
+		coroutine.o \
+		formats/la0.o
 
 all: $(OBJ) $(POBJ)
 	$(CC) -o $(PROGRAM) $(OBJ) $(POBJ) $(CFLAGS)
