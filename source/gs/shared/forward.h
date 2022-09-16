@@ -27,6 +27,7 @@ _Static_assert(sizeof(void*) == 4, "Goodsoup can only be compiled on a 32-bit ar
 #define GS_OS3_ARCH
 #define GS_BIG
 #define GS_AGA
+#define GS_PATH_DIR "COMI:"
 
 #define GS_ARCH_NAME "AGA OS3"
 
@@ -35,6 +36,7 @@ _Static_assert(sizeof(void*) == 4, "Goodsoup can only be compiled on a 32-bit ar
 #define GS_OS3_ARCH
 #define GS_BIG
 #define GS_RTG
+#define GS_PATH_DIR "COMI:"
 
 #define GS_ARCH_NAME "RTG OS3"
 
@@ -43,6 +45,7 @@ _Static_assert(sizeof(void*) == 4, "Goodsoup can only be compiled on a 32-bit ar
 #define GS_OS3_ARCH
 #define GS_BIG
 #define GS_CLI
+#define GS_PATH_DIR "COMI:"
 
 #define GS_ARCH_NAME "CLI OS3"
 
@@ -51,6 +54,7 @@ _Static_assert(sizeof(void*) == 4, "Goodsoup can only be compiled on a 32-bit ar
 #define GS_CSTD_ARCH
 #define GS_LITTLE
 #define GS_CLI
+#define GS_PATH_DIR ""
 
 #define GS_ARCH_NAME "CLI X86"
 
