@@ -30,7 +30,7 @@
 #if defined(GS_CSTD_ARCH)
 #include <stdio.h>
 
-#define GS_PUT_CSTRING puts
+#define GS_PUT_CSTRING(X) fputs((X), stdout)
 #endif
 
 // shared/error.h
