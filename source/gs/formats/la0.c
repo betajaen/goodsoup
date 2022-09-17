@@ -21,21 +21,62 @@
 #include "shared/file.h"
 #include "shared/game.h"
 #include "shared/error.h"
+#include "shared/tag.h"
 
+GS_PRIVATE int convertRNAM(gs_File* src) {
 
+}
 
-GS_EXPORT int gs_LA0_ConvertGlobalScripts() {
-	gs_File* file = gs_OpenRead(GS_PATH_LA0);
+GS_PRIVATE int checkMAXS(gs_File* src) {
 
-	if (file == NULL) {
+}
+
+GS_PRIVATE int convertDROO(gs_File* src) {
+
+}
+
+GS_PRIVATE int convertDRSC(gs_File* src) {
+
+}
+
+GS_PRIVATE int convertDSOU(gs_File* src) {
+
+}
+
+GS_PRIVATE int convertDCHR(gs_File* src) {
+
+}
+
+GS_PRIVATE int convertDOBJ(gs_File* src) {
+
+}
+
+GS_PRIVATE int convertAARY(gs_File* src) {
+
+}
+
+GS_EXPORT int gs_LA0_ConvertToOptimized() {
+	gs_File file;
+
+	if (gs_OpenFileRead(&file, GS_PATH_LA0) == FALSE) {
 		gs_error_str("Could not open file " GS_PATH_LA0);
 		return 1;
 	}
 
-
 	gs_debug_str("File Okay " GS_PATH_LA0);
 
-	gs_Close(file);
+	gs_TagPair tag;
+	while (gs_Eof(&file) == FALSE) {
+		gs_ReadTagPairBE(&file, &tag);
+
+		gs_debug_fmt("Tag %s %ld", gs_TagPair2Str(&tag), tag.length);
+
+
+
+		gs_SkipTagPair(&file, &tag);
+	}
+
+	gs_CloseFile(&file);
 
 
 	return 0;

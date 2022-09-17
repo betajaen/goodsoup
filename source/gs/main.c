@@ -41,7 +41,7 @@ GS_IMPORT gs_bool gs_InitializeTimer();
 GS_IMPORT void gs_TeardownTimer();
 
 // formats/la0.c
-GS_IMPORT int gs_LA0_ConvertGlobalScripts();
+GS_IMPORT int gs_LA0_ConvertToOptimized();
 
 int32 gs_Main(int32 param) {
 
@@ -74,7 +74,7 @@ int32 gs_Main(int32 param) {
 		switch (param)
 		{
 			case GS_PARAM_CONVERT_SCRIPTS:
-				return gs_LA0_ConvertGlobalScripts();
+				return gs_LA0_ConvertToOptimized();
 		}
 	}
 
