@@ -23,6 +23,7 @@
 #include "shared/error.h"
 #include "shared/tag.h"
 #include "shared/memory.h"
+#include "shared/string.h"
 
 
 #define ENFORCE_MAXS1(CONSTANT) \
@@ -68,17 +69,24 @@ GS_PRIVATE int checkMAXS(gs_File* src) {
 	return 0;
 }
 
-GS_PRIVATE int convertRoomIndexData(gs_File* src) {
-	uint8* roomDisks = NULL;
+GS_PRIVATE int convertRoomIndexData(gs_File* indexFile, gs_File* diskFiles) {
+	int rc = 0;
+	uint8* roomDiskNums = NULL;
 	gs_TagPair tag;
 	
-	roomDisks = gs_Allocate(GS_NUM_ROOMS, sizeof(byte), MF_Clear, GS_COMMENT_FILE_LINE);
+	roomDiskNums = gs_Allocate(GS_NUM_ROOMS, sizeof(byte), MF_Clear, GS_COMMENT_FILE_LINE);
 	
 
-	if (gs_RewindAndFindTag(src, 0, gs_MakeTag('D', 'R', 'O', 'O'), &tag) == FALSE) {
+	// Read Room Disks
+	if (gs_RewindAndFindTag(indexFile, 0, gs_MakeTag('D', 'R', 'O', 'O'), &tag) == FALSE) {
 		gs_error_str("Could not find DROO tag in LA0 file.");
-		return 1;
+		rc = 0;
+		goto exit;
 	}
+
+	gs_ReadBytes(indexFile, roomDiskNums, GS_NUM_ROOMS);
+
+
 
 
 	/* TODO */
@@ -86,29 +94,55 @@ GS_PRIVATE int convertRoomIndexData(gs_File* src) {
 
 
 exit:
-	gs_Deallocate(roomDisks);
+	gs_Deallocate(roomDiskNums);
+	return rc;
 }
 
 GS_EXPORT int gs_LA0_ConvertToOptimized() {
-	gs_File file;
+	int rc = 0;
+	gs_File indexFile = { 0 };
+	gs_File diskFile[GS_NUM_DISKS] = { 0 };
+	char diskPath[sizeof(GS_PATH_DISKN) + 4];
 
-	if (gs_OpenFileRead(&file, GS_PATH_LA0) == FALSE) {
-		gs_error_str("Could not open file " GS_PATH_LA0);
-		return 1;
+	// Load Index File
+	if (gs_OpenFileRead(&indexFile, GS_PATH_INDEX, GS_COMMENT_FILE_LINE_NOTE("Index File")) == FALSE) {
+		gs_error_str("Could not open index file.");
+		rc = 1;
+		goto exit;
+	}
+	
+	// Load Disks
+	for (uint8 i = 0; i < GS_NUM_DISKS; i++) {
+		gs_format(diskPath, sizeof(diskPath), GS_PATH_DISKN, 1 + i);
+
+		gs_debug_fmt("Loading Room %s", diskPath);
+		
+		if (gs_OpenFileRead(&diskFile[i], diskPath, GS_COMMENT_FILE_LINE_NOTE("Room File")) == FALSE) {
+			gs_error_fmt("Could not open disk file %lu.", (uint32) i);
+			rc = 1;
+			goto exit;
+		}
+
 	}
 
-	if (checkMAXS(&file) != 0) {
+	if (checkMAXS(&indexFile) != 0) {
+		rc = 1;
 		goto exit;
 	}
 
-	if (convertRoomIndexData(&file) != 0) {
+	if (convertRoomIndexData(&indexFile, &diskFile[0]) != 0) {
+		rc = 1;
 		goto exit;
 	}
-
 
 
 exit:
-	gs_CloseFile(&file);
+	
+	for (uint8 i = 0; i < GS_NUM_DISKS; i++) {
+		gs_CloseFile(&diskFile[i]);
+	}
+
+	gs_CloseFile(&indexFile);
 
 
 	return 0;
