@@ -24,5 +24,9 @@ GS_IMPORT uint32 gs_format(char* buf, uint32 bufLength, const char* fmt, ...);
 GS_IMPORT uint32 gs_format_vargs(char* buf, uint32 bufLength, const char* fmt, void* args);
 GS_IMPORT uint32 gs_format_length(const char* fmt, ...);
 GS_IMPORT uint32 gs_format_length_vargs(const char* fmt, void* args);
+GS_IMPORT uint32 gs_hash_str(const char* str);
+
+#define gs_hash_init(HASH) uint32 HASH;
+#define gs_hash_feed(HASH, BYTE)	do { HASH = ((HASH << 5) + HASH) + BYTE; } while(0)
 
 #endif

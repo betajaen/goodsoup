@@ -145,3 +145,20 @@ GS_EXPORT uint32 gs_format_length_vargs(const char* fmt, void* args) {
 	return length;
 #endif
 }
+
+GS_EXPORT uint32 gs_hash_str(const char* str) {
+
+	// DJB2 hash
+	// Quick and good enough for names
+	
+	if (str == NULL)
+		return 0;
+
+	uint32 h = 5381;
+
+	while (*str) {
+		h = ((h << 5) + h) + *str++;
+	}
+
+	return h;
+}
