@@ -78,6 +78,7 @@ typedef WORD	int16;
 typedef ULONG	uint32;
 typedef LONG	int32;
 typedef uint16	gs_bool;
+typedef ULONG	gs_absptr;
 
 #define GS_VARARG_LIST(ARGS) VA_LIST ARGS
 #define GS_VARARG_BEGIN(ARGS, FMT) VA_START(ARGS, FMT)
@@ -97,7 +98,8 @@ typedef uint16_t	uint16;
 typedef int16_t		int16;
 typedef uint32_t	uint32;
 typedef int32_t		int32;
-typedef uint16	gs_bool;
+typedef uint16		gs_bool;
+typedef uint32		gs_absptr;
 
 #define GS_VARARG_LIST(ARGS) va_list ARGS
 #define GS_VARARG_BEGIN(ARGS, FMT) va_start(ARGS, FMT)

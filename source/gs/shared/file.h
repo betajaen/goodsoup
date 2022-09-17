@@ -20,11 +20,26 @@
 
 #include "shared/forward.h"
 
-typedef struct gs_File gs_File;
+typedef struct gs_File {
+	gs_absptr handle;
+	uint32 pos;
+	uint32 length;
+} gs_File;
 
-GS_IMPORT gs_File* gs_OpenRead(const char* path);
-GS_IMPORT gs_File* gs_OpenWrite(const char* path);
-GS_IMPORT void gs_Close(gs_File* file);
+typedef struct gs_TagPair gs_TagPair;
+
+GS_IMPORT gs_File* gs_NewFile();
+GS_IMPORT void gs_DeleteFile(gs_File* file);
+GS_IMPORT gs_bool gs_OpenFileRead(gs_File* file, const char* path);
+GS_IMPORT gs_bool gs_OpenFileWrite(gs_File* file, const char* path);
+GS_IMPORT void gs_CloseFile(gs_File* file);
+
+
+GS_IMPORT gs_bool gs_Eof(gs_File* file);
+GS_IMPORT uint32 gs_FileLength(gs_File* file);
+GS_IMPORT uint32 gs_FilePosition(gs_File* file);
+GS_IMPORT void gs_SetFilePosition(gs_File* file, uint32 absPos);
+GS_IMPORT void gs_Skip(gs_File* file, int32 relPos);
 
 GS_IMPORT uint32 gs_ReadBytes(gs_File* file, void* data, uint32 length);
 
@@ -61,6 +76,9 @@ GS_IMPORT uint32 gs_ReadUInt32_LE(gs_File* file);
 
 GS_IMPORT void gs_ReadTag(gs_File* file, char* tagStr);
 
+GS_IMPORT void gs_ReadTagPairBE(gs_File* file, gs_TagPair* tagPair);
+GS_IMPORT void gs_SkipTagPair(gs_File* file, gs_TagPair* tagPair);
+
 GS_IMPORT void gs_WriteBytes(gs_File* file, void* data, uint32 length);
 
 GS_IMPORT void gs_WriteByte(gs_File* file, byte);
@@ -94,6 +112,7 @@ GS_IMPORT void gs_WriteUInt32_LE(gs_File* file, uint32 value);
 #define gs_WriteUInt32_Native gs_WriteUInt32LBE
 #endif
 
-GS_IMPORT void gs_WriteTag(gs_File* file, const char* tagStr);
+GS_IMPORT void gs_WriteTag(gs_File* file, char* tagStr);
+
 
 #endif

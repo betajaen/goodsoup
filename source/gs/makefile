@@ -7,6 +7,7 @@ include $(PDIR)/makefile.inc
 
 OBJ =	shared/error.o \
 		shared/string.o \
+		shared/tag.o\
 		main.o \
 		events/events.o \
 		coroutine.o \
