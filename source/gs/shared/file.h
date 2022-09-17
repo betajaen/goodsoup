@@ -114,5 +114,8 @@ GS_IMPORT void gs_WriteUInt32_LE(gs_File* file, uint32 value);
 
 GS_IMPORT void gs_WriteTag(gs_File* file, char* tagStr);
 
+GS_IMPORT gs_bool gs_FindTag(gs_File* file, gs_tag tag, gs_TagPair* out_tag);
+GS_IMPORT gs_bool gs_RewindAndFindTag(gs_File* file, uint32 rewindPos, gs_tag tag, gs_TagPair* out_tag);
+
 
 #endif
