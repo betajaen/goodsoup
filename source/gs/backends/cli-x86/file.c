@@ -191,8 +191,9 @@ GS_EXPORT void gs_ReadTag(gs_File* file, char* tagStr) {
 
 GS_EXPORT void gs_ReadTagPairBE(gs_File* file, gs_TagPair* tagPair) {
 	tagPair->pos = file->pos;
-	fread(&tagPair->tag, 1, 4, FHANDLE);
-	tagPair->length = gs_ReadUInt32_BE(file);
+	file->pos += fread(&tagPair->tag, 1, 4, FHANDLE);
+	file->pos += fread(&tagPair->length, 1, 4, FHANDLE);
+	tagPair->length = gs_from_be32(tagPair->length);
 }
 
 GS_IMPORT void gs_SkipTagPair(gs_File* file, gs_TagPair* tagPair) {

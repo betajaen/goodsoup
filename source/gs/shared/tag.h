@@ -21,13 +21,23 @@
 #include "shared/forward.h"
 
 typedef struct gs_TagPair {
-	char tag[4];
+	uint32 tag;
 	uint32 pos;
 	uint32 length;
 } gs_TagPair;
 
 GS_IMPORT const char* gs_Tag2Str(uint32 tag);
 
-GS_IMPORT const char* gs_TagPair2Str(gs_TagPair* tagPair);
+#define gs_TagPair2Str(TAG_PAIR) (gs_Tag2Str((TAG_PAIR)->tag))
+
+#if defined(GS_BIG)
+#define gs_MakeTag(A, B, C, D) \
+	((uint32) (A)<<24 | (uint32) (B)<<16 | (uint32) (C)<<8 | (uint32) (D))
+#else
+#define gs_MakeTag(A, B, C, D)	\
+	((uint32) (D)<<24 | (uint32) (C)<<16 | (uint32) (B)<<8 | (uint32) (A))
+#endif
+
+#define gs_IsTagPair(TAGPAIR, A, B, C, D) (((TAGPAIR)->tag) == (gs_MakeTag(A,B,C,D)))
 
 #endif

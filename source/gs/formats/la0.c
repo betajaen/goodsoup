@@ -23,12 +23,40 @@
 #include "shared/error.h"
 #include "shared/tag.h"
 
-GS_PRIVATE int convertRNAM(gs_File* src) {
 
-}
+#define ENFORCE_MAXS1(CONSTANT) \
+		value = gs_ReadUInt32_LE(src);\
+		if (value != CONSTANT) {\
+			gs_error_fmt("Unknown Game version! Difference for \"%s\" %ld vs %ld.", GS_STR(CONSTANT), CONSTANT, value);\
+			return 1;\
+		}
+
 
 GS_PRIVATE int checkMAXS(gs_File* src) {
+	uint32 value;
+	gs_Skip(src, 100); // Skip Copyright Header
+	
+	
+	ENFORCE_MAXS1(GS_NUM_INT_GLOBALS);
+	ENFORCE_MAXS1(GS_NUM_BOOL_GLOBALS);
+	gs_Skip(src, sizeof(uint32));
+	ENFORCE_MAXS1(GS_NUM_GLOBAL_SCRIPTS);
+	ENFORCE_MAXS1(GS_NUM_SOUNDS);
+	ENFORCE_MAXS1(GS_NUM_CHARSETS);
+	ENFORCE_MAXS1(GS_NUM_COSTUMES);
+	ENFORCE_MAXS1(GS_NUM_ROOMS);
+	gs_Skip(src, sizeof(uint32));
+	ENFORCE_MAXS1(GS_NUM_GLOBAL_OBJECTS);
+	gs_Skip(src, sizeof(uint32));
+	ENFORCE_MAXS1(GS_NUM_LOCAL_OBJECTS);
+	ENFORCE_MAXS1(GS_NUM_NEWNAMES);
+	ENFORCE_MAXS1(GS_NUM_FLOBJECTS);
+	ENFORCE_MAXS1(GS_NUM_INVENTORY);
+	ENFORCE_MAXS1(GS_NUM_ARRAY);
+	ENFORCE_MAXS1(GS_NUM_VERBS);
 
+	gs_verbose_str("MAXS Check Passed.");
+	return 0;
 }
 
 GS_PRIVATE int convertDROO(gs_File* src) {
@@ -71,6 +99,10 @@ GS_EXPORT int gs_LA0_ConvertToOptimized() {
 
 		gs_debug_fmt("Tag %s %ld", gs_TagPair2Str(&tag), tag.length);
 
+		if (gs_IsTagPair(&tag, 'M', 'A', 'X', 'S')) {
+			gs_debug_str("CHECK MAXS");
+			checkMAXS(&file);
+		}
 
 
 		gs_SkipTagPair(&file, &tag);

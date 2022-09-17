@@ -24,21 +24,17 @@
 GS_EXPORT const char* gs_Tag2Str(uint32 tag) {
 	static char str[5] = { 0 };
 
+#if defined(GS_BIG)
 	str[0] = (char)(tag >> 24);
 	str[1] = (char)(tag >> 16);
 	str[2] = (char)(tag >> 8);
 	str[3] = (char)tag;
-	str[4] = '\0';
-	return str;
-}
-
-GS_EXPORT const char* gs_TagPair2Str(gs_TagPair* tagPair) {
-	static char str[5] = { 0 };
-
-	str[0] = tagPair->tag[0];
-	str[1] = tagPair->tag[1];
-	str[2] = tagPair->tag[2];
-	str[3] = tagPair->tag[3];
+#else
+	str[0] = (char)tag;
+	str[1] = (char)(tag >> 8);
+	str[2] = (char)(tag >> 16);
+	str[3] = (char)(tag >> 24);
+#endif
 	str[4] = '\0';
 	return str;
 }
