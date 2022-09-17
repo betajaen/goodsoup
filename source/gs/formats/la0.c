@@ -22,6 +22,7 @@
 #include "shared/game.h"
 #include "shared/error.h"
 #include "shared/tag.h"
+#include "shared/memory.h"
 
 
 #define ENFORCE_MAXS1(CONSTANT) \
@@ -33,6 +34,14 @@
 
 
 GS_PRIVATE int checkMAXS(gs_File* src) {
+
+	gs_TagPair maxs;
+	if (gs_RewindAndFindTag(src, 0, gs_MakeTag('M', 'A', 'X', 'S'), &maxs) == FALSE) {
+		gs_error_str("Could not find MAXS tag in LA0 file.");
+		return 1;
+	}
+
+
 	uint32 value;
 	gs_Skip(src, 100); // Skip Copyright Header
 	
@@ -59,28 +68,25 @@ GS_PRIVATE int checkMAXS(gs_File* src) {
 	return 0;
 }
 
-GS_PRIVATE int convertDROO(gs_File* src) {
+GS_PRIVATE int convertRoomIndexData(gs_File* src) {
+	uint8* roomDisks = NULL;
+	gs_TagPair tag;
+	
+	roomDisks = gs_Allocate(GS_NUM_ROOMS, sizeof(byte), MF_Clear, GS_COMMENT_FILE_LINE);
+	
 
-}
+	if (gs_RewindAndFindTag(src, 0, gs_MakeTag('D', 'R', 'O', 'O'), &tag) == FALSE) {
+		gs_error_str("Could not find DROO tag in LA0 file.");
+		return 1;
+	}
 
-GS_PRIVATE int convertDRSC(gs_File* src) {
 
-}
+	/* TODO */
 
-GS_PRIVATE int convertDSOU(gs_File* src) {
 
-}
 
-GS_PRIVATE int convertDCHR(gs_File* src) {
-
-}
-
-GS_PRIVATE int convertDOBJ(gs_File* src) {
-
-}
-
-GS_PRIVATE int convertAARY(gs_File* src) {
-
+exit:
+	gs_Deallocate(roomDisks);
 }
 
 GS_EXPORT int gs_LA0_ConvertToOptimized() {
@@ -91,23 +97,17 @@ GS_EXPORT int gs_LA0_ConvertToOptimized() {
 		return 1;
 	}
 
-	gs_debug_str("File Okay " GS_PATH_LA0);
-
-	gs_TagPair tag;
-	while (gs_Eof(&file) == FALSE) {
-		gs_ReadTagPairBE(&file, &tag);
-
-		gs_debug_fmt("Tag %s %ld", gs_TagPair2Str(&tag), tag.length);
-
-		if (gs_IsTagPair(&tag, 'M', 'A', 'X', 'S')) {
-			gs_debug_str("CHECK MAXS");
-			checkMAXS(&file);
-		}
-
-
-		gs_SkipTagPair(&file, &tag);
+	if (checkMAXS(&file) != 0) {
+		goto exit;
 	}
 
+	if (convertRoomIndexData(&file) != 0) {
+		goto exit;
+	}
+
+
+
+exit:
 	gs_CloseFile(&file);
 
 
