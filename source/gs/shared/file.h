@@ -24,14 +24,15 @@ typedef struct gs_File {
 	gs_absptr handle;
 	uint32 pos;
 	uint32 length;
+	uint32 comment;
 } gs_File;
 
 typedef struct gs_TagPair gs_TagPair;
 
 GS_IMPORT gs_File* gs_NewFile();
 GS_IMPORT void gs_DeleteFile(gs_File* file);
-GS_IMPORT gs_bool gs_OpenFileRead(gs_File* file, const char* path);
-GS_IMPORT gs_bool gs_OpenFileWrite(gs_File* file, const char* path);
+GS_IMPORT gs_bool gs_OpenFileRead(gs_File* file, const char* path, uint32 comment);
+GS_IMPORT gs_bool gs_OpenFileWrite(gs_File* file, const char* path, uint32 comment);
 GS_IMPORT void gs_CloseFile(gs_File* file);
 
 

@@ -25,6 +25,7 @@
 #include "shared/endian.h"
 #include "shared/file.h"
 #include "shared/tag.h"
+#include "shared/error.h"
 
 #include <proto/dos.h>
 
@@ -47,42 +48,51 @@ GS_IMPORT void gs_DeleteFile(gs_File* file) {
 	}
 }
 
-GS_IMPORT gs_bool gs_OpenFileRead(gs_File* file, const char* path) {
+GS_IMPORT gs_bool gs_OpenFileRead(gs_File* file, const char* path, uint32 comment) {
 	BPTR handle = Open(path, MODE_OLDFILE);
 
 	if (handle == 0) {
 		return FALSE;
 	}
 
+	file->comment = comment;
 	file->handle = (gs_absptr) handle;
 	file->pos = 0;
 	Seek(handle, 0, OFFSET_END);
 	file->length = Seek(handle, 0, OFFSET_BEGINNING);
+	
+	gs_verbose_fmt("Opened file %s.", gs_Comment2Str(file->comment));
 
 	return TRUE;
 }
 
-GS_IMPORT gs_bool gs_OpenFileWrite(gs_File* file, const char* path) {
+GS_IMPORT gs_bool gs_OpenFileWrite(gs_File* file, const char* path, uint32 comment) {
 	BPTR handle = Open(path, MODE_OLDFILE);
 
 	if (handle == 0) {
 		return FALSE;
 	}
-
+	
+	file->comment = comment;
 	file->handle = (gs_absptr) handle;
 	file->pos = 0;
 	Seek(handle, 0, OFFSET_END);
 	file->length = Seek(handle, 0, OFFSET_BEGINNING);
+	
+	gs_verbose_fmt("Opened file %s.", gs_Comment2Str(file->comment));
 
 	return TRUE;
 }
 
 GS_IMPORT void gs_CloseFile(gs_File* file) {
 	if (file->handle != 0) {
+
 		Close(FHANDLE);
 		file->handle = 0;
 		file->pos = 0;
 		file->length = 0;
+		
+		gs_verbose_fmt("Closed file %s.", gs_Comment2Str(file->comment));
 	}
 }
 

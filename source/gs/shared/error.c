@@ -118,3 +118,57 @@ GS_EXPORT void gs_message_fmt(const char* fmt, ...) {
 GS_EXPORT void gs_message_str(const char* str) {
 	// @TODO
 }
+	
+GS_PRIVATE gs_bool commentIsTag(const char* tagName) {
+    if (tagName[0] < 'A')
+        return FALSE;
+    if (tagName[0] > 'Z')
+        return FALSE;
+    if (tagName[1] < 'A')
+        return FALSE;
+    if (tagName[1] > 'Z')
+        return FALSE;
+    if (tagName[2] < 'A')
+        return FALSE;
+    if (tagName[2] > 'Z')
+        return FALSE;
+    if (tagName[3] < 'A')
+        return FALSE;
+    if (tagName[3] > 'Z')
+        return FALSE;
+    return TRUE;
+}
+
+GS_IMPORT const char* gs_Comment2Str(uint32 comment) {
+
+	static char tagStr[5] = {0};
+
+	if (comment == 0) {
+		return "";
+	}
+	
+	*((uint32*) &tagStr[0]) = comment;
+
+	if (commentIsTag(tagStr)) {
+		return &tagStr[0];
+	}
+
+	const char* str = (const char*) comment;
+    gs_bool isString = TRUE;
+    for(uint32 i=0;i < 100;i++) {
+        char ch = str[i];
+        if ((ch > 1 && ch < 32) || ch > 127) {
+            isString = FALSE;
+            break;
+        }
+        if (ch == 0) {
+            break;
+        }
+    }
+
+	if (isString == TRUE) {
+		return str;
+	}
+
+	return "";
+}

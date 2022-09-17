@@ -26,6 +26,7 @@ GS_IMPORT void gs_print_fmt(const char* fmt, ...);
 GS_IMPORT void gs_print_str(const char* str);
 GS_IMPORT void gs_message_fmt(const char* fmt, ...);
 GS_IMPORT void gs_message_str(const char* str);
+GS_IMPORT const char* gs_Comment2Str(uint32 comment);
 
 #ifndef GS_FILE
 #define GS_FILE __FILE__

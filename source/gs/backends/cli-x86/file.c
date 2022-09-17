@@ -43,34 +43,40 @@ GS_IMPORT void gs_DeleteFile(gs_File* file) {
 	}
 }
 
-GS_IMPORT gs_bool gs_OpenFileRead(gs_File* file, const char* path) {
+GS_IMPORT gs_bool gs_OpenFileRead(gs_File* file, const char* path, uint32 comment) {
 	FILE* handle = fopen(path, "rb");
 
 	if (handle == NULL) {
 		return FALSE;
 	}
-
+	
+	file->comment = comment;
 	file->handle = (gs_absptr) handle;
 	file->pos = 0;
 	fseek(handle, 0, SEEK_END);
 	file->length = ftell(handle);
 	fseek(handle, 0, SEEK_SET);
+	
+	gs_verbose_fmt("Opened file %s.", gs_Comment2Str(file->comment));
 
 	return TRUE;
 }
 
-GS_IMPORT gs_bool gs_OpenFileWrite(gs_File* file, const char* path) {
+GS_IMPORT gs_bool gs_OpenFileWrite(gs_File* file, const char* path, uint32 comment) {
 	FILE* handle = fopen(path, "wb");
 
 	if (handle == NULL) {
 		return FALSE;
 	}
-
+	
+	file->comment = comment;
 	file->handle = (gs_absptr) handle;
 	file->pos = 0;
 	fseek(handle, 0, SEEK_END);
 	file->length = ftell(handle);
 	fseek(handle, 0, SEEK_SET);
+	
+	gs_verbose_fmt("Opened file %s.", gs_Comment2Str(file->comment));
 
 	return TRUE;
 }
@@ -81,6 +87,8 @@ GS_IMPORT void gs_CloseFile(gs_File* file) {
 		file->handle = 0;
 		file->pos = 0;
 		file->length = 0;
+		
+		gs_verbose_fmt("Closed file %s.", gs_Comment2Str(file->comment));
 	}
 }
 
