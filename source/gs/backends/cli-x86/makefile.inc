@@ -6,4 +6,5 @@ CFLAGS += -DGS_CLI_X86 -DGS_DEBUG=$(DEBUG)
 POBJ +=  $(PDIR)/entry.o\
         $(PDIR)/mock.o\
         $(PDIR)/file.o\
+        $(PDIR)/fs.o\
         $(PDIR)/memory.o

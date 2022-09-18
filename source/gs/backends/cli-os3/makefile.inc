@@ -9,4 +9,5 @@ PAGADIR = $(PDIR)/../aga-os3
 POBJ +=  $(PAGADIR)/entry.o\
         $(PAGADIR)/file.o\
         $(PAGADIR)/memory.o\
+        $(PAGADIR)/fs.o\
         $(PDIR)/mock.o

@@ -9,4 +9,5 @@ POBJ +=  $(PDIR)/entry.o \
         $(PDIR)/loop.o\
         $(PDIR)/menu.o\
         $(PDIR)/file.o\
+        $(PDIR)/fs.o\
         $(PDIR)/memory.o

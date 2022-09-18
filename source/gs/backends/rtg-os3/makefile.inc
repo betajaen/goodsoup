@@ -11,5 +11,6 @@ POBJ +=  $(PAGADIR)/entry.o\
         $(PAGADIR)/loop.o\
         $(PAGADIR)/menu.o\
         $(PAGADIR)/file.o\
+        $(PAGADIR)/fs.o\
         $(PAGADIR)/memory.o\
         $(PDIR)/screen.o
