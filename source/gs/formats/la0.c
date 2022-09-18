@@ -37,7 +37,7 @@
 GS_PRIVATE int checkMAXS(gs_File* src) {
 
 	gs_TagPair maxs;
-	if (gs_RewindAndFindTag(src, 0, gs_MakeTag('M', 'A', 'X', 'S'), &maxs) == FALSE) {
+	if (gs_SeekToAndFindTag(src, 0, gs_MakeTag('M', 'A', 'X', 'S'), &maxs) == FALSE) {
 		gs_error_str("Could not find MAXS tag in LA0 file.");
 		return 1;
 	}
@@ -69,31 +69,70 @@ GS_PRIVATE int checkMAXS(gs_File* src) {
 	return 0;
 }
 
+GS_PRIVATE int extractRoom(gs_File* diskFile, uint8 roomNum, uint8 diskNum, uint32 offset) {
+
+	gs_TagPair tag;
+
+	gs_Seek(diskFile, offset);
+	gs_ReadTagPair(diskFile, &tag);
+
+	gs_debug_fmt("%lu %lx %s", roomNum, offset, gs_TagPair2Str(&tag));
+
+}
+
 GS_PRIVATE int convertRoomIndexData(gs_File* indexFile, gs_File* diskFiles) {
 	int rc = 0;
 	uint8* roomDiskNums = NULL;
+	uint32* roomDiskOffsets = NULL;
+
 	gs_TagPair tag;
 	
 	roomDiskNums = gs_Allocate(GS_NUM_ROOMS, sizeof(byte), MF_Clear, GS_COMMENT_FILE_LINE);
-	
+	roomDiskOffsets = gs_Allocate(GS_NUM_ROOMS, sizeof(uint32), MF_Clear, GS_COMMENT_FILE_LINE);
 
-	// Read Room Disks
-	if (gs_RewindAndFindTag(indexFile, 0, gs_MakeTag('D', 'R', 'O', 'O'), &tag) == FALSE) {
-		gs_error_str("Could not find DROO tag in LA0 file.");
-		rc = 0;
-		goto exit;
+	for (uint8 diskNum = 0; diskNum < GS_NUM_DISKS; diskNum++) {
+
+		gs_File* diskFile = &diskFiles[diskNum];
+
+		if (gs_SeekToAndFindTag(diskFile, 8, gs_MakeTag('L', 'O', 'F', 'F'), NULL) == FALSE) {
+			gs_error_fmt("Could not find LOFF tag in LA%d file", diskNum);
+		}
+
+		uint8 numRooms = gs_ReadByte(diskFile);
+
+		for (uint8 i = 0; i < numRooms; i++) {
+			uint8 roomNum = gs_ReadByte(diskFile);
+			uint32 roomOffset = gs_ReadUInt32_LE(diskFile);
+
+			roomDiskNums[roomNum] = diskNum;
+			roomDiskOffsets[roomNum] = roomOffset;
+		
+			// gs_verbose_fmt("Room %lu on disk %lu is at %lx", (uint32) roomNum, (uint32) diskNum, (uint32) roomOffset);
+		}
+
+		
+		for (uint8 roomNum = 1; roomNum < GS_NUM_ROOMS; roomNum++) {
+
+			uint8 roomDiskNum = roomDiskNums[roomNum];
+
+			if (roomDiskNum != diskNum)
+				continue;
+
+			uint32 roomOffset = roomDiskOffsets[roomNum];
+
+			if (roomOffset == 0)
+				continue;
+
+			extractRoom(diskFile, roomNum, diskNum, roomDiskOffsets[roomNum]);
+
+		}
+
 	}
-
-	gs_ReadBytes(indexFile, roomDiskNums, GS_NUM_ROOMS);
-
-
-
-
-	/* TODO */
 
 
 
 exit:
+	gs_Deallocate(roomDiskOffsets);
 	gs_Deallocate(roomDiskNums);
 	return rc;
 }
@@ -101,7 +140,7 @@ exit:
 GS_EXPORT int gs_LA0_ConvertToOptimized() {
 	int rc = 0;
 	gs_File indexFile = { 0 };
-	gs_File diskFile[GS_NUM_DISKS] = { 0 };
+	gs_File diskFiles[GS_NUM_DISKS] = { 0 };
 	char diskPath[sizeof(GS_PATH_DISKN) + 4];
 
 	// Load Index File
@@ -117,7 +156,7 @@ GS_EXPORT int gs_LA0_ConvertToOptimized() {
 
 		gs_debug_fmt("Loading Room %s", diskPath);
 		
-		if (gs_OpenFileRead(&diskFile[i], diskPath, GS_COMMENT_FILE_LINE_NOTE("Room File")) == FALSE) {
+		if (gs_OpenFileRead(&diskFiles[i], diskPath, GS_COMMENT_FILE_LINE_NOTE("Room File")) == FALSE) {
 			gs_error_fmt("Could not open disk file %lu.", (uint32) i);
 			rc = 1;
 			goto exit;
@@ -130,7 +169,7 @@ GS_EXPORT int gs_LA0_ConvertToOptimized() {
 		goto exit;
 	}
 
-	if (convertRoomIndexData(&indexFile, &diskFile[0]) != 0) {
+	if (convertRoomIndexData(&indexFile, &diskFiles[0]) != 0) {
 		rc = 1;
 		goto exit;
 	}
@@ -139,7 +178,7 @@ GS_EXPORT int gs_LA0_ConvertToOptimized() {
 exit:
 	
 	for (uint8 i = 0; i < GS_NUM_DISKS; i++) {
-		gs_CloseFile(&diskFile[i]);
+		gs_CloseFile(&diskFiles[i]);
 	}
 
 	gs_CloseFile(&indexFile);
