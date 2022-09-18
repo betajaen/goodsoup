@@ -5,6 +5,7 @@
 
 dist/monkey3
 dist/saves
+dist/data
 dist/*.LA0
 dist/*.la0
 dist/*.LA1
