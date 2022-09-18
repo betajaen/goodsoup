@@ -24,15 +24,21 @@
 #include "shared/tag.h"
 #include "shared/memory.h"
 #include "shared/string.h"
+#include "shared/fs.h"
 
 
 #define ENFORCE_MAXS1(CONSTANT) \
-		value = gs_ReadUInt32_LE(src);\
-		if (value != CONSTANT) {\
-			gs_error_fmt("Unknown Game version! Difference for \"%s\" %ld vs %ld.", GS_STR(CONSTANT), CONSTANT, value);\
-			return 1;\
-		}
+	value = gs_ReadUInt32_LE(src);\
+	if (value != CONSTANT) {\
+		gs_error_fmt("Unknown Game version! Difference for \"%s\" %ld vs %ld.", GS_STR(CONSTANT), CONSTANT, value);\
+		return 1;\
+	}
 
+#define CREATE_RES_DRAWER(PATH, NAME) \
+	if (gs_CreateDrawer(PATH) == FALSE) {\
+		gs_error_str("Could not create " NAME " drawer.");\
+		return 1;\
+	}
 
 GS_PRIVATE int checkMAXS(gs_File* src) {
 
@@ -69,14 +75,33 @@ GS_PRIVATE int checkMAXS(gs_File* src) {
 	return 0;
 }
 
+GS_PRIVATE int createDrawers() {
+	
+	CREATE_RES_DRAWER(GS_PATH_GS_DATA_DIR, "data");
+	CREATE_RES_DRAWER(GS_PATH_GS_TABLE_DIR, "table");
+	CREATE_RES_DRAWER(GS_PATH_GS_ROOM_DIR, "room");
+	CREATE_RES_DRAWER(GS_PATH_GS_SCRIPTS_DIR, "scripts");
+
+	return 0;
+}
+
 GS_PRIVATE int extractRoom(gs_File* diskFile, uint8 roomNum, uint8 diskNum, uint32 offset) {
 
+	char path[sizeof(GS_PATH_GS_ROOM_FMT) + 4];
 	gs_TagPair tag;
+	gs_File dst;
+
+	gs_format(path, sizeof(path), GS_PATH_GS_ROOM_FMT, roomNum);
+
+	gs_OpenFileWrite(&dst, path, GS_COMMENT_FILE_LINE);
 
 	gs_Seek(diskFile, offset);
 	gs_ReadTagPair(diskFile, &tag);
+	gs_Skip(diskFile, -8);
+	gs_FileCopy(&dst, diskFile, (tag.end - tag.start) + 8);
+	gs_CloseFile(&dst);
 
-	gs_debug_fmt("%lu %lx %s", roomNum, offset, gs_TagPair2Str(&tag));
+	gs_debug_fmt("Wrote Room %ld", roomNum);
 
 }
 
@@ -141,10 +166,16 @@ GS_EXPORT int gs_LA0_ConvertToOptimized() {
 	int rc = 0;
 	gs_File indexFile = { 0 };
 	gs_File diskFiles[GS_NUM_DISKS] = { 0 };
-	char diskPath[sizeof(GS_PATH_DISKN) + 4];
+	char diskPath[sizeof(GS_PATH_LA_DISK_FMT) + 4];
+
+	if (createDrawers() != 0) {
+		rc = 1;
+		goto exit;
+	}
+
 
 	// Load Index File
-	if (gs_OpenFileRead(&indexFile, GS_PATH_INDEX, GS_COMMENT_FILE_LINE_NOTE("Index File")) == FALSE) {
+	if (gs_OpenFileRead(&indexFile, GS_PATH_LA_INDEX, GS_COMMENT_FILE_LINE_NOTE("Index File")) == FALSE) {
 		gs_error_str("Could not open index file.");
 		rc = 1;
 		goto exit;
@@ -152,7 +183,7 @@ GS_EXPORT int gs_LA0_ConvertToOptimized() {
 	
 	// Load Disks
 	for (uint8 i = 0; i < GS_NUM_DISKS; i++) {
-		gs_format(diskPath, sizeof(diskPath), GS_PATH_DISKN, 1 + i);
+		gs_format(diskPath, sizeof(diskPath), GS_PATH_LA_DISK_FMT, 1 + i);
 
 		gs_debug_fmt("Loading Room %s", diskPath);
 		
