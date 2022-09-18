@@ -3,7 +3,17 @@ DEBUG = 0
 POBJ =
 PDIR = backends/$(PLATFORM)
 CFLAGS = -std=c11 -I.
+CFLAGS += -g -O0
+
 include $(PDIR)/makefile.inc
+
+
+#ifneq ($(DEBUG), 0)
+#	CFLAGS += -g -O0
+#else
+#	CFLAGS += -s -O2
+#endif
+
 
 OBJ =	shared/error.o \
 		shared/string.o \
@@ -15,7 +25,7 @@ OBJ =	shared/error.o \
 		formats/la0.o
 
 all: $(OBJ) $(POBJ)
-	$(CC) -o $(PROGRAM) $(OBJ) $(POBJ) $(CFLAGS)
+	$(CC)  $(CFLAGS) $(OBJ) $(POBJ) -o $(PROGRAM)
 
 %.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@
