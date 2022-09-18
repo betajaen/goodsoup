@@ -22,27 +22,29 @@
 #include "shared/tag.h"
 #include "shared/error.h"
 
-GS_IMPORT gs_bool gs_FindTag(gs_File* file, gs_tag tag, gs_TagPair* out_tag) {
-	gs_TagPair test;
+GS_IMPORT gs_bool gs_FindTag(gs_File* file, gs_tag match, gs_TagPair* out_tag) {
+	gs_TagPair tag;
 
-	gs_verbose_fmt("Find tag %s", gs_Tag2Str(tag));
+	gs_verbose_fmt("Find tag %s", gs_Tag2Str(match));
 
-	while (gs_Eof(file) == FALSE) {
-		gs_ReadTagPairBE(file, &test);
+	while (gs_EndOfFile(file) == FALSE) {
+		gs_ReadTagPair(file, &tag);
 
-		if (test.tag == tag) {
-			gs_verbose_fmt("YES for %s", gs_Tag2Str(test.tag));
-			*out_tag = test;
+		if (tag.tag == match) {
+			gs_verbose_fmt("YES for %s", gs_Tag2Str(tag.tag));
+			if (out_tag != NULL) {
+				*out_tag = tag;
+			}
 			return TRUE;
 		}
-		gs_verbose_fmt("NO for %s", gs_Tag2Str(test.tag));
-		gs_SkipTagPair(file, &test);
+		gs_verbose_fmt("NO for %s %ld", gs_Tag2Str(tag.tag), tag.end);
+		gs_SeekTagPairEnd(file, &tag);
 	}
 
 	return FALSE;
 }
 
-GS_IMPORT gs_bool gs_RewindAndFindTag(gs_File* file, uint32 rewindPos, gs_tag tag, gs_TagPair* out_tag) {
-	gs_SetFilePosition(file, rewindPos);
-	return gs_FindTag(file, tag, out_tag);
+GS_IMPORT gs_bool gs_SeekToAndFindTag(gs_File* file, uint32 absPos, gs_tag match, gs_TagPair* out_tag) {
+	gs_Seek(file, absPos);
+	return gs_FindTag(file, match, out_tag);
 }
