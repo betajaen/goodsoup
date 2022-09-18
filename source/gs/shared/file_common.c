@@ -48,3 +48,23 @@ GS_IMPORT gs_bool gs_SeekToAndFindTag(gs_File* file, uint32 absPos, gs_tag match
 	gs_Seek(file, absPos);
 	return gs_FindTag(file, match, out_tag);
 }
+
+GS_IMPORT void gs_FileCopy(gs_File* dst, gs_File* src, uint32 length) {
+
+	byte buffer[1024];
+
+	while (length > 0) {
+
+		uint32 copySize = sizeof(buffer);
+
+		if (copySize > length) {
+			copySize = length;
+		}
+
+		gs_ReadBytes(src, buffer, copySize);
+		gs_WriteBytes(dst, buffer, copySize);
+
+		length -= copySize;
+	}
+
+}

@@ -655,4 +655,7 @@ GS_IMPORT void gs_WriteTagStr(gs_File* file, char* tagStr);
  */
 GS_IMPORT gs_bool gs_FindTag(gs_File* file, gs_tag tag, gs_TagPair* out_tag);
 
+
+GS_IMPORT void gs_FileCopy(gs_File* dst, gs_File* src, uint32 length);
+
 #endif
