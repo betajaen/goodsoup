@@ -88,7 +88,7 @@ GS_PRIVATE int createDrawers() {
 GS_PRIVATE int extractRoom(gs_File* diskFile, uint8 roomNum, uint8 diskNum, uint32 offset) {
 
 	char path[sizeof(GS_PATH_GS_ROOM_FMT) + 4];
-	gs_TagPair tag;
+	gs_TagPair lflf;
 	gs_File dst;
 
 	gs_format(path, sizeof(path), GS_PATH_GS_ROOM_FMT, roomNum);
@@ -96,9 +96,38 @@ GS_PRIVATE int extractRoom(gs_File* diskFile, uint8 roomNum, uint8 diskNum, uint
 	gs_OpenFileWrite(&dst, path, GS_COMMENT_FILE_LINE);
 
 	gs_Seek(diskFile, offset);
-	gs_ReadTagPair(diskFile, &tag);
-	gs_Skip(diskFile, -8);
-	gs_FileCopy(&dst, diskFile, (tag.end - tag.start) + 8);
+	gs_ReadTagPair(diskFile, &lflf);
+	uint32 length = 8;
+	gs_WriteTagStr(&dst, "LFLF");
+	gs_WriteUInt32_BE(&dst, 0);
+
+	gs_debug_fmt("%lu:%lu LFLF pos = %ld length = %ld", diskNum, roomNum, lflf.start, gs_TagPairDataLength(&lflf));
+
+	while (gs_EndOfFile(diskFile) == FALSE && gs_EndOfTagPair(diskFile, &lflf) == FALSE) {
+		gs_TagPair tag;
+		gs_ReadTagPair(diskFile, &tag);
+		
+		if (gs_IsTagPair(&tag, 'L', 'F', 'L', 'F')) {
+			break;
+		}
+
+		if (gs_IsTagPair(&tag, 'S', 'C', 'R', 'P')) {
+			gs_verbose_fmt("%lu:%lu Skip %s %lu %lu", diskNum, roomNum, gs_TagPair2Str(&tag), gs_FilePosition(diskFile), (gs_TagPairDataLength(&tag) + 8));
+			gs_SeekTagPairEnd(diskFile, &tag);
+			continue;
+		}
+		
+
+		gs_WriteTagPair(&dst, &tag);
+		uint32 tagLen = gs_TagPairDataLength(&tag);
+		length += tagLen + 8;
+		gs_verbose_fmt("%lu:%lu Copy %s %lu %lu", diskNum, roomNum, gs_TagPair2Str(&tag), gs_FilePosition(diskFile), tagLen);
+		gs_FileCopy(&dst, diskFile, tagLen);
+	}
+
+	gs_Seek(&dst, 4);
+	gs_WriteUInt32_BE(&dst, length);
+
 	gs_CloseFile(&dst);
 
 	gs_debug_fmt("Wrote Room %ld", roomNum);
