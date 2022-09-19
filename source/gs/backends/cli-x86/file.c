@@ -25,8 +25,10 @@
 #include <stdio.h>
 
 #define FHANDLE ((FILE*) (file->handle))
+#define GS__READ(HANDLE, INTO, SIZE)  (fread(INTO, SIZE, 1, HANDLE) * SIZE)
+#define GS__WRITE(HANDLE, INTO, SIZE) (fwrite(INTO, SIZE, 1, HANDLE) * SIZE)
 
-GS_IMPORT gs_File* gs_NewFile() {
+GS_EXPORT gs_File* gs_NewFile() {
 	gs_File* file = gs_new(gs_File, GS_COMMENT_FILE_LINE);
 	file->handle = 0;
 	file->position = 0;
@@ -34,7 +36,7 @@ GS_IMPORT gs_File* gs_NewFile() {
 	return file;
 }
 
-GS_IMPORT void gs_DeleteFile(gs_File* file) {
+GS_EXPORT void gs_DeleteFile(gs_File* file) {
 	if (file != NULL) {
 		if (file->handle != 0) {
 			gs_CloseFile(file);
@@ -43,7 +45,7 @@ GS_IMPORT void gs_DeleteFile(gs_File* file) {
 	}
 }
 
-GS_IMPORT gs_bool gs_OpenFileRead(gs_File* file, const char* path, uint32 comment) {
+GS_EXPORT gs_bool gs_OpenFileRead(gs_File* file, const char* path, uint32 comment) {
 	FILE* handle = fopen(path, "rb");
 
 	if (handle == NULL) {
@@ -62,7 +64,7 @@ GS_IMPORT gs_bool gs_OpenFileRead(gs_File* file, const char* path, uint32 commen
 	return TRUE;
 }
 
-GS_IMPORT gs_bool gs_OpenFileWrite(gs_File* file, const char* path, uint32 comment) {
+GS_EXPORT gs_bool gs_OpenFileWrite(gs_File* file, const char* path, uint32 comment) {
 	FILE* handle = fopen(path, "wb");
 
 	if (handle == NULL) {
@@ -81,7 +83,7 @@ GS_IMPORT gs_bool gs_OpenFileWrite(gs_File* file, const char* path, uint32 comme
 	return TRUE;
 }
 
-GS_IMPORT void gs_CloseFile(gs_File* file) {
+GS_EXPORT void gs_CloseFile(gs_File* file) {
 	if (file->handle != 0) {
 		fclose(FHANDLE);
 		file->handle = 0;
@@ -103,142 +105,139 @@ GS_EXPORT void gs_Skip(gs_File* file, int32 relPos) {
 }
 
 GS_EXPORT uint32 gs_ReadBytes(gs_File* file, void* data, uint32 length) {
-	uint32 bytesRead = fread(data, length, 1, FHANDLE);
+	uint32 bytesRead = GS__READ(FHANDLE, data, length);
 	file->position += bytesRead;
 	return bytesRead;
 }
 
 GS_EXPORT byte gs_ReadByte(gs_File* file) {
 	byte val;
-	file->position += fread( &val, sizeof(val), 1, FHANDLE);
+	file->position += GS__READ(FHANDLE, &val, sizeof(val));
 	return val;
 }
 
 GS_EXPORT int8 gs_ReadInt8(gs_File* file) {
 	int8 val;
-	file->position += fread( &val, sizeof(val), 1, FHANDLE);
+	file->position += GS__READ(FHANDLE, &val, sizeof(val));
 	return val;
 }
 GS_EXPORT uint8 gs_ReadUInt8(gs_File* file) {
 	uint8 val;
-	file->position += fread( &val, sizeof(val), 1, FHANDLE);
+	file->position += GS__READ(FHANDLE, &val, sizeof(val));
 	return val;
 }
 
 GS_EXPORT int16 gs_ReadInt16_BE(gs_File* file) {
 	int16 val;
-	file->position += fread( &val, sizeof(val), 1, FHANDLE);
+	file->position += GS__READ(FHANDLE, &val, sizeof(val));
 	val = gs_from_be16(val);
 	return val;
 }
 
 GS_EXPORT uint16 gs_ReadUInt16_BE(gs_File* file) {
 	uint16 val;
-	file->position += fread( &val, sizeof(val), 1, FHANDLE);
+	file->position += GS__READ(FHANDLE, &val, sizeof(val));
 	val = gs_from_be16(val);
 	return val;
 }
 
 GS_EXPORT int16 gs_ReadInt16_LE(gs_File* file) {
 	int16 val;
-	file->position += fread( &val, sizeof(val), 1, FHANDLE);
+	file->position += GS__READ(FHANDLE, &val, sizeof(val));
 	val = gs_from_le16(val);
 	return val;
 }
 
 GS_EXPORT uint16 gs_ReadUInt16_LE(gs_File* file) {
 	uint16 val;
-	file->position += fread( &val, sizeof(val), 1, FHANDLE);
+	file->position += GS__READ(FHANDLE, &val, sizeof(val));
 	val = gs_from_le16(val);
 	return val;
 }
 
 GS_EXPORT int32 gs_ReadInt32_BE(gs_File* file) {
 	int32 val;
-	file->position += fread( &val, sizeof(val), 1, FHANDLE);
+	file->position += GS__READ(FHANDLE, &val, sizeof(val));
 	val = gs_from_be32(val);
 	return val;
 }
 
 GS_EXPORT uint32 gs_ReadUInt32_BE(gs_File* file) {
 	uint32 val;
-	file->position += fread( &val, sizeof(val), 1, FHANDLE);
+	file->position += GS__READ(FHANDLE, &val, sizeof(val));
 	val = gs_from_be32(val);
 	return val;
 }
 
 GS_EXPORT int32 gs_ReadInt32_LE(gs_File* file) {
 	int32 val;
-	file->position += fread( &val, sizeof(val), 1, FHANDLE);
+	file->position += GS__READ(FHANDLE, &val, sizeof(val));
 	val = gs_from_le32(val);
 	return val;
 }
 
 GS_EXPORT uint32 gs_ReadUInt32_LE(gs_File* file) {
 	uint32 val;
-	file->position += fread( &val, sizeof(val), 1, FHANDLE);
+	file->position += GS__READ(FHANDLE, &val, sizeof(val));
 	val = gs_from_le32(val);
 	return val;
 }
 
-GS_EXPORT void gs_ReadTagPair(gs_File* file, gs_TagPair* tagPair) {
-	file->position += fread(&tagPair->tag, 1, 4, FHANDLE);
-	file->position += fread(&tagPair->end, 1, 4, FHANDLE);
-	tagPair->start = file->position;
-	tagPair->end = tagPair->start + gs_from_be32(tagPair->end) - 8;
-}
-
 GS_EXPORT void gs_WriteBytes(gs_File* file, void* data, uint32 length) {
-	file->position += fwrite(data, length, 1, FHANDLE);	
+	file->position += GS__WRITE(FHANDLE, data, length);
 }
 
 GS_EXPORT void gs_WriteByte(gs_File* file, byte value) {
-	file->position += fwrite(&value, sizeof(value), 1, FHANDLE);
+	file->position += GS__WRITE(FHANDLE, &value, sizeof(value));
 }
 
 GS_EXPORT void gs_WriteInt8(gs_File* file, int8 value) {
-	file->position += fwrite(&value, sizeof(value), 1, FHANDLE);
+	file->position += GS__WRITE(FHANDLE, &value, sizeof(value));
 }
 
 GS_EXPORT void gs_WriteUInt8(gs_File* file, uint16 value) {
-	file->position += fwrite(&value, sizeof(value), 1, FHANDLE);
+	file->position += GS__WRITE(FHANDLE, &value, sizeof(value));
 }
 
 GS_EXPORT void gs_WriteInt16_BE(gs_File* file, int16 value) {
 	value = gs_to_be16(value);
-	file->position += fwrite(&value, sizeof(value), 1, FHANDLE);
+	file->position += GS__WRITE(FHANDLE, &value, sizeof(value));
 }
 GS_EXPORT void gs_WriteUInt16_BE(gs_File* file, uint16 value) {
 	value = gs_to_be16(value);
-	file->position += fwrite(&value, sizeof(value), 1, FHANDLE);
+	file->position += GS__WRITE(FHANDLE, &value, sizeof(value));
 }
 
 GS_EXPORT void gs_WriteInt16_LE(gs_File* file, int16 value) {
-	file->position += fwrite(&value, sizeof(value), 1, FHANDLE);
+	value = gs_to_le16(value);
+	file->position += GS__WRITE(FHANDLE, &value, sizeof(value));
 }
 
 GS_EXPORT void gs_WriteUInt16_LE(gs_File* file, uint16 value) {
-	file->position += fwrite(&value, sizeof(value), 1, FHANDLE);
+	value = gs_to_le16(value);
+	file->position += GS__WRITE(FHANDLE, &value, sizeof(value));
 }
 
 GS_EXPORT void gs_WriteInt32_BE(gs_File* file, int32 value) {
 	value = gs_to_be32(value);
-	file->position += fwrite(&value, sizeof(value), 1, FHANDLE);
+	file->position += GS__WRITE(FHANDLE, &value, sizeof(value));
 }
 
 GS_EXPORT void gs_WriteUInt32_BE(gs_File* file, uint32 value) {
 	value = gs_to_be32(value);
-	file->position += fwrite(&value, sizeof(value), 1, FHANDLE);
+	file->position += GS__WRITE(FHANDLE, &value, sizeof(value));
 }
 
 GS_EXPORT void gs_WriteInt32_LE(gs_File* file, int32 value) {
-	file->position += fwrite(&value, sizeof(value), 1, FHANDLE);
+	value = gs_to_le32(value);
+	file->position += GS__WRITE(FHANDLE, &value, sizeof(value));
 }
 
 GS_EXPORT void gs_WriteUInt32_LE(gs_File* file, uint32 value) {
-	file->position += fwrite(&value, sizeof(value), 1, FHANDLE);
+	value = gs_to_le32(value);
+	file->position += GS__WRITE(FHANDLE, &value, sizeof(value));
 }
 
 GS_EXPORT void gs_WriteTagStr(gs_File* file, char* tagStr) {
-	file->position += fwrite(tagStr, 4, 1, FHANDLE);
+	file->position += GS__WRITE(FHANDLE, tagStr, 4);
 }

@@ -40,4 +40,7 @@ GS_IMPORT const char* gs_Tag2Str(uint32 tag);
 
 #define gs_IsTagPair(TAGPAIR_PTR, A, B, C, D) (((TAGPAIR_PTR)->tag) == (gs_MakeTag(A,B,C,D)))
 
+#define gs_TagPairDataLength(TAGPAIR_PTR)  ((((TAGPAIR_PTR)->end) - ((TAGPAIR_PTR)->start)) - 8)
+
+
 #endif

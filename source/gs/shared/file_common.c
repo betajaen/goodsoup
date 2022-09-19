@@ -22,7 +22,7 @@
 #include "shared/tag.h"
 #include "shared/error.h"
 
-GS_IMPORT gs_bool gs_FindTag(gs_File* file, gs_tag match, gs_TagPair* out_tag) {
+GS_EXPORT gs_bool gs_FindTag(gs_File* file, gs_tag match, gs_TagPair* out_tag) {
 	gs_TagPair tag;
 
 	gs_verbose_fmt("Find tag %s", gs_Tag2Str(match));
@@ -44,14 +44,14 @@ GS_IMPORT gs_bool gs_FindTag(gs_File* file, gs_tag match, gs_TagPair* out_tag) {
 	return FALSE;
 }
 
-GS_IMPORT gs_bool gs_SeekToAndFindTag(gs_File* file, uint32 absPos, gs_tag match, gs_TagPair* out_tag) {
+GS_EXPORT gs_bool gs_SeekToAndFindTag(gs_File* file, uint32 absPos, gs_tag match, gs_TagPair* out_tag) {
 	gs_Seek(file, absPos);
 	return gs_FindTag(file, match, out_tag);
 }
 
-GS_IMPORT void gs_FileCopy(gs_File* dst, gs_File* src, uint32 length) {
+GS_EXPORT void gs_FileCopy(gs_File* dst, gs_File* src, uint32 length) {
 
-	byte buffer[1024];
+	byte buffer[4096];
 
 	while (length > 0) {
 
@@ -67,4 +67,16 @@ GS_IMPORT void gs_FileCopy(gs_File* dst, gs_File* src, uint32 length) {
 		length -= copySize;
 	}
 
+}
+
+GS_EXPORT void gs_ReadTagPair(gs_File* file, gs_TagPair* tagPair) {
+	tagPair->start = file->position;
+	gs_ReadBytes(file, &tagPair->tag, 4);
+	uint32 length = gs_ReadUInt32_BE(file);
+	tagPair->end = tagPair->start + length;
+}
+
+GS_EXPORT void gs_WriteTagPair(gs_File* file, gs_TagPair* tagPair) {
+	gs_WriteBytes(file, &tagPair->tag, 4);
+	gs_WriteUInt32_BE(file, gs_TagPairDataLength(tagPair));
 }

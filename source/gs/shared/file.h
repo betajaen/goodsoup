@@ -100,7 +100,7 @@ GS_IMPORT void gs_CloseFile(gs_File* file);
  * @param tag  The tag pair
  * @return Is file pos >= file length
  */
-#define gs_EndOfTagPair(FILE_PTR, TAG_PTR) (((FILE_PTR)->position) < ((TAG_PTR)->end))
+#define gs_EndOfTagPair(FILE_PTR, TAG_PTR) (((FILE_PTR)->position) > ((TAG_PTR)->end))
 
 
 /**
@@ -639,6 +639,17 @@ GS_IMPORT void gs_WriteUInt32_LE(gs_File* file, uint32 value);
  * 
  */
 GS_IMPORT void gs_WriteTagStr(gs_File* file, char* tagStr);
+
+
+/**
+ * Writes a TagPair to a opened write file
+ * 
+ * @param file File to write to
+ * @param tagStr TagPair value to write
+ * 
+ */
+GS_IMPORT void gs_WriteTagPair(gs_File* file, gs_TagPair* tagPair);
+
 
 /**
  * Seeks forward from the current position in a file to the first tag

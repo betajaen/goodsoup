@@ -31,7 +31,7 @@
 
 #define FHANDLE ((BPTR) (file->handle))
 
-GS_IMPORT gs_File* gs_NewFile() {
+GS_EXPORT gs_File* gs_NewFile() {
 	gs_File* file = gs_new(gs_File, GS_COMMENT_FILE_LINE);
 	file->handle = 0;
 	file->position = 0;
@@ -39,7 +39,7 @@ GS_IMPORT gs_File* gs_NewFile() {
 	return file;
 }
 
-GS_IMPORT void gs_DeleteFile(gs_File* file) {
+GS_EXPORT void gs_DeleteFile(gs_File* file) {
 	if (file != NULL) {
 		if (file->handle != 0) {
 			gs_CloseFile(file);
@@ -48,7 +48,7 @@ GS_IMPORT void gs_DeleteFile(gs_File* file) {
 	}
 }
 
-GS_IMPORT gs_bool gs_OpenFileRead(gs_File* file, const char* path, uint32 comment) {
+GS_EXPORT gs_bool gs_OpenFileRead(gs_File* file, const char* path, uint32 comment) {
 	BPTR handle = Open(path, MODE_OLDFILE);
 
 	if (handle == 0) {
@@ -66,7 +66,7 @@ GS_IMPORT gs_bool gs_OpenFileRead(gs_File* file, const char* path, uint32 commen
 	return TRUE;
 }
 
-GS_IMPORT gs_bool gs_OpenFileWrite(gs_File* file, const char* path, uint32 comment) {
+GS_EXPORT gs_bool gs_OpenFileWrite(gs_File* file, const char* path, uint32 comment) {
 	BPTR handle = Open(path, MODE_OLDFILE);
 
 	if (handle == 0) {
@@ -84,7 +84,7 @@ GS_IMPORT gs_bool gs_OpenFileWrite(gs_File* file, const char* path, uint32 comme
 	return TRUE;
 }
 
-GS_IMPORT void gs_CloseFile(gs_File* file) {
+GS_EXPORT void gs_CloseFile(gs_File* file) {
 	if (file->handle != 0) {
 
 		Close(FHANDLE);
@@ -183,13 +183,6 @@ GS_EXPORT uint32 gs_ReadUInt32_LE(gs_File* file) {
 	file->position += Read(FHANDLE, &val, sizeof(val));
 	val = gs_from_le32(val);
 	return val;
-}
-
-GS_IMPORT void gs_ReadTagPair(gs_File* file, gs_TagPair* tagPair) {
-	file->position += Read(FHANDLE, &tagPair->tag, 4);
-	file->position += Read(FHANDLE, &tagPair->end, 4);
-	tagPair->start = file->position;
-	tagPair->end = tagPair->start + gs_from_be32(tagPair->end) - 8;
 }
 
 GS_EXPORT void gs_WriteBytes(gs_File* file, void* data, uint32 length) {
