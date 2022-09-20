@@ -38,8 +38,8 @@ GS_PRIVATE int tagGroupedDispatcher(gs_File* dstRoom, gs_File* srcFile, gs_TagPa
 GS_PRIVATE int tagStop(gs_File* dstRoom, gs_File* srcFile, gs_TagPair* tag);
 
 GS_PRIVATE struct RoomTagExportFnTagged sExporters[] = {
-	{ gs_MakeTag('L', 'F', 'L', 'F'), tagStop },
-	{ gs_MakeTag('R', 'M', 'H', 'D'), tagGroupedDispatcher },
+	{ gs_MakeId('L', 'F', 'L', 'F'), tagStop },
+	{ gs_MakeId('R', 'M', 'H', 'D'), tagGroupedDispatcher },
 	{ 0, NULL }
 };
 
@@ -96,7 +96,7 @@ GS_PRIVATE int tagStop(gs_File* dstRoom, gs_File* srcFile, gs_TagPair* tag) {
 GS_PRIVATE int checkMAXS(gs_File* src) {
 
 	gs_TagPair maxs;
-	if (gs_SeekToAndFindTag(src, 0, gs_MakeTag('M', 'A', 'X', 'S'), &maxs) == FALSE) {
+	if (gs_SeekToAndFindTag(src, 0, gs_MakeId('M', 'A', 'X', 'S'), &maxs) == FALSE) {
 		gs_error_str("Could not find MAXS tag in LA0 file.");
 		return 1;
 	}
@@ -203,7 +203,7 @@ GS_PRIVATE int convertRoomIndexData(gs_File* indexFile, gs_File* diskFiles) {
 
 		gs_File* diskFile = &diskFiles[diskNum];
 
-		if (gs_SeekToAndFindTag(diskFile, 8, gs_MakeTag('L', 'O', 'F', 'F'), NULL) == FALSE) {
+		if (gs_SeekToAndFindTag(diskFile, 8, gs_MakeId('L', 'O', 'F', 'F'), NULL) == FALSE) {
 			gs_error_fmt("Could not find LOFF tag in LA%d file", diskNum);
 		}
 
