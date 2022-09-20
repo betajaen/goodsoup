@@ -26,6 +26,59 @@
 #include "shared/string.h"
 #include "shared/fs.h"
 
+typedef int(*RoomTagExportFn)(gs_File* dstRoom, gs_File* srcFile, gs_TagPair* tag);
+
+struct RoomTagExportFnTagged {
+	uint32 tag;
+	RoomTagExportFn fn;
+};
+
+GS_PRIVATE int tagDispatcher(gs_File* dstRoom, gs_File* srcFile, gs_TagPair* tag);
+GS_PRIVATE int tagGroupedDispatcher(gs_File* dstRoom, gs_File* srcFile, gs_TagPair* tag);
+GS_PRIVATE int tagStop(gs_File* dstRoom, gs_File* srcFile, gs_TagPair* tag);
+
+GS_PRIVATE struct RoomTagExportFnTagged sExporters[] = {
+	{ gs_MakeTag('L', 'F', 'L', 'F'), tagStop },
+	{ gs_MakeTag('R', 'M', 'H', 'D'), tagGroupedDispatcher },
+	{ 0, NULL }
+};
+
+
+GS_PRIVATE int tagDispatcher(gs_File* dstRoom, gs_File* srcFile, gs_TagPair* tag) {
+
+	struct RoomTagExportFnTagged* taggedFn = &sExporters[0];
+
+	while (TRUE) {
+
+		if (taggedFn->fn == NULL) {
+			// Not handled
+			gs_debug_fmt("Not handled %s", gs_TagPair2Str(tag));
+			gs_SeekTagPairEnd(srcFile, tag);
+			break;
+		}
+
+		if (taggedFn->tag == tag->tag) {
+			return taggedFn->fn(dstRoom, srcFile, tag);
+		}
+
+		taggedFn++;
+	}
+
+}
+
+GS_PRIVATE int tagGroupedDispatcher(gs_File* dstRoom, gs_File* srcFile, gs_TagPair* tag) {
+	while (gs_EndOfFile(srcFile) == FALSE && gs_EndOfTagPair(srcFile, tag) == FALSE) {
+		gs_TagPair subTag;
+		gs_ReadTagPair(srcFile, &subTag);
+		if (tagDispatcher(dstRoom, srcFile, &subTag) != 0)
+			break;
+	}
+}
+
+GS_PRIVATE int tagStop(gs_File* dstRoom, gs_File* srcFile, gs_TagPair* tag) {
+	return 1;
+}
+
 
 #define ENFORCE_MAXS1(CONSTANT) \
 	value = gs_ReadUInt32_LE(src);\
@@ -101,29 +154,31 @@ GS_PRIVATE int extractRoom(gs_File* diskFile, uint8 roomNum, uint8 diskNum, uint
 	gs_WriteTagStr(&dst, "LFLF");
 	gs_WriteUInt32_BE(&dst, 0);
 
-	gs_debug_fmt("%lu:%lu LFLF pos = %ld length = %ld", diskNum, roomNum, lflf.start, gs_TagPairDataLength(&lflf));
+	tagGroupedDispatcher(&dst, diskFile, &lflf);
 
-	while (gs_EndOfFile(diskFile) == FALSE && gs_EndOfTagPair(diskFile, &lflf) == FALSE) {
-		gs_TagPair tag;
-		gs_ReadTagPair(diskFile, &tag);
-		
-		if (gs_IsTagPair(&tag, 'L', 'F', 'L', 'F')) {
-			break;
-		}
-
-		if (gs_IsTagPair(&tag, 'S', 'C', 'R', 'P')) {
-			gs_verbose_fmt("%lu:%lu Skip %s %lu %lu", diskNum, roomNum, gs_TagPair2Str(&tag), gs_FilePosition(diskFile), (gs_TagPairDataLength(&tag) + 8));
-			gs_SeekTagPairEnd(diskFile, &tag);
-			continue;
-		}
-		
-
-		gs_WriteTagPair(&dst, &tag);
-		uint32 tagLen = gs_TagPairDataLength(&tag);
-		length += tagLen + 8;
-		gs_verbose_fmt("%lu:%lu Copy %s %lu %lu", diskNum, roomNum, gs_TagPair2Str(&tag), gs_FilePosition(diskFile), tagLen);
-		gs_FileCopy(&dst, diskFile, tagLen);
-	}
+	// gs_debug_fmt("%lu:%lu LFLF pos = %ld length = %ld", diskNum, roomNum, lflf.start, gs_TagPairDataLength(&lflf));
+	// 
+	// while (gs_EndOfFile(diskFile) == FALSE && gs_EndOfTagPair(diskFile, &lflf) == FALSE) {
+	// 	gs_TagPair tag;
+	// 	gs_ReadTagPair(diskFile, &tag);
+	// 	
+	// 	if (gs_IsTagPair(&tag, 'L', 'F', 'L', 'F')) {
+	// 		break;
+	// 	}
+	// 
+	// 	if (gs_IsTagPair(&tag, 'S', 'C', 'R', 'P')) {
+	// 		gs_verbose_fmt("%lu:%lu Skip %s %lu %lu", diskNum, roomNum, gs_TagPair2Str(&tag), gs_FilePosition(diskFile), (gs_TagPairDataLength(&tag) + 8));
+	// 		gs_SeekTagPairEnd(diskFile, &tag);
+	// 		continue;
+	// 	}
+	// 	
+	// 
+	// 	gs_WriteTagPair(&dst, &tag);
+	// 	uint32 tagLen = gs_TagPairDataLength(&tag);
+	// 	length += tagLen + 8;
+	// 	gs_verbose_fmt("%lu:%lu Copy %s %lu %lu", diskNum, roomNum, gs_TagPair2Str(&tag), gs_FilePosition(diskFile), tagLen);
+	// 	gs_FileCopy(&dst, diskFile, tagLen);
+	// }
 
 	gs_Seek(&dst, 4);
 	gs_WriteUInt32_BE(&dst, length);
