@@ -28,6 +28,6 @@ GS_IMPORT void* gs_Allocate(uint32 count, uint32 size, uint32 flags, uint32 comm
 GS_IMPORT void gs_Deallocate(void* mem);
 
 #define gs_new(TYPE, COMMENT) (gs_Allocate(1, sizeof(TYPE), MF_Clear, COMMENT))
-#define gs_delete(OBJ) do { if (OBJ) { gs_Deallocate(OBJ); OBJ = NULL } } while(0)
+#define gs_delete(OBJ) do { if (OBJ) { gs_Deallocate(OBJ); OBJ = NULL; } } while(0)
 
 #endif
