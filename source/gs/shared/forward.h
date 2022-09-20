@@ -138,4 +138,12 @@ typedef int32(*gs_callback)(void* user, int32 param);
 
 #define GS_SWAP(T, A, B) do { T t = A; A = B; B = t; } while(0)
 
+#if defined(GS_BIG)
+#define gs_MakeId(A, B, C, D) \
+	((uint32) (A)<<24 | (uint32) (B)<<16 | (uint32) (C)<<8 | (uint32) (D))
+#else
+#define gs_MakeId(A, B, C, D)	\
+	((uint32) (D)<<24 | (uint32) (C)<<16 | (uint32) (B)<<8 | (uint32) (A))
+#endif
+
 #endif

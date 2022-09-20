@@ -30,13 +30,6 @@ GS_IMPORT const char* gs_Tag2Str(uint32 tag);
 
 #define gs_TagPair2Str(TAG_PAIR_PTR) (gs_Tag2Str((TAG_PAIR_PTR)->tag))
 
-#if defined(GS_BIG)
-#define gs_MakeTag(A, B, C, D) \
-	((uint32) (A)<<24 | (uint32) (B)<<16 | (uint32) (C)<<8 | (uint32) (D))
-#else
-#define gs_MakeTag(A, B, C, D)	\
-	((uint32) (D)<<24 | (uint32) (C)<<16 | (uint32) (B)<<8 | (uint32) (A))
-#endif
 
 #define gs_IsTagPair(TAGPAIR_PTR, A, B, C, D) (((TAGPAIR_PTR)->tag) == (gs_MakeTag(A,B,C,D)))
 
