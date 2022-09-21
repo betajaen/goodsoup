@@ -42,6 +42,7 @@ typedef struct gs_Room {
 	gs_Room *next, *prev;
 	uint16 num;
 	uint16 loadFlags;
+	gs_RoomData data;
 	gs_Palette* palette;
 	gs_Image* background;
 } gs_Room;
