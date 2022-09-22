@@ -32,7 +32,7 @@
 #define FHANDLE ((BPTR) (file->handle))
 
 GS_EXPORT gs_File* gs_NewFile() {
-	gs_File* file = gs_new(gs_File, GS_COMMENT_FILE_LINE);
+	gs_File* file = gs_New(gs_File, GS_COMMENT_FILE_LINE);
 	file->handle = 0;
 	file->position = 0;
 	file->length = 0;

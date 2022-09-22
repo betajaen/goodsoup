@@ -61,7 +61,23 @@ GS_IMPORT void gs_DeleteRoom(gs_Room* room);
 
 /**
  */
+GS_IMPORT void gs_LoadRoom(gs_Room* room, struct gs_File* file, gs_TagPair* tag);
 
+/**
+ */
+GS_IMPORT void gs_SaveRoom(gs_Room* room, struct gs_File* file);
+
+/**
+ */
+GS_IMPORT gs_Room* gs_LoadRoomFile(uint32 roomNum);
+
+/**
+ */
+GS_IMPORT gs_Room* gs_GetRoom(uint16 roomNum);
+
+/**
+ */
+GS_IMPORT gs_SaveRoomFile(gs_Room* room);
 
 
 #endif

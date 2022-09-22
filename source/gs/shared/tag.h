@@ -20,16 +20,35 @@
 
 #include "shared/forward.h"
 
-typedef struct gs_TagPair {
-	uint32 tag;
-	uint32 start;
-	uint32 end;
-} gs_TagPair;
+#define GS_TAG_BYTE_SIZE 8
+
+#define GS_TAG_LA_ROOM_FILE gs_MakeId('L', 'F', 'L', 'F')
+
+#define GS_TAG_GS_FILE_MAGIC_BE gs_MakeId('G', 'S', 'B', 'E')
+#define GS_TAG_GS_FILE_MAGIC_LE gs_MakeId('G', 'S', 'L', 'E')
+
+// Structured Data that can be represented in a C struct
+#define GS_TAG_GSD_INFO gs_MakeId('I', 'N', 'F', 'O')
+
+// Unstructred Data (i.e. raw bytes)
+#define GS_TAG_GSD_DATA gs_MakeId('D', 'A', 'T', 'A')
+
+// Room Container
+#define GS_TAG_GSC_ROOM gs_MakeId('R', 'O', 'O', 'M')
+
+// Background Container
+#define GS_TAG_GSC_ROOM_BACKGROUND gs_MakeId('B', 'G', 'N', 'D')
+
+// Image Container
+#define GS_TAG_GSC_IMAGE gs_MakeId('I', 'M', 'G', ' ')
+
+// Palette Container
+#define GS_TAG_GSC_PALETTE gs_MakeId('P', 'A', 'L', ' ')
+
 
 GS_IMPORT const char* gs_Tag2Str(uint32 tag);
 
 #define gs_TagPair2Str(TAG_PAIR_PTR) (gs_Tag2Str((TAG_PAIR_PTR)->tag))
-
 
 #define gs_IsTagPair(TAGPAIR_PTR, A, B, C, D) (((TAGPAIR_PTR)->tag) == (gs_MakeId(A,B,C,D)))
 

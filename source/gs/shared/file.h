@@ -642,14 +642,40 @@ GS_IMPORT void gs_WriteTagStr(gs_File* file, char* tagStr);
 
 
 /**
- * Writes a TagPair to a opened write file
+ * Writes the beginning of a TagPair to a opened write file
+ * 
+ * Used with gs_WriteTagPairEnd
+ * 
+ * @param file File to write to
+ * @param out_tagPair TagPair to use
+ * @param tag Tag Name
+ * 
+ */
+GS_IMPORT void gs_WriteTagPairStart(gs_File* file, gs_TagPair* out_tagPair, uint32 tag);
+
+
+/**
+ * Writes the beginning of a TagPair to a opened write file
+ * 
+ * Used with gs_WriteTagPairEnd
+ * 
+ * @param file File to write to
+ * @param out_tagPair TagPair to use
+ * @param tag Tag Name
+ * 
+ */
+GS_IMPORT void gs_WriteTagPairKnownSize(gs_File* file, uint32 tag, uint32 size);
+
+/**
+ * Writes the end of a TagPair in an opened file
+ * 
+ * Used with gs_WriteTagPairStart
  * 
  * @param file File to write to
  * @param tagStr TagPair value to write
  * 
  */
-GS_IMPORT void gs_WriteTagPair(gs_File* file, gs_TagPair* tagPair);
-
+GS_IMPORT void gs_WriteTagPairEnd(gs_File* file, gs_TagPair* tagPair);
 
 /**
  * Seeks forward from the current position in a file to the first tag

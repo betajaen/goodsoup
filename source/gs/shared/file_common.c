@@ -76,7 +76,28 @@ GS_EXPORT void gs_ReadTagPair(gs_File* file, gs_TagPair* tagPair) {
 	tagPair->end = tagPair->start + length;
 }
 
-GS_EXPORT void gs_WriteTagPair(gs_File* file, gs_TagPair* tagPair) {
-	gs_WriteBytes(file, &tagPair->tag, 4);
-	gs_WriteUInt32_BE(file, gs_TagPairDataLength(tagPair));
+GS_EXPORT void gs_WriteTagPairStart(gs_File* file, gs_TagPair* tagPair, uint32 tag) {
+
+	tagPair->tag = tag;
+	tagPair->start = gs_FilePosition(file);
+	gs_WriteBytes(file, &tag, 4);
+	gs_WriteUInt32_BE(file, 0);
+
+	//gs_WriteUInt32_BE(file, gs_TagPairDataLength(tagPair));
+}
+
+GS_IMPORT void gs_WriteTagPairEnd(gs_File* file, gs_TagPair* tagPair) {
+	uint32 end = gs_FilePosition(file);
+	uint32 length = end - tagPair->start;
+	tagPair->end = end;
+
+	gs_Seek(file, tagPair->start + 4);
+	gs_WriteUInt32_BE(file, length);
+	gs_Seek(file, end);
+
+}
+
+GS_IMPORT void gs_WriteTagPairKnownSize(gs_File* file, uint32 tag, uint32 size) {
+	gs_WriteBytes(file, &tag, 4);
+	gs_WriteUInt32_BE(file, size);
 }

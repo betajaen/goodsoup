@@ -15,14 +15,30 @@
  *
  */
 
-#define GS_FILE "gsi"
+#ifndef GS_PALETTE_H
+#define GS_PALETTE_H
 
 #include "shared/forward.h"
-#include "shared/file.h"
-#include "shared/tag.h"
-#include "room.h"
 
+typedef enum gs_PaletteType {
+	PT_Unknown = 0,
+	PT_Chunky_256 = 255
+} gs_PaletteType;
 
-GS_PRIVATE saveRoomBackground(gs_File* dst, gs_Image* image) {
-	/* TODO */
-}
+// Used for fixed non-colour cycling palettes
+typedef struct gs_Palette {
+	uint16 parent;
+	uint8 parentCObjectType;
+	byte paletteType;
+	byte palette[256 * 3];
+} gs_Palette;
+
+gs_Palette* gs_NewPalette();
+
+void gs_DeletePalette(gs_Palette* palette);
+
+void gs_LoadPalette(gs_Palette* pal, struct gs_File* file, gs_TagPair* tagPair);
+
+void gs_SavePalette(struct gs_File* file, gs_Palette* pal);
+
+#endif

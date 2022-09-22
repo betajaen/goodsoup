@@ -112,6 +112,20 @@ typedef uint32      gs_tag;
 #error "Unknown Arch!"
 #endif
 
+typedef struct gs_TagPair {
+	uint32 tag;
+	uint32 start;
+	uint32 end;
+} gs_TagPair;
+
+typedef enum gs_CObjectType {
+	COT_Room = 1,
+	COT_Image = 2,
+	COT_Palette = 3,
+	COT_VmObject = 4,
+	COT_VmCoroutine = 5
+} gs_CObjectType;
+
 
 #ifndef FALSE
 #define FALSE 0

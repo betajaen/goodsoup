@@ -19,6 +19,8 @@ OBJ =	shared/error.o \
 		shared/string.o \
 		shared/tag.o\
 		shared/file_common.o\
+		graphics/image.o\
+		graphics/palette.o\
 		main.o \
 		events/events.o \
 		coroutine.o \
