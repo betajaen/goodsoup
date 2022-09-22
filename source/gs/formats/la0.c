@@ -25,6 +25,9 @@
 #include "shared/memory.h"
 #include "shared/string.h"
 #include "shared/fs.h"
+
+#include "graphics/image.h"
+#include "graphics/palette.h"
 #include "room.h"
 
 typedef int(*RoomTagExportFn)(gs_File* srcFile, gs_TagPair* tag);
@@ -36,6 +39,33 @@ struct RoomTagExportFnTagged {
 
 GS_PRIVATE gs_Room* sCurrentRoom = NULL;
 uint16 sCurrentRoomNumObjects = 0;
+
+GS_PRIVATE int enterIntoTag_impl(gs_File* srcFile, uint32 expectedTag, gs_TagPair* out_tagPair) {
+	gs_ReadTagPair(srcFile, out_tagPair);
+
+	if (out_tagPair->tag != expectedTag) {
+		gs_warn_fmt("Unexpected Tag to enter into wanted %s got %s", gs_Tag2Str(expectedTag), gs_TagPair2Str(out_tagPair));
+		return 1;
+	}
+
+	return 0;
+}
+
+GS_PRIVATE int skipOverTag_impl(gs_File* srcFile, uint32 expectedTag, gs_TagPair* out_tagPair) {
+	gs_ReadTagPair(srcFile, out_tagPair);
+
+	if (out_tagPair->tag != expectedTag) {
+		gs_warn_fmt("Unexpected Tag to skip over wanted %s got %s", gs_Tag2Str(expectedTag), gs_TagPair2Str(out_tagPair));
+		return 1;
+	}
+
+	gs_SeekTagPairEnd(srcFile, out_tagPair);
+
+	return 0;
+}
+
+#define enterIntoTagOrFail(FILE, EXPECT_TAG_NAME, OUT_TAGPAIR) if (enterIntoTag_impl(FILE, EXPECT_TAG_NAME, OUT_TAGPAIR) == 1) { return 1;}
+#define skipOverTagOrFail(FILE, EXPECT_TAG_NAME, OUT_TAGPAIR) if (skipOverTag_impl(FILE, EXPECT_TAG_NAME, OUT_TAGPAIR) == 1) { return 1;}
 
 GS_PRIVATE int loadRHMD(gs_File* srcFile, gs_TagPair* tag) {
 	
@@ -54,9 +84,65 @@ GS_PRIVATE int loadRHMD(gs_File* srcFile, gs_TagPair* tag) {
 	return 0;
 }
 
-GS_PRIVATE int loadPALS(gs_File* srcFile, gs_TagPair* tag) {
+GS_PRIVATE int loadPALS(gs_File* srcFile, gs_TagPair* palsTag) {
+	
+	gs_TagPair tag;
+
 	gs_debug_str("Load PALS");
-	gs_SeekTagPairEnd(srcFile, tag);
+	
+	if (sCurrentRoom->palettes != NULL) {
+		gs_warn_str("Room has double palette entry!");
+		return 1;
+	}
+
+	// + PALS
+	// +- WRAP
+	// +---OFFS
+	// +---APAL
+	enterIntoTagOrFail(srcFile, gs_MakeId('W', 'R', 'A', 'P'), &tag);
+	skipOverTagOrFail(srcFile, gs_MakeId('O', 'F', 'F', 'S'), &tag);
+
+	uint32 numPalettes = gs_TagPairDataLength(&tag) / sizeof(uint32);
+
+	if (numPalettes == 0) {
+		gs_warn_fmt("Too little palettes! %ld", numPalettes);
+		return 1;
+	}
+	
+	if (numPalettes >= 255) {
+		gs_warn_fmt("Too many palettes! %ld", numPalettes);
+		return 1;
+	}
+
+	enterIntoTagOrFail(srcFile, gs_MakeId('A', 'P', 'A', 'L'), &tag);
+
+	// // Fails on Room 25.
+	//
+	//uint32 expectedLength = numPalettes * 3 * 256;
+	//
+	//if (expectedLength != gs_TagPairDataLength(&tag)) {
+	//	gs_debug_str("Palette data size is incorrect.");
+	//	return 1;
+	//}
+
+	sCurrentRoom->palettes = gs_NewCObjectArray(numPalettes, gs_Palette, COT_Palette);
+	sCurrentRoom->data.numPalettes = numPalettes;
+
+	for(uint8 i=0;i < numPalettes;i++) {
+		gs_debug_fmt("Pal %ld of %ld", i, numPalettes);
+		gs_Palette* palette = sCurrentRoom->palettes + i;
+		gs_debug_fmt("%x", palette);
+		
+		gs_debug_fmt("Data %ld", i);
+		palette->parent = sCurrentRoom->num;
+		palette->parentCObjectType = COT_Room;
+		palette->paletteType = PT_Chunky_256;
+		gs_ReadBytes(srcFile, &palette->palette[0], (3 * 256));
+		gs_debug_fmt("Okay %ld", i);
+	}
+	
+	gs_debug_str("End");
+	gs_SeekTagPairEnd(srcFile, palsTag);
 	return 0;
 }
 
@@ -92,7 +178,7 @@ GS_PRIVATE int loadIMAG(gs_File* srcFile, gs_TagPair* tag) {
 
 GS_PRIVATE int loadTagContainer(gs_File* srcFile, gs_TagPair* tag);
 
-GS_PRIVATE struct RoomTagExportFnTagged sExporters[] = {
+GS_PRIVATE struct RoomTagExportFnTagged sLFLFExporters[] = {
 	{ gs_MakeId('L', 'F', 'L', 'F'), loadTagContainer },
 	{ gs_MakeId('R', 'O', 'O', 'M'), loadTagContainer },
 	{ gs_MakeId('R', 'M', 'H', 'D'), loadRHMD },
@@ -112,13 +198,13 @@ GS_PRIVATE int loadTagContainer(gs_File* srcFile, gs_TagPair* tag) {
 		gs_TagPair subTag;
 		gs_ReadTagPair(srcFile, &subTag);
 		
-		struct RoomTagExportFnTagged* taggedFn = &sExporters[0];
+		struct RoomTagExportFnTagged* taggedFn = &sLFLFExporters[0];
 
 		while (TRUE) {
 			
 			if (taggedFn->fn == NULL) {
 				// Not handled
-				gs_debug_fmt("Not handled %s", gs_TagPair2Str(&subTag));
+				// gs_debug_fmt("Not handled %s", gs_TagPair2Str(&subTag));
 				gs_SeekTagPairEnd(srcFile, &subTag);
 				break;
 			}
@@ -207,14 +293,14 @@ GS_PRIVATE int extractRoom(gs_File* diskFile, uint8 roomNum, uint8 diskNum, uint
 	sCurrentRoom->num = roomNum;
 	sCurrentRoomNumObjects = 0;
 
-	loadTagContainer(diskFile, &lflf);
+	int r = loadTagContainer(diskFile, &lflf);
 
 	gs_SaveRoomFile(sCurrentRoom);
 	gs_DeleteRoom(sCurrentRoom);
 	
-
 	gs_debug_fmt("Wrote Room %ld", roomNum);
 
+	return r;
 }
 
 GS_PRIVATE int convertRoomIndexData(gs_File* indexFile, gs_File* diskFiles) {
@@ -260,7 +346,12 @@ GS_PRIVATE int convertRoomIndexData(gs_File* indexFile, gs_File* diskFiles) {
 			if (roomOffset == 0)
 				continue;
 
-			extractRoom(diskFile, roomNum, diskNum, roomDiskOffsets[roomNum]);
+			gs_debug_fmt("** Room %ld", roomNum);
+			int r = extractRoom(diskFile, roomNum, diskNum, roomDiskOffsets[roomNum]);
+
+			if (r != 0) {
+				return r;
+			}
 
 		}
 
