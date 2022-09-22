@@ -33,4 +33,7 @@ GS_IMPORT void gs_Deallocate(void* mem);
 #define gs_NewCObject(TYPE, COBJECT_TYPE)  (gs_Allocate(1, sizeof(TYPE), MF_Clear, gs_MakeId('C', 'O', 'T', ('A' + COBJECT_TYPE))))
 #define gs_DeleteCObject(OBJ) gs_Delete(OBJ)
 
+#define gs_NewCObjectArray(NUM, TYPE, COBJECT_TYPE)  (gs_Allocate(NUM, sizeof(TYPE), MF_Clear, gs_MakeId('C', 'O', 'A', ('A' + COBJECT_TYPE))))
+#define gs_DeleteCObjectArray(ARRAY) gs_Delete(ARRAY)
+
 #endif
