@@ -24,6 +24,7 @@ OBJ =	shared/error.o \
 		main.o \
 		events/events.o \
 		coroutine.o \
+		room.o \
 		formats/la0.o
 
 all: $(OBJ) $(POBJ)
