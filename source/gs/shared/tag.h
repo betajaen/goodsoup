@@ -24,8 +24,8 @@
 
 #define GS_TAG_LA_ROOM_FILE gs_MakeId('L', 'F', 'L', 'F')
 
-#define GS_TAG_GS_FILE_MAGIC_BE gs_MakeId('G', 'S', 'B', 'E')
-#define GS_TAG_GS_FILE_MAGIC_LE gs_MakeId('G', 'S', 'L', 'E')
+#define GS_TAG_GS_FILE_MAGIC_BE "GSBE"
+#define GS_TAG_GS_FILE_MAGIC_LE "GSLE"
 
 // Structured Data that can be represented in a C struct
 #define GS_TAG_GSD_INFO gs_MakeId('I', 'N', 'F', 'O')
