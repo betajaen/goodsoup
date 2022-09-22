@@ -38,3 +38,21 @@ GS_EXPORT const char* gs_Tag2Str(uint32 tag) {
 	str[4] = '\0';
 	return str;
 }
+
+GS_EXPORT const char* gs_TagPair2Str(gs_TagPair* tagPair) {
+	static char str[5] = { 0 };
+
+#if defined(GS_BIG)
+	str[0] = (char)(tagPair->tag >> 24);
+	str[1] = (char)(tagPair->tag >> 16);
+	str[2] = (char)(tagPair->tag >> 8);
+	str[3] = (char)tagPair->tag;
+#else
+	str[0] = (char)tagPair->tag;
+	str[1] = (char)(tagPair->tag >> 8);
+	str[2] = (char)(tagPair->tag >> 16);
+	str[3] = (char)(tagPair->tag >> 24);
+#endif
+	str[4] = '\0';
+	return str;
+}
