@@ -25,60 +25,118 @@
 #include "shared/memory.h"
 #include "shared/string.h"
 #include "shared/fs.h"
+#include "room.h"
 
-typedef int(*RoomTagExportFn)(gs_File* dstRoom, gs_File* srcFile, gs_TagPair* tag);
+typedef int(*RoomTagExportFn)(gs_File* srcFile, gs_TagPair* tag);
 
 struct RoomTagExportFnTagged {
 	uint32 tag;
 	RoomTagExportFn fn;
 };
 
-GS_PRIVATE int tagDispatcher(gs_File* dstRoom, gs_File* srcFile, gs_TagPair* tag);
-GS_PRIVATE int tagGroupedDispatcher(gs_File* dstRoom, gs_File* srcFile, gs_TagPair* tag);
-GS_PRIVATE int tagStop(gs_File* dstRoom, gs_File* srcFile, gs_TagPair* tag);
+GS_PRIVATE gs_Room* sCurrentRoom = NULL;
+uint16 sCurrentRoomNumObjects = 0;
+
+GS_PRIVATE int loadRHMD(gs_File* srcFile, gs_TagPair* tag) {
+	
+	gs_debug_str("Load RMHD");
+
+	sCurrentRoom->loadFlags |= RLF_Data;
+
+	gs_Skip(srcFile, 4);	// Version
+	sCurrentRoom->data.width = gs_ReadUInt32_LE(srcFile); // width
+	sCurrentRoom->data.height = gs_ReadUInt32_LE(srcFile); // height
+	sCurrentRoomNumObjects = gs_ReadUInt32_LE(srcFile);
+	gs_Skip(srcFile, 4);	// Unknown
+	sCurrentRoom->data.layers = gs_ReadUInt32_LE(srcFile); // Number of Z Buffers/Layers
+
+	gs_SeekTagPairEnd(srcFile, tag);
+	return 0;
+}
+
+GS_PRIVATE int loadPALS(gs_File* srcFile, gs_TagPair* tag) {
+	gs_debug_str("Load PALS");
+	gs_SeekTagPairEnd(srcFile, tag);
+	return 0;
+}
+
+GS_PRIVATE int loadENCD(gs_File* srcFile, gs_TagPair* tag) {
+	gs_debug_str("Load ENCD");
+	gs_SeekTagPairEnd(srcFile, tag);
+	return 0;
+}
+
+GS_PRIVATE int loadEXCD(gs_File* srcFile, gs_TagPair* tag) {
+	gs_debug_str("Load EXCD");
+	gs_SeekTagPairEnd(srcFile, tag);
+	return 0;
+}
+
+GS_PRIVATE int loadOBCD(gs_File* srcFile, gs_TagPair* tag) {
+	gs_debug_str("Load OBCD");
+	gs_SeekTagPairEnd(srcFile, tag);
+	return 0;
+}
+
+GS_PRIVATE int loadLSCR(gs_File* srcFile, gs_TagPair* tag) {
+	gs_debug_str("Load LSCR");
+	gs_SeekTagPairEnd(srcFile, tag);
+	return 0;
+}
+
+GS_PRIVATE int loadIMAG(gs_File* srcFile, gs_TagPair* tag) {
+	gs_debug_str("Load IMAG");
+	gs_SeekTagPairEnd(srcFile, tag);
+	return 0;
+}
+
+GS_PRIVATE int loadTagContainer(gs_File* srcFile, gs_TagPair* tag);
 
 GS_PRIVATE struct RoomTagExportFnTagged sExporters[] = {
-	{ gs_MakeId('L', 'F', 'L', 'F'), tagStop },
-	{ gs_MakeId('R', 'M', 'H', 'D'), tagGroupedDispatcher },
+	{ gs_MakeId('L', 'F', 'L', 'F'), loadTagContainer },
+	{ gs_MakeId('R', 'O', 'O', 'M'), loadTagContainer },
+	{ gs_MakeId('R', 'M', 'H', 'D'), loadRHMD },
+	{ gs_MakeId('P', 'A', 'L', 'S'), loadPALS },
+	{ gs_MakeId('R', 'M', 'S', 'C'), loadTagContainer },
+	{ gs_MakeId('E', 'N', 'C', 'D'), loadENCD },
+	{ gs_MakeId('E', 'X', 'C', 'D'), loadEXCD },
+	{ gs_MakeId('O', 'B', 'C', 'D'), loadOBCD },
+	{ gs_MakeId('L', 'S', 'C', 'R'), loadLSCR },
+	{ gs_MakeId('I', 'M', 'A', 'G'), loadIMAG },
 	{ 0, NULL }
 };
 
+GS_PRIVATE int loadTagContainer(gs_File* srcFile, gs_TagPair* tag) {
 
-GS_PRIVATE int tagDispatcher(gs_File* dstRoom, gs_File* srcFile, gs_TagPair* tag) {
-
-	struct RoomTagExportFnTagged* taggedFn = &sExporters[0];
-
-	while (TRUE) {
-
-		if (taggedFn->fn == NULL) {
-			// Not handled
-			gs_debug_fmt("Not handled %s", gs_TagPair2Str(tag));
-			gs_SeekTagPairEnd(srcFile, tag);
-			break;
-		}
-
-		if (taggedFn->tag == tag->tag) {
-			return taggedFn->fn(dstRoom, srcFile, tag);
-		}
-
-		taggedFn++;
-	}
-
-}
-
-GS_PRIVATE int tagGroupedDispatcher(gs_File* dstRoom, gs_File* srcFile, gs_TagPair* tag) {
-	while (gs_EndOfFile(srcFile) == FALSE && gs_EndOfTagPair(srcFile, tag) == FALSE) {
+	while(gs_FilePosition(srcFile) < tag->end) {
 		gs_TagPair subTag;
 		gs_ReadTagPair(srcFile, &subTag);
-		if (tagDispatcher(dstRoom, srcFile, &subTag) != 0)
-			break;
+		
+		struct RoomTagExportFnTagged* taggedFn = &sExporters[0];
+
+		while (TRUE) {
+			
+			if (taggedFn->fn == NULL) {
+				// Not handled
+				gs_debug_fmt("Not handled %s", gs_TagPair2Str(&subTag));
+				gs_SeekTagPairEnd(srcFile, &subTag);
+				break;
+			}
+
+			if (taggedFn->tag == subTag.tag) {
+				int res = taggedFn->fn(srcFile, &subTag);
+				if (res != 0)
+					return res;
+
+				break;
+			}
+
+			taggedFn++;
+		}
 	}
-}
 
-GS_PRIVATE int tagStop(gs_File* dstRoom, gs_File* srcFile, gs_TagPair* tag) {
-	return 1;
+	return 0;
 }
-
 
 #define ENFORCE_MAXS1(CONSTANT) \
 	value = gs_ReadUInt32_LE(src);\
@@ -140,50 +198,20 @@ GS_PRIVATE int createDrawers() {
 
 GS_PRIVATE int extractRoom(gs_File* diskFile, uint8 roomNum, uint8 diskNum, uint32 offset) {
 
-	char path[sizeof(GS_PATH_GS_ROOM_FMT) + 4];
 	gs_TagPair lflf;
-	gs_File dst;
-
-	gs_format(path, sizeof(path), GS_PATH_GS_ROOM_FMT, roomNum);
-
-	gs_OpenFileWrite(&dst, path, GS_COMMENT_FILE_LINE);
-
+	
 	gs_Seek(diskFile, offset);
 	gs_ReadTagPair(diskFile, &lflf);
-	uint32 length = 8;
-	gs_WriteTagStr(&dst, "LFLF");
-	gs_WriteUInt32_BE(&dst, 0);
+	
+	sCurrentRoom = gs_NewRoom(FALSE);
+	sCurrentRoom->num = roomNum;
+	sCurrentRoomNumObjects = 0;
 
-	tagGroupedDispatcher(&dst, diskFile, &lflf);
+	loadTagContainer(diskFile, &lflf);
 
-	// gs_debug_fmt("%lu:%lu LFLF pos = %ld length = %ld", diskNum, roomNum, lflf.start, gs_TagPairDataLength(&lflf));
-	// 
-	// while (gs_EndOfFile(diskFile) == FALSE && gs_EndOfTagPair(diskFile, &lflf) == FALSE) {
-	// 	gs_TagPair tag;
-	// 	gs_ReadTagPair(diskFile, &tag);
-	// 	
-	// 	if (gs_IsTagPair(&tag, 'L', 'F', 'L', 'F')) {
-	// 		break;
-	// 	}
-	// 
-	// 	if (gs_IsTagPair(&tag, 'S', 'C', 'R', 'P')) {
-	// 		gs_verbose_fmt("%lu:%lu Skip %s %lu %lu", diskNum, roomNum, gs_TagPair2Str(&tag), gs_FilePosition(diskFile), (gs_TagPairDataLength(&tag) + 8));
-	// 		gs_SeekTagPairEnd(diskFile, &tag);
-	// 		continue;
-	// 	}
-	// 	
-	// 
-	// 	gs_WriteTagPair(&dst, &tag);
-	// 	uint32 tagLen = gs_TagPairDataLength(&tag);
-	// 	length += tagLen + 8;
-	// 	gs_verbose_fmt("%lu:%lu Copy %s %lu %lu", diskNum, roomNum, gs_TagPair2Str(&tag), gs_FilePosition(diskFile), tagLen);
-	// 	gs_FileCopy(&dst, diskFile, tagLen);
-	// }
-
-	gs_Seek(&dst, 4);
-	gs_WriteUInt32_BE(&dst, length);
-
-	gs_CloseFile(&dst);
+	gs_SaveRoomFile(sCurrentRoom);
+	gs_DeleteRoom(sCurrentRoom);
+	
 
 	gs_debug_fmt("Wrote Room %ld", roomNum);
 
