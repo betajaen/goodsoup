@@ -23,6 +23,7 @@
 #include "shared/memory.h"
 #include "shared/tag.h"
 #include "shared/file.h"
+#include "shared/string.h"
 
 
 #include "room.h"
@@ -53,9 +54,9 @@ GS_PRIVATE void gs_Room_Dtor(gs_Room* room) {
 
 
 
-GS_EXPORT gs_Room* gs_NewRoom(gs_bool addToList) {
+GS_EXPORT gs_Room* gs_NewRoom() {
 	gs_Room* room = gs_New(gs_Room, GS_COMMENT_FILE_LINE_NOTE("ROOM"));
-	gs_Room_Ctor(room, addToList);
+	gs_Room_Ctor(room);
 	return room;
 }
 
@@ -81,7 +82,7 @@ GS_EXPORT void gs_LoadRoom(gs_Room* room, struct gs_File* file, gs_TagPair* tag)
 	/* TODO */
 }
 
-GS_PRIVATE saveRoomData(gs_File* dst, gs_Room* room) {
+GS_PRIVATE void saveRoomData(gs_File* dst, gs_Room* room) {
 
 	gs_WriteTagPairKnownSize(dst, 
 		GS_TAG_GSD_INFO,
@@ -102,7 +103,7 @@ GS_PRIVATE saveRoomData(gs_File* dst, gs_Room* room) {
 GS_EXPORT void gs_SaveRoom(gs_Room* room, struct gs_File* dst) {
 	gs_TagPair roomTag;
 
-	gs_WriteTagPairStart(room, &roomTag, GS_TAG_GSC_ROOM);
+	gs_WriteTagPairStart(dst, &roomTag, GS_TAG_GSC_ROOM);
 
 	saveRoomData(dst, room);
 
@@ -113,7 +114,7 @@ GS_EXPORT void gs_SaveRoom(gs_Room* room, struct gs_File* dst) {
 		gs_WriteTagPairEnd(dst, &backgroundTag);
 	}
 
-	gs_WriteTagPairEnd(room, &roomTag);
+	gs_WriteTagPairEnd(dst, &roomTag);
 }
 
 /**
@@ -124,7 +125,7 @@ GS_EXPORT gs_Room* gs_LoadRoomFile(uint32 roomNum) {
 
 /**
  */
-GS_EXPORT gs_SaveRoomFile(gs_Room* room) {
+GS_EXPORT void gs_SaveRoomFile(gs_Room* room) {
 	char path[sizeof(GS_PATH_GS_ROOM_FMT) + 4];
 	gs_File dst;
 

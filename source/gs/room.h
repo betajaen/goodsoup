@@ -39,7 +39,7 @@ typedef struct gs_RoomData {
 } gs_RoomData;
 
 typedef struct gs_Room {
-	gs_Room *next, *prev;
+	struct gs_Room *next, *prev;
 	uint16 num;
 	uint16 loadFlags;
 	gs_RoomData data;
@@ -51,7 +51,7 @@ typedef struct gs_Room {
 /**
  *	Create a Room onto the Heap  
  */
-GS_IMPORT gs_Room* gs_NewRoom(gs_bool addToList);
+GS_IMPORT gs_Room* gs_NewRoom();
 
 /**
  *	Delete Room onto the Heap  
@@ -77,7 +77,7 @@ GS_IMPORT gs_Room* gs_GetRoom(uint16 roomNum);
 
 /**
  */
-GS_IMPORT gs_SaveRoomFile(gs_Room* room);
+GS_IMPORT void gs_SaveRoomFile(gs_Room* room);
 
 
 #endif
