@@ -36,6 +36,7 @@ typedef enum gs_RoomLoadFlags {
 typedef struct gs_RoomData {
 	uint16 width, height;
 	uint8  layers, flags;
+	uint8  numPalettes;
 } gs_RoomData;
 
 typedef struct gs_Room {
@@ -43,7 +44,7 @@ typedef struct gs_Room {
 	uint16 num;
 	uint16 loadFlags;
 	gs_RoomData data;
-	gs_Palette* palette;
+	gs_Palette* palettes;
 	gs_Image* background;
 } gs_Room;
 

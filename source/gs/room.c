@@ -41,8 +41,13 @@ GS_PRIVATE void gs_Room_Ctor(gs_Room* room) {
 	room->next = NULL;
 	room->prev = NULL;
 	room->num = 0;
-	room->palette = NULL;
-	
+	room->palettes = NULL;
+	room->data.numPalettes = 0;
+	room->data.flags = 0;
+	room->data.width = 0;
+	room->data.height = 0;
+	room->data.layers = 0;
+
 	gs_Room_List_PushBack(&sRooms, room);
 }
 
