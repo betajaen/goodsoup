@@ -114,34 +114,19 @@ GS_PRIVATE int loadPALS(gs_File* srcFile, gs_TagPair* palsTag) {
 		return 1;
 	}
 
-	enterIntoTagOrFail(srcFile, gs_MakeId('A', 'P', 'A', 'L'), &tag);
-
-	// // Fails on Room 25.
-	//
-	//uint32 expectedLength = numPalettes * 3 * 256;
-	//
-	//if (expectedLength != gs_TagPairDataLength(&tag)) {
-	//	gs_debug_str("Palette data size is incorrect.");
-	//	return 1;
-	//}
-
 	sCurrentRoom->palettes = gs_NewCObjectArray(numPalettes, gs_Palette, COT_Palette);
 	sCurrentRoom->data.numPalettes = numPalettes;
 
 	for(uint8 i=0;i < numPalettes;i++) {
-		gs_debug_fmt("Pal %ld of %ld", i, numPalettes);
+		enterIntoTagOrFail(srcFile, gs_MakeId('A', 'P', 'A', 'L'), &tag);
+
 		gs_Palette* palette = sCurrentRoom->palettes + i;
-		gs_debug_fmt("%x", palette);
-		
-		gs_debug_fmt("Data %ld", i);
 		palette->parent = sCurrentRoom->num;
 		palette->parentCObjectType = COT_Room;
 		palette->paletteType = PT_Chunky_256;
 		gs_ReadBytes(srcFile, &palette->palette[0], (3 * 256));
-		gs_debug_fmt("Okay %ld", i);
 	}
 	
-	gs_debug_str("End");
 	gs_SeekTagPairEnd(srcFile, palsTag);
 	return 0;
 }
@@ -345,8 +330,9 @@ GS_PRIVATE int convertRoomIndexData(gs_File* indexFile, gs_File* diskFiles) {
 
 			if (roomOffset == 0)
 				continue;
+			
+			gs_debug_fmt("** Room %ld on Disk %ld at %lx", roomNum, diskNum, roomDiskOffsets[roomNum]);
 
-			gs_debug_fmt("** Room %ld", roomNum);
 			int r = extractRoom(diskFile, roomNum, diskNum, roomDiskOffsets[roomNum]);
 
 			if (r != 0) {
