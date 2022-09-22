@@ -28,8 +28,10 @@ typedef enum gs_PaletteType {
 // Used for fixed non-colour cycling palettes
 typedef struct gs_Palette {
 	uint16 parent;
-	uint8 parentCObjectType;
+	byte parentCObjectType;
+	uint8 paletteNum;
 	byte paletteType;
+	byte reserved;
 	byte palette[256 * 3];
 } gs_Palette;
 
