@@ -21,4 +21,39 @@
 #error "GS_OS3_ARCH must be defined to compile this file."
 #endif
 
+#include "shared/error.h"
 #include <proto/dos.h>
+
+
+GS_IMPORT gs_bool gs_DrawerExists(const char* path) {
+	
+
+	BPTR lock = Lock(path, ACCESS_READ);
+
+	UnLock(lock);
+
+	return lock != 0;
+}
+
+GS_IMPORT gs_bool gs_CreateDrawer(const char* path) {
+	
+	BPTR lock;
+
+	gs_debug_fmt("Create Drawer %s", path);
+
+	lock = Lock(path, ACCESS_READ);
+
+	if (lock) {
+		UnLock(lock);
+
+		return TRUE;
+	}
+
+	lock = CreateDir(path);
+
+	if (lock != 0) {
+		UnLock(lock);
+	}
+	
+	return lock != 0;
+}
