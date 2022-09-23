@@ -25,7 +25,8 @@ OBJ =	shared/error.o \
 		events/events.o \
 		coroutine.o \
 		room.o \
-		formats/la0.o
+		formats/la0.o\
+		formats/lflf.o
 
 all: $(OBJ) $(POBJ)
 	$(CC)  $(CFLAGS) $(OBJ) $(POBJ) -o $(PROGRAM)
