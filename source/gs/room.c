@@ -130,12 +130,14 @@ GS_EXPORT gs_Room* gs_LoadRoomFile(uint32 roomNum) {
 
 /**
  */
-GS_EXPORT void gs_SaveRoomFile(gs_Room* room) {
+GS_EXPORT gs_bool gs_SaveRoomFile(gs_Room* room) {
 	char path[sizeof(GS_PATH_GS_ROOM_FMT) + 4];
 	gs_File dst;
 
 	gs_format(path, sizeof(path), GS_PATH_GS_ROOM_FMT, room->num);
-	gs_OpenFileWrite(&dst, path, GS_COMMENT_FILE_LINE);
+	if (gs_OpenFileWrite(&dst, path, GS_COMMENT_FILE_LINE) == FALSE) {
+		return FALSE;
+	}
 
 #if defined(GS_BIG)
 	gs_WriteTagStr(&dst,  GS_TAG_GS_FILE_MAGIC_BE);
@@ -146,4 +148,6 @@ GS_EXPORT void gs_SaveRoomFile(gs_Room* room) {
 	gs_SaveRoom(room, &dst);
 
 	gs_CloseFile(&dst);
+
+	return TRUE;
 }

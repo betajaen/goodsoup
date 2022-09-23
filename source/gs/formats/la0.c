@@ -280,10 +280,15 @@ GS_PRIVATE int extractRoom(gs_File* diskFile, uint8 roomNum, uint8 diskNum, uint
 
 	int r = loadTagContainer(diskFile, &lflf);
 
-	gs_SaveRoomFile(sCurrentRoom);
+	if (gs_SaveRoomFile(sCurrentRoom) == FALSE) {
+		r = 1;
+	}
+	else {
+		gs_debug_fmt("Wrote Room %ld", roomNum);
+	}
+
 	gs_DeleteRoom(sCurrentRoom);
 	
-	gs_debug_fmt("Wrote Room %ld", roomNum);
 
 	return r;
 }

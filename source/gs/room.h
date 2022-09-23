@@ -78,7 +78,7 @@ GS_IMPORT gs_Room* gs_GetRoom(uint16 roomNum);
 
 /**
  */
-GS_IMPORT void gs_SaveRoomFile(gs_Room* room);
+GS_IMPORT gs_bool gs_SaveRoomFile(gs_Room* room);
 
 
 #endif
