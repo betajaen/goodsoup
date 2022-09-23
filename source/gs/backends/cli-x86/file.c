@@ -46,6 +46,9 @@ GS_EXPORT void gs_DeleteFile(gs_File* file) {
 }
 
 GS_EXPORT gs_bool gs_OpenFileRead(gs_File* file, const char* path, uint32 comment) {
+	
+	gs_verbose_fmt("Opening file %s for reading.", path);
+
 	FILE* handle = fopen(path, "rb");
 
 	if (handle == NULL) {
@@ -65,6 +68,10 @@ GS_EXPORT gs_bool gs_OpenFileRead(gs_File* file, const char* path, uint32 commen
 }
 
 GS_EXPORT gs_bool gs_OpenFileWrite(gs_File* file, const char* path, uint32 comment) {
+
+	
+	gs_verbose_fmt("Opening file %s for writing.", path);
+
 	FILE* handle = fopen(path, "wb");
 
 	if (handle == NULL) {

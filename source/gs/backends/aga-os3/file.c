@@ -49,9 +49,17 @@ GS_EXPORT void gs_DeleteFile(gs_File* file) {
 }
 
 GS_EXPORT gs_bool gs_OpenFileRead(gs_File* file, const char* path, uint32 comment) {
+	
+	gs_debug_fmt("Opening file %s for reading.", path);
+
 	BPTR handle = Open(path, MODE_OLDFILE);
 
 	if (handle == 0) {
+		LONG err = IoErr();
+		gs_error_fmt("Could not open file %s for reading!", path);
+		
+		PrintFault(err, "Reason:");
+
 		return FALSE;
 	}
 
@@ -67,9 +75,15 @@ GS_EXPORT gs_bool gs_OpenFileRead(gs_File* file, const char* path, uint32 commen
 }
 
 GS_EXPORT gs_bool gs_OpenFileWrite(gs_File* file, const char* path, uint32 comment) {
-	BPTR handle = Open(path, MODE_OLDFILE);
+
+	gs_debug_fmt("Opening file %s for writing.", path);
+
+	BPTR handle = Open(path, MODE_NEWFILE);
 
 	if (handle == 0) {
+		LONG err = IoErr();
+		gs_error_fmt("Could not open file %s for writing!", path);
+		PrintFault(err, "Reason:");
 		return FALSE;
 	}
 	
