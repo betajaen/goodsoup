@@ -15,10 +15,10 @@
  *
  */
 
-#define GS_FILE "script_8_schema"
+#define GS_FILE "script_schema8"
 
 #include "shared/forward.h"
-#include "script_8_schema.h"
+#include "script_schema8.h"
 
 GS_EXPORT gs_OpcodeSchema8 kOpcodeSchema[] = {
 	{1,"OP_00",NULL},

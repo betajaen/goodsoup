@@ -15,11 +15,16 @@
  *
  */
 
-#define GS_FILE "script_8"
+#define GS_FILE "script_gs8"
 
 #include "shared/forward.h"
 #include "shared/error.h"
 #include "shared/game.h"
+#include "shared/file.h"
 
 #include "script.h"
 
+
+GS_EXPORT void gs__SaveScript_8_Native(gs_File* file, gs_Script* script) {
+
+}

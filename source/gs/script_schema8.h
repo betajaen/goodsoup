@@ -15,8 +15,8 @@
  *
  */
 
-#ifndef GS_SCRIPT_H
-#define GS_SCRIPT_H
+#ifndef GS_SCHEMA8_H
+#define GS_SCHEMA8_H
 
 #include "shared/forward.h"
 
