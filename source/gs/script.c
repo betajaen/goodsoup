@@ -33,6 +33,9 @@
 
 gs_Script_List sScripts = { NULL, NULL };
 
+GS_IMPORT gs__SaveScript_8_Native(gs_File* file, gs_Script* script);
+
+GS_IMPORT gs__SaveScript_8_Text(gs_File* file, gs_Script* script);
 
 GS_PRIVATE int gs_ScriptProcessor_Null(struct gs_Script* script, struct gs_Coroutine* coroutine, void* stack, void* vars) {
 	return 1;
@@ -147,13 +150,29 @@ GS_EXPORT gs_bool gs_SaveScriptFile(gs_Script* script, uint8 format) {
 		return FALSE;
 	}
 
-#if defined(GS_BIG)
-	gs_WriteTagStr(&dst,  GS_TAG_GS_FILE_MAGIC_BE);
-#else
-	gs_WriteTagStr(&dst, GS_TAG_GS_FILE_MAGIC_LE);
-#endif
 	
-	gs_SaveScript(script, &dst, format);
+	if (format == 0) {
+		format = script->scriptFormat;
+	}
+
+	switch (format) {
+
+		default: {
+			gs_SaveBinaryFileHeader(&dst);
+			gs_SaveScript(script, &dst, format);
+		}
+		break;
+		case SSF_8_Native: {
+			gs_SaveBinaryFileHeader(&dst);
+			gs__SaveScript_8_Native(&dst, script);
+		}
+		break;
+		case SSF_8_Text: {
+			gs__SaveScript_8_Text(&dst, script);
+		}
+		break;
+	}
+	
 
 	gs_CloseFile(&dst);
 
