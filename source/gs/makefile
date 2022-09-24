@@ -29,6 +29,7 @@ OBJ =	shared/error.o \
 		script_8.o \
 		script_8_native.o \
 		script_8_text.o \
+		script_8_schema.o\
 		formats/la0.o\
 		formats/lflf.o
 
