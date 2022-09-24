@@ -160,4 +160,6 @@ typedef int32(*gs_callback)(void* user, int32 param);
 	((uint32) (D)<<24 | (uint32) (C)<<16 | (uint32) (B)<<8 | (uint32) (A))
 #endif
 
+#define GS_FIELD_SIZEOF(T, F) (sizeof(((T*)0)->F))
+
 #endif

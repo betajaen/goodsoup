@@ -627,7 +627,7 @@ GS_IMPORT void gs_WriteUInt32_LE(gs_File* file, uint32 value);
 #if defined(GS_BIG)
 #define gs_WriteUInt32_Native gs_WriteUInt32_BE
 #else
-#define gs_WriteUInt32_Native gs_WriteUInt32LBE
+#define gs_WriteUInt32_Native gs_WriteUInt32_LE
 #endif
 
 /**
@@ -694,5 +694,21 @@ GS_IMPORT gs_bool gs_FindTag(gs_File* file, gs_tag tag, gs_TagPair* out_tag);
 
 
 GS_IMPORT void gs_FileCopy(gs_File* dst, gs_File* src, uint32 length);
+
+
+#define gs_SaveOpen(F, OUT_TAG, TAG_NAME) gs_WriteTagPairStart(F, OUT_TAG, TAG_NAME)
+#define gs_SaveOpenKnown(F, TAG_NAME, SIZE) gs_WriteTagPairKnownSize(F, TAG_NAME, SIZE)
+#define gs_SaveClose(F, TAG) gs_WriteTagPairEnd(F, TAG)
+
+#define gs_SaveValue(F, X) _Generic((X), \
+    byte: gs_WriteByte(F, X), \
+    int8: gs_WriteInt8(F, X), \
+	uint16: gs_WriteUInt16_Native(F, X), \
+	int16: gs_WriteInt16_Native(F, X), \
+	uint32: gs_WriteUInt32_Native(F, X), \
+	int32: gs_WriteInt32_Native(F, X) \
+)
+
+#define gs_SaveBytes(F, X, S) gs_WriteBytes(F, (void*) X, S)
 
 #endif
