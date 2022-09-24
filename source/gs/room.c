@@ -89,18 +89,20 @@ GS_EXPORT void gs_LoadRoom(gs_Room* room, struct gs_File* file, gs_TagPair* tag)
 
 GS_PRIVATE void saveRoomData(gs_File* dst, gs_Room* room) {
 
-	gs_WriteTagPairKnownSize(dst, 
+	gs_SaveOpenKnown(dst, 
 		GS_TAG_GSD_INFO,
-		sizeof(uint16) * 3 +
-		sizeof(uint8) * 2
-		);
+		GS_FIELD_SIZEOF(gs_Room, num) +
+		GS_FIELD_SIZEOF(gs_RoomData, width) +
+		GS_FIELD_SIZEOF(gs_RoomData, height) +
+		GS_FIELD_SIZEOF(gs_RoomData, flags) +
+		GS_FIELD_SIZEOF(gs_RoomData, layers)
+	);
 
-	gs_WriteUInt16_Native(dst, room->num);
-	gs_WriteUInt16_Native(dst, room->data.width);
-	gs_WriteUInt16_Native(dst, room->data.height);
-	gs_WriteUInt8(dst, room->data.flags);;
-	gs_WriteUInt8(dst, room->data.layers);
-	
+	gs_SaveValue(dst, room->num);
+	gs_SaveValue(dst, room->data.width);
+	gs_SaveValue(dst, room->data.height);
+	gs_SaveValue(dst, room->data.flags);;
+	gs_SaveValue(dst, room->data.layers);	
 }
 
 /**
@@ -108,18 +110,18 @@ GS_PRIVATE void saveRoomData(gs_File* dst, gs_Room* room) {
 GS_EXPORT void gs_SaveRoom(gs_Room* room, struct gs_File* dst) {
 	gs_TagPair roomTag;
 
-	gs_WriteTagPairStart(dst, &roomTag, GS_TAG_GSC_ROOM);
+	gs_SaveOpen(dst, &roomTag, GS_TAG_GSC_ROOM);
 
 	saveRoomData(dst, room);
 
 	if (room->background) {
 		gs_TagPair backgroundTag;
-		gs_WriteTagPairStart(dst, &backgroundTag, GS_TAG_GSC_ROOM_BACKGROUND);
+		gs_SaveOpen(dst, &backgroundTag, GS_TAG_GSC_ROOM_BACKGROUND);
 		gs_SaveImage(dst, room->background);
-		gs_WriteTagPairEnd(dst, &backgroundTag);
+		gs_SaveClose(dst, &backgroundTag);
 	}
 
-	gs_WriteTagPairEnd(dst, &roomTag);
+	gs_SaveClose(dst, &roomTag);
 }
 
 /**
