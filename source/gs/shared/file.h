@@ -696,6 +696,12 @@ GS_IMPORT gs_bool gs_FindTag(gs_File* file, gs_tag tag, gs_TagPair* out_tag);
 GS_IMPORT void gs_FileCopy(gs_File* dst, gs_File* src, uint32 length);
 
 
+#if defined(GS_BIG)
+#define gs_SaveBinaryFileHeader(F) gs_WriteTagStr(F, GS_TAG_GS_FILE_MAGIC_BE);
+#else
+#define gs_SaveBinaryFileHeader(F) gs_WriteTagStr(F, GS_TAG_GS_FILE_MAGIC_LE);
+#endif
+
 #define gs_SaveOpen(F, OUT_TAG, TAG_NAME) gs_WriteTagPairStart(F, OUT_TAG, TAG_NAME)
 #define gs_SaveOpenKnown(F, TAG_NAME, SIZE) gs_WriteTagPairKnownSize(F, TAG_NAME, SIZE)
 #define gs_SaveClose(F, TAG) gs_WriteTagPairEnd(F, TAG)

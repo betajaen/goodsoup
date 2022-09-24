@@ -140,13 +140,8 @@ GS_EXPORT gs_bool gs_SaveRoomFile(gs_Room* room) {
 	if (gs_OpenFileWrite(&dst, path, GS_COMMENT_FILE_LINE) == FALSE) {
 		return FALSE;
 	}
-
-#if defined(GS_BIG)
-	gs_WriteTagStr(&dst,  GS_TAG_GS_FILE_MAGIC_BE);
-#else
-	gs_WriteTagStr(&dst, GS_TAG_GS_FILE_MAGIC_LE);
-#endif
 	
+	gs_SaveBinaryFileHeader(&dst);
 	gs_SaveRoom(room, &dst);
 
 	gs_CloseFile(&dst);
