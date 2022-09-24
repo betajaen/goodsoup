@@ -29,6 +29,7 @@
 #include "graphics/image.h"
 #include "graphics/palette.h"
 #include "room.h"
+#include "script.h"
 
 typedef int(*LaExportFn)(gs_File* srcFile, gs_TagPair* tag);
 
@@ -66,6 +67,10 @@ GS_PRIVATE int skipOverTag_impl(gs_File* srcFile, uint32 expectedTag, gs_TagPair
 
 #define enterIntoTagOrFail(FILE, EXPECT_TAG_NAME, OUT_TAGPAIR) if (enterIntoTag_impl(FILE, EXPECT_TAG_NAME, OUT_TAGPAIR) == 1) { return 1;}
 #define skipOverTagOrFail(FILE, EXPECT_TAG_NAME, OUT_TAGPAIR) if (skipOverTag_impl(FILE, EXPECT_TAG_NAME, OUT_TAGPAIR) == 1) { return 1;}
+
+GS_PRIVATE int loadScript(gs_File* srcFile, gs_TagPair* tag, uint8 scriptType) {
+
+}
 
 GS_PRIVATE int loadRHMD(gs_File* srcFile, gs_TagPair* tag) {
 	
@@ -132,17 +137,32 @@ GS_PRIVATE int loadPALS(gs_File* srcFile, gs_TagPair* palsTag) {
 }
 
 GS_PRIVATE int loadENCD(gs_File* srcFile, gs_TagPair* tag) {
-
 	gs_debug_str("Load ENCD");
+
+	uint32 length = gs_TagPairDataLength(tag);
+	int r = 0;
+
+	if (length > 0) {
+		r = loadScript(srcFile, tag, ST_Enter);
+	}
+
 	gs_SeekTagPairEnd(srcFile, tag);
-	return 0;
+	return r;
 }
 
 GS_PRIVATE int loadEXCD(gs_File* srcFile, gs_TagPair* tag) {
 	
 	gs_debug_str("Load EXCD");
+	
+	uint32 length = gs_TagPairDataLength(tag);
+	int r = 0;
+
+	if (length > 0) {
+		r = loadScript(srcFile, tag, ST_Exit);
+	}
+
 	gs_SeekTagPairEnd(srcFile, tag);
-	return 0;
+	return r;
 }
 
 GS_PRIVATE int loadOBCD(gs_File* srcFile, gs_TagPair* tag) {
@@ -155,8 +175,16 @@ GS_PRIVATE int loadOBCD(gs_File* srcFile, gs_TagPair* tag) {
 GS_PRIVATE int loadLSCR(gs_File* srcFile, gs_TagPair* tag) {
 	
 	gs_debug_str("Load LSCR");
+
+	uint32 length = gs_TagPairDataLength(tag);
+	int r = 0;
+
+	if (length > 0) {
+		r = loadScript(srcFile, tag, ST_Room);
+	}
+
 	gs_SeekTagPairEnd(srcFile, tag);
-	return 0;
+	return r;
 }
 
 GS_PRIVATE int loadIMAG(gs_File* srcFile, gs_TagPair* tag) {

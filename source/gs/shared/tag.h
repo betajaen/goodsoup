@@ -30,7 +30,7 @@
 // Structured Data that can be represented in a C struct
 #define GS_TAG_GSD_INFO gs_MakeId('I', 'N', 'F', 'O')
 
-// Unstructred Data (i.e. raw bytes)
+// Unstructured Data (i.e. raw bytes)
 #define GS_TAG_GSD_DATA gs_MakeId('D', 'A', 'T', 'A')
 
 // Room Container
@@ -45,6 +45,8 @@
 // Palette Container
 #define GS_TAG_GSC_PALETTE gs_MakeId('P', 'A', 'L', ' ')
 
+// Script Container
+#define GS_TAG_GSC_SCRIPT gs_MakeId('S', 'C', 'R', 'P')
 
 GS_IMPORT const char* gs_Tag2Str(uint32 tag);
 

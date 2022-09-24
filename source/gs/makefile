@@ -25,6 +25,10 @@ OBJ =	shared/error.o \
 		events/events.o \
 		coroutine.o \
 		room.o \
+		script.o \
+		script_8.o \
+		script_8_native.o \
+		script_8_text.o \
 		formats/la0.o\
 		formats/lflf.o
 
