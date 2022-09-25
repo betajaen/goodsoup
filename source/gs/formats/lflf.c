@@ -68,8 +68,20 @@ GS_PRIVATE int skipOverTag_impl(gs_File* srcFile, uint32 expectedTag, gs_TagPair
 #define enterIntoTagOrFail(FILE, EXPECT_TAG_NAME, OUT_TAGPAIR) if (enterIntoTag_impl(FILE, EXPECT_TAG_NAME, OUT_TAGPAIR) == 1) { return 1;}
 #define skipOverTagOrFail(FILE, EXPECT_TAG_NAME, OUT_TAGPAIR) if (skipOverTag_impl(FILE, EXPECT_TAG_NAME, OUT_TAGPAIR) == 1) { return 1;}
 
-GS_PRIVATE int loadScript(gs_File* srcFile, gs_TagPair* tag, uint8 scriptType) {
+GS_PRIVATE int loadScript(gs_File* srcFile, uint32 scriptLength, uint8 scriptType, uint16 num) {
+	gs_Script* script = gs_NewScript();
+	script->num = num;
+	script->scriptFormat = SSF_LA8;
+	script->parent = sCurrentRoom->num;
+	script->parentCObjectType = COT_Room;
+	script->scriptType = scriptType;
+	script->dataLength_bytes = scriptLength;
+	gs_AllocateScriptData(script);
+	gs_ReadBytes(srcFile, script->data, scriptLength);
 
+	/* TODO: Add to the room. */
+
+	gs_SaveScriptFile(script, SSF_Text);	// Temp.
 }
 
 GS_PRIVATE int loadRHMD(gs_File* srcFile, gs_TagPair* tag) {
@@ -143,7 +155,7 @@ GS_PRIVATE int loadENCD(gs_File* srcFile, gs_TagPair* tag) {
 	int r = 0;
 
 	if (length > 0) {
-		r = loadScript(srcFile, tag, ST_Enter);
+		r = loadScript(srcFile, gs_TagPairDataLength(tag), ST_Enter, 2001);
 	}
 
 	gs_SeekTagPairEnd(srcFile, tag);
@@ -158,7 +170,7 @@ GS_PRIVATE int loadEXCD(gs_File* srcFile, gs_TagPair* tag) {
 	int r = 0;
 
 	if (length > 0) {
-		r = loadScript(srcFile, tag, ST_Exit);
+		r = loadScript(srcFile, gs_TagPairDataLength(tag), ST_Exit, 2002);
 	}
 
 	gs_SeekTagPairEnd(srcFile, tag);
@@ -180,7 +192,8 @@ GS_PRIVATE int loadLSCR(gs_File* srcFile, gs_TagPair* tag) {
 	int r = 0;
 
 	if (length > 0) {
-		r = loadScript(srcFile, tag, ST_Room);
+		uint32 num = gs_ReadUInt32_LE(srcFile);
+		r = loadScript(srcFile, gs_TagPairDataLength(tag) - sizeof(uint32), ST_Room, (uint16) num);
 	}
 
 	gs_SeekTagPairEnd(srcFile, tag);
