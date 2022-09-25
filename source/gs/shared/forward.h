@@ -138,6 +138,7 @@ typedef enum gs_CObjectType {
 #define GS_PRIVATE static
 #define GS_IMPORT  extern
 #define GS_EXPORT  /* extern */
+#define GS_INLINE  inline
 
 typedef int32(*gs_callback)(void* user, int32 param);
 
