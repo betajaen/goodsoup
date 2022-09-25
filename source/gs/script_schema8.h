@@ -21,7 +21,8 @@
 #include "shared/forward.h"
 
 typedef struct gs_OpcodeSchema8 {
-	byte length;
+	byte op1;
+	byte op2;
 	const char* name;
 	const char* args;
 } gs_OpcodeSchema8;
