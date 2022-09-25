@@ -51,8 +51,8 @@ GS_PRIVATE void gs_Script_Ctor(gs_Script* script) {
 	script->scriptFormat = SSF_Null;
 	script->p_gc = 0;
 	script->p_processorFn = gs_ScriptProcessor_Null;
-	script->dataLength = 0;
-	script->data = 0;
+	script->dataLength_bytes = 0;
+	script->data = NULL;
 
 	gs_Script_List_PushBack(&sScripts, script);
 }
@@ -74,6 +74,25 @@ GS_EXPORT gs_Script* gs_NewScript() {
 GS_EXPORT void gs_DeleteScript(gs_Script* script) {
 	gs_Script_Dtor(script);
 	gs_Delete(script);
+}
+
+void gs_AllocateScriptData(gs_Script* script) {
+	if (script->data != NULL) {
+		return;
+	}
+
+	script->data = gs_Allocate(1, script->dataLength_bytes, MF_Clear, GS_COMMENT_FILE_LINE);
+}
+
+void gs_DeallocateScriptData(gs_Script* script) {
+	if (script->data == NULL) {
+		return;
+	}
+
+	gs_Deallocate(script->data);
+
+	script->data = NULL;
+	script->dataLength_bytes = 0;
 }
 
 GS_EXPORT gs_Script* gs_GetScript(uint16 scriptNum, uint16 parentNum_optional, uint8 parentCObjectType_optional) {
@@ -125,9 +144,9 @@ GS_EXPORT void gs_SaveScript(gs_Script* script, struct gs_File* dst, uint8 forma
 	gs_SaveValue(dst, script->scriptType);
 	gs_SaveValue(dst, script->scriptFormat);
 
-	if (script->dataLength != 0) {
-		gs_SaveOpenKnown(dst, GS_TAG_GSD_DATA, script->dataLength);
-		gs_SaveBytes(dst, script->data, script->dataLength);
+	if (script->dataLength_bytes != 0) {
+		gs_SaveOpenKnown(dst, GS_TAG_GSD_DATA, script->dataLength_bytes);
+		gs_SaveBytes(dst, script->data, script->dataLength_bytes);
 	}
 
 	gs_SaveClose(dst, &scriptTag);
@@ -162,12 +181,12 @@ GS_EXPORT gs_bool gs_SaveScriptFile(gs_Script* script, uint8 format) {
 			gs_SaveScript(script, &dst, format);
 		}
 		break;
-		case SSF_8_Native: {
+		case SSF_GS8: {
 			gs_SaveBinaryFileHeader(&dst);
 			gs__SaveScript_8_Native(&dst, script);
 		}
 		break;
-		case SSF_8_Text: {
+		case SSF_Text: {
 			gs__SaveScript_8_Text(&dst, script);
 		}
 		break;
