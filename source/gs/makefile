@@ -23,7 +23,7 @@ OBJ =	shared/error.o \
 		graphics/palette.o\
 		main.o \
 		events/events.o \
-		coroutine.o \
+		vm_context.o \
 		room.o \
 		script.o \
 		script_la8.o \

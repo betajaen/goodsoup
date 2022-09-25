@@ -37,7 +37,7 @@ GS_IMPORT gs__SaveScript_8_Native(gs_File* file, gs_Script* script);
 
 GS_IMPORT gs__SaveScript_8_Text(gs_File* file, gs_Script* script);
 
-GS_PRIVATE int gs_ScriptProcessor_Null(struct gs_Script* script, struct gs_Coroutine* coroutine, void* stack, void* vars) {
+GS_PRIVATE int gs_ScriptProcessor_Null(struct gs_Script* script, struct gs_VmContext* coroutine, void* stack, void* vars) {
 	return 1;
 }
 

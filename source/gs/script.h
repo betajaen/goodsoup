@@ -20,7 +20,7 @@
 
 #include "shared/forward.h"
 
-typedef int(*gs_ScriptProcessorFn)(struct gs_Script* script, struct gs_Coroutine* coroutine, void* stack, void* vars);
+typedef int(*gs_ScriptProcessorFn)(struct gs_Script* script, struct gs_VmContext* coroutine, void* stack, void* vars);
 
 typedef enum gs_ScriptType {
 	ST_Global,
@@ -93,10 +93,10 @@ GS_IMPORT gs_bool gs_SaveScriptFile(gs_Script* scriptNum, uint8 format);
 
 /**
  */
-GS_IMPORT int gs_ScriptProcessor_8(struct gs_Script* script, struct gs_Coroutine* coroutine, void* stack, void* vars);
+GS_IMPORT int gs_ScriptProcessor_8(struct gs_Script* script, struct gs_VmContext* coroutine, void* stack, void* vars);
 
 /**
  */
-GS_IMPORT int gs_ScriptProcessor_8_Native(struct gs_Script* script, struct gs_Coroutine* coroutine, void* stack, void* vars);
+GS_IMPORT int gs_ScriptProcessor_8_Native(struct gs_Script* script, struct gs_VmContext* coroutine, void* stack, void* vars);
 
 #endif

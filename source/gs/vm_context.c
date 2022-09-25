@@ -19,12 +19,12 @@
 
 #include "shared/forward.h"
 #include "shared/error.h"
-#include "coroutine.h"
+#include "vm_context.h"
 
-#define T gs_Coroutine
-#define LIST_NAME CoroutineList
+#define T gs_VmContext
+#define LIST_NAME ContextList
 #include "shared/list.h"
 
-CoroutineList sCoroutines = { NULL, NULL };
+ContextList sVmContexts = { NULL, NULL };
 
-gs_Coroutine* gs_CoroutineStack[1 + GS_COROUTINE_STACK_SIZE] = { NULL };
+gs_VmContext* gs_ContextStack[1 + GS_VM_CONTEXT_STACK_SIZE] = { NULL };

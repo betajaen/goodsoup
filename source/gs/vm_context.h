@@ -15,14 +15,14 @@
  *
  */
 
-#ifndef GS_COROUTINE_H
-#define GS_COROUTINE_H
+#ifndef GS_VM_CONTEXT_H
+#define GS_VM_CONTEXT_H
 
 #include "shared/forward.h"
 #include "shared/game.h"
 
-typedef struct gs_Coroutine {
-	struct gs_Coroutine *prev, *next;
+typedef struct gs_VmContext {
+	struct gs_VmContext *prev, *next;
 	uint16 num;
 	uint16 pc;
 	uint8 state;
@@ -37,8 +37,8 @@ typedef struct gs_Coroutine {
 	int32 locals[GS_NUM_LOCAL_INTS];
 	void* scriptDataRef;
 	// TODO...
-} gs_Coroutine;
+} gs_VmContext;
 
-extern gs_Coroutine* gs_CoroutineStack[1 + GS_COROUTINE_STACK_SIZE];
+extern gs_VmContext* gs_ContextStack[1 + GS_VM_CONTEXT_STACK_SIZE];
 
 #endif
