@@ -34,6 +34,7 @@
 #define pullStack() 0 
 #define pullList(X, Y) NULL
 #define readText() NULL
+#define consumeByte()
 
 /* 00 pushByte */
 GS_PRIVATE GS_INLINE void op_pushByte_00(gs_VmContext* ctx, byte value) {
