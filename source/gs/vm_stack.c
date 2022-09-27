@@ -25,10 +25,6 @@ uint32 sSize, sCapacity;
 int32* sData;
 int32  sListData[64];
 
-void _growStack() {
-
-}
-
 int32 _popStack_unchecked() {
 	sSize--;
 	return sData[sSize];
@@ -52,7 +48,8 @@ void gs_ResetStack() {
 
 void gs_PushStack(int32 value) {
 	if (sSize == sCapacity) {
-		_growStack();
+		gs_error_str("Stack overflow");
+		return;
 	}
 
 	sData[sSize] = value;
