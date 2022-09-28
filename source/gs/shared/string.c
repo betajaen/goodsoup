@@ -162,3 +162,16 @@ GS_EXPORT uint32 gs_hash_str(const char* str) {
 
 	return h;
 }
+
+GS_EXPORT uint32 gs_str_length(const char* str) {
+
+	if (str == NULL)
+		return 0;
+
+	const char* s = str;
+	while (*s) {
+		s++;
+	}
+
+	return s - str;
+}
