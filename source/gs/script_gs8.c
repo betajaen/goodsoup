@@ -25,6 +25,6 @@
 #include "script.h"
 
 
-GS_EXPORT void gs__SaveScript_8_Native(gs_File* file, gs_Script* script) {
+GS_EXPORT void gs__SaveScriptData_GS8(gs_File* file, gs_Script* script) {
 
 }

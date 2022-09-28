@@ -45,9 +45,11 @@
 		return 1;\
 	}
 
-// formats/la1.c
+// formats/lflf.c
 GS_IMPORT int gs_LFLF_ExtractRoom(gs_File* diskFile, uint8 roomNum, uint8 diskNum, uint32 offset);
 
+// formats/scrp.c
+GS_IMPORT int gs_SCRP_ExtractGlobalScript(gs_File* diskFile, uint16 scriptNum, uint8 roomNum, uint8 diskNum, uint32 offset);
 
 GS_PRIVATE int checkMAXS(gs_File* src) {
 
@@ -99,16 +101,11 @@ GS_PRIVATE int createDrawers() {
 }
 
 
-GS_PRIVATE int convertRoomIndexData(gs_File* indexFile, gs_File* diskFiles) {
+GS_PRIVATE int convertRoomIndexData(gs_File* indexFile, gs_File* diskFiles, uint8* roomDiskNums, uint32* roomDiskOffsets) {
 	int rc = 0;
-	uint8* roomDiskNums = NULL;
-	uint32* roomDiskOffsets = NULL;
 
 	gs_TagPair tag;
 	
-	roomDiskNums = gs_Allocate(GS_NUM_ROOMS, sizeof(byte), MF_Clear, GS_COMMENT_FILE_LINE);
-	roomDiskOffsets = gs_Allocate(GS_NUM_ROOMS, sizeof(uint32), MF_Clear, GS_COMMENT_FILE_LINE);
-
 	for (uint8 diskNum = 0; diskNum < GS_NUM_DISKS; diskNum++) {
 
 		gs_File* diskFile = &diskFiles[diskNum];
@@ -156,12 +153,11 @@ GS_PRIVATE int convertRoomIndexData(gs_File* indexFile, gs_File* diskFiles) {
 	}
 
 exit:
-	gs_Deallocate(roomDiskOffsets);
-	gs_Deallocate(roomDiskNums);
+
 	return rc;
 }
 
-GS_PRIVATE int convertGlobalScriptsData(gs_File* indexFile, gs_File* diskFiles) {
+GS_PRIVATE int convertGlobalScriptsData(gs_File* indexFile, gs_File* diskFiles, uint8* roomDiskNums, uint32* roomDiskOffsets) {
 
 	uint8*  scriptRooms = NULL;
 	uint32* scriptOffsets = NULL;
@@ -189,11 +185,17 @@ GS_PRIVATE int convertGlobalScriptsData(gs_File* indexFile, gs_File* diskFiles) 
 		scriptOffsets[i] = gs_ReadUInt32_LE(indexFile);
 	}
 
-	for(uint16 i=0;i < GS_NUM_GLOBAL_SCRIPTS;i++) {
-		gs_debug_fmt("Room %ld, Script %ld", scriptRooms[i], scriptOffsets[i]);
+	for(uint16 i=1;i < GS_NUM_GLOBAL_SCRIPTS;i++) {
+		uint8 roomNum = scriptRooms[i];
+
+		uint32 scriptOffset = scriptOffsets[i] + roomDiskOffsets[roomNum];
+		uint8 diskNum = roomDiskNums[roomNum];
+
+		gs_debug_fmt("%ld Room %ld, Script %ld, Disk %ld", i, roomNum, scriptOffset, diskNum);
+
+		gs_SCRP_ExtractGlobalScript(&diskFiles[diskNum], i, roomNum, diskNum, scriptOffset);
 	}
 	
-	gs_debug_str("Doing read.2");
 exit:
 
 	if (scriptOffsets) {
@@ -214,6 +216,8 @@ GS_EXPORT int gs_LA0_ConvertToOptimized() {
 	gs_File indexFile = { 0 };
 	gs_File diskFiles[GS_NUM_DISKS] = { 0 };
 	char diskPath[sizeof(GS_PATH_LA_DISK_FMT) + 4];
+	uint8* roomDiskNums = NULL;
+	uint32* roomDiskOffsets = NULL;
 
 	if (createDrawers() != 0) {
 		rc = 1;
@@ -247,21 +251,34 @@ GS_EXPORT int gs_LA0_ConvertToOptimized() {
 		rc = 1;
 		goto exit;
 	}
+	
+	roomDiskNums = gs_Allocate(GS_NUM_ROOMS, sizeof(byte), MF_Clear, GS_COMMENT_FILE_LINE);
+	roomDiskOffsets = gs_Allocate(GS_NUM_ROOMS, sizeof(uint32), MF_Clear, GS_COMMENT_FILE_LINE);
 
-	// Export Rooms
-	if (convertRoomIndexData(&indexFile, &diskFiles[0]) != 0) {
+	// Export Rooms (Also fills out Room Disk Nums)
+	if (convertRoomIndexData(&indexFile, &diskFiles[0], roomDiskNums, roomDiskOffsets) != 0) {
 		rc = 1;
 		goto exit;
 	}
 
 	// Export Global Scripts
-	if (convertGlobalScriptsData(&indexFile, &diskFiles[0]) != 0) {
+	if (convertGlobalScriptsData(&indexFile, &diskFiles[0], roomDiskNums, roomDiskOffsets) != 0) {
 		rc = 1;
 		goto exit;
 	}
 
 
 exit:
+
+	if (roomDiskOffsets) {
+		gs_Deallocate(roomDiskOffsets);
+		roomDiskOffsets = NULL;
+	}
+
+	if (roomDiskNums) {
+		gs_Deallocate(roomDiskNums);
+		roomDiskNums = NULL;
+	}
 
 	for (uint8 i = 0; i < GS_NUM_DISKS; i++) {
 		gs_CloseFile(&diskFiles[i]);

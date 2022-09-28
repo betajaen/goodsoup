@@ -33,9 +33,9 @@
 
 gs_Script_List sScripts = { NULL, NULL };
 
-GS_IMPORT gs__SaveScript_8_Native(gs_File* file, gs_Script* script);
-
-GS_IMPORT gs__SaveScript_8_Text(gs_File* file, gs_Script* script);
+GS_IMPORT void gs__SaveScriptData_LA8(gs_File* file, gs_Script* script);
+GS_IMPORT void gs__SaveScriptData_GS8(gs_File* file, gs_Script* script);
+GS_IMPORT void gs__SaveScriptData_Text8(gs_File* file, gs_Script* script);
 
 GS_PRIVATE int gs_ScriptProcessor_Null(struct gs_Script* script, struct gs_VmContext* coroutine, void* stack, void* vars) {
 	return 1;
@@ -128,25 +128,65 @@ GS_EXPORT void gs_LoadScript(gs_Script* script, struct gs_File* file, gs_TagPair
 GS_EXPORT void gs_SaveScript(gs_Script* script, struct gs_File* dst, uint8 format) {
 	gs_TagPair scriptTag;
 
-	gs_SaveOpen(dst, &scriptTag, GS_TAG_GSC_SCRIPT);
+	
+	if (format == 0) {
+		format = script->scriptFormat;
+	}
 
-	gs_SaveOpenKnown(dst, GS_TAG_GSD_INFO, 
-		GS_FIELD_SIZEOF(gs_Script, num) +
-		GS_FIELD_SIZEOF(gs_Script, parent) +
-		GS_FIELD_SIZEOF(gs_Script, parentCObjectType) +
-		GS_FIELD_SIZEOF(gs_Script, scriptType) +
-		GS_FIELD_SIZEOF(gs_Script, scriptFormat)
-	);
+	if (format == SSF_Text) {
+		gs_SaveTextOpen(dst, "SCRP");
+		gs_SaveTextOpen(dst, "SCRP.INFO");
 
-	gs_SaveValue(dst, script->num);
-	gs_SaveValue(dst, script->parent);
-	gs_SaveValue(dst, script->parentCObjectType);
-	gs_SaveValue(dst, script->scriptType);
-	gs_SaveValue(dst, script->scriptFormat);
+		gs_SaveTextValue(dst, "num", script->num);
+		gs_SaveTextValue(dst, "parent", script->parent);
+		gs_SaveTextValue(dst, "parentCObjectType", script->parentCObjectType);
+		gs_SaveTextValue(dst, "scriptType", script->scriptType);
+		gs_SaveTextValue(dst, "scriptType", format);
+
+	}
+	else {
+		gs_SaveOpen(dst, &scriptTag, GS_TAG_GSC_SCRIPT);
+
+		gs_SaveOpenKnown(dst, GS_TAG_GSD_INFO, 
+			GS_FIELD_SIZEOF(gs_Script, num) +
+			GS_FIELD_SIZEOF(gs_Script, parent) +
+			GS_FIELD_SIZEOF(gs_Script, parentCObjectType) +
+			GS_FIELD_SIZEOF(gs_Script, scriptType) +
+			sizeof(format)
+		);
+
+		gs_SaveValue(dst, script->num);
+		gs_SaveValue(dst, script->parent);
+		gs_SaveValue(dst, script->parentCObjectType);
+		gs_SaveValue(dst, script->scriptType);
+		gs_SaveValue(dst, format);
+	}
 
 	if (script->dataLength_bytes != 0) {
-		gs_SaveOpenKnown(dst, GS_TAG_GSD_DATA, script->dataLength_bytes);
-		gs_SaveBytes(dst, script->data, script->dataLength_bytes);
+
+		if (format == SSF_Text) {
+			gs_SaveTextOpen(dst, "SCRP.DATA");
+		}
+		else {
+			gs_SaveOpenKnown(dst, GS_TAG_GSD_DATA, script->dataLength_bytes);
+		}
+
+		switch (format) {
+
+			default: {
+				gs__SaveScriptData_LA8(dst, script);
+			}
+			break;
+			case SSF_GS8: {
+				gs__SaveScriptData_GS8(dst, script);
+			}
+			break;
+			case SSF_Text: {
+				gs__SaveScriptData_Text8(dst, script);
+			}
+			break;
+		}
+
 	}
 
 	gs_SaveClose(dst, &scriptTag);
@@ -161,38 +201,22 @@ GS_EXPORT gs_Script* gs_LoadScriptFile(uint32 scriptNum) {
 /**
  */
 GS_EXPORT gs_bool gs_SaveScriptFile(gs_Script* script, uint8 format) {
-	char path[sizeof(GS_PATH_GS_ROOM_FMT) + 4];
+	char path[sizeof(GS_PATH_GS_GLOBAL_SCRIPT_FMT) + 16];
 	gs_File dst;
 
-	gs_format(path, sizeof(path), GS_PATH_GS_ROOM_FMT, script->num);
+	if (script->scriptType == ST_Global) {
+		gs_format(path, sizeof(path), GS_PATH_GS_GLOBAL_SCRIPT_FMT, script->num);
+	}
+	else {
+		gs_format(path, sizeof(path), GS_PATH_GS_ROOM_SCRIPT_FMT, script->num, script->parent);
+	}
+
 	if (gs_OpenFileWrite(&dst, path, GS_COMMENT_FILE_LINE) == FALSE) {
 		return FALSE;
 	}
 
+	gs_SaveScript(script, &dst, format);
 	
-	if (format == 0) {
-		format = script->scriptFormat;
-	}
-
-	switch (format) {
-
-		default: {
-			gs_SaveBinaryFileHeader(&dst);
-			gs_SaveScript(script, &dst, format);
-		}
-		break;
-		case SSF_GS8: {
-			gs_SaveBinaryFileHeader(&dst);
-			gs__SaveScript_8_Native(&dst, script);
-		}
-		break;
-		case SSF_Text: {
-			gs__SaveScript_8_Text(&dst, script);
-		}
-		break;
-	}
-	
-
 	gs_CloseFile(&dst);
 
 	return TRUE;

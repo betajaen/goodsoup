@@ -33,7 +33,7 @@ gs_Script* sCurrentScript = NULL;
 GS_EXPORT int gs_SCRP_ExtractGlobalScript(gs_File* diskFile, uint16 scriptNum, uint8 roomNum, uint8 diskNum, uint32 offset) {
 
 	gs_TagPair scrp;
-	int r;
+	int r = 0;
 	
 	sCurrentScript = gs_NewScript();
 	sCurrentScript->num = scriptNum;
@@ -44,15 +44,16 @@ GS_EXPORT int gs_SCRP_ExtractGlobalScript(gs_File* diskFile, uint16 scriptNum, u
 	gs_Seek(diskFile, offset);
 	gs_ReadTagPair(diskFile, &scrp);
 
-	sCurrentScript->dataLength_bytes = 0;
-	
-	/* TODO: Read Here */
+	sCurrentScript->dataLength_bytes = gs_TagPairDataLength(&scrp) + 1;
+	gs_AllocateScriptData(sCurrentScript);
 
-	if (r == 0 && gs_SaveScriptFile(sCurrentScript, SSF_GS8) == FALSE) {
+	gs_ReadBytes(diskFile, sCurrentScript->data, gs_TagPairDataLength(&scrp));
+
+	if (gs_SaveScriptFile(sCurrentScript, SSF_GS8) == FALSE) {
 		r = 1;
 	}
 	else {
-		gs_debug_fmt("Wrote Script %ld", roomNum);
+		gs_debug_fmt("Wrote Script %ld", scriptNum);
 	}
 
 	gs_DeleteScript(sCurrentScript);

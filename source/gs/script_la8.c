@@ -20,6 +20,11 @@
 #include "shared/forward.h"
 #include "shared/error.h"
 #include "shared/game.h"
+#include "shared/file.h"
 
 #include "script.h"
 
+
+GS_EXPORT void gs__SaveScriptData_LA8(gs_File* file, gs_Script* script) {
+
+}
