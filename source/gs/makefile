@@ -32,7 +32,8 @@ OBJ =	shared/error.o \
 		script_text8.o \
 		script_schema8.o\
 		formats/la0.o\
-		formats/lflf.o
+		formats/lflf.o\
+		formats/scrp.o
 
 all: $(OBJ) $(POBJ)
 	$(CC)  $(CFLAGS) $(OBJ) $(POBJ) -o $(PROGRAM)

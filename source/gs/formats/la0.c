@@ -84,6 +84,10 @@ GS_PRIVATE int checkMAXS(gs_File* src) {
 	return 0;
 }
 
+GS_PRIVATE int findSCRPOffsets(gs_File* srcFile, uint32* scriptOffsets) {
+
+}
+
 GS_PRIVATE int createDrawers() {
 	
 	CREATE_RES_DRAWER(GS_PATH_GS_DATA_DIR, "data");
@@ -143,6 +147,7 @@ GS_PRIVATE int convertRoomIndexData(gs_File* indexFile, gs_File* diskFiles) {
 			int r = gs_LFLF_ExtractRoom(diskFile, roomNum, diskNum, roomDiskOffsets[roomNum]);
 
 			if (r != 0) {
+				gs_warn_str("Did not export room correctly.");
 				return r;
 			}
 
@@ -150,12 +155,58 @@ GS_PRIVATE int convertRoomIndexData(gs_File* indexFile, gs_File* diskFiles) {
 
 	}
 
-
-
 exit:
 	gs_Deallocate(roomDiskOffsets);
 	gs_Deallocate(roomDiskNums);
 	return rc;
+}
+
+GS_PRIVATE int convertGlobalScriptsData(gs_File* indexFile, gs_File* diskFiles) {
+
+	uint8*  scriptRooms = NULL;
+	uint32* scriptOffsets = NULL;
+
+	if (gs_SeekToAndFindTag(indexFile, 0, gs_MakeId('D', 'S', 'C', 'R'), NULL) == FALSE) {
+		gs_error_str("Could not find SCR tag in LA0 file");
+		return 1;
+	}
+
+	uint32 count = gs_ReadUInt32_LE(indexFile);
+
+	if (count != GS_NUM_GLOBAL_SCRIPTS) {
+		gs_error_str("Inconsistent Global Script Count");
+		return 0;
+	}
+
+	gs_debug_str("Doing read.1");
+	
+	scriptRooms = gs_Allocate(GS_NUM_GLOBAL_SCRIPTS, sizeof(uint8), MF_Any, GS_COMMENT_FILE_LINE);
+	scriptOffsets = gs_Allocate(GS_NUM_GLOBAL_SCRIPTS, sizeof(uint32), MF_Any, GS_COMMENT_FILE_LINE);
+	
+	gs_ReadBytes(indexFile, scriptRooms, GS_NUM_GLOBAL_SCRIPTS * sizeof(uint8));
+
+	for (uint16 i = 0; i < GS_NUM_GLOBAL_SCRIPTS; i++) {
+		scriptOffsets[i] = gs_ReadUInt32_LE(indexFile);
+	}
+
+	for(uint16 i=0;i < GS_NUM_GLOBAL_SCRIPTS;i++) {
+		gs_debug_fmt("Room %ld, Script %ld", scriptRooms[i], scriptOffsets[i]);
+	}
+	
+	gs_debug_str("Doing read.2");
+exit:
+
+	if (scriptOffsets) {
+		gs_Deallocate(scriptOffsets);
+		scriptOffsets = NULL;
+	}
+
+	if (scriptRooms) {
+		gs_Deallocate(scriptRooms);
+		scriptRooms = NULL;
+	}
+
+	return 0;
 }
 
 GS_EXPORT int gs_LA0_ConvertToOptimized() {
@@ -191,19 +242,27 @@ GS_EXPORT int gs_LA0_ConvertToOptimized() {
 
 	}
 
+	// Constants
 	if (checkMAXS(&indexFile) != 0) {
 		rc = 1;
 		goto exit;
 	}
 
+	// Export Rooms
 	if (convertRoomIndexData(&indexFile, &diskFiles[0]) != 0) {
+		rc = 1;
+		goto exit;
+	}
+
+	// Export Global Scripts
+	if (convertGlobalScriptsData(&indexFile, &diskFiles[0]) != 0) {
 		rc = 1;
 		goto exit;
 	}
 
 
 exit:
-	
+
 	for (uint8 i = 0; i < GS_NUM_DISKS; i++) {
 		gs_CloseFile(&diskFiles[i]);
 	}
