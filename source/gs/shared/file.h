@@ -695,6 +695,9 @@ GS_IMPORT gs_bool gs_FindTag(gs_File* file, gs_tag tag, gs_TagPair* out_tag);
 
 GS_IMPORT void gs_FileCopy(gs_File* dst, gs_File* src, uint32 length);
 
+GS_IMPORT void gs_WriteStr(gs_File* dst, const char* str);
+
+GS_IMPORT void gs_WriteFmt(gs_File* dst, const char* fmt, ...);
 
 #if defined(GS_BIG)
 #define gs_SaveBinaryFileHeader(F) gs_WriteTagStr(F, GS_TAG_GS_FILE_MAGIC_BE);
@@ -715,6 +718,21 @@ GS_IMPORT void gs_FileCopy(gs_File* dst, gs_File* src, uint32 length);
 	int32: gs_WriteInt32_Native(F, X) \
 )
 
-#define gs_SaveBytes(F, X, S) gs_WriteBytes(F, (void*) X, S)
+#define gs_SaveBytes(F, DATA, LENGTH) gs_WriteBytes(F, (void*) DATA, LENGTH)
+
+#define gs_SaveTextOpen(F, TAG_NAME) gs_WriteStr(F, "[" TAG_NAME "]\n");
+#define gs_SaveTextClose(F, TAG_NAME)
+#define gs_SaveTextValue(F, NAME, VAL) _Generic((VAL), \
+	byte: gs_WriteFmt(F, NAME " = %lx", (uint32) VAL), \
+	int8: gs_WriteFmt(F, NAME " = %ld", (uint32) VAL), \
+	uint16: gs_WriteFmt(F, NAME " = %lu", (uint32) VAL), \
+	int16: gs_WriteFmt(F, NAME " = %ld", (int32) VAL), \
+	uint32: gs_WriteFmt(F, NAME " = %lu", (uint32) VAL), \
+	int32: gs_WriteFmt(F, NAME " = %ld", (int32) VAL)\
+)
+
+#define gs_SaveTextBytes(F, NAME, DATA, LENGTH) gs_WriteStrBytes(F, NAME, DATA, LENGTH)
+#define gs_SaveTextMultiLineOpen(F, NAME) gs_WriteFmt(F, "%s = \"\"\"\n", NAME);
+#define gs_SaveTextMultiLineClose(F) gs_WriteStr(F, "\"\"\"\n");
 
 #endif

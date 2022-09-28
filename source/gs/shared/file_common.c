@@ -21,6 +21,7 @@
 #include "shared/file.h"
 #include "shared/tag.h"
 #include "shared/error.h"
+#include "shared/string.h"
 
 GS_EXPORT gs_bool gs_FindTag(gs_File* file, gs_tag match, gs_TagPair* out_tag) {
 	gs_TagPair tag;
@@ -86,7 +87,7 @@ GS_EXPORT void gs_WriteTagPairStart(gs_File* file, gs_TagPair* tagPair, uint32 t
 	//gs_WriteUInt32_BE(file, gs_TagPairDataLength(tagPair));
 }
 
-GS_IMPORT void gs_WriteTagPairEnd(gs_File* file, gs_TagPair* tagPair) {
+GS_EXPORT void gs_WriteTagPairEnd(gs_File* file, gs_TagPair* tagPair) {
 	uint32 end = gs_FilePosition(file);
 	uint32 length = end - tagPair->start;
 	tagPair->end = end;
@@ -97,7 +98,26 @@ GS_IMPORT void gs_WriteTagPairEnd(gs_File* file, gs_TagPair* tagPair) {
 
 }
 
-GS_IMPORT void gs_WriteTagPairKnownSize(gs_File* file, uint32 tag, uint32 size) {
+GS_EXPORT void gs_WriteTagPairKnownSize(gs_File* file, uint32 tag, uint32 size) {
 	gs_WriteBytes(file, &tag, 4);
 	gs_WriteUInt32_BE(file, size);
+}
+
+GS_EXPORT void gs_WriteStr(gs_File* file, const char* str) {
+	if (str == NULL)
+		return;
+
+	uint32 length = gs_str_length(str);
+	gs_WriteBytes(file, str, length);
+}
+
+GS_EXPORT void gs_WriteFmt(gs_File* file, const char* fmt, ...) {
+	static char buffer[1024];
+
+	GS_VARARG_LIST(args);
+	GS_VARARG_BEGIN(args, fmt);
+	uint32 length = gs_format_vargs(buffer, sizeof(buffer), fmt, GS_VARARG_ARG(args, void*));
+	GS_VARARG_END(args);
+
+	gs_WriteBytes(file, &buffer[0], length);
 }
