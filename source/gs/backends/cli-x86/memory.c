@@ -133,7 +133,7 @@ GS_EXPORT void* gs_Allocate(uint32 count, uint32 size, uint32 flags, const char*
 		memset(mem, 0, userSize);
 	}
 
-
+	return mem;
 }
 
 GS_EXPORT void gs_Deallocate(void* mem) {
