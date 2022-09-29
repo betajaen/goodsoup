@@ -22,19 +22,15 @@
 #include "shared/game.h"
 #include "shared/file.h"
 
-#include "script.h"
+#include "script_iterator.h"
 
 
-GS_EXPORT void gs__SaveScriptData_Text8(gs_File* file, gs_Script* script) {
 
-	if (script->scriptFormat == SSF_GS8) {
+GS_EXPORT void gs_ScriptIteratorInitialize(gs_Script* script, gs_ScriptIterator* iterator) {
+	/* TODO */
+}
 
-	}
-	else if (script->scriptFormat == SSF_LA8) {
-
-	}
-	else {
-		gs_error_str("Unsupported format to convert to Text");
-	}
-
+GS_EXPORT gs_bool gs_ScriptIteratorNext(gs_ScriptIterator* script) {
+	/* TODO */
+	return FALSE;
 }

@@ -23,8 +23,29 @@
 #include "shared/file.h"
 
 #include "script.h"
+#include "script_iterator.h"
+#include "script_schema8.h"
 
+GS_PRIVATE void convertLA8ToGS8(gs_File* file, gs_Script* script) {
+
+	gs_ScriptIterator it;
+	gs_ScriptIteratorInitialize(script, &it);
+
+	while (gs_ScriptIteratorNext(&it)) {
+		
+	}
+}
 
 GS_EXPORT void gs__SaveScriptData_GS8(gs_File* file, gs_Script* script) {
 
+	if (script->scriptFormat == SSF_GS8) {
+		gs_WriteBytes(file, script->data, script->dataLength_bytes);
+		return;
+	}
+	else if (script->scriptFormat == SSF_LA8) {
+		convertLA8ToGS8(file, script);
+	}
+	else {
+		gs_error_str("Unsupported source script format to GS8");
+	}
 }

@@ -26,5 +26,5 @@
 
 
 GS_EXPORT void gs__SaveScriptData_LA8(gs_File* file, gs_Script* script) {
-
+	gs__error_str("Script Exporting does not support saving as LA8");
 }

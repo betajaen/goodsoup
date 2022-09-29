@@ -15,26 +15,27 @@
  *
  */
 
-#define GS_FILE "script_8_text"
+#ifndef GS_SCHEMA_ITERATOR_H
+#define GS_SCHEMA_ITERATOR_H
 
 #include "shared/forward.h"
-#include "shared/error.h"
-#include "shared/game.h"
-#include "shared/file.h"
 
-#include "script.h"
+typedef struct gs_Script gs_Script;
 
+typedef struct gs_ScriptIterator {
+	byte* data;
+	uint32 pc;
+	byte op1;
+	byte op2;
+	struct gs_Script* script;
+	uint32 opcodeLength;
+	uint8 iteratorState;
+	uint8 argsLength;
+	uint8 args[16];
+} gs_ScriptIterator;
 
-GS_EXPORT void gs__SaveScriptData_Text8(gs_File* file, gs_Script* script) {
+void gs_ScriptIteratorInitialize(gs_Script* script, gs_ScriptIterator* iterator);
 
-	if (script->scriptFormat == SSF_GS8) {
+gs_bool gs_ScriptIteratorNext(gs_ScriptIterator* script);
 
-	}
-	else if (script->scriptFormat == SSF_LA8) {
-
-	}
-	else {
-		gs_error_str("Unsupported format to convert to Text");
-	}
-
-}
+#endif
