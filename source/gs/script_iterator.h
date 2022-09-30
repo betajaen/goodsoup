@@ -22,16 +22,36 @@
 
 typedef struct gs_Script gs_Script;
 
+typedef enum gs_ScriptArgType {
+	SAT_None = 0,
+	SAT_Long = 1,
+	SAT_Word = 2,
+	SAT_Byte = 3,
+	SAT_Text = 4,
+	SAT_StackLong = 5,
+	SAT_StackWord = 6,
+	SAT_StackByte = 7
+} gs_ScriptArgType;
+
+typedef struct gs_ScriptIteratorArg {
+	union {
+		byte  bValue;
+		int32 lValue;
+		char* sValue;
+	};
+	uint16 type;
+} gs_ScriptIteratorArg;
+
 typedef struct gs_ScriptIterator {
 	byte* data;
-	uint32 pc;
 	byte op1;
 	byte op2;
 	struct gs_Script* script;
-	uint32 opcodeLength;
+	uint32 pc;
 	uint8 iteratorState;
-	uint8 argsLength;
-	uint8 args[16];
+	uint8 numArgs;
+	gs_ScriptIteratorArg args[8];
+
 } gs_ScriptIterator;
 
 void gs_ScriptIteratorInitialize(gs_Script* script, gs_ScriptIterator* iterator);
