@@ -637,13 +637,56 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 		return TRUE;
 		case 0x74:
 		{
+			switch((op2 = READ_BYTE()))
+			{
+				case 0x0A:
+				{
 
-			/**
-			 * dim2DimArray
-			 */
-			OP(dim2DimArray);
+					/**
+					 * newIntArray2
+					 * @param word[2..5] arrayNum
+					 * @param long[stack, 0] dim1
+					 * @param long[stack,-1] dim2
+					 */
+					int32 arrayNum = READ_WORD_AS_LONG();
+					int32 dim2 = PULL_LONG();
+					int32 dim1 = PULL_LONG();
+					OP(newIntArray2, arrayNum, dim1, dim2);
+				}
+				return TRUE;
+				case 0x0B:
+				{
+
+					/**
+					 * newStringArray2
+					 * @param word[2..5] arrayNum
+					 * @param long[stack, 0] dim1
+					 * @param long[stack,-1] dim2
+					 */
+					int32 arrayNum = READ_WORD_AS_LONG();
+					int32 dim2 = PULL_LONG();
+					int32 dim1 = PULL_LONG();
+					OP(newStringArray2, arrayNum, dim1, dim2);
+				}
+				return TRUE;
+				case 0x0C:
+				{
+
+					/**
+					 * deleteARray2
+					 * @param word[2..5] arrayNum
+					 * @param long[stack, 0] dim1
+					 * @param long[stack,-1] dim2
+					 */
+					int32 arrayNum = READ_WORD_AS_LONG();
+					int32 dim2 = PULL_LONG();
+					int32 dim1 = PULL_LONG();
+					OP(deleteARray2, arrayNum, dim1, dim2);
+				}
+				return TRUE;
+			}
 		}
-		return TRUE;
+		return FALSE;
 		case 0x75:
 		{
 
@@ -669,13 +712,43 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 					/**
 					 * copyStringArray
 					 * @param word[2..5] arrayNum
-					 * @param string[6....] data
+					 * @param string[6...] data
 					 * @param long[stack, 0] b
 					 */
 					int32 arrayNum = READ_WORD_AS_LONG();
 					byte* data = READ_STRING();
 					int32 b = PULL_LONG();
 					OP(copyStringArray, arrayNum, data, b);
+				}
+				return TRUE;
+				case 0x15:
+				{
+
+					/**
+					 * copyIntArray
+					 * @param word[2..5] arrayNum
+					 * @param args[stack, 0] args
+					 * @param long[stack,-1] b
+					 */
+					int32 arrayNum = READ_WORD_AS_LONG();
+					int32 b = PULL_LONG();
+					int* args = PULL_ARGS();
+					OP(copyIntArray, arrayNum, args, b);
+				}
+				return TRUE;
+				case 0x16:
+				{
+
+					/**
+					 * copyDim2Array
+					 * @param word[2..5] arrayNum
+					 * @param args[stack, 0] args
+					 * @param long[stack,-1] b
+					 */
+					int32 arrayNum = READ_WORD_AS_LONG();
+					int32 b = PULL_LONG();
+					int* args = PULL_ARGS();
+					OP(copyDim2Array, arrayNum, args, b);
 				}
 				return TRUE;
 			}
@@ -1023,7 +1096,7 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * printActor
-					 * @param string[2....] text
+					 * @param string[2...] text
 					 * @const target = 0
 					 * @const pullActor = 1
 					 */
@@ -1161,7 +1234,7 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * printEgo
-					 * @param string[2....] text
+					 * @param string[2...] text
 					 * @const target = 0
 					 * @const pullActor = 2
 					 */
@@ -1319,7 +1392,7 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * printLine
-					 * @param string[2....] text
+					 * @param string[2...] text
 					 * @const target = 0
 					 * @const pullActor = 0
 					 */
@@ -1457,7 +1530,7 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * printText
-					 * @param string[2....] text
+					 * @param string[2...] text
 					 * @const target = 1
 					 * @const pullActor = 0
 					 */
@@ -1595,7 +1668,7 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * printDebug
-					 * @param string[2....] text
+					 * @param string[2...] text
 					 * @const target = 2
 					 * @const pullActor = 0
 					 */
@@ -1733,7 +1806,7 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * printSystem
-					 * @param string[2....] text
+					 * @param string[2...] text
 					 * @const target = 3
 					 * @const pullActor = 0
 					 */
@@ -1871,7 +1944,7 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * blastText
-					 * @param string[2....] text
+					 * @param string[2...] text
 					 * @const target = 4
 					 * @const pullActor = 0
 					 */
