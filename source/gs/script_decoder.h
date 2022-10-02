@@ -51,10 +51,12 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 			/**
 			 * wordArrayRead
+			 * @param word[1..4] arrayNum
 			 * @param long[stack, 0] base
 			 */
+			int32 arrayNum = READ_WORD_AS_LONG();
 			int32 base = PULL_LONG();
-			OP(wordArrayRead, base);
+			OP(wordArrayRead, arrayNum, base);
 		}
 		return TRUE;
 		case 0x04:
@@ -62,12 +64,14 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 			/**
 			 * wordArrayIndexedRead
+			 * @param word[1..4] arrayNum
 			 * @param long[stack, 0] index
 			 * @param long[stack,-1] base
 			 */
+			int32 arrayNum = READ_WORD_AS_LONG();
 			int32 base = PULL_LONG();
 			int32 index = PULL_LONG();
-			OP(wordArrayIndexedRead, index, base);
+			OP(wordArrayIndexedRead, arrayNum, index, base);
 		}
 		return TRUE;
 		case 0x05:
@@ -479,13 +483,80 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 		return TRUE;
 		case 0x69:
 		{
+			switch((op2 = READ_BYTE()))
+			{
+				case 0x1E:
+				{
 
-			/**
-			 * wait
-			 */
-			OP(wait);
+					/**
+					 * waitForActor
+					 * @param word[2..5] actorNum
+					 * @param long[stack, 0] offset
+					 */
+					int32 actorNum = READ_WORD_AS_LONG();
+					int32 offset = PULL_LONG();
+					OP(waitForActor, offset, actorNum);
+				}
+				return TRUE;
+				case 0x1F:
+				{
+
+					/**
+					 * waitForMessage
+					 * @const offset = -2
+					 */
+					OP(waitForMessage, -2);
+				}
+				return TRUE;
+				case 0x20:
+				{
+
+					/**
+					 * waitForCamera
+					 * @const offset = -2
+					 */
+					OP(waitForCamera, -2);
+				}
+				return TRUE;
+				case 0x21:
+				{
+
+					/**
+					 * waitForSentence
+					 * @const offset = -2
+					 */
+					OP(waitForSentence, -2);
+				}
+				return TRUE;
+				case 0x22:
+				{
+
+					/**
+					 * waitForAnimation
+					 * @param word[2..5] actorNum
+					 * @param long[stack, 0] offset
+					 */
+					int32 actorNum = READ_WORD_AS_LONG();
+					int32 offset = PULL_LONG();
+					OP(waitForAnimation, offset, actorNum);
+				}
+				return TRUE;
+				case 0x23:
+				{
+
+					/**
+					 * waitForTurn
+					 * @param word[2..5] actorNum
+					 * @param long[stack, 0] offset
+					 */
+					int32 actorNum = READ_WORD_AS_LONG();
+					int32 offset = PULL_LONG();
+					OP(waitForTurn, offset, actorNum);
+				}
+				return TRUE;
+			}
 		}
-		return TRUE;
+		return FALSE;
 		case 0x6A:
 		{
 
@@ -692,14 +763,16 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 			/**
 			 * wordArrayIndexedWrite
+			 * @param word[1..4] arrayNum
 			 * @param long[stack, 0] index
 			 * @param long[stack,-1] base
 			 * @param long[stack,-2] value
 			 */
+			int32 arrayNum = READ_WORD_AS_LONG();
 			int32 value = PULL_LONG();
 			int32 base = PULL_LONG();
 			int32 index = PULL_LONG();
-			OP(wordArrayIndexedWrite, index, base, value);
+			OP(wordArrayIndexedWrite, arrayNum, index, base, value);
 		}
 		return TRUE;
 		case 0x76:
@@ -879,10 +952,10 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 			/**
 			 * freezeUnfreeze
-			 * @param long[stack, 0] script
+			 * @param long[stack, 0] scriptNum
 			 */
-			int32 script = PULL_LONG();
-			OP(freezeUnfreeze, script);
+			int32 scriptNum = PULL_LONG();
+			OP(freezeUnfreeze, scriptNum);
 		}
 		return TRUE;
 		case 0x84:
@@ -1261,10 +1334,12 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 			/**
 			 * talkActor
-			 * @param long[stack, 0] actor
+			 * @param string[1...] text
+			 * @param word[stack, 0] actorNum
 			 */
-			int32 actor = PULL_LONG();
-			OP(talkActor, actor);
+			byte* text = READ_STRING();
+			int16 actorNum = PULL_WORD();
+			OP(talkActor, actorNum, text);
 		}
 		return TRUE;
 		case 0x92:
@@ -1272,8 +1347,10 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 			/**
 			 * talkEgo
+			 * @param string[1...] text
 			 */
-			OP(talkEgo);
+			byte* text = READ_STRING();
+			OP(talkEgo, text);
 		}
 		return TRUE;
 		case 0x93:
@@ -2493,6 +2570,23 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 		{
 			switch((op2 = READ_BYTE()))
 			{
+				case 0x52:
+				{
+
+					/**
+					 * setRoomPalette
+					 * @param byte[stack, 0] idx
+					 * @param byte[stack,-1] r
+					 * @param byte[stack,-2] g
+					 * @param byte[stack,-3] b
+					 */
+					byte b = PULL_BYTE();
+					byte g = PULL_BYTE();
+					byte r = PULL_BYTE();
+					byte idx = PULL_BYTE();
+					OP(setRoomPalette, idx, r, g, b);
+				}
+				return TRUE;
 				case 0x57:
 				{
 
@@ -2502,6 +2596,90 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 					 */
 					int16 effect = PULL_WORD();
 					OP(fadeRoom, effect);
+				}
+				return TRUE;
+				case 0x58:
+				{
+
+					/**
+					 * darkenPalette
+					 * @param long[stack, 0] redScale
+					 * @param long[stack,-1] greenScale
+					 * @param long[stack,-2] blueScale
+					 * @param word[stack,-3] startColor
+					 * @param word[stack,-4] endColor
+					 */
+					int16 endColor = PULL_WORD();
+					int16 startColor = PULL_WORD();
+					int32 blueScale = PULL_LONG();
+					int32 greenScale = PULL_LONG();
+					int32 redScale = PULL_LONG();
+					OP(darkenPalette, redScale, greenScale, blueScale, startColor, endColor);
+				}
+				return TRUE;
+				case 0x59:
+				{
+
+					/**
+					 * manipulatePalette
+					 * @param word[stack, 0] resourceNum
+					 * @param long[stack,-1] start
+					 * @param long[stack,-2] end
+					 * @param long[stack,-3] time
+					 */
+					int32 time = PULL_LONG();
+					int32 end = PULL_LONG();
+					int32 start = PULL_LONG();
+					int16 resourceNum = PULL_WORD();
+					OP(manipulatePalette, resourceNum, start, end, time);
+				}
+				return TRUE;
+				case 0x5C:
+				{
+
+					/**
+					 * setPalette
+					 * @param word[stack, 0] palNum
+					 */
+					int16 palNum = PULL_WORD();
+					OP(setPalette, palNum);
+				}
+				return TRUE;
+				case 0x5D:
+				{
+
+					/**
+					 * roomSaveGame
+					 */
+					OP(roomSaveGame);
+				}
+				return TRUE;
+				case 0x5E:
+				{
+
+					/**
+					 * roomLoadGame
+					 */
+					OP(roomLoadGame);
+				}
+				return TRUE;
+				case 0x5F:
+				{
+
+					/**
+					 * desaturatePalette
+					 * @param long[stack, 0] hueScale
+					 * @param long[stack,-1] satScale
+					 * @param long[stack,-2] lightScale
+					 * @param word[stack,-3] startColor
+					 * @param word[stack,-4] endColor
+					 */
+					int16 endColor = PULL_WORD();
+					int16 startColor = PULL_WORD();
+					int32 lightScale = PULL_LONG();
+					int32 satScale = PULL_LONG();
+					int32 hueScale = PULL_LONG();
+					OP(desaturatePalette, hueScale, satScale, lightScale, startColor, endColor);
 				}
 				return TRUE;
 			}
@@ -2917,13 +3095,31 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 		return FALSE;
 		case 0xAD:
 		{
+			switch((op2 = READ_BYTE()))
+			{
+				case 0x32:
+				{
 
-			/**
-			 * cameraOps
-			 */
-			OP(cameraOps);
+					/**
+					 * setCameraFrozen
+					 * @const frozen = 1
+					 */
+					OP(setCameraFrozen, 1);
+				}
+				return TRUE;
+				case 0x33:
+				{
+
+					/**
+					 * setCameraFrozen
+					 * @const frozen = 0
+					 */
+					OP(setCameraFrozen, 0);
+				}
+				return TRUE;
+			}
 		}
-		return TRUE;
+		return FALSE;
 		case 0xAE:
 		{
 			switch((op2 = READ_BYTE()))
@@ -2932,11 +3128,168 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 				{
 
 					/**
-					 * newVerb
+					 * initVerb
 					 * @param word[stack, 0] verbNum
 					 */
 					int16 verbNum = PULL_WORD();
-					OP(newVerb, verbNum);
+					OP(initVerb, verbNum);
+				}
+				return TRUE;
+				case 0x97:
+				{
+
+					/**
+					 * newVerb
+					 */
+					OP(newVerb);
+				}
+				return TRUE;
+				case 0x98:
+				{
+
+					/**
+					 * deleteVerb
+					 */
+					OP(deleteVerb);
+				}
+				return TRUE;
+				case 0x99:
+				{
+
+					/**
+					 * setVerbName
+					 */
+					OP(setVerbName);
+				}
+				return TRUE;
+				case 0x9A:
+				{
+
+					/**
+					 * setVerbAt
+					 * @param word[stack, 0] x
+					 * @param word[stack,-1] y
+					 */
+					int16 y = PULL_WORD();
+					int16 x = PULL_WORD();
+					OP(setVerbAt, x, y);
+				}
+				return TRUE;
+				case 0x9B:
+				{
+
+					/**
+					 * setVerbEnabled
+					 * @const enabled = 1
+					 */
+					OP(setVerbEnabled, 1);
+				}
+				return TRUE;
+				case 0x9C:
+				{
+
+					/**
+					 * setVerbEnabled
+					 * @const enabled = 0
+					 */
+					OP(setVerbEnabled, 0);
+				}
+				return TRUE;
+				case 0x9D:
+				{
+
+					/**
+					 * setVerbColor
+					 * @param byte[stack, 0] idx
+					 */
+					byte idx = PULL_BYTE();
+					OP(setVerbColor, idx);
+				}
+				return TRUE;
+				case 0x9E:
+				{
+
+					/**
+					 * setVerbHiColor
+					 * @param byte[stack, 0] idx
+					 */
+					byte idx = PULL_BYTE();
+					OP(setVerbHiColor, idx);
+				}
+				return TRUE;
+				case 0xA0:
+				{
+
+					/**
+					 * setVerbDimColor
+					 * @param byte[stack, 0] idx
+					 */
+					byte idx = PULL_BYTE();
+					OP(setVerbDimColor, idx);
+				}
+				return TRUE;
+				case 0xA1:
+				{
+
+					/**
+					 * dimVerb
+					 */
+					OP(dimVerb);
+				}
+				return TRUE;
+				case 0xA2:
+				{
+
+					/**
+					 * setVerbKey
+					 * @param word[stack, 0] keyNum
+					 */
+					int16 keyNum = PULL_WORD();
+					OP(setVerbKey, keyNum);
+				}
+				return TRUE;
+				case 0xA3:
+				{
+
+					/**
+					 * setVerbImage
+					 * @param word[stack, 0] roomNum
+					 * @param word[stack,-1] objectNum
+					 */
+					int16 objectNum = PULL_WORD();
+					int16 roomNum = PULL_WORD();
+					OP(setVerbImage, roomNum, objectNum);
+				}
+				return TRUE;
+				case 0xA4:
+				{
+
+					/**
+					 * setVerbText
+					 * @param long[stack, 0] textAddress
+					 */
+					int32 textAddress = PULL_LONG();
+					OP(setVerbText, textAddress);
+				}
+				return TRUE;
+				case 0xA5:
+				{
+
+					/**
+					 * centerVerb
+					 */
+					OP(centerVerb);
+				}
+				return TRUE;
+				case 0xA6:
+				{
+
+					/**
+					 * setVerbCharSet
+					 * @param word[stack, 0] charsetNum
+					 */
+					int16 charsetNum = PULL_WORD();
+					OP(setVerbCharSet, charsetNum);
 				}
 				return TRUE;
 				case 0xA7:
@@ -3042,10 +3395,12 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 			/**
 			 * setObjectName
-			 * @param long[stack, 0] obj
+			 * @param string[1...] text
+			 * @param word[stack, 0] objectNum
 			 */
-			int32 obj = PULL_LONG();
-			OP(setObjectName, obj);
+			byte* text = READ_STRING();
+			int16 objectNum = PULL_WORD();
+			OP(setObjectName, objectNum, text);
 		}
 		return TRUE;
 		case 0xB6:
@@ -3610,8 +3965,12 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 			/**
 			 * getStringWidth
+			 * @param string[1...] text
+			 * @param word[stack, 0] charsetNum
 			 */
-			OP(getStringWidth);
+			byte* text = READ_STRING();
+			int16 charsetNum = PULL_WORD();
+			OP(getStringWidth, charsetNum, text);
 		}
 		return TRUE;
 		case 0xF7:
