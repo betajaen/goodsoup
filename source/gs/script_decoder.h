@@ -18,7 +18,7 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 			/**
 			 * pushByte
-			 * - ImmByte value
+			 * @param byte[1..1] value
 			 */
 			byte value = READ_BYTE();
 			OP(pushByte, value);
@@ -29,7 +29,7 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 			/**
 			 * pushWord
-			 * - ImmWord value
+			 * @param word[1..4] value
 			 */
 			int32 value = READ_WORD_AS_LONG();
 			OP(pushWord, value);
@@ -40,7 +40,7 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 			/**
 			 * pushWordVar
-			 * - ImmWord index
+			 * @param word[1..4] index
 			 */
 			int32 index = READ_WORD_AS_LONG();
 			OP(pushWordVar, index);
@@ -51,7 +51,7 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 			/**
 			 * wordArrayRead
-			 * - Long base
+			 * @param long[stack, 0] base
 			 */
 			int32 base = PULL_LONG();
 			OP(wordArrayRead, base);
@@ -62,8 +62,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 			/**
 			 * wordArrayIndexedRead
-			 * - Long index
-			 * - Long base
+			 * @param long[stack, 0] index
+			 * @param long[stack,-1] base
 			 */
 			int32 base = PULL_LONG();
 			int32 index = PULL_LONG();
@@ -75,7 +75,7 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 			/**
 			 * dup
-			 * - Long value
+			 * @param long[stack, 0] value
 			 */
 			int32 value = PULL_LONG();
 			OP(dup, value);
@@ -86,7 +86,7 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 			/**
 			 * pop
-			 * - Long discard
+			 * @param long[stack, 0] discard
 			 */
 			int32 discard = PULL_LONG();
 			OP(pop, discard);
@@ -97,7 +97,7 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 			/**
 			 * not
-			 * - Long value
+			 * @param long[stack, 0] value
 			 */
 			int32 value = PULL_LONG();
 			OP(not, value);
@@ -108,8 +108,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 			/**
 			 * eq
-			 * - Long a
-			 * - Long b
+			 * @param long[stack, 0] a
+			 * @param long[stack,-1] b
 			 */
 			int32 b = PULL_LONG();
 			int32 a = PULL_LONG();
@@ -121,8 +121,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 			/**
 			 * neq
-			 * - Long a
-			 * - Long b
+			 * @param long[stack, 0] a
+			 * @param long[stack,-1] b
 			 */
 			int32 b = PULL_LONG();
 			int32 a = PULL_LONG();
@@ -134,8 +134,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 			/**
 			 * gt
-			 * - Long a
-			 * - Long b
+			 * @param long[stack, 0] a
+			 * @param long[stack,-1] b
 			 */
 			int32 b = PULL_LONG();
 			int32 a = PULL_LONG();
@@ -147,8 +147,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 			/**
 			 * lt
-			 * - Long a
-			 * - Long b
+			 * @param long[stack, 0] a
+			 * @param long[stack,-1] b
 			 */
 			int32 b = PULL_LONG();
 			int32 a = PULL_LONG();
@@ -160,8 +160,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 			/**
 			 * le
-			 * - Long a
-			 * - Long b
+			 * @param long[stack, 0] a
+			 * @param long[stack,-1] b
 			 */
 			int32 b = PULL_LONG();
 			int32 a = PULL_LONG();
@@ -173,8 +173,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 			/**
 			 * ge
-			 * - Long a
-			 * - Long b
+			 * @param long[stack, 0] a
+			 * @param long[stack,-1] b
 			 */
 			int32 b = PULL_LONG();
 			int32 a = PULL_LONG();
@@ -186,8 +186,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 			/**
 			 * add
-			 * - Long a
-			 * - Long b
+			 * @param long[stack, 0] a
+			 * @param long[stack,-1] b
 			 */
 			int32 b = PULL_LONG();
 			int32 a = PULL_LONG();
@@ -199,8 +199,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 			/**
 			 * sub
-			 * - Long a
-			 * - Long b
+			 * @param long[stack, 0] a
+			 * @param long[stack,-1] b
 			 */
 			int32 b = PULL_LONG();
 			int32 a = PULL_LONG();
@@ -212,8 +212,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 			/**
 			 * mul
-			 * - Long a
-			 * - Long b
+			 * @param long[stack, 0] a
+			 * @param long[stack,-1] b
 			 */
 			int32 b = PULL_LONG();
 			int32 a = PULL_LONG();
@@ -225,8 +225,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 			/**
 			 * div
-			 * - Long a
-			 * - Long b
+			 * @param long[stack, 0] a
+			 * @param long[stack,-1] b
 			 */
 			int32 b = PULL_LONG();
 			int32 a = PULL_LONG();
@@ -238,8 +238,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 			/**
 			 * land
-			 * - Long a
-			 * - Long b
+			 * @param long[stack, 0] a
+			 * @param long[stack,-1] b
 			 */
 			int32 b = PULL_LONG();
 			int32 a = PULL_LONG();
@@ -251,8 +251,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 			/**
 			 * lor
-			 * - Long a
-			 * - Long b
+			 * @param long[stack, 0] a
+			 * @param long[stack,-1] b
 			 */
 			int32 b = PULL_LONG();
 			int32 a = PULL_LONG();
@@ -264,8 +264,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 			/**
 			 * band
-			 * - Long a
-			 * - Long b
+			 * @param long[stack, 0] a
+			 * @param long[stack,-1] b
 			 */
 			int32 b = PULL_LONG();
 			int32 a = PULL_LONG();
@@ -277,8 +277,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 			/**
 			 * bor
-			 * - Long a
-			 * - Long b
+			 * @param long[stack, 0] a
+			 * @param long[stack,-1] b
 			 */
 			int32 b = PULL_LONG();
 			int32 a = PULL_LONG();
@@ -299,7 +299,7 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 			/**
 			 * writeByteVar
-			 * - Long value
+			 * @param long[stack, 0] value
 			 */
 			int32 value = PULL_LONG();
 			OP(writeByteVar, value);
@@ -310,8 +310,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 			/**
 			 * byteArrayWrite
-			 * - Long base
-			 * - Long value
+			 * @param long[stack, 0] base
+			 * @param long[stack,-1] value
 			 */
 			int32 value = PULL_LONG();
 			int32 base = PULL_LONG();
@@ -323,9 +323,9 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 			/**
 			 * byteArrayIndexedWrite
-			 * - Long index
-			 * - Long base
-			 * - Long value
+			 * @param long[stack, 0] index
+			 * @param long[stack,-1] base
+			 * @param long[stack,-2] value
 			 */
 			int32 value = PULL_LONG();
 			int32 base = PULL_LONG();
@@ -347,7 +347,7 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 			/**
 			 * byteArrayInc
-			 * - Long base
+			 * @param long[stack, 0] base
 			 */
 			int32 base = PULL_LONG();
 			OP(byteArrayInc, base);
@@ -367,7 +367,7 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 			/**
 			 * byteArrayDec
-			 * - Long base
+			 * @param long[stack, 0] base
 			 */
 			int32 base = PULL_LONG();
 			OP(byteArrayDec, base);
@@ -378,8 +378,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 			/**
 			 * drawObject
-			 * - Long obj
-			 * - Long state
+			 * @param long[stack, 0] obj
+			 * @param long[stack,-1] state
 			 */
 			int32 state = PULL_LONG();
 			int32 obj = PULL_LONG();
@@ -391,9 +391,9 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 			/**
 			 * drawObjectAt
-			 * - Long obj
-			 * - Long x
-			 * - Long y
+			 * @param long[stack, 0] obj
+			 * @param long[stack,-1] x
+			 * @param long[stack,-2] y
 			 */
 			int32 y = PULL_LONG();
 			int32 x = PULL_LONG();
@@ -406,12 +406,12 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 			/**
 			 * drawBlastObject
-			 * - Long a
-			 * - Long b
-			 * - Long c
-			 * - Long d
-			 * - Long e
-			 * - Args args
+			 * @param long[stack, 0] a
+			 * @param long[stack,-1] b
+			 * @param long[stack,-2] c
+			 * @param long[stack,-3] d
+			 * @param long[stack,-4] e
+			 * @param args[stack,-5] args
 			 */
 			int* args = PULL_ARGS();
 			int32 e = PULL_LONG();
@@ -427,8 +427,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 			/**
 			 * if
-			 * - Long condition
-			 * - ImmWord relOffset
+			 * @param word[1..4] relOffset
+			 * @param long[stack, 0] condition
 			 */
 			int32 relOffset = READ_WORD_AS_LONG();
 			int32 condition = PULL_LONG();
@@ -440,8 +440,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 			/**
 			 * ifNot
-			 * - Long condition
-			 * - ImmWord relOffset
+			 * @param word[1..4] relOffset
+			 * @param long[stack, 0] condition
 			 */
 			int32 relOffset = READ_WORD_AS_LONG();
 			int32 condition = PULL_LONG();
@@ -453,7 +453,7 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 			/**
 			 * jump
-			 * - ImmWord relOffset
+			 * @param word[1..4] relOffset
 			 */
 			int32 relOffset = READ_WORD_AS_LONG();
 			OP(jump, relOffset);
@@ -491,7 +491,7 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 			/**
 			 * delay
-			 * - Long delay
+			 * @param long[stack, 0] delay
 			 */
 			int32 delay = PULL_LONG();
 			OP(delay, delay);
@@ -502,7 +502,7 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 			/**
 			 * delaySeconds
-			 * - Long seconds
+			 * @param long[stack, 0] seconds
 			 */
 			int32 seconds = PULL_LONG();
 			OP(delaySeconds, seconds);
@@ -513,7 +513,7 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 			/**
 			 * delayMinutes
-			 * - Long minutes
+			 * @param long[stack, 0] minutes
 			 */
 			int32 minutes = PULL_LONG();
 			OP(delayMinutes, minutes);
@@ -524,8 +524,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 			/**
 			 * writeWordVar
-			 * - ImmLong varIndex
-			 * - Long value
+			 * @param long[1..4] varIndex
+			 * @param long[stack, 0] value
 			 */
 			int32 varIndex = READ_LONG();
 			int32 value = PULL_LONG();
@@ -537,7 +537,7 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 			/**
 			 * wordVarInc
-			 * - ImmLong varIndex
+			 * @param long[1..4] varIndex
 			 */
 			int32 varIndex = READ_LONG();
 			OP(wordVarInc, varIndex);
@@ -548,7 +548,7 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 			/**
 			 * wordVarDec
-			 * - ImmLong varIndex
+			 * @param long[1..4] varIndex
 			 */
 			int32 varIndex = READ_LONG();
 			OP(wordVarDec, varIndex);
@@ -563,8 +563,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * newIntArray
-					 * - ImmWord arrayNum
-					 * - Long dim1
+					 * @param word[2..5] arrayNum
+					 * @param long[stack, 0] dim1
 					 */
 					int32 arrayNum = READ_WORD_AS_LONG();
 					int32 dim1 = PULL_LONG();
@@ -576,8 +576,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * newStringArray
-					 * - ImmWord arrayNum
-					 * - Long dim1
+					 * @param word[2..5] arrayNum
+					 * @param long[stack, 0] dim1
 					 */
 					int32 arrayNum = READ_WORD_AS_LONG();
 					int32 dim1 = PULL_LONG();
@@ -589,7 +589,7 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * deleteArray
-					 * - ImmWord arrayNum
+					 * @param word[2..5] arrayNum
 					 */
 					int32 arrayNum = READ_WORD_AS_LONG();
 					OP(deleteArray, arrayNum);
@@ -603,9 +603,9 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 			/**
 			 * wordArrayWrite
-			 * - ImmWord arrayNum
-			 * - Long base
-			 * - Long value
+			 * @param word[1..4] arrayNum
+			 * @param long[stack, 0] base
+			 * @param long[stack,-1] value
 			 */
 			int32 arrayNum = READ_WORD_AS_LONG();
 			int32 value = PULL_LONG();
@@ -618,7 +618,7 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 			/**
 			 * wordArrayInc
-			 * - Long base
+			 * @param long[stack, 0] base
 			 */
 			int32 base = PULL_LONG();
 			OP(wordArrayInc, base);
@@ -629,7 +629,7 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 			/**
 			 * wordArrayDec
-			 * - Long base
+			 * @param long[stack, 0] base
 			 */
 			int32 base = PULL_LONG();
 			OP(wordArrayDec, base);
@@ -649,9 +649,9 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 			/**
 			 * wordArrayIndexedWrite
-			 * - Long index
-			 * - Long base
-			 * - Long value
+			 * @param long[stack, 0] index
+			 * @param long[stack,-1] base
+			 * @param long[stack,-2] value
 			 */
 			int32 value = PULL_LONG();
 			int32 base = PULL_LONG();
@@ -668,9 +668,9 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * copyStringArray
-					 * - ImmWord arrayNum
-					 * - ImmString data
-					 * - Long b
+					 * @param word[2..5] arrayNum
+					 * @param string[6....] data
+					 * @param long[stack, 0] b
 					 */
 					int32 arrayNum = READ_WORD_AS_LONG();
 					byte* data = READ_STRING();
@@ -686,9 +686,9 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 			/**
 			 * startScript
-			 * - Long flags
-			 * - Long script
-			 * - Args args
+			 * @param long[stack, 0] flags
+			 * @param long[stack,-1] script
+			 * @param args[stack,-2] args
 			 */
 			int* args = PULL_ARGS();
 			int32 script = PULL_LONG();
@@ -701,8 +701,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 			/**
 			 * startScriptQuick
-			 * - Long script
-			 * - Args args
+			 * @param long[stack, 0] script
+			 * @param args[stack,-1] args
 			 */
 			int* args = PULL_ARGS();
 			int32 script = PULL_LONG();
@@ -723,7 +723,7 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 			/**
 			 * stopScript6
-			 * - Long script
+			 * @param long[stack, 0] script
 			 */
 			int32 script = PULL_LONG();
 			OP(stopScript6, script);
@@ -734,9 +734,9 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 			/**
 			 * jumpToScript
-			 * - Long flags
-			 * - Long script
-			 * - Args args
+			 * @param long[stack, 0] flags
+			 * @param long[stack,-1] script
+			 * @param args[stack,-2] args
 			 */
 			int* args = PULL_ARGS();
 			int32 script = PULL_LONG();
@@ -758,10 +758,10 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 			/**
 			 * startObject
-			 * - Long flags
-			 * - Long script
-			 * - Byte entryp
-			 * - Args args
+			 * @param long[stack, 0] flags
+			 * @param long[stack,-1] script
+			 * @param byte[stack,-2] entryp
+			 * @param args[stack,-3] args
 			 */
 			int* args = PULL_ARGS();
 			byte entryp = PULL_BYTE();
@@ -775,7 +775,7 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 			/**
 			 * stopObjectScript
-			 * - Word script
+			 * @param word[stack, 0] script
 			 */
 			int16 script = PULL_WORD();
 			OP(stopObjectScript, script);
@@ -786,7 +786,7 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 			/**
 			 * cutscene
-			 * - Args args
+			 * @param args[stack, 0] args
 			 */
 			int* args = PULL_ARGS();
 			OP(cutscene, args);
@@ -806,7 +806,7 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 			/**
 			 * freezeUnfreeze
-			 * - Long script
+			 * @param long[stack, 0] script
 			 */
 			int32 script = PULL_LONG();
 			OP(freezeUnfreeze, script);
@@ -844,8 +844,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 			/**
 			 * setClass
-			 * - Long obj
-			 * - Args args
+			 * @param long[stack, 0] obj
+			 * @param args[stack,-1] args
 			 */
 			int* args = PULL_ARGS();
 			int32 obj = PULL_LONG();
@@ -857,8 +857,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 			/**
 			 * setState
-			 * - Long obj
-			 * - Long state
+			 * @param long[stack, 0] obj
+			 * @param long[stack,-1] state
 			 */
 			int32 state = PULL_LONG();
 			int32 obj = PULL_LONG();
@@ -870,8 +870,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 			/**
 			 * setOwner
-			 * - Long obj
-			 * - Long owner
+			 * @param long[stack, 0] obj
+			 * @param long[stack,-1] owner
 			 */
 			int32 owner = PULL_LONG();
 			int32 obj = PULL_LONG();
@@ -892,7 +892,7 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 			/**
 			 * actorFollowCamera
-			 * - Long index
+			 * @param long[stack, 0] index
 			 */
 			int32 index = PULL_LONG();
 			OP(actorFollowCamera, index);
@@ -916,8 +916,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * printActor_ResetState
-					 * - target = 0
-					 * - pullActor = 1
+					 * @const target = 0
+					 * @const pullActor = 1
 					 */
 					OP(printActor_ResetState, 0, 1);
 				}
@@ -927,8 +927,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * printActor_SaveState
-					 * - target = 0
-					 * - pullActor = 1
+					 * @const target = 0
+					 * @const pullActor = 1
 					 */
 					OP(printActor_SaveState, 0, 1);
 				}
@@ -938,10 +938,10 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * printActor_SetPos
-					 * - Word x
-					 * - Word y
-					 * - target = 0
-					 * - pullActor = 1
+					 * @param word[stack, 0] x
+					 * @param word[stack,-1] y
+					 * @const target = 0
+					 * @const pullActor = 1
 					 */
 					int16 y = PULL_WORD();
 					int16 x = PULL_WORD();
@@ -953,9 +953,9 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * printActor_SetColor
-					 * - Byte index
-					 * - target = 0
-					 * - pullActor = 1
+					 * @param byte[stack, 0] index
+					 * @const target = 0
+					 * @const pullActor = 1
 					 */
 					byte index = PULL_BYTE();
 					OP(printActor_SetColor, index, 0, 1);
@@ -966,8 +966,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * printActor_AlignCenter
-					 * - target = 0
-					 * - pullActor = 1
+					 * @const target = 0
+					 * @const pullActor = 1
 					 */
 					OP(printActor_AlignCenter, 0, 1);
 				}
@@ -977,9 +977,9 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * printActor_SetCharSet
-					 * - Word charsetNum
-					 * - target = 0
-					 * - pullActor = 1
+					 * @param word[stack, 0] charsetNum
+					 * @const target = 0
+					 * @const pullActor = 1
 					 */
 					int16 charsetNum = PULL_WORD();
 					OP(printActor_SetCharSet, charsetNum, 0, 1);
@@ -990,8 +990,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * printActor_AlignLeft
-					 * - target = 0
-					 * - pullActor = 1
+					 * @const target = 0
+					 * @const pullActor = 1
 					 */
 					OP(printActor_AlignLeft, 0, 1);
 				}
@@ -1001,8 +1001,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * printActor_SetOverhead
-					 * - target = 0
-					 * - pullActor = 1
+					 * @const target = 0
+					 * @const pullActor = 1
 					 */
 					OP(printActor_SetOverhead, 0, 1);
 				}
@@ -1012,8 +1012,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * printActor_SetMumble
-					 * - target = 0
-					 * - pullActor = 1
+					 * @const target = 0
+					 * @const pullActor = 1
 					 */
 					OP(printActor_SetMumble, 0, 1);
 				}
@@ -1023,9 +1023,9 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * printActor
-					 * - ImmString text
-					 * - target = 0
-					 * - pullActor = 1
+					 * @param string[2....] text
+					 * @const target = 0
+					 * @const pullActor = 1
 					 */
 					byte* text = READ_STRING();
 					OP(printActor, text, 0, 1);
@@ -1036,8 +1036,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * printActor_SetWrapped
-					 * - target = 0
-					 * - pullActor = 1
+					 * @const target = 0
+					 * @const pullActor = 1
 					 */
 					OP(printActor_SetWrapped, 0, 1);
 				}
@@ -1054,8 +1054,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * printEgo_ResetState
-					 * - target = 0
-					 * - pullActor = 2
+					 * @const target = 0
+					 * @const pullActor = 2
 					 */
 					OP(printEgo_ResetState, 0, 2);
 				}
@@ -1065,8 +1065,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * printEgo_SaveState
-					 * - target = 0
-					 * - pullActor = 2
+					 * @const target = 0
+					 * @const pullActor = 2
 					 */
 					OP(printEgo_SaveState, 0, 2);
 				}
@@ -1076,10 +1076,10 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * printEgo_SetPos
-					 * - Word x
-					 * - Word y
-					 * - target = 0
-					 * - pullActor = 2
+					 * @param word[stack, 0] x
+					 * @param word[stack,-1] y
+					 * @const target = 0
+					 * @const pullActor = 2
 					 */
 					int16 y = PULL_WORD();
 					int16 x = PULL_WORD();
@@ -1091,9 +1091,9 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * printEgo_SetColor
-					 * - Byte index
-					 * - target = 0
-					 * - pullActor = 2
+					 * @param byte[stack, 0] index
+					 * @const target = 0
+					 * @const pullActor = 2
 					 */
 					byte index = PULL_BYTE();
 					OP(printEgo_SetColor, index, 0, 2);
@@ -1104,8 +1104,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * printEgo_AlignCenter
-					 * - target = 0
-					 * - pullActor = 2
+					 * @const target = 0
+					 * @const pullActor = 2
 					 */
 					OP(printEgo_AlignCenter, 0, 2);
 				}
@@ -1115,9 +1115,9 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * printEgo_SetCharSet
-					 * - Word charsetNum
-					 * - target = 0
-					 * - pullActor = 2
+					 * @param word[stack, 0] charsetNum
+					 * @const target = 0
+					 * @const pullActor = 2
 					 */
 					int16 charsetNum = PULL_WORD();
 					OP(printEgo_SetCharSet, charsetNum, 0, 2);
@@ -1128,8 +1128,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * printEgo_AlignLeft
-					 * - target = 0
-					 * - pullActor = 2
+					 * @const target = 0
+					 * @const pullActor = 2
 					 */
 					OP(printEgo_AlignLeft, 0, 2);
 				}
@@ -1139,8 +1139,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * printEgo_SetOverhead
-					 * - target = 0
-					 * - pullActor = 2
+					 * @const target = 0
+					 * @const pullActor = 2
 					 */
 					OP(printEgo_SetOverhead, 0, 2);
 				}
@@ -1150,8 +1150,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * printEgo_SetMumble
-					 * - target = 0
-					 * - pullActor = 2
+					 * @const target = 0
+					 * @const pullActor = 2
 					 */
 					OP(printEgo_SetMumble, 0, 2);
 				}
@@ -1161,9 +1161,9 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * printEgo
-					 * - ImmString text
-					 * - target = 0
-					 * - pullActor = 2
+					 * @param string[2....] text
+					 * @const target = 0
+					 * @const pullActor = 2
 					 */
 					byte* text = READ_STRING();
 					OP(printEgo, text, 0, 2);
@@ -1174,8 +1174,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * printEgo_SetWrapped
-					 * - target = 0
-					 * - pullActor = 2
+					 * @const target = 0
+					 * @const pullActor = 2
 					 */
 					OP(printEgo_SetWrapped, 0, 2);
 				}
@@ -1188,7 +1188,7 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 			/**
 			 * talkActor
-			 * - Long actor
+			 * @param long[stack, 0] actor
 			 */
 			int32 actor = PULL_LONG();
 			OP(talkActor, actor);
@@ -1212,8 +1212,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * printLine_ResetState
-					 * - target = 0
-					 * - pullActor = 0
+					 * @const target = 0
+					 * @const pullActor = 0
 					 */
 					OP(printLine_ResetState, 0, 0);
 				}
@@ -1223,8 +1223,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * printLine_SaveState
-					 * - target = 0
-					 * - pullActor = 0
+					 * @const target = 0
+					 * @const pullActor = 0
 					 */
 					OP(printLine_SaveState, 0, 0);
 				}
@@ -1234,10 +1234,10 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * printLine_SetPos
-					 * - Word x
-					 * - Word y
-					 * - target = 0
-					 * - pullActor = 0
+					 * @param word[stack, 0] x
+					 * @param word[stack,-1] y
+					 * @const target = 0
+					 * @const pullActor = 0
 					 */
 					int16 y = PULL_WORD();
 					int16 x = PULL_WORD();
@@ -1249,9 +1249,9 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * printLine_SetColor
-					 * - Byte index
-					 * - target = 0
-					 * - pullActor = 0
+					 * @param byte[stack, 0] index
+					 * @const target = 0
+					 * @const pullActor = 0
 					 */
 					byte index = PULL_BYTE();
 					OP(printLine_SetColor, index, 0, 0);
@@ -1262,8 +1262,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * printLine_AlignCenter
-					 * - target = 0
-					 * - pullActor = 0
+					 * @const target = 0
+					 * @const pullActor = 0
 					 */
 					OP(printLine_AlignCenter, 0, 0);
 				}
@@ -1273,9 +1273,9 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * printLine_SetCharSet
-					 * - Word charsetNum
-					 * - target = 0
-					 * - pullActor = 0
+					 * @param word[stack, 0] charsetNum
+					 * @const target = 0
+					 * @const pullActor = 0
 					 */
 					int16 charsetNum = PULL_WORD();
 					OP(printLine_SetCharSet, charsetNum, 0, 0);
@@ -1286,8 +1286,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * printLine_AlignLeft
-					 * - target = 0
-					 * - pullActor = 0
+					 * @const target = 0
+					 * @const pullActor = 0
 					 */
 					OP(printLine_AlignLeft, 0, 0);
 				}
@@ -1297,8 +1297,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * printLine_SetOverhead
-					 * - target = 0
-					 * - pullActor = 0
+					 * @const target = 0
+					 * @const pullActor = 0
 					 */
 					OP(printLine_SetOverhead, 0, 0);
 				}
@@ -1308,8 +1308,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * printLine_SetMumble
-					 * - target = 0
-					 * - pullActor = 0
+					 * @const target = 0
+					 * @const pullActor = 0
 					 */
 					OP(printLine_SetMumble, 0, 0);
 				}
@@ -1319,9 +1319,9 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * printLine
-					 * - ImmString text
-					 * - target = 0
-					 * - pullActor = 0
+					 * @param string[2....] text
+					 * @const target = 0
+					 * @const pullActor = 0
 					 */
 					byte* text = READ_STRING();
 					OP(printLine, text, 0, 0);
@@ -1332,8 +1332,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * printLine_SetWrapped
-					 * - target = 0
-					 * - pullActor = 0
+					 * @const target = 0
+					 * @const pullActor = 0
 					 */
 					OP(printLine_SetWrapped, 0, 0);
 				}
@@ -1350,8 +1350,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * printText_ResetState
-					 * - target = 1
-					 * - pullActor = 0
+					 * @const target = 1
+					 * @const pullActor = 0
 					 */
 					OP(printText_ResetState, 1, 0);
 				}
@@ -1361,8 +1361,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * printText_SaveState
-					 * - target = 1
-					 * - pullActor = 0
+					 * @const target = 1
+					 * @const pullActor = 0
 					 */
 					OP(printText_SaveState, 1, 0);
 				}
@@ -1372,10 +1372,10 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * printText_SetPos
-					 * - Word x
-					 * - Word y
-					 * - target = 1
-					 * - pullActor = 0
+					 * @param word[stack, 0] x
+					 * @param word[stack,-1] y
+					 * @const target = 1
+					 * @const pullActor = 0
 					 */
 					int16 y = PULL_WORD();
 					int16 x = PULL_WORD();
@@ -1387,9 +1387,9 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * printText_SetColor
-					 * - Byte index
-					 * - target = 1
-					 * - pullActor = 0
+					 * @param byte[stack, 0] index
+					 * @const target = 1
+					 * @const pullActor = 0
 					 */
 					byte index = PULL_BYTE();
 					OP(printText_SetColor, index, 1, 0);
@@ -1400,8 +1400,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * printText_AlignCenter
-					 * - target = 1
-					 * - pullActor = 0
+					 * @const target = 1
+					 * @const pullActor = 0
 					 */
 					OP(printText_AlignCenter, 1, 0);
 				}
@@ -1411,9 +1411,9 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * printText_SetCharSet
-					 * - Word charsetNum
-					 * - target = 1
-					 * - pullActor = 0
+					 * @param word[stack, 0] charsetNum
+					 * @const target = 1
+					 * @const pullActor = 0
 					 */
 					int16 charsetNum = PULL_WORD();
 					OP(printText_SetCharSet, charsetNum, 1, 0);
@@ -1424,8 +1424,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * printText_AlignLeft
-					 * - target = 1
-					 * - pullActor = 0
+					 * @const target = 1
+					 * @const pullActor = 0
 					 */
 					OP(printText_AlignLeft, 1, 0);
 				}
@@ -1435,8 +1435,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * printText_SetOverhead
-					 * - target = 1
-					 * - pullActor = 0
+					 * @const target = 1
+					 * @const pullActor = 0
 					 */
 					OP(printText_SetOverhead, 1, 0);
 				}
@@ -1446,8 +1446,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * printText_SetMumble
-					 * - target = 1
-					 * - pullActor = 0
+					 * @const target = 1
+					 * @const pullActor = 0
 					 */
 					OP(printText_SetMumble, 1, 0);
 				}
@@ -1457,9 +1457,9 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * printText
-					 * - ImmString text
-					 * - target = 1
-					 * - pullActor = 0
+					 * @param string[2....] text
+					 * @const target = 1
+					 * @const pullActor = 0
 					 */
 					byte* text = READ_STRING();
 					OP(printText, text, 1, 0);
@@ -1470,8 +1470,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * printText_SetWrapped
-					 * - target = 1
-					 * - pullActor = 0
+					 * @const target = 1
+					 * @const pullActor = 0
 					 */
 					OP(printText_SetWrapped, 1, 0);
 				}
@@ -1488,8 +1488,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * printDebug_ResetState
-					 * - target = 2
-					 * - pullActor = 0
+					 * @const target = 2
+					 * @const pullActor = 0
 					 */
 					OP(printDebug_ResetState, 2, 0);
 				}
@@ -1499,8 +1499,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * printDebug_SaveState
-					 * - target = 2
-					 * - pullActor = 0
+					 * @const target = 2
+					 * @const pullActor = 0
 					 */
 					OP(printDebug_SaveState, 2, 0);
 				}
@@ -1510,10 +1510,10 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * printDebug_SetPos
-					 * - Word x
-					 * - Word y
-					 * - target = 2
-					 * - pullActor = 0
+					 * @param word[stack, 0] x
+					 * @param word[stack,-1] y
+					 * @const target = 2
+					 * @const pullActor = 0
 					 */
 					int16 y = PULL_WORD();
 					int16 x = PULL_WORD();
@@ -1525,9 +1525,9 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * printDebug_SetColor
-					 * - Byte index
-					 * - target = 2
-					 * - pullActor = 0
+					 * @param byte[stack, 0] index
+					 * @const target = 2
+					 * @const pullActor = 0
 					 */
 					byte index = PULL_BYTE();
 					OP(printDebug_SetColor, index, 2, 0);
@@ -1538,8 +1538,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * printDebug_AlignCenter
-					 * - target = 2
-					 * - pullActor = 0
+					 * @const target = 2
+					 * @const pullActor = 0
 					 */
 					OP(printDebug_AlignCenter, 2, 0);
 				}
@@ -1549,9 +1549,9 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * printDebug_SetCharSet
-					 * - Word charsetNum
-					 * - target = 2
-					 * - pullActor = 0
+					 * @param word[stack, 0] charsetNum
+					 * @const target = 2
+					 * @const pullActor = 0
 					 */
 					int16 charsetNum = PULL_WORD();
 					OP(printDebug_SetCharSet, charsetNum, 2, 0);
@@ -1562,8 +1562,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * printDebug_AlignLeft
-					 * - target = 2
-					 * - pullActor = 0
+					 * @const target = 2
+					 * @const pullActor = 0
 					 */
 					OP(printDebug_AlignLeft, 2, 0);
 				}
@@ -1573,8 +1573,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * printDebug_SetOverhead
-					 * - target = 2
-					 * - pullActor = 0
+					 * @const target = 2
+					 * @const pullActor = 0
 					 */
 					OP(printDebug_SetOverhead, 2, 0);
 				}
@@ -1584,8 +1584,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * printDebug_SetMumble
-					 * - target = 2
-					 * - pullActor = 0
+					 * @const target = 2
+					 * @const pullActor = 0
 					 */
 					OP(printDebug_SetMumble, 2, 0);
 				}
@@ -1595,9 +1595,9 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * printDebug
-					 * - ImmString text
-					 * - target = 2
-					 * - pullActor = 0
+					 * @param string[2....] text
+					 * @const target = 2
+					 * @const pullActor = 0
 					 */
 					byte* text = READ_STRING();
 					OP(printDebug, text, 2, 0);
@@ -1608,8 +1608,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * printDebug_SetWrapped
-					 * - target = 2
-					 * - pullActor = 0
+					 * @const target = 2
+					 * @const pullActor = 0
 					 */
 					OP(printDebug_SetWrapped, 2, 0);
 				}
@@ -1626,8 +1626,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * printSystem_ResetState
-					 * - target = 3
-					 * - pullActor = 0
+					 * @const target = 3
+					 * @const pullActor = 0
 					 */
 					OP(printSystem_ResetState, 3, 0);
 				}
@@ -1637,8 +1637,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * printSystem_SaveState
-					 * - target = 3
-					 * - pullActor = 0
+					 * @const target = 3
+					 * @const pullActor = 0
 					 */
 					OP(printSystem_SaveState, 3, 0);
 				}
@@ -1648,10 +1648,10 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * printSystem_SetPos
-					 * - Word x
-					 * - Word y
-					 * - target = 3
-					 * - pullActor = 0
+					 * @param word[stack, 0] x
+					 * @param word[stack,-1] y
+					 * @const target = 3
+					 * @const pullActor = 0
 					 */
 					int16 y = PULL_WORD();
 					int16 x = PULL_WORD();
@@ -1663,9 +1663,9 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * printSystem_SetColor
-					 * - Byte index
-					 * - target = 3
-					 * - pullActor = 0
+					 * @param byte[stack, 0] index
+					 * @const target = 3
+					 * @const pullActor = 0
 					 */
 					byte index = PULL_BYTE();
 					OP(printSystem_SetColor, index, 3, 0);
@@ -1676,8 +1676,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * printSystem_AlignCenter
-					 * - target = 3
-					 * - pullActor = 0
+					 * @const target = 3
+					 * @const pullActor = 0
 					 */
 					OP(printSystem_AlignCenter, 3, 0);
 				}
@@ -1687,9 +1687,9 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * printSystem_SetCharSet
-					 * - Word charsetNum
-					 * - target = 3
-					 * - pullActor = 0
+					 * @param word[stack, 0] charsetNum
+					 * @const target = 3
+					 * @const pullActor = 0
 					 */
 					int16 charsetNum = PULL_WORD();
 					OP(printSystem_SetCharSet, charsetNum, 3, 0);
@@ -1700,8 +1700,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * printSystem_AlignLeft
-					 * - target = 3
-					 * - pullActor = 0
+					 * @const target = 3
+					 * @const pullActor = 0
 					 */
 					OP(printSystem_AlignLeft, 3, 0);
 				}
@@ -1711,8 +1711,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * printSystem_SetOverhead
-					 * - target = 3
-					 * - pullActor = 0
+					 * @const target = 3
+					 * @const pullActor = 0
 					 */
 					OP(printSystem_SetOverhead, 3, 0);
 				}
@@ -1722,8 +1722,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * printSystem_SetMumble
-					 * - target = 3
-					 * - pullActor = 0
+					 * @const target = 3
+					 * @const pullActor = 0
 					 */
 					OP(printSystem_SetMumble, 3, 0);
 				}
@@ -1733,9 +1733,9 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * printSystem
-					 * - ImmString text
-					 * - target = 3
-					 * - pullActor = 0
+					 * @param string[2....] text
+					 * @const target = 3
+					 * @const pullActor = 0
 					 */
 					byte* text = READ_STRING();
 					OP(printSystem, text, 3, 0);
@@ -1746,8 +1746,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * printSystem_SetWrapped
-					 * - target = 3
-					 * - pullActor = 0
+					 * @const target = 3
+					 * @const pullActor = 0
 					 */
 					OP(printSystem_SetWrapped, 3, 0);
 				}
@@ -1764,8 +1764,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * blastText_ResetState
-					 * - target = 4
-					 * - pullActor = 0
+					 * @const target = 4
+					 * @const pullActor = 0
 					 */
 					OP(blastText_ResetState, 4, 0);
 				}
@@ -1775,8 +1775,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * blastText_SaveState
-					 * - target = 4
-					 * - pullActor = 0
+					 * @const target = 4
+					 * @const pullActor = 0
 					 */
 					OP(blastText_SaveState, 4, 0);
 				}
@@ -1786,10 +1786,10 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * blastText_SetPos
-					 * - Word x
-					 * - Word y
-					 * - target = 4
-					 * - pullActor = 0
+					 * @param word[stack, 0] x
+					 * @param word[stack,-1] y
+					 * @const target = 4
+					 * @const pullActor = 0
 					 */
 					int16 y = PULL_WORD();
 					int16 x = PULL_WORD();
@@ -1801,9 +1801,9 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * blastText_SetColor
-					 * - Byte index
-					 * - target = 4
-					 * - pullActor = 0
+					 * @param byte[stack, 0] index
+					 * @const target = 4
+					 * @const pullActor = 0
 					 */
 					byte index = PULL_BYTE();
 					OP(blastText_SetColor, index, 4, 0);
@@ -1814,8 +1814,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * blastText_AlignCenter
-					 * - target = 4
-					 * - pullActor = 0
+					 * @const target = 4
+					 * @const pullActor = 0
 					 */
 					OP(blastText_AlignCenter, 4, 0);
 				}
@@ -1825,9 +1825,9 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * blastText_SetCharSet
-					 * - Word charsetNum
-					 * - target = 4
-					 * - pullActor = 0
+					 * @param word[stack, 0] charsetNum
+					 * @const target = 4
+					 * @const pullActor = 0
 					 */
 					int16 charsetNum = PULL_WORD();
 					OP(blastText_SetCharSet, charsetNum, 4, 0);
@@ -1838,8 +1838,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * blastText_AlignLeft
-					 * - target = 4
-					 * - pullActor = 0
+					 * @const target = 4
+					 * @const pullActor = 0
 					 */
 					OP(blastText_AlignLeft, 4, 0);
 				}
@@ -1849,8 +1849,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * blastText_SetOverhead
-					 * - target = 4
-					 * - pullActor = 0
+					 * @const target = 4
+					 * @const pullActor = 0
 					 */
 					OP(blastText_SetOverhead, 4, 0);
 				}
@@ -1860,8 +1860,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * blastText_SetMumble
-					 * - target = 4
-					 * - pullActor = 0
+					 * @const target = 4
+					 * @const pullActor = 0
 					 */
 					OP(blastText_SetMumble, 4, 0);
 				}
@@ -1871,9 +1871,9 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * blastText
-					 * - ImmString text
-					 * - target = 4
-					 * - pullActor = 0
+					 * @param string[2....] text
+					 * @const target = 4
+					 * @const pullActor = 0
 					 */
 					byte* text = READ_STRING();
 					OP(blastText, text, 4, 0);
@@ -1884,8 +1884,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * blastText_SetWrapped
-					 * - target = 4
-					 * - pullActor = 0
+					 * @const target = 4
+					 * @const pullActor = 0
 					 */
 					OP(blastText_SetWrapped, 4, 0);
 				}
@@ -1898,10 +1898,10 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 			/**
 			 * drawObject
-			 * - Long obj
-			 * - Long x
-			 * - Long y
-			 * - Long state
+			 * @param long[stack, 0] obj
+			 * @param long[stack,-1] x
+			 * @param long[stack,-2] y
+			 * @param long[stack,-3] state
 			 */
 			int32 state = PULL_LONG();
 			int32 y = PULL_LONG();
@@ -1991,8 +1991,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * cursorSetImage
-					 * - Word objNum
-					 * - Long index
+					 * @param word[stack, 0] objNum
+					 * @param long[stack,-1] index
 					 */
 					int32 index = PULL_LONG();
 					int16 objNum = PULL_WORD();
@@ -2004,8 +2004,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * cursorSetHotSpot
-					 * - Long x
-					 * - Long y
+					 * @param long[stack, 0] x
+					 * @param long[stack,-1] y
 					 */
 					int32 y = PULL_LONG();
 					int32 x = PULL_LONG();
@@ -2017,7 +2017,7 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * cursorSetTransparent
-					 * - Long isTransparent
+					 * @param long[stack, 0] isTransparent
 					 */
 					int32 isTransparent = PULL_LONG();
 					OP(cursorSetTransparent, isTransparent);
@@ -2028,7 +2028,7 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * cursorSetCharSet
-					 * - Word charsetNum
+					 * @param word[stack, 0] charsetNum
 					 */
 					int16 charsetNum = PULL_WORD();
 					OP(cursorSetCharSet, charsetNum);
@@ -2039,7 +2039,7 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * cursorSetCharSetColour
-					 * - Args args
+					 * @param args[stack, 0] args
 					 */
 					int* args = PULL_ARGS();
 					OP(cursorSetCharSetColour, args);
@@ -2050,8 +2050,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * cursorSetPos
-					 * - Long x
-					 * - Long y
+					 * @param long[stack, 0] x
+					 * @param long[stack,-1] y
 					 */
 					int32 y = PULL_LONG();
 					int32 x = PULL_LONG();
@@ -2066,7 +2066,7 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 			/**
 			 * loadRoom
-			 * - Byte room
+			 * @param byte[stack, 0] room
 			 */
 			byte room = PULL_BYTE();
 			OP(loadRoom, room);
@@ -2077,8 +2077,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 			/**
 			 * loadRoomWithEgo
-			 * - Long x
-			 * - Long y
+			 * @param long[stack, 0] x
+			 * @param long[stack,-1] y
 			 */
 			int32 y = PULL_LONG();
 			int32 x = PULL_LONG();
@@ -2090,9 +2090,9 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 			/**
 			 * walkActorToObj
-			 * - Long index
-			 * - Long obj
-			 * - Long dist
+			 * @param long[stack, 0] index
+			 * @param long[stack,-1] obj
+			 * @param long[stack,-2] dist
 			 */
 			int32 dist = PULL_LONG();
 			int32 obj = PULL_LONG();
@@ -2105,9 +2105,9 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 			/**
 			 * walkActorTo
-			 * - Long index
-			 * - Long x
-			 * - Long y
+			 * @param long[stack, 0] index
+			 * @param long[stack,-1] x
+			 * @param long[stack,-2] y
 			 */
 			int32 y = PULL_LONG();
 			int32 x = PULL_LONG();
@@ -2120,10 +2120,10 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 			/**
 			 * putActorAtXY
-			 * - Long actorIndex
-			 * - Long x
-			 * - Long y
-			 * - Long room
+			 * @param long[stack, 0] actorIndex
+			 * @param long[stack,-1] x
+			 * @param long[stack,-2] y
+			 * @param long[stack,-3] room
 			 */
 			int32 room = PULL_LONG();
 			int32 y = PULL_LONG();
@@ -2146,8 +2146,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 			/**
 			 * faceActor
-			 * - Long index
-			 * - Long obj
+			 * @param long[stack, 0] index
+			 * @param long[stack,-1] obj
 			 */
 			int32 obj = PULL_LONG();
 			int32 index = PULL_LONG();
@@ -2159,8 +2159,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 			/**
 			 * animateActor
-			 * - Long index
-			 * - Long anim
+			 * @param long[stack, 0] index
+			 * @param long[stack,-1] anim
 			 */
 			int32 anim = PULL_LONG();
 			int32 index = PULL_LONG();
@@ -2172,9 +2172,9 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 			/**
 			 * doSentence8
-			 * - Byte verb
-			 * - Word objectA
-			 * - Word objectB
+			 * @param byte[stack, 0] verb
+			 * @param word[stack,-1] objectA
+			 * @param word[stack,-2] objectB
 			 */
 			int16 objectB = PULL_WORD();
 			int16 objectA = PULL_WORD();
@@ -2196,8 +2196,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 			/**
 			 * setBoxFlags
-			 * - Args args
-			 * - Long value
+			 * @param args[stack, 0] args
+			 * @param long[stack,-1] value
 			 */
 			int32 value = PULL_LONG();
 			int* args = PULL_ARGS();
@@ -2231,7 +2231,7 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * loadCostume
-					 * - Word costumeNum
+					 * @param word[stack, 0] costumeNum
 					 */
 					int16 costumeNum = PULL_WORD();
 					OP(loadCostume, costumeNum);
@@ -2242,7 +2242,7 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * loadObject
-					 * - Word objectNum
+					 * @param word[stack, 0] objectNum
 					 */
 					int16 objectNum = PULL_WORD();
 					OP(loadObject, objectNum);
@@ -2253,7 +2253,7 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * loadRoom
-					 * - Word roomNum
+					 * @param word[stack, 0] roomNum
 					 */
 					int16 roomNum = PULL_WORD();
 					OP(loadRoom, roomNum);
@@ -2264,7 +2264,7 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * loadScript
-					 * - Word scriptNum
+					 * @param word[stack, 0] scriptNum
 					 */
 					int16 scriptNum = PULL_WORD();
 					OP(loadScript, scriptNum);
@@ -2275,7 +2275,7 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * loadSound
-					 * - Word soundNum
+					 * @param word[stack, 0] soundNum
 					 */
 					int16 soundNum = PULL_WORD();
 					OP(loadSound, soundNum);
@@ -2286,7 +2286,7 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * lockCostume
-					 * - Word costumeNum
+					 * @param word[stack, 0] costumeNum
 					 */
 					int16 costumeNum = PULL_WORD();
 					OP(lockCostume, costumeNum);
@@ -2297,7 +2297,7 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * lockRoom
-					 * - Word roomNum
+					 * @param word[stack, 0] roomNum
 					 */
 					int16 roomNum = PULL_WORD();
 					OP(lockRoom, roomNum);
@@ -2308,7 +2308,7 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * lockScript
-					 * - Word scriptNum
+					 * @param word[stack, 0] scriptNum
 					 */
 					int16 scriptNum = PULL_WORD();
 					OP(lockScript, scriptNum);
@@ -2319,7 +2319,7 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * lockSound
-					 * - Word soundNum
+					 * @param word[stack, 0] soundNum
 					 */
 					int16 soundNum = PULL_WORD();
 					OP(lockSound, soundNum);
@@ -2330,7 +2330,7 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * unlockCostume
-					 * - Word costumeNum
+					 * @param word[stack, 0] costumeNum
 					 */
 					int16 costumeNum = PULL_WORD();
 					OP(unlockCostume, costumeNum);
@@ -2341,7 +2341,7 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * unlockRoom
-					 * - Word roomNum
+					 * @param word[stack, 0] roomNum
 					 */
 					int16 roomNum = PULL_WORD();
 					OP(unlockRoom, roomNum);
@@ -2352,7 +2352,7 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * unlockScript
-					 * - Word scriptNum
+					 * @param word[stack, 0] scriptNum
 					 */
 					int16 scriptNum = PULL_WORD();
 					OP(unlockScript, scriptNum);
@@ -2363,7 +2363,7 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * unlockSound
-					 * - Word soundNum
+					 * @param word[stack, 0] soundNum
 					 */
 					int16 soundNum = PULL_WORD();
 					OP(unlockSound, soundNum);
@@ -2374,7 +2374,7 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * deleteCostume
-					 * - Word costumeNum
+					 * @param word[stack, 0] costumeNum
 					 */
 					int16 costumeNum = PULL_WORD();
 					OP(deleteCostume, costumeNum);
@@ -2385,7 +2385,7 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * deleteRoom
-					 * - Word roomNum
+					 * @param word[stack, 0] roomNum
 					 */
 					int16 roomNum = PULL_WORD();
 					OP(deleteRoom, roomNum);
@@ -2396,7 +2396,7 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * deleteScript
-					 * - Word scriptNum
+					 * @param word[stack, 0] scriptNum
 					 */
 					int16 scriptNum = PULL_WORD();
 					OP(deleteScript, scriptNum);
@@ -2407,7 +2407,7 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * deleteSound
-					 * - Word soundNum
+					 * @param word[stack, 0] soundNum
 					 */
 					int16 soundNum = PULL_WORD();
 					OP(deleteSound, soundNum);
@@ -2425,7 +2425,7 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * fadeRoom
-					 * - Word effect
+					 * @param word[stack, 0] effect
 					 */
 					int16 effect = PULL_WORD();
 					OP(fadeRoom, effect);
@@ -2443,7 +2443,7 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * setActorCostume
-					 * - Word costumeNum
+					 * @param word[stack, 0] costumeNum
 					 */
 					int16 costumeNum = PULL_WORD();
 					OP(setActorCostume, costumeNum);
@@ -2454,8 +2454,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * setActorStepDistance
-					 * - Word x
-					 * - Word y
+					 * @param word[stack, 0] x
+					 * @param word[stack,-1] y
 					 */
 					int16 y = PULL_WORD();
 					int16 x = PULL_WORD();
@@ -2476,7 +2476,7 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * setActorAnimationInitFrame
-					 * - Word initFrame
+					 * @param word[stack, 0] initFrame
 					 */
 					int16 initFrame = PULL_WORD();
 					OP(setActorAnimationInitFrame, initFrame);
@@ -2487,8 +2487,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * setActorAnimationTalkFrame
-					 * - Word startFrame
-					 * - Word endFrame
+					 * @param word[stack, 0] startFrame
+					 * @param word[stack,-1] endFrame
 					 */
 					int16 endFrame = PULL_WORD();
 					int16 startFrame = PULL_WORD();
@@ -2500,7 +2500,7 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * setActorAnimationWalkFrame
-					 * - Word walkFrame
+					 * @param word[stack, 0] walkFrame
 					 */
 					int16 walkFrame = PULL_WORD();
 					OP(setActorAnimationWalkFrame, walkFrame);
@@ -2511,7 +2511,7 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * setActorAnimationStandFrame
-					 * - Word standFrame
+					 * @param word[stack, 0] standFrame
 					 */
 					int16 standFrame = PULL_WORD();
 					OP(setActorAnimationStandFrame, standFrame);
@@ -2522,7 +2522,7 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * setActorAnimationSpeed
-					 * - Word speed
+					 * @param word[stack, 0] speed
 					 */
 					int16 speed = PULL_WORD();
 					OP(setActorAnimationSpeed, speed);
@@ -2533,7 +2533,7 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * newActor
-					 * - mode = 0
+					 * @const mode = 0
 					 */
 					OP(newActor, 0);
 				}
@@ -2543,7 +2543,7 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * setActorElevation
-					 * - Word elevation
+					 * @param word[stack, 0] elevation
 					 */
 					int16 elevation = PULL_WORD();
 					OP(setActorElevation, elevation);
@@ -2554,8 +2554,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * setActorPalette
-					 * - Word idx
-					 * - Long val
+					 * @param word[stack, 0] idx
+					 * @param long[stack,-1] val
 					 */
 					int32 val = PULL_LONG();
 					int16 idx = PULL_WORD();
@@ -2567,7 +2567,7 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * setActorTalkColor
-					 * - Word idx
+					 * @param word[stack, 0] idx
 					 */
 					int16 idx = PULL_WORD();
 					OP(setActorTalkColor, idx);
@@ -2587,7 +2587,7 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * setActorWidth
-					 * - Word width
+					 * @param word[stack, 0] width
 					 */
 					int16 width = PULL_WORD();
 					OP(setActorWidth, width);
@@ -2598,7 +2598,7 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * setActorScale
-					 * - Word scale
+					 * @param word[stack, 0] scale
 					 */
 					int16 scale = PULL_WORD();
 					OP(setActorScale, scale);
@@ -2618,7 +2618,7 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * setActorAlwaysZClip
-					 * - Word forceClip
+					 * @param word[stack, 0] forceClip
 					 */
 					int16 forceClip = PULL_WORD();
 					OP(setActorAlwaysZClip, forceClip);
@@ -2629,7 +2629,7 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * setActorFollowBoxes
-					 * - follow = 0
+					 * @const follow = 0
 					 */
 					OP(setActorFollowBoxes, 0);
 				}
@@ -2639,7 +2639,7 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * setActorFollowBoxes
-					 * - follow = 1
+					 * @const follow = 1
 					 */
 					OP(setActorFollowBoxes, 1);
 				}
@@ -2649,7 +2649,7 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * setActorShadowDraw
-					 * - Byte enabled
+					 * @param byte[stack, 0] enabled
 					 */
 					byte enabled = PULL_BYTE();
 					OP(setActorShadowDraw, enabled);
@@ -2660,8 +2660,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * setActorTextOffset
-					 * - Long x
-					 * - Long y
+					 * @param long[stack, 0] x
+					 * @param long[stack,-1] y
 					 */
 					int32 y = PULL_LONG();
 					int32 x = PULL_LONG();
@@ -2673,7 +2673,7 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * initActor
-					 * - Word actorNum
+					 * @param word[stack, 0] actorNum
 					 */
 					int16 actorNum = PULL_WORD();
 					OP(initActor, actorNum);
@@ -2684,8 +2684,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * setActorVar
-					 * - Long varNum
-					 * - Long value
+					 * @param long[stack, 0] varNum
+					 * @param long[stack,-1] value
 					 */
 					int32 value = PULL_LONG();
 					int32 varNum = PULL_LONG();
@@ -2697,7 +2697,7 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * setActorFollowTurns
-					 * - follow = 0
+					 * @const follow = 0
 					 */
 					OP(setActorFollowTurns, 0);
 				}
@@ -2707,7 +2707,7 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * setActorFollowTurns
-					 * - follow = 1
+					 * @const follow = 1
 					 */
 					OP(setActorFollowTurns, 1);
 				}
@@ -2717,7 +2717,7 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * newActor
-					 * - mode = 2
+					 * @const mode = 2
 					 */
 					OP(newActor, 2);
 				}
@@ -2727,7 +2727,7 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * setActorZ
-					 * - Word z
+					 * @param word[stack, 0] z
 					 */
 					int16 z = PULL_WORD();
 					OP(setActorZ, z);
@@ -2747,7 +2747,7 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * 
-					 * - force = 1
+					 * @const force = 1
 					 */
 					OP(, 1);
 				}
@@ -2757,8 +2757,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * turnActor
-					 * - Word direction
-					 * - force = 0
+					 * @param word[stack, 0] direction
+					 * @const force = 0
 					 */
 					int16 direction = PULL_WORD();
 					OP(turnActor, direction, 0);
@@ -2769,7 +2769,7 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * setWalkScript
-					 * - Word scriptNum
+					 * @param word[stack, 0] scriptNum
 					 */
 					int16 scriptNum = PULL_WORD();
 					OP(setWalkScript, scriptNum);
@@ -2780,7 +2780,7 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * setTalkScript
-					 * - Word scriptNum
+					 * @param word[stack, 0] scriptNum
 					 */
 					int16 scriptNum = PULL_WORD();
 					OP(setTalkScript, scriptNum);
@@ -2791,7 +2791,7 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * setWalkPaused
-					 * - paused = 1
+					 * @const paused = 1
 					 */
 					OP(setWalkPaused, 1);
 				}
@@ -2801,7 +2801,7 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * setWalkPaused
-					 * - paused = 0
+					 * @const paused = 0
 					 */
 					OP(setWalkPaused, 0);
 				}
@@ -2811,7 +2811,7 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * setActorVolume
-					 * - Word volume
+					 * @param word[stack, 0] volume
 					 */
 					int16 volume = PULL_WORD();
 					OP(setActorVolume, volume);
@@ -2822,7 +2822,7 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * setActorFrequency
-					 * - Word frequency
+					 * @param word[stack, 0] frequency
 					 */
 					int16 frequency = PULL_WORD();
 					OP(setActorFrequency, frequency);
@@ -2833,7 +2833,7 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * setActorPan
-					 * - Word pan
+					 * @param word[stack, 0] pan
 					 */
 					int16 pan = PULL_WORD();
 					OP(setActorPan, pan);
@@ -2860,7 +2860,7 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * newVerb
-					 * - Word verbNum
+					 * @param word[stack, 0] verbNum
 					 */
 					int16 verbNum = PULL_WORD();
 					OP(newVerb, verbNum);
@@ -2871,7 +2871,7 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * setVerbLineSpacing
-					 * - Long lineSpacing
+					 * @param long[stack, 0] lineSpacing
 					 */
 					int32 lineSpacing = PULL_LONG();
 					OP(setVerbLineSpacing, lineSpacing);
@@ -2885,7 +2885,7 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 			/**
 			 * startSound
-			 * - Long sound
+			 * @param long[stack, 0] sound
 			 */
 			int32 sound = PULL_LONG();
 			OP(startSound, sound);
@@ -2896,7 +2896,7 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 			/**
 			 * startMusic
-			 * - Long sound
+			 * @param long[stack, 0] sound
 			 */
 			int32 sound = PULL_LONG();
 			OP(startMusic, sound);
@@ -2907,7 +2907,7 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 			/**
 			 * stopSound
-			 * - Long sound
+			 * @param long[stack, 0] sound
 			 */
 			int32 sound = PULL_LONG();
 			OP(stopSound, sound);
@@ -2918,7 +2918,7 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 			/**
 			 * soundKludge
-			 * - Args args
+			 * @param args[stack, 0] args
 			 */
 			int* args = PULL_ARGS();
 			OP(soundKludge, args);
@@ -2954,9 +2954,9 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 			/**
 			 * saveRestoreVerbs
-			 * - Long a
-			 * - Long b
-			 * - Long c
+			 * @param long[stack, 0] a
+			 * @param long[stack,-1] b
+			 * @param long[stack,-2] c
 			 */
 			int32 c = PULL_LONG();
 			int32 b = PULL_LONG();
@@ -2969,7 +2969,7 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 			/**
 			 * setObjectName
-			 * - Long obj
+			 * @param long[stack, 0] obj
 			 */
 			int32 obj = PULL_LONG();
 			OP(setObjectName, obj);
@@ -2989,11 +2989,11 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 			/**
 			 * drawBox
-			 * - Long x
-			 * - Long y
-			 * - Long x2
-			 * - Long y2
-			 * - Long color
+			 * @param long[stack, 0] x
+			 * @param long[stack,-1] y
+			 * @param long[stack,-2] x2
+			 * @param long[stack,-3] y2
+			 * @param long[stack,-4] color
 			 */
 			int32 color = PULL_LONG();
 			int32 y2 = PULL_LONG();
@@ -3017,7 +3017,7 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 			/**
 			 * kernelSetFunctions
-			 * - Args args
+			 * @param args[stack, 0] args
 			 */
 			int* args = PULL_ARGS();
 			OP(kernelSetFunctions, args);
@@ -3028,8 +3028,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 			/**
 			 * dim2DimArray
-			 * - Long dim2
-			 * - Long dim1
+			 * @param long[stack, 0] dim2
+			 * @param long[stack,-1] dim1
 			 */
 			int32 dim1 = PULL_LONG();
 			int32 dim2 = PULL_LONG();
@@ -3041,9 +3041,9 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 			/**
 			 * distObjectPt
-			 * - Long a
-			 * - Long b
-			 * - Long c
+			 * @param long[stack, 0] a
+			 * @param long[stack,-1] b
+			 * @param long[stack,-2] c
 			 */
 			int32 c = PULL_LONG();
 			int32 b = PULL_LONG();
@@ -3056,8 +3056,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 			/**
 			 * startScriptQuick2
-			 * - Long script
-			 * - Args args
+			 * @param long[stack, 0] script
+			 * @param args[stack,-1] args
 			 */
 			int* args = PULL_ARGS();
 			int32 script = PULL_LONG();
@@ -3069,9 +3069,9 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 			/**
 			 * startObjectQuick
-			 * - Long script
-			 * - Byte entryp
-			 * - Args args
+			 * @param long[stack, 0] script
+			 * @param byte[stack,-1] entryp
+			 * @param args[stack,-2] args
 			 */
 			int* args = PULL_ARGS();
 			byte entryp = PULL_BYTE();
@@ -3084,8 +3084,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 			/**
 			 * pickOneOf
-			 * - Long i
-			 * - Args args
+			 * @param long[stack, 0] i
+			 * @param args[stack,-1] args
 			 */
 			int* args = PULL_ARGS();
 			int32 i = PULL_LONG();
@@ -3097,9 +3097,9 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 			/**
 			 * pickOneOfDefault
-			 * - Long i
-			 * - Args args
-			 * - Long def
+			 * @param long[stack, 0] i
+			 * @param args[stack,-1] args
+			 * @param long[stack,-2] def
 			 */
 			int32 def = PULL_LONG();
 			int* args = PULL_ARGS();
@@ -3112,8 +3112,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 			/**
 			 * isAnyOf
-			 * - Long value
-			 * - Args args
+			 * @param long[stack, 0] value
+			 * @param args[stack,-1] args
 			 */
 			int* args = PULL_ARGS();
 			int32 value = PULL_LONG();
@@ -3125,7 +3125,7 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 			/**
 			 * getRandomNumber
-			 * - Long max
+			 * @param long[stack, 0] max
 			 */
 			int32 max = PULL_LONG();
 			OP(getRandomNumber, max);
@@ -3136,8 +3136,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 			/**
 			 * getRandomNumberRange
-			 * - Long min
-			 * - Long max
+			 * @param long[stack, 0] min
+			 * @param long[stack,-1] max
 			 */
 			int32 max = PULL_LONG();
 			int32 min = PULL_LONG();
@@ -3149,8 +3149,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 			/**
 			 * ifClassOfIs
-			 * - Long obj
-			 * - Args args
+			 * @param long[stack, 0] obj
+			 * @param args[stack,-1] args
 			 */
 			int* args = PULL_ARGS();
 			int32 obj = PULL_LONG();
@@ -3162,7 +3162,7 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 			/**
 			 * getState
-			 * - Long obj
+			 * @param long[stack, 0] obj
 			 */
 			int32 obj = PULL_LONG();
 			OP(getState, obj);
@@ -3173,7 +3173,7 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 			/**
 			 * getOwner
-			 * - Long obj
+			 * @param long[stack, 0] obj
 			 */
 			int32 obj = PULL_LONG();
 			OP(getOwner, obj);
@@ -3184,7 +3184,7 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 			/**
 			 * isScriptRunning
-			 * - Long script
+			 * @param long[stack, 0] script
 			 */
 			int32 script = PULL_LONG();
 			OP(isScriptRunning, script);
@@ -3195,8 +3195,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 			/**
 			 * shuffle
-			 * - Long a
-			 * - Long b
+			 * @param long[stack, 0] a
+			 * @param long[stack,-1] b
 			 */
 			int32 b = PULL_LONG();
 			int32 a = PULL_LONG();
@@ -3208,7 +3208,7 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 			/**
 			 * isSoundRunning
-			 * - Long sound
+			 * @param long[stack, 0] sound
 			 */
 			int32 sound = PULL_LONG();
 			OP(isSoundRunning, sound);
@@ -3219,7 +3219,7 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 			/**
 			 * abs
-			 * - Long value
+			 * @param long[stack, 0] value
 			 */
 			int32 value = PULL_LONG();
 			OP(abs, value);
@@ -3239,8 +3239,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 			/**
 			 * isActorInBox
-			 * - Long index
-			 * - Long box
+			 * @param long[stack, 0] index
+			 * @param long[stack,-1] box
 			 */
 			int32 box = PULL_LONG();
 			int32 index = PULL_LONG();
@@ -3252,8 +3252,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 			/**
 			 * getVerbEntrypoint
-			 * - Long verb
-			 * - Long entryp
+			 * @param long[stack, 0] verb
+			 * @param long[stack,-1] entryp
 			 */
 			int32 entryp = PULL_LONG();
 			int32 verb = PULL_LONG();
@@ -3265,8 +3265,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 			/**
 			 * getActorFromXY
-			 * - Long x
-			 * - Long y
+			 * @param long[stack, 0] x
+			 * @param long[stack,-1] y
 			 */
 			int32 y = PULL_LONG();
 			int32 x = PULL_LONG();
@@ -3278,8 +3278,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 			/**
 			 * findObject
-			 * - Long x
-			 * - Long y
+			 * @param long[stack, 0] x
+			 * @param long[stack,-1] y
 			 */
 			int32 y = PULL_LONG();
 			int32 x = PULL_LONG();
@@ -3291,8 +3291,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 			/**
 			 * getVerbFromXY
-			 * - Long x
-			 * - Long y
+			 * @param long[stack, 0] x
+			 * @param long[stack,-1] y
 			 */
 			int32 y = PULL_LONG();
 			int32 x = PULL_LONG();
@@ -3304,8 +3304,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 			/**
 			 * findInventory
-			 * - Long owner
-			 * - Long index
+			 * @param long[stack, 0] owner
+			 * @param long[stack,-1] index
 			 */
 			int32 index = PULL_LONG();
 			int32 owner = PULL_LONG();
@@ -3317,7 +3317,7 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 			/**
 			 * getInventoryCount
-			 * - Long owner
+			 * @param long[stack, 0] owner
 			 */
 			int32 owner = PULL_LONG();
 			OP(getInventoryCount, owner);
@@ -3328,8 +3328,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 			/**
 			 * getAnimateVariable
-			 * - Long index
-			 * - Long variable
+			 * @param long[stack, 0] index
+			 * @param long[stack,-1] variable
 			 */
 			int32 variable = PULL_LONG();
 			int32 index = PULL_LONG();
@@ -3341,7 +3341,7 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 			/**
 			 * getActorRoom
-			 * - Long index
+			 * @param long[stack, 0] index
 			 */
 			int32 index = PULL_LONG();
 			OP(getActorRoom, index);
@@ -3352,7 +3352,7 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 			/**
 			 * getActorWalkBox
-			 * - Long index
+			 * @param long[stack, 0] index
 			 */
 			int32 index = PULL_LONG();
 			OP(getActorWalkBox, index);
@@ -3363,7 +3363,7 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 			/**
 			 * getActorMoving
-			 * - Long index
+			 * @param long[stack, 0] index
 			 */
 			int32 index = PULL_LONG();
 			OP(getActorMoving, index);
@@ -3374,7 +3374,7 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 			/**
 			 * getActorCostume
-			 * - Long index
+			 * @param long[stack, 0] index
 			 */
 			int32 index = PULL_LONG();
 			OP(getActorCostume, index);
@@ -3385,7 +3385,7 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 			/**
 			 * getActorScaleX
-			 * - Long index
+			 * @param long[stack, 0] index
 			 */
 			int32 index = PULL_LONG();
 			OP(getActorScaleX, index);
@@ -3396,7 +3396,7 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 			/**
 			 * getActorLayer
-			 * - Long index
+			 * @param long[stack, 0] index
 			 */
 			int32 index = PULL_LONG();
 			OP(getActorLayer, index);
@@ -3407,7 +3407,7 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 			/**
 			 * getActorElevation
-			 * - Long index
+			 * @param long[stack, 0] index
 			 */
 			int32 index = PULL_LONG();
 			OP(getActorElevation, index);
@@ -3418,7 +3418,7 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 			/**
 			 * getActorWidth
-			 * - Long index
+			 * @param long[stack, 0] index
 			 */
 			int32 index = PULL_LONG();
 			OP(getActorWidth, index);
@@ -3429,7 +3429,7 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 			/**
 			 * getObjectNewDir
-			 * - Long index
+			 * @param long[stack, 0] index
 			 */
 			int32 index = PULL_LONG();
 			OP(getObjectNewDir, index);
@@ -3440,7 +3440,7 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 			/**
 			 * getObjectX
-			 * - Long index
+			 * @param long[stack, 0] index
 			 */
 			int32 index = PULL_LONG();
 			OP(getObjectX, index);
@@ -3451,7 +3451,7 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 			/**
 			 * getObjectY
-			 * - Long index
+			 * @param long[stack, 0] index
 			 */
 			int32 index = PULL_LONG();
 			OP(getObjectY, index);
@@ -3471,8 +3471,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 			/**
 			 * distObjectObject
-			 * - Long a
-			 * - Long b
+			 * @param long[stack, 0] a
+			 * @param long[stack,-1] b
 			 */
 			int32 b = PULL_LONG();
 			int32 a = PULL_LONG();
@@ -3484,10 +3484,10 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 			/**
 			 * distObjectPtPt
-			 * - Long a
-			 * - Long b
-			 * - Long c
-			 * - Long d
+			 * @param long[stack, 0] a
+			 * @param long[stack,-1] b
+			 * @param long[stack,-2] c
+			 * @param long[stack,-3] d
 			 */
 			int32 d = PULL_LONG();
 			int32 c = PULL_LONG();
