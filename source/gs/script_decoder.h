@@ -865,111 +865,109 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 				{
 
 					/**
-					 * print_ResetState
-					 * - Word actorNum
+					 * printActor_ResetState
 					 */
-					int16 actorNum = PULL_WORD();
-					OP(print_ResetState, actorNum, 0, 1);
+					OP(printActor_ResetState, 0, 1);
 				}
 				return TRUE;
 				case 0xC9:
 				{
 
 					/**
-					 * print_SaveState
+					 * printActor_SaveState
 					 */
-					OP(print_SaveState, 0, 1);
+					OP(printActor_SaveState, 0, 1);
 				}
 				return TRUE;
 				case 0xCA:
 				{
 
 					/**
-					 * print_SetPos
+					 * printActor_SetPos
 					 * - Word x
 					 * - Word y
 					 */
 					int16 y = PULL_WORD();
 					int16 x = PULL_WORD();
-					OP(print_SetPos, x, y, 0, 1);
+					OP(printActor_SetPos, x, y, 0, 1);
 				}
 				return TRUE;
 				case 0xCB:
 				{
 
 					/**
-					 * print_SetColor
+					 * printActor_SetColor
 					 * - Byte index
 					 */
 					byte index = PULL_BYTE();
-					OP(print_SetColor, index, 0, 1);
+					OP(printActor_SetColor, index, 0, 1);
 				}
 				return TRUE;
 				case 0xCC:
 				{
 
 					/**
-					 * print_AlignCenter
+					 * printActor_AlignCenter
 					 */
-					OP(print_AlignCenter, 0, 1);
+					OP(printActor_AlignCenter, 0, 1);
 				}
 				return TRUE;
 				case 0xCD:
 				{
 
 					/**
-					 * print_SetCharSet
+					 * printActor_SetCharSet
 					 * - Word charsetNum
 					 */
 					int16 charsetNum = PULL_WORD();
-					OP(print_SetCharSet, charsetNum, 0, 1);
+					OP(printActor_SetCharSet, charsetNum, 0, 1);
 				}
 				return TRUE;
 				case 0xCE:
 				{
 
 					/**
-					 * print_AlignLeft
+					 * printActor_AlignLeft
 					 */
-					OP(print_AlignLeft, 0, 1);
+					OP(printActor_AlignLeft, 0, 1);
 				}
 				return TRUE;
 				case 0xCF:
 				{
 
 					/**
-					 * print_SetOverhead
+					 * printActor_SetOverhead
 					 */
-					OP(print_SetOverhead, 0, 1);
+					OP(printActor_SetOverhead, 0, 1);
 				}
 				return TRUE;
 				case 0xD0:
 				{
 
 					/**
-					 * print_SetMumble
+					 * printActor_SetMumble
 					 */
-					OP(print_SetMumble, 0, 1);
+					OP(printActor_SetMumble, 0, 1);
 				}
 				return TRUE;
 				case 0xD1:
 				{
 
 					/**
-					 * print
+					 * printActor
 					 * - ImmString text
 					 */
 					byte* text = READ_STRING();
-					OP(print, text, 0, 1);
+					OP(printActor, text, 0, 1);
 				}
 				return TRUE;
 				case 0xD2:
 				{
 
 					/**
-					 * print_SetWrapped
+					 * printActor_SetWrapped
 					 */
-					OP(print_SetWrapped, 0, 1);
+					OP(printActor_SetWrapped, 0, 1);
 				}
 				return TRUE;
 			}
@@ -983,111 +981,109 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 				{
 
 					/**
-					 * print_ResetState
-					 * - Word actorNum
+					 * printEgo_ResetState
 					 */
-					int16 actorNum = PULL_WORD();
-					OP(print_ResetState, actorNum, 0, 1);
+					OP(printEgo_ResetState, 0, 2);
 				}
 				return TRUE;
 				case 0xC9:
 				{
 
 					/**
-					 * print_SaveState
+					 * printEgo_SaveState
 					 */
-					OP(print_SaveState, 0, 1);
+					OP(printEgo_SaveState, 0, 2);
 				}
 				return TRUE;
 				case 0xCA:
 				{
 
 					/**
-					 * print_SetPos
+					 * printEgo_SetPos
 					 * - Word x
 					 * - Word y
 					 */
 					int16 y = PULL_WORD();
 					int16 x = PULL_WORD();
-					OP(print_SetPos, x, y, 0, 1);
+					OP(printEgo_SetPos, x, y, 0, 2);
 				}
 				return TRUE;
 				case 0xCB:
 				{
 
 					/**
-					 * print_SetColor
+					 * printEgo_SetColor
 					 * - Byte index
 					 */
 					byte index = PULL_BYTE();
-					OP(print_SetColor, index, 0, 1);
+					OP(printEgo_SetColor, index, 0, 2);
 				}
 				return TRUE;
 				case 0xCC:
 				{
 
 					/**
-					 * print_AlignCenter
+					 * printEgo_AlignCenter
 					 */
-					OP(print_AlignCenter, 0, 1);
+					OP(printEgo_AlignCenter, 0, 2);
 				}
 				return TRUE;
 				case 0xCD:
 				{
 
 					/**
-					 * print_SetCharSet
+					 * printEgo_SetCharSet
 					 * - Word charsetNum
 					 */
 					int16 charsetNum = PULL_WORD();
-					OP(print_SetCharSet, charsetNum, 0, 1);
+					OP(printEgo_SetCharSet, charsetNum, 0, 2);
 				}
 				return TRUE;
 				case 0xCE:
 				{
 
 					/**
-					 * print_AlignLeft
+					 * printEgo_AlignLeft
 					 */
-					OP(print_AlignLeft, 0, 1);
+					OP(printEgo_AlignLeft, 0, 2);
 				}
 				return TRUE;
 				case 0xCF:
 				{
 
 					/**
-					 * print_SetOverhead
+					 * printEgo_SetOverhead
 					 */
-					OP(print_SetOverhead, 0, 1);
+					OP(printEgo_SetOverhead, 0, 2);
 				}
 				return TRUE;
 				case 0xD0:
 				{
 
 					/**
-					 * print_SetMumble
+					 * printEgo_SetMumble
 					 */
-					OP(print_SetMumble, 0, 1);
+					OP(printEgo_SetMumble, 0, 2);
 				}
 				return TRUE;
 				case 0xD1:
 				{
 
 					/**
-					 * print
+					 * printEgo
 					 * - ImmString text
 					 */
 					byte* text = READ_STRING();
-					OP(print, text, 0, 1);
+					OP(printEgo, text, 0, 2);
 				}
 				return TRUE;
 				case 0xD2:
 				{
 
 					/**
-					 * print_SetWrapped
+					 * printEgo_SetWrapped
 					 */
-					OP(print_SetWrapped, 0, 1);
+					OP(printEgo_SetWrapped, 0, 2);
 				}
 				return TRUE;
 			}
@@ -1121,109 +1117,109 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 				{
 
 					/**
-					 * print_ResetState
+					 * printLine_ResetState
 					 */
-					OP(print_ResetState, 0, 0);
+					OP(printLine_ResetState, 0, 0);
 				}
 				return TRUE;
 				case 0xC9:
 				{
 
 					/**
-					 * print_SaveState
+					 * printLine_SaveState
 					 */
-					OP(print_SaveState, 0, 0);
+					OP(printLine_SaveState, 0, 0);
 				}
 				return TRUE;
 				case 0xCA:
 				{
 
 					/**
-					 * print_SetPos
+					 * printLine_SetPos
 					 * - Word x
 					 * - Word y
 					 */
 					int16 y = PULL_WORD();
 					int16 x = PULL_WORD();
-					OP(print_SetPos, x, y, 0, 0);
+					OP(printLine_SetPos, x, y, 0, 0);
 				}
 				return TRUE;
 				case 0xCB:
 				{
 
 					/**
-					 * print_SetColor
+					 * printLine_SetColor
 					 * - Byte index
 					 */
 					byte index = PULL_BYTE();
-					OP(print_SetColor, index, 0, 0);
+					OP(printLine_SetColor, index, 0, 0);
 				}
 				return TRUE;
 				case 0xCC:
 				{
 
 					/**
-					 * print_AlignCenter
+					 * printLine_AlignCenter
 					 */
-					OP(print_AlignCenter, 0, 0);
+					OP(printLine_AlignCenter, 0, 0);
 				}
 				return TRUE;
 				case 0xCD:
 				{
 
 					/**
-					 * print_SetCharSet
+					 * printLine_SetCharSet
 					 * - Word charsetNum
 					 */
 					int16 charsetNum = PULL_WORD();
-					OP(print_SetCharSet, charsetNum, 0, 0);
+					OP(printLine_SetCharSet, charsetNum, 0, 0);
 				}
 				return TRUE;
 				case 0xCE:
 				{
 
 					/**
-					 * print_AlignLeft
+					 * printLine_AlignLeft
 					 */
-					OP(print_AlignLeft, 0, 0);
+					OP(printLine_AlignLeft, 0, 0);
 				}
 				return TRUE;
 				case 0xCF:
 				{
 
 					/**
-					 * print_SetOverhead
+					 * printLine_SetOverhead
 					 */
-					OP(print_SetOverhead, 0, 0);
+					OP(printLine_SetOverhead, 0, 0);
 				}
 				return TRUE;
 				case 0xD0:
 				{
 
 					/**
-					 * print_SetMumble
+					 * printLine_SetMumble
 					 */
-					OP(print_SetMumble, 0, 0);
+					OP(printLine_SetMumble, 0, 0);
 				}
 				return TRUE;
 				case 0xD1:
 				{
 
 					/**
-					 * print
+					 * printLine
 					 * - ImmString text
 					 */
 					byte* text = READ_STRING();
-					OP(print, text, 0, 0);
+					OP(printLine, text, 0, 0);
 				}
 				return TRUE;
 				case 0xD2:
 				{
 
 					/**
-					 * print_SetWrapped
+					 * printLine_SetWrapped
 					 */
-					OP(print_SetWrapped, 0, 0);
+					OP(printLine_SetWrapped, 0, 0);
 				}
 				return TRUE;
 			}
@@ -1237,109 +1233,109 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 				{
 
 					/**
-					 * print_ResetState
+					 * printText_ResetState
 					 */
-					OP(print_ResetState, 1, 0);
+					OP(printText_ResetState, 1, 0);
 				}
 				return TRUE;
 				case 0xC9:
 				{
 
 					/**
-					 * print_SaveState
+					 * printText_SaveState
 					 */
-					OP(print_SaveState, 1, 0);
+					OP(printText_SaveState, 1, 0);
 				}
 				return TRUE;
 				case 0xCA:
 				{
 
 					/**
-					 * print_SetPos
+					 * printText_SetPos
 					 * - Word x
 					 * - Word y
 					 */
 					int16 y = PULL_WORD();
 					int16 x = PULL_WORD();
-					OP(print_SetPos, x, y, 1, 0);
+					OP(printText_SetPos, x, y, 1, 0);
 				}
 				return TRUE;
 				case 0xCB:
 				{
 
 					/**
-					 * print_SetColor
+					 * printText_SetColor
 					 * - Byte index
 					 */
 					byte index = PULL_BYTE();
-					OP(print_SetColor, index, 1, 0);
+					OP(printText_SetColor, index, 1, 0);
 				}
 				return TRUE;
 				case 0xCC:
 				{
 
 					/**
-					 * print_AlignCenter
+					 * printText_AlignCenter
 					 */
-					OP(print_AlignCenter, 1, 0);
+					OP(printText_AlignCenter, 1, 0);
 				}
 				return TRUE;
 				case 0xCD:
 				{
 
 					/**
-					 * print_SetCharSet
+					 * printText_SetCharSet
 					 * - Word charsetNum
 					 */
 					int16 charsetNum = PULL_WORD();
-					OP(print_SetCharSet, charsetNum, 1, 0);
+					OP(printText_SetCharSet, charsetNum, 1, 0);
 				}
 				return TRUE;
 				case 0xCE:
 				{
 
 					/**
-					 * print_AlignLeft
+					 * printText_AlignLeft
 					 */
-					OP(print_AlignLeft, 1, 0);
+					OP(printText_AlignLeft, 1, 0);
 				}
 				return TRUE;
 				case 0xCF:
 				{
 
 					/**
-					 * print_SetOverhead
+					 * printText_SetOverhead
 					 */
-					OP(print_SetOverhead, 1, 0);
+					OP(printText_SetOverhead, 1, 0);
 				}
 				return TRUE;
 				case 0xD0:
 				{
 
 					/**
-					 * print_SetMumble
+					 * printText_SetMumble
 					 */
-					OP(print_SetMumble, 1, 0);
+					OP(printText_SetMumble, 1, 0);
 				}
 				return TRUE;
 				case 0xD1:
 				{
 
 					/**
-					 * print
+					 * printText
 					 * - ImmString text
 					 */
 					byte* text = READ_STRING();
-					OP(print, text, 1, 0);
+					OP(printText, text, 1, 0);
 				}
 				return TRUE;
 				case 0xD2:
 				{
 
 					/**
-					 * print_SetWrapped
+					 * printText_SetWrapped
 					 */
-					OP(print_SetWrapped, 1, 0);
+					OP(printText_SetWrapped, 1, 0);
 				}
 				return TRUE;
 			}
@@ -1353,109 +1349,109 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 				{
 
 					/**
-					 * print_ResetState
+					 * printDebug_ResetState
 					 */
-					OP(print_ResetState, 2, 0);
+					OP(printDebug_ResetState, 2, 0);
 				}
 				return TRUE;
 				case 0xC9:
 				{
 
 					/**
-					 * print_SaveState
+					 * printDebug_SaveState
 					 */
-					OP(print_SaveState, 2, 0);
+					OP(printDebug_SaveState, 2, 0);
 				}
 				return TRUE;
 				case 0xCA:
 				{
 
 					/**
-					 * print_SetPos
+					 * printDebug_SetPos
 					 * - Word x
 					 * - Word y
 					 */
 					int16 y = PULL_WORD();
 					int16 x = PULL_WORD();
-					OP(print_SetPos, x, y, 2, 0);
+					OP(printDebug_SetPos, x, y, 2, 0);
 				}
 				return TRUE;
 				case 0xCB:
 				{
 
 					/**
-					 * print_SetColor
+					 * printDebug_SetColor
 					 * - Byte index
 					 */
 					byte index = PULL_BYTE();
-					OP(print_SetColor, index, 2, 0);
+					OP(printDebug_SetColor, index, 2, 0);
 				}
 				return TRUE;
 				case 0xCC:
 				{
 
 					/**
-					 * print_AlignCenter
+					 * printDebug_AlignCenter
 					 */
-					OP(print_AlignCenter, 2, 0);
+					OP(printDebug_AlignCenter, 2, 0);
 				}
 				return TRUE;
 				case 0xCD:
 				{
 
 					/**
-					 * print_SetCharSet
+					 * printDebug_SetCharSet
 					 * - Word charsetNum
 					 */
 					int16 charsetNum = PULL_WORD();
-					OP(print_SetCharSet, charsetNum, 2, 0);
+					OP(printDebug_SetCharSet, charsetNum, 2, 0);
 				}
 				return TRUE;
 				case 0xCE:
 				{
 
 					/**
-					 * print_AlignLeft
+					 * printDebug_AlignLeft
 					 */
-					OP(print_AlignLeft, 2, 0);
+					OP(printDebug_AlignLeft, 2, 0);
 				}
 				return TRUE;
 				case 0xCF:
 				{
 
 					/**
-					 * print_SetOverhead
+					 * printDebug_SetOverhead
 					 */
-					OP(print_SetOverhead, 2, 0);
+					OP(printDebug_SetOverhead, 2, 0);
 				}
 				return TRUE;
 				case 0xD0:
 				{
 
 					/**
-					 * print_SetMumble
+					 * printDebug_SetMumble
 					 */
-					OP(print_SetMumble, 2, 0);
+					OP(printDebug_SetMumble, 2, 0);
 				}
 				return TRUE;
 				case 0xD1:
 				{
 
 					/**
-					 * print
+					 * printDebug
 					 * - ImmString text
 					 */
 					byte* text = READ_STRING();
-					OP(print, text, 2, 0);
+					OP(printDebug, text, 2, 0);
 				}
 				return TRUE;
 				case 0xD2:
 				{
 
 					/**
-					 * print_SetWrapped
+					 * printDebug_SetWrapped
 					 */
-					OP(print_SetWrapped, 2, 0);
+					OP(printDebug_SetWrapped, 2, 0);
 				}
 				return TRUE;
 			}
@@ -1469,109 +1465,109 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 				{
 
 					/**
-					 * print_ResetState
+					 * printSystem_ResetState
 					 */
-					OP(print_ResetState, 3, 0);
+					OP(printSystem_ResetState, 3, 0);
 				}
 				return TRUE;
 				case 0xC9:
 				{
 
 					/**
-					 * print_SaveState
+					 * printSystem_SaveState
 					 */
-					OP(print_SaveState, 3, 0);
+					OP(printSystem_SaveState, 3, 0);
 				}
 				return TRUE;
 				case 0xCA:
 				{
 
 					/**
-					 * print_SetPos
+					 * printSystem_SetPos
 					 * - Word x
 					 * - Word y
 					 */
 					int16 y = PULL_WORD();
 					int16 x = PULL_WORD();
-					OP(print_SetPos, x, y, 3, 0);
+					OP(printSystem_SetPos, x, y, 3, 0);
 				}
 				return TRUE;
 				case 0xCB:
 				{
 
 					/**
-					 * print_SetColor
+					 * printSystem_SetColor
 					 * - Byte index
 					 */
 					byte index = PULL_BYTE();
-					OP(print_SetColor, index, 3, 0);
+					OP(printSystem_SetColor, index, 3, 0);
 				}
 				return TRUE;
 				case 0xCC:
 				{
 
 					/**
-					 * print_AlignCenter
+					 * printSystem_AlignCenter
 					 */
-					OP(print_AlignCenter, 3, 0);
+					OP(printSystem_AlignCenter, 3, 0);
 				}
 				return TRUE;
 				case 0xCD:
 				{
 
 					/**
-					 * print_SetCharSet
+					 * printSystem_SetCharSet
 					 * - Word charsetNum
 					 */
 					int16 charsetNum = PULL_WORD();
-					OP(print_SetCharSet, charsetNum, 3, 0);
+					OP(printSystem_SetCharSet, charsetNum, 3, 0);
 				}
 				return TRUE;
 				case 0xCE:
 				{
 
 					/**
-					 * print_AlignLeft
+					 * printSystem_AlignLeft
 					 */
-					OP(print_AlignLeft, 3, 0);
+					OP(printSystem_AlignLeft, 3, 0);
 				}
 				return TRUE;
 				case 0xCF:
 				{
 
 					/**
-					 * print_SetOverhead
+					 * printSystem_SetOverhead
 					 */
-					OP(print_SetOverhead, 3, 0);
+					OP(printSystem_SetOverhead, 3, 0);
 				}
 				return TRUE;
 				case 0xD0:
 				{
 
 					/**
-					 * print_SetMumble
+					 * printSystem_SetMumble
 					 */
-					OP(print_SetMumble, 3, 0);
+					OP(printSystem_SetMumble, 3, 0);
 				}
 				return TRUE;
 				case 0xD1:
 				{
 
 					/**
-					 * print
+					 * printSystem
 					 * - ImmString text
 					 */
 					byte* text = READ_STRING();
-					OP(print, text, 3, 0);
+					OP(printSystem, text, 3, 0);
 				}
 				return TRUE;
 				case 0xD2:
 				{
 
 					/**
-					 * print_SetWrapped
+					 * printSystem_SetWrapped
 					 */
-					OP(print_SetWrapped, 3, 0);
+					OP(printSystem_SetWrapped, 3, 0);
 				}
 				return TRUE;
 			}
@@ -1579,13 +1575,120 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 		return FALSE;
 		case 0x97:
 		{
+			switch((op2 = READ_BYTE()))
+			{
+				case 0xC8:
+				{
 
-			/**
-			 * blastText
-			 */
-			OP(blastText);
+					/**
+					 * blastText_ResetState
+					 */
+					OP(blastText_ResetState, 4, 0);
+				}
+				return TRUE;
+				case 0xC9:
+				{
+
+					/**
+					 * blastText_SaveState
+					 */
+					OP(blastText_SaveState, 4, 0);
+				}
+				return TRUE;
+				case 0xCA:
+				{
+
+					/**
+					 * blastText_SetPos
+					 * - Word x
+					 * - Word y
+					 */
+					int16 y = PULL_WORD();
+					int16 x = PULL_WORD();
+					OP(blastText_SetPos, x, y, 4, 0);
+				}
+				return TRUE;
+				case 0xCB:
+				{
+
+					/**
+					 * blastText_SetColor
+					 * - Byte index
+					 */
+					byte index = PULL_BYTE();
+					OP(blastText_SetColor, index, 4, 0);
+				}
+				return TRUE;
+				case 0xCC:
+				{
+
+					/**
+					 * blastText_AlignCenter
+					 */
+					OP(blastText_AlignCenter, 4, 0);
+				}
+				return TRUE;
+				case 0xCD:
+				{
+
+					/**
+					 * blastText_SetCharSet
+					 * - Word charsetNum
+					 */
+					int16 charsetNum = PULL_WORD();
+					OP(blastText_SetCharSet, charsetNum, 4, 0);
+				}
+				return TRUE;
+				case 0xCE:
+				{
+
+					/**
+					 * blastText_AlignLeft
+					 */
+					OP(blastText_AlignLeft, 4, 0);
+				}
+				return TRUE;
+				case 0xCF:
+				{
+
+					/**
+					 * blastText_SetOverhead
+					 */
+					OP(blastText_SetOverhead, 4, 0);
+				}
+				return TRUE;
+				case 0xD0:
+				{
+
+					/**
+					 * blastText_SetMumble
+					 */
+					OP(blastText_SetMumble, 4, 0);
+				}
+				return TRUE;
+				case 0xD1:
+				{
+
+					/**
+					 * blastText
+					 * - ImmString text
+					 */
+					byte* text = READ_STRING();
+					OP(blastText, text, 4, 0);
+				}
+				return TRUE;
+				case 0xD2:
+				{
+
+					/**
+					 * blastText_SetWrapped
+					 */
+					OP(blastText_SetWrapped, 4, 0);
+				}
+				return TRUE;
+			}
 		}
-		return TRUE;
+		return FALSE;
 		case 0x98:
 		{
 

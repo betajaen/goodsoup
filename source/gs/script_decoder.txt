@@ -1,0 +1,279 @@
+# 
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+# 
+#
+# File used to generate script_decoder.h
+
+
+ 
+00:pushByte(immByte value)
+01:pushWord(immWord value)
+02:pushWordVar(immWord index)
+03:wordArrayRead(long base)
+04:wordArrayIndexedRead(long index, long base)
+05:dup(long value)
+06:pop(long discard)
+07:not(long value)
+08:eq(long a, long b)
+09:neq(long a, long b)
+0A:gt(long a, long b)
+0B:lt(long a, long b)
+0C:le(long a, long b)
+0D:ge(long a, long b)
+0E:add(long a, long b)
+0F:sub(long a, long b)
+10:mul(long a, long b)
+11:div(long a, long b)
+12:land(long a, long b)
+13:lor(long a, long b)
+14:band(long a, long b)
+15:bor(long a, long b)
+16:mod()
+42:writeByteVar(long value)
+46:byteArrayWrite(long base, long value)
+4A:byteArrayIndexedWrite(long index, long base, long value)
+4E:byteVarInc()
+52:byteArrayInc(long base)
+56:byteVarDec()
+5A:byteArrayDec(long base)
+61:drawObject(long obj, long state)
+62:drawObjectAt(long obj, long x, long y)
+63:drawBlastObject(long a, long b, long c, long d, long e, ... args)
+64:if(long condition, immWord relOffset)
+65:ifNot(long condition, immWord relOffset)
+66:jump(immWord absOffset)
+67:breakHere()
+68:delayFrames()
+69:wait()
+6A:delay(long delay)
+6B:delaySeconds(long seconds)
+6C:delayMinutes(long minutes)
+6D:writeWordVar(immLong varIndex, long value)
+6E:wordVarInc(immLong varIndex)
+6F:wordVarDec(immLong varIndex)
+70:dimArray()
+71:wordArrayWrite(long base, long value)
+72:wordArrayInc(long base)
+73:wordArrayDec(long base)
+74:dim2DimArray()
+75:wordArrayIndexedWrite(long index, long base, long value)
+76:arrayOps()
+79:startScript(long flags, long script, ... args)
+7A:startScriptQuick(long script, ... args)
+7B:stopObjectCode6()
+7C:stopScript6(long script)
+7D:jumpToScript(long flags, long script, ... args)
+7E:dummy()
+7F:startObject(long flags, long script, byte entryp, ... args)
+80:stopObjectScript(word script)
+81:cutscene(... args)
+82:endCutscene()
+83:freezeUnfreeze(long script)
+84:beginOverride()
+85:endOverride()
+86:stopSentence()
+89:setClass(long obj, ... args)
+8A:setState(long obj, long state)
+8B:setOwner(long obj, long owner)
+8C:panCameraTo()
+8D:actorFollowCamera(long index)
+8E:setCameraAt()
+# printActor
+8FC8:printActor@93C8()[target=0,pullActor=1]	# 1 actorNum from Stack
+8FC9:printActor@93C9()[target=0,pullActor=1]	
+8FCA:printActor@93CA()[target=0,pullActor=1]	
+8FCB:printActor@93CB()[target=0,pullActor=1]	
+8FCC:printActor@93CC()[target=0,pullActor=1]	
+8FCD:printActor@93CD()[target=0,pullActor=1]	
+8FCE:printActor@93CE()[target=0,pullActor=1]	
+8FCF:printActor@93CF()[target=0,pullActor=1]	
+8FD0:printActor@93D0()[target=0,pullActor=1]	
+8FD1:printActor@93D1()[target=0,pullActor=1]	
+8FD2:printActor@93D2()[target=0,pullActor=1]	
+# printEgo
+90C8:printEgo@93C8()[target=0,pullActor=2]	# 2 Ego
+90C9:printEgo@93C9()[target=0,pullActor=2]
+90CA:printEgo@93CA()[target=0,pullActor=2]
+90CB:printEgo@93CB()[target=0,pullActor=2]
+90CC:printEgo@93CC()[target=0,pullActor=2]
+90CD:printEgo@93CD()[target=0,pullActor=2]
+90CE:printEgo@93CE()[target=0,pullActor=2]
+90CF:printEgo@93CF()[target=0,pullActor=2]
+90D0:printEgo@93D0()[target=0,pullActor=2]
+90D1:printEgo@93D1()[target=0,pullActor=2]
+90D2:printEgo@93D2()[target=0,pullActor=2]
+91:talkActor(long actor)
+92:talkEgo()
+# printLine
+# target constants:
+#   0 - Line
+#   1 - Text
+#   2 - Debug
+#   3 - System
+#   4 - Blast Text
+# pullActor constants:
+#   0 - Dont pull an actorNum
+#   1 - Pull actorNum from stack
+#   2 - Use value of Ego
+93C8:$printLine$_ResetState()[target=0,pullActor=0]
+93C9:$printLine$_SaveState()[target=0,pullActor=0]
+93CA:$printLine$_SetPos(word x, word y)[target=0,pullActor=0]
+93CB:$printLine$_SetColor(byte index)[target=0,pullActor=0]
+93CC:$printLine$_AlignCenter()[target=0,pullActor=0]
+93CD:$printLine$_SetCharSet(word charsetNum)[target=0,pullActor=0]
+93CE:$printLine$_AlignLeft()[target=0,pullActor=0]
+93CF:$printLine$_SetOverhead()[target=0,pullActor=0]
+93D0:$printLine$_SetMumble()[target=0,pullActor=0]
+93D1:$printLine$(string text)[target=0,pullActor=0]
+93D2:$printLine$_SetWrapped()[target=0,pullActor=0]
+# printText
+94C8:printText@93C8()[target=1,pullActor=0]
+94C9:printText@93C9()[target=1,pullActor=0]
+94CA:printText@93CA()[target=1,pullActor=0]
+94CB:printText@93CB()[target=1,pullActor=0]
+94CC:printText@93CC()[target=1,pullActor=0]
+94CD:printText@93CD()[target=1,pullActor=0]
+94CE:printText@93CE()[target=1,pullActor=0]
+94CF:printText@93CF()[target=1,pullActor=0]
+94D0:printText@93D0()[target=1,pullActor=0]
+94D1:printText@93D1()[target=1,pullActor=0]
+94D2:printText@93D2()[target=1,pullActor=0]
+# printDebug
+95C8:printDebug@93C8()[target=2,pullActor=0]
+95C9:printDebug@93C9()[target=2,pullActor=0]
+95CA:printDebug@93CA()[target=2,pullActor=0]
+95CB:printDebug@93CB()[target=2,pullActor=0]
+95CC:printDebug@93CC()[target=2,pullActor=0]
+95CD:printDebug@93CD()[target=2,pullActor=0]
+95CE:printDebug@93CE()[target=2,pullActor=0]
+95CF:printDebug@93CF()[target=2,pullActor=0]
+95D0:printDebug@93D0()[target=2,pullActor=0]
+95D1:printDebug@93D1()[target=2,pullActor=0]
+95D2:printDebug@93D2()[target=2,pullActor=0]
+# printSystem
+96C8:printSystem@93C8()[target=3,pullActor=0]
+96C9:printSystem@93C9()[target=3,pullActor=0]
+96CA:printSystem@93CA()[target=3,pullActor=0]
+96CB:printSystem@93CB()[target=3,pullActor=0]
+96CC:printSystem@93CC()[target=3,pullActor=0]
+96CD:printSystem@93CD()[target=3,pullActor=0]
+96CE:printSystem@93CE()[target=3,pullActor=0]
+96CF:printSystem@93CF()[target=3,pullActor=0]
+96D0:printSystem@93D0()[target=3,pullActor=0]
+96D1:printSystem@93D1()[target=3,pullActor=0]
+96D2:printSystem@93D2()[target=3,pullActor=0]
+# blastText
+97C8:blastText@93C8()[target=4,pullActor=0]
+97C9:blastText@93C9()[target=4,pullActor=0]
+97CA:blastText@93CA()[target=4,pullActor=0]
+97CB:blastText@93CB()[target=4,pullActor=0]
+97CC:blastText@93CC()[target=4,pullActor=0]
+97CD:blastText@93CD()[target=4,pullActor=0]
+97CE:blastText@93CE()[target=4,pullActor=0]
+97CF:blastText@93CF()[target=4,pullActor=0]
+97D0:blastText@93D0()[target=4,pullActor=0]
+97D1:blastText@93D1()[target=4,pullActor=0]
+97D2:blastText@93D2()[target=4,pullActor=0]
+98:drawObject(long obj, long x, long y, long state)
+9CDC:cursorSetOn()
+9CDD:cursorSetOff()
+9CDE:cursorSetSoftOn()
+9CDF:cursorSetSoftOff()
+9CE0:cursorSetUserPutOn()
+9CE1:cursorSetUserPutOff()
+9CE2:cursorSetUserPutSoftOn()
+9CE3:cursorSetUserPutSoftOff()
+9CE4:cursorSetImage(word objNum, long index)
+9CE5:cursorSetHotSpot(long x, long y)
+9CE6:cursorSetTransparent(long isTransparent)
+9CE7:cursorSetCharSet(word charsetNum)
+9CE8:cursorSetCharSetColour(... args)
+9CE9:cursorSetPos(long x, long y)
+9D:loadRoom(byte room)
+9E:loadRoomWithEgo(long x, long y)
+9F:walkActorToObj(long index, long obj, long dist)
+A0:walkActorTo(long index, long x, long y)
+A1:putActorAtXY(long actorIndex, long x, long y, long room)
+A2:putActorAtObject()
+A3:faceActor(long index, long obj)
+A4:animateActor(long index, long anim)
+A5:doSentence8(byte verb, word objectA, word objectB)
+A6:pickupObject()
+A7:setBoxFlags(... args, long value)
+A8:createBoxMatrix()
+A9:wait()
+AA3E:loadObject(word objectNum)
+AB:roomOps()
+AC:actorOps()
+AD:cameraOps()
+AE:verbOps()
+AF:startSound(long sound)
+B0:startMusic(long sound)
+B1:stopSound(long sound)
+B2:soundKludge(... args)
+B328:restartGame()
+B329:quitGame()
+B4:saveRestoreVerbs(long a, long b, long c)
+B5:setObjectName(long obj)
+B6:getDateTime()
+B7:drawBox(long x, long y, long x2, long y2, long color)
+B9:startVideo()
+BA0B:lockObject(... args)
+BA0C:unlockObject(... args)
+C0:dim2DimArray(long dim2, long dim1)
+C6:distObjectPt(long a, long b, long c)
+C8:startScriptQuick2(long script, ... args)
+C9:startObjectQuick(long script, byte entryp, ... args)
+CA:pickOneOf(long i, ... args)
+CB:pickOneOfDefault(long i, ... args, long def)
+CD:isAnyOf(long value, ... args)
+CE:getRandomNumber(long max)
+CF:getRandomNumberRange(long min, long max)
+D0:ifClassOfIs(long obj, ... args)
+D1:getState(long obj)
+D2:getOwner(long obj)
+D3:isScriptRunning(long script)
+D4:shuffle(long a, long b)
+D5:isSoundRunning(long sound)
+D6:abs(long value)
+D8:kernelGetFunctions()
+D9:isActorInBox(long index, long box)
+DA:getVerbEntrypoint(long verb, long entryp)
+DB:getActorFromXY(long x, long y)
+DC:findObject(long x, long y)
+DD:getVerbFromXY(long x, long y)
+DF:findInventory(long owner, long index)
+E0:getInventoryCount(long owner)
+E1:getAnimateVariable(long index, long variable)
+E2:getActorRoom(long index)
+E3:getActorWalkBox(long index)
+E4:getActorMoving(long index)
+E5:getActorCostume(long index)
+E6:getActorScaleX(long index)
+E7:getActorLayer(long index)
+E8:getActorElevation(long index)
+E9:getActorWidth(long index)
+EA:getObjectNewDir(long index)
+EB:getObjectX(long index)
+EC:getObjectY(long index)
+ED:getActorChore()
+EE:distObjectObject(long a, long b)
+EF:distObjectPtPt(long a, long b, long c, long d)
+F0:getObjectImageX()
+F1:getObjectImageY()
+F2:getObjectImageWidth()
+F3:getObjectImageHeight()
+F6:getStringWidth()
+F7:getActorZPlane()
