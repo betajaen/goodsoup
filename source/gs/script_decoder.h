@@ -31,7 +31,7 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 			 * pushWord
 			 * - ImmWord value
 			 */
-			int32 value = READ_LONG();
+			int32 value = READ_WORD_AS_LONG();
 			OP(pushWord, value);
 		}
 		return TRUE;
@@ -42,7 +42,7 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 			 * pushWordVar
 			 * - ImmWord index
 			 */
-			int32 index = READ_LONG();
+			int32 index = READ_WORD_AS_LONG();
 			OP(pushWordVar, index);
 		}
 		return TRUE;
@@ -430,7 +430,7 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 			 * - Long condition
 			 * - ImmWord relOffset
 			 */
-			int32 relOffset = READ_LONG();
+			int32 relOffset = READ_WORD_AS_LONG();
 			int32 condition = PULL_LONG();
 			OP(if, condition, relOffset);
 		}
@@ -443,7 +443,7 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 			 * - Long condition
 			 * - ImmWord relOffset
 			 */
-			int32 relOffset = READ_LONG();
+			int32 relOffset = READ_WORD_AS_LONG();
 			int32 condition = PULL_LONG();
 			OP(ifNot, condition, relOffset);
 		}
@@ -453,10 +453,10 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 			/**
 			 * jump
-			 * - ImmWord absOffset
+			 * - ImmWord relOffset
 			 */
-			int32 absOffset = READ_LONG();
-			OP(jump, absOffset);
+			int32 relOffset = READ_WORD_AS_LONG();
+			OP(jump, relOffset);
 		}
 		return TRUE;
 		case 0x67:
@@ -556,24 +556,61 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 		return TRUE;
 		case 0x70:
 		{
+			switch((op2 = READ_BYTE()))
+			{
+				case 0x0A:
+				{
 
-			/**
-			 * dimArray
-			 */
-			OP(dimArray);
+					/**
+					 * newIntArray
+					 * - ImmWord arrayNum
+					 * - Long dim1
+					 */
+					int32 arrayNum = READ_WORD_AS_LONG();
+					int32 dim1 = PULL_LONG();
+					OP(newIntArray, arrayNum, dim1);
+				}
+				return TRUE;
+				case 0x0B:
+				{
+
+					/**
+					 * newStringArray
+					 * - ImmWord arrayNum
+					 * - Long dim1
+					 */
+					int32 arrayNum = READ_WORD_AS_LONG();
+					int32 dim1 = PULL_LONG();
+					OP(newStringArray, arrayNum, dim1);
+				}
+				return TRUE;
+				case 0x0C:
+				{
+
+					/**
+					 * deleteArray
+					 * - ImmWord arrayNum
+					 */
+					int32 arrayNum = READ_WORD_AS_LONG();
+					OP(deleteArray, arrayNum);
+				}
+				return TRUE;
+			}
 		}
-		return TRUE;
+		return FALSE;
 		case 0x71:
 		{
 
 			/**
 			 * wordArrayWrite
+			 * - ImmWord arrayNum
 			 * - Long base
 			 * - Long value
 			 */
+			int32 arrayNum = READ_WORD_AS_LONG();
 			int32 value = PULL_LONG();
 			int32 base = PULL_LONG();
-			OP(wordArrayWrite, base, value);
+			OP(wordArrayWrite, arrayNum, base, value);
 		}
 		return TRUE;
 		case 0x72:
@@ -624,13 +661,26 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 		return TRUE;
 		case 0x76:
 		{
+			switch((op2 = READ_BYTE()))
+			{
+				case 0x14:
+				{
 
-			/**
-			 * arrayOps
-			 */
-			OP(arrayOps);
+					/**
+					 * copyStringArray
+					 * - ImmWord arrayNum
+					 * - ImmString data
+					 * - Long b
+					 */
+					int32 arrayNum = READ_WORD_AS_LONG();
+					byte* data = READ_STRING();
+					int32 b = PULL_LONG();
+					OP(copyStringArray, arrayNum, data, b);
+				}
+				return TRUE;
+			}
 		}
-		return TRUE;
+		return FALSE;
 		case 0x79:
 		{
 
@@ -866,6 +916,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * printActor_ResetState
+					 * - target = 0
+					 * - pullActor = 1
 					 */
 					OP(printActor_ResetState, 0, 1);
 				}
@@ -875,6 +927,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * printActor_SaveState
+					 * - target = 0
+					 * - pullActor = 1
 					 */
 					OP(printActor_SaveState, 0, 1);
 				}
@@ -886,6 +940,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 					 * printActor_SetPos
 					 * - Word x
 					 * - Word y
+					 * - target = 0
+					 * - pullActor = 1
 					 */
 					int16 y = PULL_WORD();
 					int16 x = PULL_WORD();
@@ -898,6 +954,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 					/**
 					 * printActor_SetColor
 					 * - Byte index
+					 * - target = 0
+					 * - pullActor = 1
 					 */
 					byte index = PULL_BYTE();
 					OP(printActor_SetColor, index, 0, 1);
@@ -908,6 +966,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * printActor_AlignCenter
+					 * - target = 0
+					 * - pullActor = 1
 					 */
 					OP(printActor_AlignCenter, 0, 1);
 				}
@@ -918,6 +978,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 					/**
 					 * printActor_SetCharSet
 					 * - Word charsetNum
+					 * - target = 0
+					 * - pullActor = 1
 					 */
 					int16 charsetNum = PULL_WORD();
 					OP(printActor_SetCharSet, charsetNum, 0, 1);
@@ -928,6 +990,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * printActor_AlignLeft
+					 * - target = 0
+					 * - pullActor = 1
 					 */
 					OP(printActor_AlignLeft, 0, 1);
 				}
@@ -937,6 +1001,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * printActor_SetOverhead
+					 * - target = 0
+					 * - pullActor = 1
 					 */
 					OP(printActor_SetOverhead, 0, 1);
 				}
@@ -946,6 +1012,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * printActor_SetMumble
+					 * - target = 0
+					 * - pullActor = 1
 					 */
 					OP(printActor_SetMumble, 0, 1);
 				}
@@ -956,6 +1024,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 					/**
 					 * printActor
 					 * - ImmString text
+					 * - target = 0
+					 * - pullActor = 1
 					 */
 					byte* text = READ_STRING();
 					OP(printActor, text, 0, 1);
@@ -966,6 +1036,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * printActor_SetWrapped
+					 * - target = 0
+					 * - pullActor = 1
 					 */
 					OP(printActor_SetWrapped, 0, 1);
 				}
@@ -982,6 +1054,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * printEgo_ResetState
+					 * - target = 0
+					 * - pullActor = 2
 					 */
 					OP(printEgo_ResetState, 0, 2);
 				}
@@ -991,6 +1065,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * printEgo_SaveState
+					 * - target = 0
+					 * - pullActor = 2
 					 */
 					OP(printEgo_SaveState, 0, 2);
 				}
@@ -1002,6 +1078,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 					 * printEgo_SetPos
 					 * - Word x
 					 * - Word y
+					 * - target = 0
+					 * - pullActor = 2
 					 */
 					int16 y = PULL_WORD();
 					int16 x = PULL_WORD();
@@ -1014,6 +1092,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 					/**
 					 * printEgo_SetColor
 					 * - Byte index
+					 * - target = 0
+					 * - pullActor = 2
 					 */
 					byte index = PULL_BYTE();
 					OP(printEgo_SetColor, index, 0, 2);
@@ -1024,6 +1104,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * printEgo_AlignCenter
+					 * - target = 0
+					 * - pullActor = 2
 					 */
 					OP(printEgo_AlignCenter, 0, 2);
 				}
@@ -1034,6 +1116,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 					/**
 					 * printEgo_SetCharSet
 					 * - Word charsetNum
+					 * - target = 0
+					 * - pullActor = 2
 					 */
 					int16 charsetNum = PULL_WORD();
 					OP(printEgo_SetCharSet, charsetNum, 0, 2);
@@ -1044,6 +1128,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * printEgo_AlignLeft
+					 * - target = 0
+					 * - pullActor = 2
 					 */
 					OP(printEgo_AlignLeft, 0, 2);
 				}
@@ -1053,6 +1139,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * printEgo_SetOverhead
+					 * - target = 0
+					 * - pullActor = 2
 					 */
 					OP(printEgo_SetOverhead, 0, 2);
 				}
@@ -1062,6 +1150,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * printEgo_SetMumble
+					 * - target = 0
+					 * - pullActor = 2
 					 */
 					OP(printEgo_SetMumble, 0, 2);
 				}
@@ -1072,6 +1162,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 					/**
 					 * printEgo
 					 * - ImmString text
+					 * - target = 0
+					 * - pullActor = 2
 					 */
 					byte* text = READ_STRING();
 					OP(printEgo, text, 0, 2);
@@ -1082,6 +1174,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * printEgo_SetWrapped
+					 * - target = 0
+					 * - pullActor = 2
 					 */
 					OP(printEgo_SetWrapped, 0, 2);
 				}
@@ -1118,6 +1212,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * printLine_ResetState
+					 * - target = 0
+					 * - pullActor = 0
 					 */
 					OP(printLine_ResetState, 0, 0);
 				}
@@ -1127,6 +1223,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * printLine_SaveState
+					 * - target = 0
+					 * - pullActor = 0
 					 */
 					OP(printLine_SaveState, 0, 0);
 				}
@@ -1138,6 +1236,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 					 * printLine_SetPos
 					 * - Word x
 					 * - Word y
+					 * - target = 0
+					 * - pullActor = 0
 					 */
 					int16 y = PULL_WORD();
 					int16 x = PULL_WORD();
@@ -1150,6 +1250,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 					/**
 					 * printLine_SetColor
 					 * - Byte index
+					 * - target = 0
+					 * - pullActor = 0
 					 */
 					byte index = PULL_BYTE();
 					OP(printLine_SetColor, index, 0, 0);
@@ -1160,6 +1262,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * printLine_AlignCenter
+					 * - target = 0
+					 * - pullActor = 0
 					 */
 					OP(printLine_AlignCenter, 0, 0);
 				}
@@ -1170,6 +1274,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 					/**
 					 * printLine_SetCharSet
 					 * - Word charsetNum
+					 * - target = 0
+					 * - pullActor = 0
 					 */
 					int16 charsetNum = PULL_WORD();
 					OP(printLine_SetCharSet, charsetNum, 0, 0);
@@ -1180,6 +1286,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * printLine_AlignLeft
+					 * - target = 0
+					 * - pullActor = 0
 					 */
 					OP(printLine_AlignLeft, 0, 0);
 				}
@@ -1189,6 +1297,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * printLine_SetOverhead
+					 * - target = 0
+					 * - pullActor = 0
 					 */
 					OP(printLine_SetOverhead, 0, 0);
 				}
@@ -1198,6 +1308,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * printLine_SetMumble
+					 * - target = 0
+					 * - pullActor = 0
 					 */
 					OP(printLine_SetMumble, 0, 0);
 				}
@@ -1208,6 +1320,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 					/**
 					 * printLine
 					 * - ImmString text
+					 * - target = 0
+					 * - pullActor = 0
 					 */
 					byte* text = READ_STRING();
 					OP(printLine, text, 0, 0);
@@ -1218,6 +1332,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * printLine_SetWrapped
+					 * - target = 0
+					 * - pullActor = 0
 					 */
 					OP(printLine_SetWrapped, 0, 0);
 				}
@@ -1234,6 +1350,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * printText_ResetState
+					 * - target = 1
+					 * - pullActor = 0
 					 */
 					OP(printText_ResetState, 1, 0);
 				}
@@ -1243,6 +1361,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * printText_SaveState
+					 * - target = 1
+					 * - pullActor = 0
 					 */
 					OP(printText_SaveState, 1, 0);
 				}
@@ -1254,6 +1374,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 					 * printText_SetPos
 					 * - Word x
 					 * - Word y
+					 * - target = 1
+					 * - pullActor = 0
 					 */
 					int16 y = PULL_WORD();
 					int16 x = PULL_WORD();
@@ -1266,6 +1388,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 					/**
 					 * printText_SetColor
 					 * - Byte index
+					 * - target = 1
+					 * - pullActor = 0
 					 */
 					byte index = PULL_BYTE();
 					OP(printText_SetColor, index, 1, 0);
@@ -1276,6 +1400,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * printText_AlignCenter
+					 * - target = 1
+					 * - pullActor = 0
 					 */
 					OP(printText_AlignCenter, 1, 0);
 				}
@@ -1286,6 +1412,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 					/**
 					 * printText_SetCharSet
 					 * - Word charsetNum
+					 * - target = 1
+					 * - pullActor = 0
 					 */
 					int16 charsetNum = PULL_WORD();
 					OP(printText_SetCharSet, charsetNum, 1, 0);
@@ -1296,6 +1424,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * printText_AlignLeft
+					 * - target = 1
+					 * - pullActor = 0
 					 */
 					OP(printText_AlignLeft, 1, 0);
 				}
@@ -1305,6 +1435,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * printText_SetOverhead
+					 * - target = 1
+					 * - pullActor = 0
 					 */
 					OP(printText_SetOverhead, 1, 0);
 				}
@@ -1314,6 +1446,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * printText_SetMumble
+					 * - target = 1
+					 * - pullActor = 0
 					 */
 					OP(printText_SetMumble, 1, 0);
 				}
@@ -1324,6 +1458,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 					/**
 					 * printText
 					 * - ImmString text
+					 * - target = 1
+					 * - pullActor = 0
 					 */
 					byte* text = READ_STRING();
 					OP(printText, text, 1, 0);
@@ -1334,6 +1470,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * printText_SetWrapped
+					 * - target = 1
+					 * - pullActor = 0
 					 */
 					OP(printText_SetWrapped, 1, 0);
 				}
@@ -1350,6 +1488,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * printDebug_ResetState
+					 * - target = 2
+					 * - pullActor = 0
 					 */
 					OP(printDebug_ResetState, 2, 0);
 				}
@@ -1359,6 +1499,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * printDebug_SaveState
+					 * - target = 2
+					 * - pullActor = 0
 					 */
 					OP(printDebug_SaveState, 2, 0);
 				}
@@ -1370,6 +1512,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 					 * printDebug_SetPos
 					 * - Word x
 					 * - Word y
+					 * - target = 2
+					 * - pullActor = 0
 					 */
 					int16 y = PULL_WORD();
 					int16 x = PULL_WORD();
@@ -1382,6 +1526,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 					/**
 					 * printDebug_SetColor
 					 * - Byte index
+					 * - target = 2
+					 * - pullActor = 0
 					 */
 					byte index = PULL_BYTE();
 					OP(printDebug_SetColor, index, 2, 0);
@@ -1392,6 +1538,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * printDebug_AlignCenter
+					 * - target = 2
+					 * - pullActor = 0
 					 */
 					OP(printDebug_AlignCenter, 2, 0);
 				}
@@ -1402,6 +1550,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 					/**
 					 * printDebug_SetCharSet
 					 * - Word charsetNum
+					 * - target = 2
+					 * - pullActor = 0
 					 */
 					int16 charsetNum = PULL_WORD();
 					OP(printDebug_SetCharSet, charsetNum, 2, 0);
@@ -1412,6 +1562,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * printDebug_AlignLeft
+					 * - target = 2
+					 * - pullActor = 0
 					 */
 					OP(printDebug_AlignLeft, 2, 0);
 				}
@@ -1421,6 +1573,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * printDebug_SetOverhead
+					 * - target = 2
+					 * - pullActor = 0
 					 */
 					OP(printDebug_SetOverhead, 2, 0);
 				}
@@ -1430,6 +1584,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * printDebug_SetMumble
+					 * - target = 2
+					 * - pullActor = 0
 					 */
 					OP(printDebug_SetMumble, 2, 0);
 				}
@@ -1440,6 +1596,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 					/**
 					 * printDebug
 					 * - ImmString text
+					 * - target = 2
+					 * - pullActor = 0
 					 */
 					byte* text = READ_STRING();
 					OP(printDebug, text, 2, 0);
@@ -1450,6 +1608,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * printDebug_SetWrapped
+					 * - target = 2
+					 * - pullActor = 0
 					 */
 					OP(printDebug_SetWrapped, 2, 0);
 				}
@@ -1466,6 +1626,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * printSystem_ResetState
+					 * - target = 3
+					 * - pullActor = 0
 					 */
 					OP(printSystem_ResetState, 3, 0);
 				}
@@ -1475,6 +1637,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * printSystem_SaveState
+					 * - target = 3
+					 * - pullActor = 0
 					 */
 					OP(printSystem_SaveState, 3, 0);
 				}
@@ -1486,6 +1650,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 					 * printSystem_SetPos
 					 * - Word x
 					 * - Word y
+					 * - target = 3
+					 * - pullActor = 0
 					 */
 					int16 y = PULL_WORD();
 					int16 x = PULL_WORD();
@@ -1498,6 +1664,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 					/**
 					 * printSystem_SetColor
 					 * - Byte index
+					 * - target = 3
+					 * - pullActor = 0
 					 */
 					byte index = PULL_BYTE();
 					OP(printSystem_SetColor, index, 3, 0);
@@ -1508,6 +1676,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * printSystem_AlignCenter
+					 * - target = 3
+					 * - pullActor = 0
 					 */
 					OP(printSystem_AlignCenter, 3, 0);
 				}
@@ -1518,6 +1688,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 					/**
 					 * printSystem_SetCharSet
 					 * - Word charsetNum
+					 * - target = 3
+					 * - pullActor = 0
 					 */
 					int16 charsetNum = PULL_WORD();
 					OP(printSystem_SetCharSet, charsetNum, 3, 0);
@@ -1528,6 +1700,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * printSystem_AlignLeft
+					 * - target = 3
+					 * - pullActor = 0
 					 */
 					OP(printSystem_AlignLeft, 3, 0);
 				}
@@ -1537,6 +1711,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * printSystem_SetOverhead
+					 * - target = 3
+					 * - pullActor = 0
 					 */
 					OP(printSystem_SetOverhead, 3, 0);
 				}
@@ -1546,6 +1722,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * printSystem_SetMumble
+					 * - target = 3
+					 * - pullActor = 0
 					 */
 					OP(printSystem_SetMumble, 3, 0);
 				}
@@ -1556,6 +1734,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 					/**
 					 * printSystem
 					 * - ImmString text
+					 * - target = 3
+					 * - pullActor = 0
 					 */
 					byte* text = READ_STRING();
 					OP(printSystem, text, 3, 0);
@@ -1566,6 +1746,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * printSystem_SetWrapped
+					 * - target = 3
+					 * - pullActor = 0
 					 */
 					OP(printSystem_SetWrapped, 3, 0);
 				}
@@ -1582,6 +1764,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * blastText_ResetState
+					 * - target = 4
+					 * - pullActor = 0
 					 */
 					OP(blastText_ResetState, 4, 0);
 				}
@@ -1591,6 +1775,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * blastText_SaveState
+					 * - target = 4
+					 * - pullActor = 0
 					 */
 					OP(blastText_SaveState, 4, 0);
 				}
@@ -1602,6 +1788,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 					 * blastText_SetPos
 					 * - Word x
 					 * - Word y
+					 * - target = 4
+					 * - pullActor = 0
 					 */
 					int16 y = PULL_WORD();
 					int16 x = PULL_WORD();
@@ -1614,6 +1802,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 					/**
 					 * blastText_SetColor
 					 * - Byte index
+					 * - target = 4
+					 * - pullActor = 0
 					 */
 					byte index = PULL_BYTE();
 					OP(blastText_SetColor, index, 4, 0);
@@ -1624,6 +1814,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * blastText_AlignCenter
+					 * - target = 4
+					 * - pullActor = 0
 					 */
 					OP(blastText_AlignCenter, 4, 0);
 				}
@@ -1634,6 +1826,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 					/**
 					 * blastText_SetCharSet
 					 * - Word charsetNum
+					 * - target = 4
+					 * - pullActor = 0
 					 */
 					int16 charsetNum = PULL_WORD();
 					OP(blastText_SetCharSet, charsetNum, 4, 0);
@@ -1644,6 +1838,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * blastText_AlignLeft
+					 * - target = 4
+					 * - pullActor = 0
 					 */
 					OP(blastText_AlignLeft, 4, 0);
 				}
@@ -1653,6 +1849,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * blastText_SetOverhead
+					 * - target = 4
+					 * - pullActor = 0
 					 */
 					OP(blastText_SetOverhead, 4, 0);
 				}
@@ -1662,6 +1860,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * blastText_SetMumble
+					 * - target = 4
+					 * - pullActor = 0
 					 */
 					OP(blastText_SetMumble, 4, 0);
 				}
@@ -1672,6 +1872,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 					/**
 					 * blastText
 					 * - ImmString text
+					 * - target = 4
+					 * - pullActor = 0
 					 */
 					byte* text = READ_STRING();
 					OP(blastText, text, 4, 0);
@@ -1682,6 +1884,8 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * blastText_SetWrapped
+					 * - target = 4
+					 * - pullActor = 0
 					 */
 					OP(blastText_SetWrapped, 4, 0);
 				}
@@ -2022,6 +2226,17 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 		{
 			switch((op2 = READ_BYTE()))
 			{
+				case 0x3D:
+				{
+
+					/**
+					 * loadCostume
+					 * - Word costumeNum
+					 */
+					int16 costumeNum = PULL_WORD();
+					OP(loadCostume, costumeNum);
+				}
+				return TRUE;
 				case 0x3E:
 				{
 
@@ -2033,27 +2248,600 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 					OP(loadObject, objectNum);
 				}
 				return TRUE;
+				case 0x3F:
+				{
+
+					/**
+					 * loadRoom
+					 * - Word roomNum
+					 */
+					int16 roomNum = PULL_WORD();
+					OP(loadRoom, roomNum);
+				}
+				return TRUE;
+				case 0x40:
+				{
+
+					/**
+					 * loadScript
+					 * - Word scriptNum
+					 */
+					int16 scriptNum = PULL_WORD();
+					OP(loadScript, scriptNum);
+				}
+				return TRUE;
+				case 0x41:
+				{
+
+					/**
+					 * loadSound
+					 * - Word soundNum
+					 */
+					int16 soundNum = PULL_WORD();
+					OP(loadSound, soundNum);
+				}
+				return TRUE;
+				case 0x42:
+				{
+
+					/**
+					 * lockCostume
+					 * - Word costumeNum
+					 */
+					int16 costumeNum = PULL_WORD();
+					OP(lockCostume, costumeNum);
+				}
+				return TRUE;
+				case 0x43:
+				{
+
+					/**
+					 * lockRoom
+					 * - Word roomNum
+					 */
+					int16 roomNum = PULL_WORD();
+					OP(lockRoom, roomNum);
+				}
+				return TRUE;
+				case 0x44:
+				{
+
+					/**
+					 * lockScript
+					 * - Word scriptNum
+					 */
+					int16 scriptNum = PULL_WORD();
+					OP(lockScript, scriptNum);
+				}
+				return TRUE;
+				case 0x45:
+				{
+
+					/**
+					 * lockSound
+					 * - Word soundNum
+					 */
+					int16 soundNum = PULL_WORD();
+					OP(lockSound, soundNum);
+				}
+				return TRUE;
+				case 0x46:
+				{
+
+					/**
+					 * unlockCostume
+					 * - Word costumeNum
+					 */
+					int16 costumeNum = PULL_WORD();
+					OP(unlockCostume, costumeNum);
+				}
+				return TRUE;
+				case 0x47:
+				{
+
+					/**
+					 * unlockRoom
+					 * - Word roomNum
+					 */
+					int16 roomNum = PULL_WORD();
+					OP(unlockRoom, roomNum);
+				}
+				return TRUE;
+				case 0x48:
+				{
+
+					/**
+					 * unlockScript
+					 * - Word scriptNum
+					 */
+					int16 scriptNum = PULL_WORD();
+					OP(unlockScript, scriptNum);
+				}
+				return TRUE;
+				case 0x49:
+				{
+
+					/**
+					 * unlockSound
+					 * - Word soundNum
+					 */
+					int16 soundNum = PULL_WORD();
+					OP(unlockSound, soundNum);
+				}
+				return TRUE;
+				case 0x4A:
+				{
+
+					/**
+					 * deleteCostume
+					 * - Word costumeNum
+					 */
+					int16 costumeNum = PULL_WORD();
+					OP(deleteCostume, costumeNum);
+				}
+				return TRUE;
+				case 0x4B:
+				{
+
+					/**
+					 * deleteRoom
+					 * - Word roomNum
+					 */
+					int16 roomNum = PULL_WORD();
+					OP(deleteRoom, roomNum);
+				}
+				return TRUE;
+				case 0x4C:
+				{
+
+					/**
+					 * deleteScript
+					 * - Word scriptNum
+					 */
+					int16 scriptNum = PULL_WORD();
+					OP(deleteScript, scriptNum);
+				}
+				return TRUE;
+				case 0x4D:
+				{
+
+					/**
+					 * deleteSound
+					 * - Word soundNum
+					 */
+					int16 soundNum = PULL_WORD();
+					OP(deleteSound, soundNum);
+				}
+				return TRUE;
 			}
 		}
 		return FALSE;
 		case 0xAB:
 		{
+			switch((op2 = READ_BYTE()))
+			{
+				case 0x57:
+				{
 
-			/**
-			 * roomOps
-			 */
-			OP(roomOps);
+					/**
+					 * fadeRoom
+					 * - Word effect
+					 */
+					int16 effect = PULL_WORD();
+					OP(fadeRoom, effect);
+				}
+				return TRUE;
+			}
 		}
-		return TRUE;
+		return FALSE;
 		case 0xAC:
 		{
+			switch((op2 = READ_BYTE()))
+			{
+				case 0x64:
+				{
 
-			/**
-			 * actorOps
-			 */
-			OP(actorOps);
+					/**
+					 * setActorCostume
+					 * - Word costumeNum
+					 */
+					int16 costumeNum = PULL_WORD();
+					OP(setActorCostume, costumeNum);
+				}
+				return TRUE;
+				case 0x65:
+				{
+
+					/**
+					 * setActorStepDistance
+					 * - Word x
+					 * - Word y
+					 */
+					int16 y = PULL_WORD();
+					int16 x = PULL_WORD();
+					OP(setActorStepDistance, x, y);
+				}
+				return TRUE;
+				case 0x67:
+				{
+
+					/**
+					 * setActorAnimationToDefault
+					 */
+					OP(setActorAnimationToDefault);
+				}
+				return TRUE;
+				case 0x68:
+				{
+
+					/**
+					 * setActorAnimationInitFrame
+					 * - Word initFrame
+					 */
+					int16 initFrame = PULL_WORD();
+					OP(setActorAnimationInitFrame, initFrame);
+				}
+				return TRUE;
+				case 0x69:
+				{
+
+					/**
+					 * setActorAnimationTalkFrame
+					 * - Word startFrame
+					 * - Word endFrame
+					 */
+					int16 endFrame = PULL_WORD();
+					int16 startFrame = PULL_WORD();
+					OP(setActorAnimationTalkFrame, startFrame, endFrame);
+				}
+				return TRUE;
+				case 0x6A:
+				{
+
+					/**
+					 * setActorAnimationWalkFrame
+					 * - Word walkFrame
+					 */
+					int16 walkFrame = PULL_WORD();
+					OP(setActorAnimationWalkFrame, walkFrame);
+				}
+				return TRUE;
+				case 0x6B:
+				{
+
+					/**
+					 * setActorAnimationStandFrame
+					 * - Word standFrame
+					 */
+					int16 standFrame = PULL_WORD();
+					OP(setActorAnimationStandFrame, standFrame);
+				}
+				return TRUE;
+				case 0x6C:
+				{
+
+					/**
+					 * setActorAnimationSpeed
+					 * - Word speed
+					 */
+					int16 speed = PULL_WORD();
+					OP(setActorAnimationSpeed, speed);
+				}
+				return TRUE;
+				case 0x6D:
+				{
+
+					/**
+					 * newActor
+					 * - mode = 0
+					 */
+					OP(newActor, 0);
+				}
+				return TRUE;
+				case 0x6E:
+				{
+
+					/**
+					 * setActorElevation
+					 * - Word elevation
+					 */
+					int16 elevation = PULL_WORD();
+					OP(setActorElevation, elevation);
+				}
+				return TRUE;
+				case 0x6F:
+				{
+
+					/**
+					 * setActorPalette
+					 * - Word idx
+					 * - Long val
+					 */
+					int32 val = PULL_LONG();
+					int16 idx = PULL_WORD();
+					OP(setActorPalette, idx, val);
+				}
+				return TRUE;
+				case 0x70:
+				{
+
+					/**
+					 * setActorTalkColor
+					 * - Word idx
+					 */
+					int16 idx = PULL_WORD();
+					OP(setActorTalkColor, idx);
+				}
+				return TRUE;
+				case 0x71:
+				{
+
+					/**
+					 * setActorName
+					 */
+					OP(setActorName);
+				}
+				return TRUE;
+				case 0x72:
+				{
+
+					/**
+					 * setActorWidth
+					 * - Word width
+					 */
+					int16 width = PULL_WORD();
+					OP(setActorWidth, width);
+				}
+				return TRUE;
+				case 0x73:
+				{
+
+					/**
+					 * setActorScale
+					 * - Word scale
+					 */
+					int16 scale = PULL_WORD();
+					OP(setActorScale, scale);
+				}
+				return TRUE;
+				case 0x74:
+				{
+
+					/**
+					 * setActorNeverZClip
+					 */
+					OP(setActorNeverZClip);
+				}
+				return TRUE;
+				case 0x75:
+				{
+
+					/**
+					 * setActorAlwaysZClip
+					 * - Word forceClip
+					 */
+					int16 forceClip = PULL_WORD();
+					OP(setActorAlwaysZClip, forceClip);
+				}
+				return TRUE;
+				case 0x76:
+				{
+
+					/**
+					 * setActorFollowBoxes
+					 * - follow = 0
+					 */
+					OP(setActorFollowBoxes, 0);
+				}
+				return TRUE;
+				case 0x77:
+				{
+
+					/**
+					 * setActorFollowBoxes
+					 * - follow = 1
+					 */
+					OP(setActorFollowBoxes, 1);
+				}
+				return TRUE;
+				case 0x78:
+				{
+
+					/**
+					 * setActorShadowDraw
+					 * - Byte enabled
+					 */
+					byte enabled = PULL_BYTE();
+					OP(setActorShadowDraw, enabled);
+				}
+				return TRUE;
+				case 0x79:
+				{
+
+					/**
+					 * setActorTextOffset
+					 * - Long x
+					 * - Long y
+					 */
+					int32 y = PULL_LONG();
+					int32 x = PULL_LONG();
+					OP(setActorTextOffset, x, y);
+				}
+				return TRUE;
+				case 0x7A:
+				{
+
+					/**
+					 * initActor
+					 * - Word actorNum
+					 */
+					int16 actorNum = PULL_WORD();
+					OP(initActor, actorNum);
+				}
+				return TRUE;
+				case 0x7B:
+				{
+
+					/**
+					 * setActorVar
+					 * - Long varNum
+					 * - Long value
+					 */
+					int32 value = PULL_LONG();
+					int32 varNum = PULL_LONG();
+					OP(setActorVar, varNum, value);
+				}
+				return TRUE;
+				case 0x7C:
+				{
+
+					/**
+					 * setActorFollowTurns
+					 * - follow = 0
+					 */
+					OP(setActorFollowTurns, 0);
+				}
+				return TRUE;
+				case 0x7D:
+				{
+
+					/**
+					 * setActorFollowTurns
+					 * - follow = 1
+					 */
+					OP(setActorFollowTurns, 1);
+				}
+				return TRUE;
+				case 0x7E:
+				{
+
+					/**
+					 * newActor
+					 * - mode = 2
+					 */
+					OP(newActor, 2);
+				}
+				return TRUE;
+				case 0x7F:
+				{
+
+					/**
+					 * setActorZ
+					 * - Word z
+					 */
+					int16 z = PULL_WORD();
+					OP(setActorZ, z);
+				}
+				return TRUE;
+				case 0x80:
+				{
+
+					/**
+					 * stopActorMoving
+					 */
+					OP(stopActorMoving);
+				}
+				return TRUE;
+				case 0x81:
+				{
+
+					/**
+					 * 
+					 * - force = 1
+					 */
+					OP(, 1);
+				}
+				return TRUE;
+				case 0x82:
+				{
+
+					/**
+					 * turnActor
+					 * - Word direction
+					 * - force = 0
+					 */
+					int16 direction = PULL_WORD();
+					OP(turnActor, direction, 0);
+				}
+				return TRUE;
+				case 0x83:
+				{
+
+					/**
+					 * setWalkScript
+					 * - Word scriptNum
+					 */
+					int16 scriptNum = PULL_WORD();
+					OP(setWalkScript, scriptNum);
+				}
+				return TRUE;
+				case 0x84:
+				{
+
+					/**
+					 * setTalkScript
+					 * - Word scriptNum
+					 */
+					int16 scriptNum = PULL_WORD();
+					OP(setTalkScript, scriptNum);
+				}
+				return TRUE;
+				case 0x85:
+				{
+
+					/**
+					 * setWalkPaused
+					 * - paused = 1
+					 */
+					OP(setWalkPaused, 1);
+				}
+				return TRUE;
+				case 0x86:
+				{
+
+					/**
+					 * setWalkPaused
+					 * - paused = 0
+					 */
+					OP(setWalkPaused, 0);
+				}
+				return TRUE;
+				case 0x87:
+				{
+
+					/**
+					 * setActorVolume
+					 * - Word volume
+					 */
+					int16 volume = PULL_WORD();
+					OP(setActorVolume, volume);
+				}
+				return TRUE;
+				case 0x88:
+				{
+
+					/**
+					 * setActorFrequency
+					 * - Word frequency
+					 */
+					int16 frequency = PULL_WORD();
+					OP(setActorFrequency, frequency);
+				}
+				return TRUE;
+				case 0x89:
+				{
+
+					/**
+					 * setActorPan
+					 * - Word pan
+					 */
+					int16 pan = PULL_WORD();
+					OP(setActorPan, pan);
+				}
+				return TRUE;
+			}
 		}
-		return TRUE;
+		return FALSE;
 		case 0xAD:
 		{
 
@@ -2065,13 +2853,33 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 		return TRUE;
 		case 0xAE:
 		{
+			switch((op2 = READ_BYTE()))
+			{
+				case 0x96:
+				{
 
-			/**
-			 * verbOps
-			 */
-			OP(verbOps);
+					/**
+					 * newVerb
+					 * - Word verbNum
+					 */
+					int16 verbNum = PULL_WORD();
+					OP(newVerb, verbNum);
+				}
+				return TRUE;
+				case 0xA7:
+				{
+
+					/**
+					 * setVerbLineSpacing
+					 * - Long lineSpacing
+					 */
+					int32 lineSpacing = PULL_LONG();
+					OP(setVerbLineSpacing, lineSpacing);
+				}
+				return TRUE;
+			}
 		}
-		return TRUE;
+		return FALSE;
 		case 0xAF:
 		{
 
@@ -2206,33 +3014,15 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 		return TRUE;
 		case 0xBA:
 		{
-			switch((op2 = READ_BYTE()))
-			{
-				case 0x0B:
-				{
 
-					/**
-					 * lockObject
-					 * - Args args
-					 */
-					int* args = PULL_ARGS();
-					OP(lockObject, args);
-				}
-				return TRUE;
-				case 0x0C:
-				{
-
-					/**
-					 * unlockObject
-					 * - Args args
-					 */
-					int* args = PULL_ARGS();
-					OP(unlockObject, args);
-				}
-				return TRUE;
-			}
+			/**
+			 * kernelSetFunctions
+			 * - Args args
+			 */
+			int* args = PULL_ARGS();
+			OP(kernelSetFunctions, args);
 		}
-		return FALSE;
+		return TRUE;
 		case 0xC0:
 		{
 
