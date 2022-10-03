@@ -689,10 +689,12 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 			/**
 			 * wordArrayInc
+			 * @param word[1..4] arrayNum
 			 * @param long[stack, 0] base
 			 */
+			int32 arrayNum = READ_WORD_AS_LONG();
 			int32 base = PULL_LONG();
-			OP(wordArrayInc, base);
+			OP(wordArrayInc, arrayNum, base);
 		}
 		return TRUE;
 		case 0x73:
@@ -700,10 +702,12 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 			/**
 			 * wordArrayDec
+			 * @param word[1..4] arrayNum
 			 * @param long[stack, 0] base
 			 */
+			int32 arrayNum = READ_WORD_AS_LONG();
 			int32 base = PULL_LONG();
-			OP(wordArrayDec, base);
+			OP(wordArrayDec, arrayNum, base);
 		}
 		return TRUE;
 		case 0x74:
@@ -983,6 +987,15 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 			 * stopSentence
 			 */
 			OP(stopSentence);
+		}
+		return TRUE;
+		case 0x87:
+		{
+
+			/**
+			 * debug
+			 */
+			OP(debug);
 		}
 		return TRUE;
 		case 0x89:
@@ -3158,8 +3171,12 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 					/**
 					 * setVerbName
+					 * @param string[2...] name
+					 * @param byte[stack, 0] showName
 					 */
-					OP(setVerbName);
+					byte* name = READ_STRING();
+					byte showName = PULL_BYTE();
+					OP(setVerbName, showName, name);
 				}
 				return TRUE;
 				case 0x9A:
@@ -3436,8 +3453,10 @@ GS_PRIVATE gs_bool decodeOpcode(STATE state)
 
 			/**
 			 * startVideo
+			 * @param string[1...] path
 			 */
-			OP(startVideo);
+			byte* path = READ_STRING();
+			OP(startVideo, path);
 		}
 		return TRUE;
 		case 0xBA:
