@@ -40,7 +40,7 @@
 13:lor(long a, long b)
 14:band(long a, long b)
 15:bor(long a, long b)
-16:mod()
+16:mod(long a, long b)
 42:writeByteVar(long value)
 46:byteArrayWrite(long base, long value)
 4A:byteArrayIndexedWrite(long index, long base, long value)
