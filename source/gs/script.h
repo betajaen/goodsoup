@@ -33,8 +33,7 @@ typedef enum gs_ScriptType {
 typedef enum gs_ScriptSaveFormat {
 	SSF_Null,
 	SSF_LA8,
-	SSF_GS8,
-	SSF_Text
+	SSF_GS8
 } gs_ScriptSaveFormat;
 
 typedef struct gs_Script {

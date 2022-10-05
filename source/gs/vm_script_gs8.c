@@ -15,7 +15,7 @@
  *
  */
 
-#define GS_FILE "script_vm"
+#define GS_FILE "vm_script_gs8"
 
 #include "shared/forward.h"
 #include "vm_context.h"

@@ -29,8 +29,6 @@ OBJ =	shared/error.o \
 		script.o \
 		script_la8.o \
 		script_gs8.o \
-		script_text8.o \
-		script_schema8.o\
 		formats/la0.o\
 		formats/lflf.o\
 		formats/scrp.o
