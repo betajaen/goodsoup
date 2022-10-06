@@ -70,6 +70,18 @@ GS_EXPORT void gs_FileCopy(gs_File* dst, gs_File* src, uint32 length) {
 
 }
 
+GS_EXPORT void gs_CopyString(gs_File* dst, gs_File* src) {
+
+	while (TRUE)
+	{
+		byte b = gs_ReadByte(src);
+		gs_WriteByte(dst, b);
+		if (b == 0)
+			break;
+	}
+
+}
+
 GS_EXPORT void gs_ReadTagPair(gs_File* file, gs_TagPair* tagPair) {
 	tagPair->start = file->position;
 	gs_ReadBytes(file, &tagPair->tag, 4);

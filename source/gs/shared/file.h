@@ -695,6 +695,8 @@ GS_IMPORT gs_bool gs_FindTag(gs_File* file, gs_tag tag, gs_TagPair* out_tag);
 
 GS_IMPORT void gs_FileCopy(gs_File* dst, gs_File* src, uint32 length);
 
+GS_IMPORT void gs_CopyString(gs_File* dst, gs_File* src);
+
 GS_IMPORT void gs_WriteStr(gs_File* dst, const char* str);
 
 GS_IMPORT void gs_WriteFmt(gs_File* dst, const char* fmt, ...);
