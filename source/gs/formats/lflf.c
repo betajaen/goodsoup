@@ -81,8 +81,6 @@ GS_PRIVATE int loadScript(gs_File* srcFile, uint32 scriptLength, uint8 scriptTyp
 
 	/* TODO: Add to the room. */
 
-	gs_SaveScriptFile(script, SSF_Text);	// Temp.
-
 	return 0;
 }
 

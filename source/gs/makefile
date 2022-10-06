@@ -25,6 +25,8 @@ OBJ =	shared/error.o \
 		events/events.o \
 		vm_context.o \
 		vm_stack.o\
+		vm_script_gs8.o\
+		vm_script_la8.o\
 		room.o \
 		script.o \
 		script_la8.o \

@@ -23,17 +23,9 @@
 #include "shared/file.h"
 
 #include "script.h"
-#include "script_iterator.h"
-#include "script_schema8.h"
 
 GS_PRIVATE void convertLA8ToGS8(gs_File* file, gs_Script* script) {
-
-	gs_ScriptIterator it;
-	gs_ScriptIteratorInitialize(script, &it);
-
-	while (gs_ScriptIteratorNext(&it)) {
-		
-	}
+	/* TODO */
 }
 
 GS_EXPORT void gs__SaveScriptData_GS8(gs_File* file, gs_Script* script) {
