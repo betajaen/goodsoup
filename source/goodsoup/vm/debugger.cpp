@@ -20,6 +20,7 @@
 #include "debugger.h"
 #include "vm.h"
 #include "../debug.h"
+#include "../string.h"
 
 #define GS_VM_DEBUG_COMMENTS 1
 #define GS_VM_DEBUG_SCRIPT 1
