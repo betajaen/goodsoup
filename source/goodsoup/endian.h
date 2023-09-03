@@ -126,11 +126,11 @@ namespace gs
 		*(uint32 *)(ptr) = value;
 	}
 
-	inline uint16 READ_BE_INT16(const void *ptr) {
-		return *(const uint16 *)(ptr);
+	inline int16 READ_BE_INT16(const void *ptr) {
+		return *(const int16 *)(ptr);
 	}
-	inline uint32 READ_BE_INT32(const void *ptr) {
-		return *(const uint32 *)(ptr);
+	inline int32 READ_BE_INT32(const void *ptr) {
+		return *(const int32 *)(ptr);
 	}
 	inline void WRITE_BE_INT16(void *ptr, int16 value) {
 		*(uint16 *)(ptr) = value;
@@ -174,17 +174,17 @@ inline uint16 READ_LE_UINT16(const void *ptr) {
 	inline void WRITE_LE_UINT32(void *ptr, uint32 value) {
 		*(uint32 *)(ptr) = value;
 	}
-	inline uint16 READ_LE_INT16(const void *ptr) {
-		return *(const uint16 *)(ptr);
+	inline int16 READ_LE_INT16(const void *ptr) {
+		return *(const int16 *)(ptr);
 	}
-	inline uint32 READ_LE_INT32(const void *ptr) {
-		return *(const uint32 *)(ptr);
+	inline int32 READ_LE_INT32(const void *ptr) {
+		return *(const int32 *)(ptr);
 	}
 	inline void WRITE_LE_INT16(void *ptr, int16 value) {
-		*(uint16 *)(ptr) = value;
+		*(int16 *)(ptr) = value;
 	}
 	inline void WRITE_LE_INT32(void *ptr, int32 value) {
-		*(uint32 *)(ptr) = value;
+		*(int32 *)(ptr) = value;
 	}
 	inline uint16 READ_BE_UINT16(const void *ptr) {
 		const byte *b = (const byte *)ptr;

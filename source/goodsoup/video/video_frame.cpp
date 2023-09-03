@@ -340,6 +340,7 @@ namespace gs
 		AudioSampleFrame_S16MSB* sampleFrame = _audio.pullFront();
 
 		while(sampleFrame != NULL) {
+        /*
 			AudioSample_S16MSB *sample = audioStream->allocateSample();
 
 			sample->userMessage = getNum();
@@ -348,7 +349,7 @@ namespace gs
 			sample->pos = 0;
 			sample->remaining = 2048;
 			audioStream->pushSample(sample);
-
+        */
 			sampleFrame = _audio.pullFront();
 		}
 
