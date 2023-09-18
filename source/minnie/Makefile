@@ -4,7 +4,8 @@ LDFLAGS=-noixemul -noixemul -fno-exceptions -fno-rtti -fno-threadsafe-statics
 
 OBJS = entry.o \
        main.o \
-       memory.o
+       memory.o \
+       requester.o
 
 PROGRAM = ../../dist/monkey3
 

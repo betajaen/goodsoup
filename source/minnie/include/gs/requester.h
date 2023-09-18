@@ -15,15 +15,21 @@
  *
  */
 
-#include "gs/types.h"
-#include "gs/containers.h"
-#include "gs/buffer_impl.h"
-#include "gs/requester.h"
+#ifndef __GS_REQUESTER_H
+#define __GS_REQUESTER_H
 
-int gs_main(ULONG param) {
-    //gs::Buffer<ULONG> parts;
-    //parts.release();
-    //auto buf = gs::buffer::allocate<ULONG, gs::AllocationType::Chip>(128*1024);
-    //gs::requester_fmt("Hello", "Test %ld %ld %s %lx", "OK", (ULONG) 1234UL, (ULONG) 56789UL, "Hello", buf.getData());
-    return 0;
+#if !defined(__AMIGA__)
+#error "Only Amiga supported!"
+#endif
+
+#include <exec/types.h>
+
+namespace gs {
+
+    LONG requester_str(CONST_STRPTR title, CONST_STRPTR text, CONST_STRPTR options);
+
+    LONG requester_fmt(CONST_STRPTR title, CONST_STRPTR text, CONST_STRPTR options, ...);
+
 }
+
+#endif

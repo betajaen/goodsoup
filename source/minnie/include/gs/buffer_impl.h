@@ -23,7 +23,7 @@
 namespace gs {
 
     namespace internal { namespace memory {
-        APTR __AllocateInternal(APTR data, ULONG byteSize, AllocationType allocationType, bool clear);
+        APTR __AllocateInternal(ULONG byteSize, AllocationType allocationType, bool clear);
         APTR __ReallocateInternal(APTR data, ULONG byteSize, AllocationType allocationType, bool copy);
         void __ReleaseInternal(APTR data, ULONG byteSize, AllocationType allocationType);
     }}
@@ -40,6 +40,21 @@ namespace gs {
             owned = false;
         }
 
+
+    }
+
+    namespace buffer {
+
+        template<typename T, AllocationType AT>
+        inline Buffer<T, AT> acquire(T* data, ULONG length) {
+            return Buffer<T, AT>(data, length, false);
+        }
+
+        template<typename T, AllocationType AT = AllocationType::Any>
+        inline Buffer<T, AT> allocate(ULONG length) {
+            APTR mem = internal::memory::__AllocateInternal(length * sizeof(T), AT, true);
+            return Buffer<T, AT>(static_cast<T*>(mem), length, true);
+        }
 
     }
 

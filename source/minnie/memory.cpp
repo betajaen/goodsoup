@@ -18,11 +18,12 @@
 #include <proto/exec.h>
 
 #include "gs/containers.h"
+#include "gs/requester.h"
 
 namespace gs {
 
     namespace internal { namespace memory {
-        APTR __AllocateInternal(APTR data, ULONG byteSize, AllocationType allocationType, bool clear) {
+        APTR __AllocateInternal(ULONG byteSize, AllocationType allocationType, bool clear) {
             ULONG requirements = 0UL;
 
             if (allocationType == AllocationType::Chip) {
@@ -36,7 +37,11 @@ namespace gs {
                 requirements |= MEMF_CLEAR;
             }
 
-            return AllocVec(byteSize, requirements);
+            APTR mem = AllocVec(byteSize, requirements);
+            if (mem == nullptr) {
+                requester_fmt("Goodsoup - Error", "Out of memory!\n\nCould not allocate %ld bytes for %s memory.", "OK", byteSize, allocationType == AllocationType::Chip ? "Chip" : "Fast");
+            }
+            return mem;
         }
 
         APTR __ReallocateInternal(APTR data, ULONG byteSize, AllocationType allocationType, bool copy) {
