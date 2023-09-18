@@ -38,6 +38,11 @@ typedef uint16_t  USHORT;
 
 namespace gs {
 
+    enum class AllocationType;
+
+    template<typename T, AllocationType AT>
+    class Buffer;
+
 }
 
 #endif

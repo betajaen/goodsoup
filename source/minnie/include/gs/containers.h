@@ -32,7 +32,7 @@ namespace gs {
         Any = Fast
     };
 
-    template<typename T, AllocationType AT = AllocationType::Any>
+    template<typename T, AllocationType AT>
     class Buffer final {
     private:
         T* data = nullptr;
