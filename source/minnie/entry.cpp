@@ -15,6 +15,8 @@
  *
  */
 
+#include "gs/types.h"
+
 #include <proto/exec.h>
 #include <proto/dos.h>
 #include <proto/intuition.h>

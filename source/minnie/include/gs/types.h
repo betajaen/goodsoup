@@ -15,12 +15,29 @@
  *
  */
 
-#include "gs/types.h"
-#include "gs/containers.h"
-#include "gs/buffer_impl.h"
+#ifndef __GS_TYPES_H
+#define __GS_TYPES_H
 
-int gs_main(ULONG param) {
-    //gs::Buffer<ULONG> parts;
-    //parts.release();
-    return 0;
+#if defined(__AMIGA__)
+#include <exec/types.h>
+#else
+#include <stdint.h>
+
+typedef uint8_t  UBYTE;
+typedef uint16_t UWORD;
+typedef uint32_t ULONG;
+typedef int8_t   BYTE;
+typedef int16_t  WORD;
+typedef int32_t  LONG;
+typedef void*    APTR;
+typedef int16_t  SHORT;
+typedef uint16_t  USHORT;
+
+#endif
+
+
+namespace gs {
+
 }
+
+#endif

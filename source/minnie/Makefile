@@ -1,9 +1,10 @@
 CXX=/opt/amiga/bin/m68k-amigaos-gcc
-CXXFLAGS=-I. -std=c++11 -Wall  -noixemul -fno-exceptions -fno-rtti -fno-threadsafe-statics -m68020
+CXXFLAGS=-Iinclude -std=c++11 -Wall  -noixemul -fno-exceptions -fno-rtti -fno-threadsafe-statics -m68020
 LDFLAGS=-noixemul -noixemul -fno-exceptions -fno-rtti -fno-threadsafe-statics
 
 OBJS = entry.o \
-       main.o
+       main.o \
+       memory.o
 
 PROGRAM = ../../dist/monkey3
 
