@@ -23,3 +23,7 @@ goodsoup.lha
 *.GSV
 *.GSI
 source/gs/CppProperties.json
+
+*.rom
+*.hdf
+.DS_Store
