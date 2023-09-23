@@ -18,23 +18,11 @@
 #ifndef __GS_TYPES_H
 #define __GS_TYPES_H
 
-#if defined(__AMIGA__)
-#include <exec/types.h>
-#else
-#include <stdint.h>
-
-typedef uint8_t  UBYTE;
-typedef uint16_t UWORD;
-typedef uint32_t ULONG;
-typedef int8_t   BYTE;
-typedef int16_t  WORD;
-typedef int32_t  LONG;
-typedef void*    APTR;
-typedef int16_t  SHORT;
-typedef uint16_t  USHORT;
-
+#if !defined(__AMIGA__)
+#error "Only Amiga supported!"
 #endif
 
+#include <exec/types.h>
 
 namespace gs {
 
