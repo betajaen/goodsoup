@@ -17,6 +17,8 @@ dist/RESOURCE
 dist/resource
 dist/README
 
+
+
 goodsoup.lha
 *.log
 *.GSF
@@ -32,4 +34,6 @@ source/gs/CppProperties.json
 tests/MONKEY3_1
 tests/MONKEY3_2
 tests/COMI
+
+install/Install/monkey3
 

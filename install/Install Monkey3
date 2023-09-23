@@ -1,0 +1,35 @@
+(set @app-name "Curse of Monkey Island")
+(set @default-dest "COMI:")
+
+(complete 0)
+(welcome "Welcome to Curse of Monkey Insland!\n")
+(complete 10)
+(message "This installer requires the original COMI files available, this may be in the form of:\n 1. The original Windows CDs\n 2. A Digital release of the game that has been copied to this computer.\n\nAfter the installation these files may be removed.\n")
+
+(set #monkey3-root-dir
+  (askdir
+    (prompt "Please choose a location for installing Curse of Monkey Island\nA drawer called \"COMI\" will be created.")
+    (help "Choose where to install Curse of Monkey Island using the controls in the Installer window")
+    (default "Work:")
+  )
+)
+(set @default-dest #monkey3-root-dir)
+(set @default-dest (tackon @default-dest "COMI"))
+
+(copyfiles
+    (source "Install/monkey3.info")
+    (dest @default-dest)
+)
+
+(copyfiles
+    (source "Install/monkey3")
+    (dest @default-dest)
+)
+
+(copyfiles
+    (source "MONKEY3_1:COMI.LA0")
+    (dest @default-dest)
+)
+
+
+(complete 100)
