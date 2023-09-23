@@ -2,6 +2,7 @@
 .vscode
 .idea
 *.o
+*.uaem
 
 dist/monkey3
 dist/saves
@@ -27,3 +28,8 @@ source/gs/CppProperties.json
 *.rom
 *.hdf
 .DS_Store
+
+tests/MONKEY3_1
+tests/MONKEY3_2
+tests/COMI
+

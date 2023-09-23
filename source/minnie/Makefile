@@ -9,12 +9,13 @@ OBJS = entry.o \
 	   chunk.o \
        file.o
 
-PROGRAM = ../../dist/monkey3
+PROGRAM = ../../install/Install/monkey3
 
 all: $(PROGRAM)
 
 $(PROGRAM): $(OBJS)
 	$(CXX) $(CXXFLAGS) $(OBJS) -o $(PROGRAM) $(LDFLAGS)
+	cp $(PROGRAM) ../../tests/COMI/monkey3
 
 %.o: %.cpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@
@@ -29,7 +30,13 @@ test:
 	--zorro_iii_memory=16384 \
 	--kickstart_file=../../tests/kickstart.rom \
 	--hard_drive_0=../../tests/dh0.hdf \
-	--hard_drive_1=../../dist \
-	--hard_drive_1_label=COMI \
+	--hard_drive_1=../../install \
+	--hard_drive_1_label="Monkey3 Install" \
+	--hard_drive_2=../../tests/MONKEY3_1 \
+	--hard_drive_2_label=MONKEY3_1 \
+	--hard_drive_3=../../tests/MONKEY3_2 \
+	--hard_drive_3_label=MONKEY3_2 \
+	--hard_drive_4=../../tests/COMI \
+	--hard_drive_4_label=COMI \
 	--floppy_drive_volume=0 \
 	--floppy_drive_volume_empty=0
