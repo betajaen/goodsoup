@@ -39,8 +39,6 @@ namespace gs {
             length = 0UL;
             owned = false;
         }
-
-
     }
 
     namespace buffer {

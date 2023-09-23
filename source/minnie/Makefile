@@ -6,6 +6,7 @@ OBJS = entry.o \
        main.o \
        memory.o \
        requester.o \
+	   chunk.o \
        file.o
 
 PROGRAM = ../../dist/monkey3

@@ -29,6 +29,11 @@ namespace gs {
         }
     }
 
+    void ReadFile::setHandle(LONG newHandle) {
+        release();
+        handle = newHandle;
+    }
+
     ULONG ReadFile::getPosition() const {
         ULONG rv = 0;
 
@@ -79,24 +84,8 @@ namespace gs {
                 return false;
             }
 
-            rf.handle = fh;
+            rf.setHandle(fh);
             return true;
-        }
-
-        ReadFileChunk readLaChunk(ReadFile& rf) {
-            return ReadFileChunk(); // TODO
-        }
-
-        ReadFileChunk readSanChunk(ReadFile& rf) {
-            return ReadFileChunk(); // TODO
-        }
-
-        ReadFileChunk readGsChunk(ReadFile& rf) {
-            return ReadFileChunk(); // TODO
-        }
-
-        void skipChunk(ReadFile& rf, ReadFileChunk& chunk) {
-            rf.setPosition(chunk.getNext());
         }
 
     }

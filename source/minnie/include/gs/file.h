@@ -26,26 +26,10 @@
 
 namespace gs {
 
-    class ReadFile;
-    class ReadFileChunk;
-
-    namespace readfile {
-
-        bool open(ReadFile& rf, CONST_STRPTR path);
-
-        ReadFileChunk readLaChunk(ReadFile& rf);
-        ReadFileChunk readSanChunk(ReadFile& rf);
-        ReadFileChunk readGsChunk(ReadFile& rf);
-
-        void skipChunk(ReadFile& rf, ReadFileChunk& chunk);
-    }
-
     class ReadFile final {
     private:
         LONG handle = 0L;
     public:
-
-        friend bool readfile::open(ReadFile& rf, CONST_STRPTR path);
 
         ReadFile() = default;
 
@@ -57,6 +41,11 @@ namespace gs {
             release();
         }
 
+        LONG getHandle() const {
+            return handle;
+        }
+        
+        void setHandle(LONG handle);
         void release();
 
         ReadFile(const ReadFile&) = delete;
@@ -75,47 +64,6 @@ namespace gs {
         operator bool() const {
             return handle != 0L;
         }
-    };
-
-    class ReadFileChunk final {
-        private:
-            ULONG chunk = 0;
-            ULONG start = 0;
-            ULONG size = 0;
-            ULONG next = 0;
-        public:
-
-
-            ReadFileChunk() = default;
-
-            ReadFileChunk(ULONG chunk_, ULONG start_, ULONG size_, ULONG next_)
-                : chunk(chunk_), start(start_), size(size_), next(next_) {
-            }
-
-            inline ULONG getChunk() const {
-                return chunk;
-            }
-
-            inline bool isChunk(ULONG test) const {
-                return chunk == test;
-            }
-
-            inline bool isEnd() const {
-                return chunk == 0;
-            }
-
-            inline ULONG getStart() const {
-                return start;
-            }
-
-            inline ULONG getSize() const {
-                return size;
-            }
-
-            inline ULONG getNext() const {
-                return next;
-            }
-
     };
 
 
