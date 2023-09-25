@@ -89,5 +89,35 @@ namespace gs {
         }
 
     }
+
+
+    void AppendFile::release() {
+        if (handle != 0L) {
+            Close(handle);
+            handle = 0L;
+        }
+    }
+
+    void AppendFile::setHandle(LONG newHandle) {
+        release();
+        handle = newHandle;
+    }
+
+     namespace appendfile {
+
+        bool open(AppendFile& af, CONST_STRPTR path) {
+            af.release();
+
+            BPTR fh = Open(path, MODE_NEWFILE);
+
+            if (fh == 0L) {
+                return false;
+            }
+
+            af.setHandle(fh);
+            return true;
+        }
+
+    }
 }
 

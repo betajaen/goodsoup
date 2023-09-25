@@ -36,6 +36,17 @@ namespace gs {
         }
 
     }
+
+    namespace appendfile {
+
+        bool open(AppendFile& rf, CONST_STRPTR path);
+
+        template<typename T>
+        bool writeData(AppendFile& rf, T* data) {
+            return rf.write(data, sizeof(T)) = sizeof(T);
+        }
+
+    }
 }
 
 

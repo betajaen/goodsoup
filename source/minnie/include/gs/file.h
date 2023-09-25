@@ -44,7 +44,7 @@ namespace gs {
         LONG getHandle() const {
             return handle;
         }
-        
+
         void setHandle(LONG handle);
         void release();
 
@@ -66,8 +66,42 @@ namespace gs {
         }
     };
 
+    class AppendFile final {
+    private:
+        LONG handle = 0L;
+    public:
 
+        AppendFile() = default;
 
+        AppendFile(LONG handle_) :
+            handle(handle_) {
+        }
+
+        ~AppendFile() {
+            release();
+        }
+
+        LONG getHandle() const {
+            return handle;
+        }
+        
+        void setHandle(LONG handle);
+        void release();
+
+        AppendFile(const AppendFile&) = delete;
+        AppendFile& operator=(const AppendFile&) = delete;
+        AppendFile(AppendFile&) = delete;
+        AppendFile& operator=(AppendFile&) = delete;
+
+        AppendFile(AppendFile&& fh) = default;
+        AppendFile& operator=(AppendFile&&) = default;
+
+        ULONG write(const APTR buffer, ULONG length_bytes);
+
+        operator bool() const {
+            return handle != 0L;
+        }
+    };
 
 }
 
