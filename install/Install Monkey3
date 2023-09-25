@@ -1,35 +1,91 @@
 (set @app-name "Curse of Monkey Island")
 (set @default-dest "COMI:")
 
+(set @default-dest "Work:")(set #monkey3-origin 0)
+
 (complete 0)
-(welcome "Welcome to Curse of Monkey Insland!\n")
+(welcome "Welcome to Curse of Monkey Island!\n")
 (complete 10)
-(message "This installer requires the original COMI files available, this may be in the form of:\n 1. The original Windows CDs\n 2. A Digital release of the game that has been copied to this computer.\n\nAfter the installation these files may be removed.\n")
 
-(set #monkey3-root-dir
-  (askdir
-    (prompt "Please choose a location for installing Curse of Monkey Island\nA drawer called \"COMI\" will be created.")
-    (help "Choose where to install Curse of Monkey Island using the controls in the Installer window")
-    (default "Work:")
-  )
-)
-(set @default-dest #monkey3-root-dir)
-(set @default-dest (tackon @default-dest "COMI"))
+(procedure ASK_DEST
 
-(copyfiles
-    (source "Install/monkey3.info")
-    (dest @default-dest)
+    (set #monkey3-root-dir
+    (askdir
+        (prompt "Please choose a location for installing Curse of Monkey Island\nA drawer called \"COMI\" will be created.")
+        (help "Choose where to install Curse of Monkey Island using the controls in the Installer window")
+        (default "Work:")
+    )
+    )
+    (set @default-dest #monkey3-root-dir)
+    (set @default-dest (tackon @default-dest "COMI"))
+
 )
 
-(copyfiles
-    (source "Install/monkey3")
-    (dest @default-dest)
-)
+(procedure ASK_SOURCE
+    (set #monkey-source
+        (askchoice
+            (prompt ("Where does your game come from?"))
+            (default 0)
+            (choices
+                "Original DOS/Windows Release (2 CD-ROM)"
+                "Digital Release (GOG.com, Steam, etc.)"
+            )
+            (help "Where would you like to install the game from?")
+        )
+    )
+    
+    (select #monkey-source
+        (message "The COMI Game comes on two CDs, you should insert them into your CD-ROM drive when asked.\n\nNote:You may use an assign if needed.")
+        (message "You should have the following files and drawers from the COMI game made available to your Amiga computer.\n\nThese are:\nCOMI.LA0, COMI.LA1 and COMI.LA2\nRESOURCE (drawer)\n\nNote: These files may be deleted from your Amiga after the installation has been completed.")
+    )
+    
+) ; procedure ASK_SOURCE
 
-(copyfiles
-    (source "MONKEY3_1:COMI.LA0")
-    (dest @default-dest)
-)
+(procedure INSTALL_EXECUTABLES
 
+    (copyfiles
+        (source "Install/monkey3.info")
+        (dest @default-dest)
+    )
+
+    (copyfiles
+        (source "Install/monkey3")
+        (dest @default-dest)
+    )
+
+) ; procedure INSTALL_EXECUTABLES
+
+(procedure INSTALL_2CD
+
+    (askdisk
+        (dest "MONKEY3_1")
+        (prompt "Please insert the Monkey Island 3 CD 1 in any drive.")
+        (help "The Monkey Island 3 CD 1 is labeled 'MONKEY3_1'.\n\nThis is required to copy and convert the first half the game.")
+    )
+
+    (copyfiles
+        (source "MONKEY3_1:COMI.LA0")
+        (dest @default-dest)
+    )
+
+
+) ; procedure INSTALL_2CD
+
+
+(procedure INSTALL_DIGITAL
+
+    (message "Sorry. Not currently supported!")
+    (exit)
+
+) ; procedure INSTALL_DIGITAL
+
+(ASK_SOURCE)
+(ASK_DEST)
+(INSTALL_EXECUTABLES)
+
+(select #monkey-source
+    (INSTALL_2CD)
+    (INSTALL_DIGITAL)
+)
 
 (complete 100)

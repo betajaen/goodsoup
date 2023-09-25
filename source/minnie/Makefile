@@ -36,7 +36,7 @@ test:
 	--hard_drive_2_label=MONKEY3_1 \
 	--hard_drive_3=../../tests/MONKEY3_2 \
 	--hard_drive_3_label=MONKEY3_2 \
-	--hard_drive_4=../../tests/COMI \
-	--hard_drive_4_label=COMI \
+	--hard_drive_4=../../tests/Work \
+	--hard_drive_4_label=Work \
 	--floppy_drive_volume=0 \
 	--floppy_drive_volume_empty=0
