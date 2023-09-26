@@ -7,7 +7,11 @@ OBJS = entry.o \
        memory.o \
        requester.o \
 	   chunk.o \
-       file.o
+       file.o \
+	   convert.o \
+	   game.o \
+	   player.o \
+	   viewer.o
 
 PROGRAM = ../../install/Install/monkey3
 
@@ -15,7 +19,8 @@ all: $(PROGRAM)
 
 $(PROGRAM): $(OBJS)
 	$(CXX) $(CXXFLAGS) $(OBJS) -o $(PROGRAM) $(LDFLAGS)
-	cp $(PROGRAM) ../../tests/COMI/monkey3
+	mkdir -p ../../tests/Work/COMI
+	cp $(PROGRAM) ../../tests/Work/COMI/monkey3
 
 %.o: %.cpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@

@@ -36,12 +36,14 @@ struct IntuitionBase* IntuitionBase = NULL;
 struct GfxBase* GfxBase = NULL;
 extern struct WBStartup* _WBenchMsg;
 
-static ULONG string_to_int(STRPTR str);
-extern int gs_main(ULONG param);
+static STRPTR string_skip_ws(STRPTR str);
+static STRPTR string_to_ulong(STRPTR str, ULONG* value);
+extern int gs_main(ULONG param, ULONG param2);
 
 int main(void) {
 
-	int param, rv;
+	ULONG param, param2;
+	int rv;
 
 	if ((DOSBase = (struct DosLibrary*)OpenLibrary("dos.library", 33)) == NULL) {
 		return RETURN_FAIL;
@@ -86,12 +88,23 @@ int main(void) {
 	}
 
 	param = 0;
+	param2 = 0;
 
 	if (_WBenchMsg == NULL && __commandline != NULL) {
-		param = string_to_int(__commandline);
+		STRPTR cmd = __commandline;
+		cmd = string_skip_ws(cmd);
+		if (*cmd != 0) {
+			cmd = string_to_ulong(cmd, &param);
+			cmd = string_skip_ws(cmd);
+			
+			if (*cmd != 0) {
+				cmd = string_to_ulong(cmd, &param2);
+			}
+		}
+
 	}
 
-	rv = gs_main(param);
+	rv = gs_main(param, param2);
 
 	if (_WBenchMsg) {
 		EasyStruct str;
@@ -114,7 +127,15 @@ int main(void) {
 	return rv;
 }
 
-static ULONG string_to_int(STRPTR str) {
+static STRPTR string_skip_ws(STRPTR str) {
+	ULONG num = 0;
+	while(*str > 0 && *str < 33) {
+		str++;
+	}
+	return str;
+}
+
+static STRPTR string_to_ulong(STRPTR str, ULONG* value) {
 	ULONG num = 0;
 	while(*str != 0) {
 		if (*str < '0' || *str > '9')
@@ -126,5 +147,6 @@ static ULONG string_to_int(STRPTR str) {
 		str++;
 	}
 
-	return num;
+	*value = num;
+	return str;
 }

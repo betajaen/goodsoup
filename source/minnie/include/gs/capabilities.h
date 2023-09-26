@@ -15,8 +15,8 @@
  *
  */
 
-#ifndef __GS_TYPES_H
-#define __GS_TYPES_H
+#ifndef __GS_CAPABILITIES_H
+#define __GS_CAPABILITIES_H
 
 #if !defined(__AMIGA__)
 #error "Only Amiga supported!"
@@ -24,17 +24,31 @@
 
 #include <exec/types.h>
 
-constexpr auto kReturnOkay = 0;
-constexpr auto kReturnWarn = 5;
-constexpr auto kReturnError = 10;
-constexpr auto kReturnFail = 20;
-
 namespace gs {
 
-    enum class AllocationType;
+    class AnimationCapability {
 
-    template<typename T, AllocationType AT>
-    class Buffer;
+        public:
+        enum class Animation {
+            Movie,
+            Keyframes
+        };
+
+        enum class Subtitles {
+            Drawn,
+            Baked
+        };
+
+        enum class FrameEncoding {
+            Chunky,
+            Planar
+        };
+
+        Animation animation = Animation::Movie;
+        bool audio = true;
+        Subtitles subtitles = Subtitles::Baked;
+        FrameEncoding encoding = FrameEncoding::Chunky;
+    };
 
 }
 

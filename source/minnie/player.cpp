@@ -15,27 +15,11 @@
  *
  */
 
-#ifndef __GS_TYPES_H
-#define __GS_TYPES_H
+#include "gs/types.h"
+#include "gs/containers.h"
+#include "gs/buffer_impl.h"
+#include "gs/requester.h"
 
-#if !defined(__AMIGA__)
-#error "Only Amiga supported!"
-#endif
-
-#include <exec/types.h>
-
-constexpr auto kReturnOkay = 0;
-constexpr auto kReturnWarn = 5;
-constexpr auto kReturnError = 10;
-constexpr auto kReturnFail = 20;
-
-namespace gs {
-
-    enum class AllocationType;
-
-    template<typename T, AllocationType AT>
-    class Buffer;
-
+int gs_player(ULONG what, ULONG capabilities) {
+    return 0;
 }
-
-#endif

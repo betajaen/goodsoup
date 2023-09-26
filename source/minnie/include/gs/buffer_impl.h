@@ -53,7 +53,7 @@ namespace gs {
             APTR mem = internal::memory::__AllocateInternal(length * sizeof(T), AT, true);
             return Buffer<T, AT>(static_cast<T*>(mem), length, true);
         }
-
+        
     }
 
 }
