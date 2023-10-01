@@ -49,6 +49,7 @@ namespace gs {
         void beginFile(AppendFile& af, ULONG features);
         void endFile(AppendFile& af);
         ULONG beginChunk(ULONG name);
+        void endChunk(ULONG pos);
 
 
     }

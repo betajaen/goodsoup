@@ -34,27 +34,27 @@ namespace gs {
         handle = newHandle;
     }
 
-    ULONG ReadFile::getPosition() const {
+    FileOffset ReadFile::getPosition() const {
         ULONG rv = 0;
 
         if (handle == 0L) {
-            return rv;
+            return FileOffset();
         }
 
         rv = Seek(handle, OFFSET_CURRENT, 0);
-        return rv;
+        return FileOffset(rv);
     }
 
-    ULONG ReadFile::setPosition(ULONG position) {
-        ULONG rv = 0;
+    FileOffset ReadFile::setPosition(FileOffset position) {
+        LONG rv;
 
         if (handle == 0L) {
-            return rv;
+            return FileOffset();
         }
 
         Seek(handle, OFFSET_BEGINNING, position);
         rv = Seek(handle, OFFSET_CURRENT, 0L);
-        return rv;
+        return FileOffset(rv);
     }
 
     ULONG ReadFile::read(APTR data, ULONG length) {

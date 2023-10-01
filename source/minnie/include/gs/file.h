@@ -23,8 +23,12 @@
 #endif
 
 #include <exec/types.h>
+#include "gs/distinct.h"
 
 namespace gs {
+
+    typedef Distinct<ULONG, 0x28ec5a9d> FileOffset;
+
 
     class ReadFile final {
     private:
@@ -56,8 +60,8 @@ namespace gs {
         ReadFile(ReadFile&& fh) = default;
         ReadFile& operator=(ReadFile&&) = default;
 
-        ULONG setPosition(ULONG position);
-        ULONG getPosition() const;
+        FileOffset setPosition(FileOffset position);
+        FileOffset getPosition() const;
 
         ULONG read(APTR buffer, ULONG length_bytes);
 

@@ -39,7 +39,7 @@ namespace gs {
         }
 
         void skipChunk(ReadFile& rf, Chunk& chunk) {
-            rf.setPosition(chunk.next);
+            rf.setPosition(FileOffset(chunk.next));
         }
 
     }
