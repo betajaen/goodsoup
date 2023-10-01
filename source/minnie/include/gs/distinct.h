@@ -15,8 +15,8 @@
  *
  */
 
-#ifndef __GS_TYPES_H
-#define __GS_TYPES_H
+#ifndef __GS_DISTINCT_H
+#define __GS_DISTINCT_H
 
 #if !defined(__AMIGA__)
 #error "Only Amiga supported!"
@@ -24,20 +24,41 @@
 
 #include <exec/types.h>
 
-constexpr auto kReturnOkay = 0;
-constexpr auto kReturnWarn = 5;
-constexpr auto kReturnError = 10;
-constexpr auto kReturnFail = 20;
-
 namespace gs {
 
-    enum class AllocationType;
-
-    template<typename T, AllocationType AT>
-    class Buffer;
-
     template<typename T, ULONG Tag>
-    struct Distinct;
+    struct Distinct final {
+    private:
+        const T value;
+    public:
+
+        typedef Distinct<T, Tag> ThisType;
+
+        inline Distinct() : value {} {}
+
+        inline explicit Distinct(T value_) : value{value_} {}
+
+
+        inline ThisType operator+(const ThisType& rhs) {
+            return Distinct(value + rhs.value);
+        }
+
+        inline ThisType operator-(const ThisType& rhs) {
+            return Distinct(value - rhs.value);
+        }
+
+        inline operator bool() const {
+            return value != 0;
+        }
+
+        inline const T getValue() const {
+            return value;
+        }
+
+        inline T getValue() {
+            return value;
+        }
+    };
 
 }
 
