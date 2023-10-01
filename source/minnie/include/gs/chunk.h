@@ -29,14 +29,14 @@ namespace gs {
     class Chunk final {
     public:
 
-        const ULONG chunk = 0;
-        const ULONG start = 0;
-        const ULONG size = 0;
-        const ULONG next = 0;
+        const ULONG chunk = 0UL;
+        const LONG start = 0L;
+        const ULONG size = 0UL;
+        const LONG next = 0L;
 
         Chunk() = default;
 
-        Chunk(ULONG chunk_, ULONG start_, ULONG size_, ULONG next_)
+        Chunk(ULONG chunk_, LONG start_, ULONG size_, LONG next_)
             : chunk(chunk_), start(start_), size(size_), next(next_) {
         }
 
