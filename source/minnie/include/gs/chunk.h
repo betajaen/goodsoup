@@ -27,28 +27,26 @@
 namespace gs {
 
     class Chunk final {
-        
-        public:
+    public:
 
-            const ULONG chunk = 0;
-            const ULONG start = 0;
-            const ULONG size = 0;
-            const ULONG next = 0;
+        const ULONG chunk = 0;
+        const ULONG start = 0;
+        const ULONG size = 0;
+        const ULONG next = 0;
 
-            Chunk() = default;
+        Chunk() = default;
 
-            Chunk(ULONG chunk_, ULONG start_, ULONG size_, ULONG next_)
-                : chunk(chunk_), start(start_), size(size_), next(next_) {
-            }
+        Chunk(ULONG chunk_, ULONG start_, ULONG size_, ULONG next_)
+            : chunk(chunk_), start(start_), size(size_), next(next_) {
+        }
 
-            bool operator==(const ULONG four_cc);
+        bool operator==(const ULONG four_cc);
 
-            operator bool() const {
-                return chunk != 0UL;
-            }
+        operator bool() const {
+            return chunk != 0UL;
+        }
 
     };
-
 
 }
 

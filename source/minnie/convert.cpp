@@ -16,16 +16,19 @@
  */
 
 #include "gs/types.h"
-#include "gs/containers.h"
-#include "gs/buffer_impl.h"
-#include "gs/requester.h"
 
-int gs_convert(ULONG what, ULONG capabilities) {
+namespace gs {
+    namespace codecs {
+        int convert_la0(ULONG features);
+    }
+}
+
+int gs_convert(ULONG what, ULONG features) {
+
     int rv = 0;
     switch(what) {
-        case 2048:
-        {
-            // convert COMI.LA0
+        case 2048: {
+            rv = gs::codecs::convert_la0(features);
         }
         break;
     }

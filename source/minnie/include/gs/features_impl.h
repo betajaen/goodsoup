@@ -15,40 +15,39 @@
  *
  */
 
-#ifndef __GS_CAPABILITIES_H
-#define __GS_CAPABILITIES_H
+#ifndef __GS_CAPABILITIES_IMPL_H
+#define __GS_CAPABILITIES_IMPL_H
 
 #if !defined(__AMIGA__)
 #error "Only Amiga supported!"
 #endif
 
 #include <exec/types.h>
+#include "gs/features.h"
 
 namespace gs {
 
-    class AnimationCapability {
+    namespace features {
 
-        public:
-        enum class Animation {
-            Movie,
-            Keyframes
-        };
 
-        enum class Subtitles {
-            Drawn,
-            Baked
-        };
+        template<typename TEnum>
+        ULONG encode(const TEnum enumValue, ULONG existingValue) {
+            return (static_cast<ULONG>(enumValue) << static_cast<ULONG>(TEnum::kBitOffset)) | existingValue;
+        }
 
-        enum class FrameEncoding {
-            Chunky,
-            Planar
-        };
+        template<typename TEnum>
+        TEnum decode(ULONG enumValue) {
+            return static_cast<TEnum>((static_cast<ULONG>(enumValue) >> static_cast<ULONG>(TEnum::kBitOffset)) & ((1 << static_cast<ULONG>(TEnum::kBitSize)) - 1));
+        }
 
-        Animation animation = Animation::Movie;
-        bool audio = true;
-        Subtitles subtitles = Subtitles::Baked;
-        FrameEncoding encoding = FrameEncoding::Chunky;
-    };
+        template<typename TEnum>
+        bool decode(ULONG enumValue, TEnum wantedValue) {
+            return decode<TEnum>(enumValue) == wantedValue;
+        }
+
+    }
+
+
 
 }
 

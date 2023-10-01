@@ -46,6 +46,11 @@ namespace gs {
             return rf.write(data, sizeof(T)) = sizeof(T);
         }
 
+        void beginFile(AppendFile& af, ULONG features);
+        void endFile(AppendFile& af);
+        ULONG beginChunk(ULONG name);
+
+
     }
 }
 

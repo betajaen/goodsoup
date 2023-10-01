@@ -16,18 +16,18 @@
  */
 
 #include "gs/types.h"
-#include "gs/containers.h"
-#include "gs/buffer_impl.h"
-#include "gs/requester.h"
+#include "gs/features.h"
+#include "gs/features_impl.h"
 
-int gs_convert_la0(int param) {
-    int rv = 0;
-    switch(param) {
-        case 2048:
-        {
-            // convert COMI.LA0
+namespace gs {
+    namespace codecs {
+
+        int convert_la0(ULONG features) {
+            bool hasArrays = features::decode(features, features::Arrays::True);
+
+
+            return false;
         }
-        break;
     }
-    return rv;
 }
+

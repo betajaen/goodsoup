@@ -20,6 +20,6 @@
 #include "gs/buffer_impl.h"
 #include "gs/requester.h"
 
-int gs_player(ULONG what, ULONG capabilities) {
+int gs_player(ULONG what, ULONG features) {
     return 0;
 }

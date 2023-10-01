@@ -23,6 +23,7 @@
 namespace gs {
 
     class ReadFile;
+    class WriteFile;
     class Chunk;
 
     namespace chunk {

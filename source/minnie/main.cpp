@@ -23,9 +23,9 @@
 #include <proto/dos.h>
 
 extern int gs_game(int param);
-extern int gs_convert(ULONG what, ULONG capabilities);
-extern int gs_player(ULONG what, ULONG capabilities);
-extern int gs_viewer(ULONG what, ULONG capabilities);
+extern int gs_convert(ULONG what, ULONG features);
+extern int gs_player(ULONG what, ULONG features);
+extern int gs_viewer(ULONG what, ULONG features);
 
 int gs_main(ULONG param, ULONG param2) {
 

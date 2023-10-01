@@ -6,12 +6,13 @@ OBJS = entry.o \
        main.o \
        memory.o \
        requester.o \
-	   chunk.o \
+	chunk.o \
        file.o \
-	   convert.o \
-	   game.o \
-	   player.o \
-	   viewer.o
+	convert.o \
+	game.o \
+	player.o \
+	viewer.o \
+	codecs/la/la0.o
 
 PROGRAM = ../../install/Install/monkey3
 
