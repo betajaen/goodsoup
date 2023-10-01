@@ -128,7 +128,6 @@ int main(void) {
 }
 
 static STRPTR string_skip_ws(STRPTR str) {
-	ULONG num = 0;
 	while(*str > 0 && *str < 33) {
 		str++;
 	}
