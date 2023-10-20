@@ -1,5 +1,5 @@
 #include <proto/exec.h>
-#include "amiga/sdi/sdi_hook.h"
+#include "amiga/SDI/SDI_hook.h"
 
 struct AHIAudioCtrl;
 struct AHISoundMessage;
