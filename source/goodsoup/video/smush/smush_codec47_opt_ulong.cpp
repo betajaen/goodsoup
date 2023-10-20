@@ -182,7 +182,8 @@ namespace gs
 			int32 tmpPtr2 = tmpPtr;
 
 			while(len--) {
-				int16 m = READ_LE_INT16(smush_table_small + tmpPtr2);
+				uint16 m = READ_LE_UINT16(smush_table_small + tmpPtr2);
+				if (m >= 32768) m -= 32768;
 				*(bDst + m) = val;
 				tmpPtr2 += 2;
 			}
@@ -191,7 +192,8 @@ namespace gs
 			val = *src++;
 			tmpPtr2 = tmpPtr + 32;
 			while(len--) {
-				int16 m = READ_LE_INT16(smush_table_small + tmpPtr2);
+				uint16 m = READ_LE_UINT16(smush_table_small + tmpPtr2);
+				if (m >= 32768) m -= 32768;
 				*(bDst + m) = val;
 				tmpPtr2 += 2;
 			}
@@ -281,7 +283,8 @@ namespace gs
 			int32 tmpPtr2 = tmpPtr;
 
 			while(l--) {
-				int16 m = READ_LE_INT16(smush_table_big + tmpPtr2);
+				uint16 m = READ_LE_UINT16(smush_table_big + tmpPtr2);
+				if (m >= 32768) m -= 32768;
 				*(bDst + m) = val;
 				tmpPtr2 += 2;
 			}
@@ -290,7 +293,8 @@ namespace gs
 			val = *src++;
 			tmpPtr2 = tmpPtr + 128;
 			while(l--) {
-				int16 m = READ_LE_INT16(smush_table_big + tmpPtr2);
+				uint16 m = READ_LE_UINT16(smush_table_big + tmpPtr2);
+				if (m >= 32768) m -= 32768;
 				*(bDst + m) = val;
 				tmpPtr2 += 2;
 			}

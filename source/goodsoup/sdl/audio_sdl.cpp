@@ -85,6 +85,8 @@ namespace gs
 
 	bool openAudio() {
 
+        return false;
+
 		SDL_AudioSpec want, have;
 
 		SDL_memset(&want, 0, sizeof(want)); /* or SDL_zero(want) */
