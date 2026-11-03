@@ -17,7 +17,17 @@ In laymans terms; Goodsoup is "COMI.exe" for the Amiga.
 Goodsoup is a partial fork and reimplementation of the following codebases:
 
 	- ScummVM 0.9.1 (SCUMM V8) Code by the ScummVM Team.
-	- NScumm (NScumm.Scumm) Code by Valéry Sablonnière.
+	- NScumm (NScumm.Scumm) Code by ValÃ©ry SablonniÃ¨re.
+
+Note
+----
+
+I tend to visit this idea now and again, and tinker the code for a bit. This is not a serious project; please use the various ports of ScummVM to play Monkey Island 3 on the Amiga. One day, I may finish this, and have my dream of playing MI3 on my Amiga, but now, I have other things to do!
+
+AI Notice
+---------
+
+Written by Humans. This project is not written by an AI.
 
 Copying
 -------
